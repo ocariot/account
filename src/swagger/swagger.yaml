@@ -1,0 +1,298 @@
+swagger: '2.0'
+info:
+  version: "v1"
+  title: 'Project Base - API Reference'
+  description: "Esta é a documentação da API RESTful do **Project Base** que serve como um ponto de partida para criação de projetos em Typescript."
+  contact:
+    email: "douglas.rafael@nutes.uepb.edu.br"
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+    
+# API URL
+# host: 127.0.0.1:8000
+# basePath: /api/v1
+host: virtserver.swaggerhub.com
+basePath: /douglas.rafael/elderly-tracker/v1
+schemes:
+  - https
+consumes:
+- "application/json"
+produces:
+- "application/json"
+
+tags:
+- name: users
+  description: "Operações para o recurso usuário."
+
+paths:
+  /users:
+    get:
+      tags:
+        - users
+      summary: "Recupera usuários."
+      description: "Retorna lista com os usuários. A consulta suporta Seleção de Campos, Paginação, Ordenação e Filtragem."
+      operationId: getAllUsers
+      parameters:
+        - $ref: '#/parameters/fieldsParam'
+        - $ref: '#/parameters/offsetParam'
+        - $ref: '#/parameters/limitParam'
+        - $ref: '#/parameters/sortParam'
+        - $ref: '#/parameters/filterParam'
+      responses:
+        200:
+          description: "Lista de usuários."
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+        401:
+          description: "Autenticação falhou devido credenciais de autenticação inválidas."
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: "Usuário não possui permissão para acessar lista de usuários."
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
+          schema:
+            $ref: '#/definitions/Error'
+        406:
+          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
+          schema:
+            $ref: '#/definitions/Error'
+        429:
+          description: "O limite de taxa para requisições excedeu."
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
+          schema:
+            $ref: '#/definitions/Error'
+    post:
+      tags:
+        - users
+      summary: "Cadastra usuário."
+      description: "Cadastra um novo usuário."
+      operationId: addUser
+      parameters:
+        - name: "user"
+          in: "body"
+          required: true
+          description: "Dados do usuário que deseja salvar."
+          schema:
+            $ref: '#/definitions/User'
+      responses:
+        201:
+          description: "Usuário cadastrado com sucesso."
+          schema:
+            $ref: '#/definitions/User'
+        400:
+          description: "Requisição não pode ser atendida, sintaticamente incorreta ou viola o esquema. Normalmente ocorre devido problemas de validação, como campos que são esperados no corpo da requisição e não foram passados."
+          schema:
+            $ref: '#/definitions/Error'             
+        401:
+          description: "Autenticação falhou devido credenciais de autenticação inválidas."
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: "Usuário não possui permissão para cadastrar usuários."
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
+          schema:
+            $ref: '#/definitions/Error'
+        406:
+          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
+          schema:
+            $ref: '#/definitions/Error'
+        415:
+          description: "O Servidor não oferece suporte ao formato de carga útil solicitado. Apenas application/json é aceito."
+          schema:
+            $ref: '#/definitions/Error'        
+        429:
+          description: "O limite de taxa para requisições excedeu."
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
+          schema:
+            $ref: '#/definitions/Error'
+            
+  /users/{user_id}:
+    get:
+      tags:
+        - users
+      summary: "Recupera dados do usuário."
+      description: "Recupera os dados do usuário."
+      operationId: getUserById
+      parameters:
+        - name: user_id
+          in: path
+          type: string
+          required: true
+          description: "ID do usuário"
+          x-example: "5accb6215ba48413e81e7853e"
+        - $ref: '#/parameters/fieldsParam'
+      responses:
+        200:
+          description: "Dados do usuário solicitado."
+          schema:
+            $ref: '#/definitions/User'
+        401:
+          description: "Autenticação falhou devido credenciais de autenticação inválidas."
+          schema:
+            $ref: '#/definitions/Error'
+        403:
+          description: "Usuário não possui permissão para acessar dados do usuário."
+          schema:
+            $ref: '#/definitions/Error'
+        404:
+          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
+          schema:
+            $ref: '#/definitions/Error'
+        406:
+          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
+          schema:
+            $ref: '#/definitions/Error'
+        429:
+          description: "O limite de taxa para requisições excedeu."
+          schema:
+            $ref: '#/definitions/Error'
+        500:
+          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
+          schema:
+            $ref: '#/definitions/Error'
+   
+# Definição dos schemas das entidades      
+definitions:
+  # Definição do schema User
+  User:
+    type: object
+    description: "Representação do recurso User."
+    required:
+      - name
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: "Campo de chave primária gerado automaticamente."
+        example: "5accb6215ba48413e81e7853e"
+        readOnly: true
+      name:
+        type: string
+        description: "Nome completo do usuário."
+        example: "Tristan J. Maya"
+      age:
+        type: integer
+        description: "Idade do usuário"
+        example: 18
+      create_at:
+        type: string
+        format: date-time
+        description: "Data e hora no padrão UTC gerada automaticamente no momento em que o recurso é salvo no servidor."
+        readOnly: true    
+      
+  # Definição do schema de erro padrão para as respostas das requisições
+  Error:
+    type: object
+    description: "Modelo padrão para mensagem de erro. Todos os erros retornados seguirão esse modelo."
+    required:
+      - code
+      - message
+      - description
+    properties:
+      code:
+        type: integer
+        description: "Código exclusivo da API que indica detalhes específicos do erro, ou o próprio status code da resposta quando o código exclusivo não for cabível."
+      message:
+        type: string
+        description: "Descrição legível e curta do erro."
+      description:
+        type: string
+        description: "Descrição detalhada do erro."  
+
+# Definição dos parâmetros que são comuns 
+parameters:
+
+  # Respostas Parciais
+  fieldsParam:
+    in: query
+    name: fields
+    required: false
+    type: array
+    items:
+      type: string
+    description: "Permite recuperar apenas as informações que deseja. Para tal, basta fornecer o nome dos atributos separados por vírgula, por exemplo: **_fields=campo1,campo2_** sinaliza que apenas o campo1 e campo2 deverão ser listados no resultado da consulta."
+    
+  # Paginação
+  offsetParam:
+    in: query
+    name: offset
+    type: integer
+    format: int32
+    required: false
+    minimum: 0
+    default: 0
+    description: "O número de itens a serem ignorados antes de começar a coletar o conjunto de resultados."
+    
+  limitParam:
+    in: query
+    name: limit
+    type: integer
+    format: int32
+    required: false
+    maximum: 100
+    default: 20
+    description: "O número de itens a devolver."
+  
+  # Ordenação
+  sortParam:
+    in: query
+    name: sort
+    required: false
+    type: array
+    items:
+      type: string
+    default: ["created_at"]
+    description: "Contém os nomes dos atributos separados por vírgula que serão usados para ordenar o resultado da consulta. Para ordenação ascendente (crescente) utilize antes do nome do atributo o caractere + e para descendente (decrescente) utilize o caractere -. Por default a ordem é ascendente, com isso o símbolo + é opcional, bastando informar o atributo."
+  
+  # Filtragem
+  filterParam:
+    in: query
+    name: ""
+    required: false
+    type: string
+    description: "Para filtrar uma coleção por vários atributos ao mesmo tempo ou filtrar vários valores para um atributo, basta usar diretamente o nome do atributo/propriedade com um sinal de igual e os valores esperados, separados por vírgula **_property=value1,value2,value3_**. A consulta não é case sensitive. Exemplo,  **_?name=elvis,john_** para recuperar exatamente os idosos com nome igual a elvis ou john.\nPara filtragem com operadores lógicos basta seguir a sintaxe **_property=operator:value_**. Os operadores disponíveis são:\n - **gt** -> Define que valor do atributo é maior que (ou seja, >) o valor especificado.\n - **gte** -> Define que valor do atributo é maior ou igual que (ou seja, >=) o valor especificado.\n - **lt** -> Define que valor do atributo é menor que (ou seja, <) o valor especificado.\n - **lte** -> Define que valor do atributo é menor ou igual que (ou seja, <=) o valor especificado.\n\nExemplo, **_?campo1=gte:80&age=lt:100_** para recuperar os idosos com idade maior ou igual a 80 e menor que 100."
+    
+  # Data
+  dateStartParam:
+    in: query
+    name: date_start
+    required: false
+    type: string
+    description: "Define data início no formato: YYYY-MM-DD ou YYYY-MM-DD hh:mm:ss. O atributo utilizado para a consulta será o registration_date."
+  
+  dateEndParam:
+    in: query
+    name: date_end
+    required: false
+    type: string
+    description: "Define data final no formato: YYYY-MM-DD ou YYYY-MM-DD hh:mm:ss. O atributo utilizado para a consulta será o registration_date."
+    default: "today"
+    
+  periodParam:
+    in: query
+    name: period
+    required: false
+    type: string
+    description: "Define o período dentre os disponíveis:\n - **[1..n]d** - Total de dias (1d, 2d, ...)\n - **[1..n]w** - Total de semanas (1w, 2w, ...)\n - **[1..n]m** - Total de meses (1m, 2m, ...)\n - **[1..n]y** - Total de anos (1y, 2y, ...)\n\nO atributo utilizado para a consulta será o registration_date."
+    
+securityDefinitions:
+ # X-API-Key: abcdef12345
+ APIKeyHeader:
+   type: apiKey
+   in: header
+   name: X-API-Key
