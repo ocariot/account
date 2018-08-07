@@ -10,10 +10,10 @@ import { IExceptionError } from './../exceptions/api.exception'
  * @author Douglas Rafael <douglas.rafael@nutes.uepb.edu.br>
  */
 export class UserController {
-    repository: UserRepository
+    userRepository: UserRepository
 
     constructor(UserModel: any) {
-        this.repository = new UserRepository(UserModel)
+        this.userRepository = new UserRepository(UserModel)
     }
 
     /**
@@ -24,12 +24,12 @@ export class UserController {
      * @returns any
      */
     addUser(req: Request, res: Response): any {
-        return this.repository.save(new User(req.body))
+        return this.userRepository.save(new User(req.body))
             .then((user: IUser) => res.status(201).send(user))
-            .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
+            .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))  
     }
 
-    /**
+        /**
      * Get all users.
      * 
      * @param req Request.
@@ -37,12 +37,38 @@ export class UserController {
      * @returns any
      */
     getAllUsers(req: Request, res: Response): any {
-        return this.repository.getAll()
+        return this.userRepository.getAll()
             .then((users: Array<IUser>) => res.send(users))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
 
+ /**
+     * Remove user by id.
+     * 
+     * @param req Request.
+     * @param res Response.
+     * @returns any
+     */
+    removeUser(req: Request, res: Response): any {
+        return this.userRepository.delete(req.params.user_id)
+            .then((result: boolean) => res.status(201).send(result))
+            .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
+    }
+
     /**
+     * Update user by id.
+     * 
+     * @param req Request.
+     * @param res Response.
+     * @returns any
+     */
+    updateUser(req: Request, res: Response): any {
+        return this.userRepository.update(req.params.user_id, new User(req.body))
+            .then((user: IUser) => res.status(201).send(user))
+            .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
+    }
+
+        /**
      * Get user by id.
      * 
      * @param req Request.
@@ -50,10 +76,26 @@ export class UserController {
      * @returns any
      */
     getUserById(req: Request, res: Response): any {
-        return this.repository
+        console.log(req.params);
+        
+        return this.userRepository
             .getById(req.params.user_id)
             .then((result: IUser) => res.send(result))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
 
+        /**
+     * Get user by id.
+     * 
+     * @param req Request.
+     * @param res Response.
+     * @returns any
+     */
+    getUserAuthentication(req: Request, res: Response): any {
+        return this.userRepository
+            .getToken(req.params.user_id,req.body.password)
+            .then((result: any) => res.send(result))
+            .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
+    }
+ 
 }

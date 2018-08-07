@@ -1,7 +1,14 @@
 import { Router, Request, Response } from 'express'
 import { IRouter } from './router.interface'
 import { UserController } from '../controllers/user.controller';
+import { UserFitibitProfileController } from '../controllers/user.fitibit.profile.controller';
+import { UserFirebaseProfileController } from '../controllers/user.firebase.profile.controller';
+
 import { User } from '../models/user';
+import { Fitbit } from '../models/fitbit';
+import { Firebase } from '../models/firebase';
+
+import { Auth } from '../../config/passport'
 
 /**
  * Class that defines the routes of the User resource.
@@ -10,11 +17,17 @@ import { User } from '../models/user';
  */
 class UserRouter implements IRouter<UserController> {
     router: Router
-    controller: UserController
+    userController: UserController
+    userFitibitProfileController: UserFitibitProfileController
+    userFirebaseProfileController: UserFirebaseProfileController
+
 
     constructor() {
         this.router = Router()
-        this.controller = new UserController(User)
+        this.userController = new UserController(User)
+        this.userFitibitProfileController = new UserFitibitProfileController(Fitbit)
+        this.userFirebaseProfileController = new UserFirebaseProfileController(Firebase)
+
         this.initialize()
     }
 
@@ -27,10 +40,39 @@ class UserRouter implements IRouter<UserController> {
         this.router = Router()
 
         // api/v1/users
-        this.router.get('/', (req: Request, res: Response) => this.controller.getAllUsers(req, res))
-        this.router.post('/', (req: Request, res: Response) => this.controller.addUser(req, res))
+        this.router.post('/', (req: Request, res: Response) => this.userController.addUser(req, res))
 
-        this.router.get('/:user_id', (req: Request, res: Response) => this.controller.getUserById(req, res))
+        this.router.get('/', Auth.authenticate(), (req: Request, res: Response) => this.userController.getAllUsers(req, res))
+
+        this.router.delete('/:user_id', Auth.authenticate(), (req: Request, res: Response) => this.userController.removeUser(req, res))
+
+        this.router.put('/:user_id', Auth.authenticate(), (req: Request, res: Response) => this.userController.updateUser(req, res))
+
+        this.router.get('/:user_id', Auth.authenticate(), (req: Request, res: Response) => this.userController.getUserById(req, res))
+
+        this.router.post('/:user_id/singup', (req: Request, res: Response) => this.userController.getUserAuthentication(req, res))
+
+
+
+        this.router.post('/:user_id/profiles/fitbit', Auth.authenticate(), (req: Request, res: Response) => this.userFitibitProfileController.addFitbitProfile(req, res))
+
+        this.router.get('/:user_id/profiles/fitbit', Auth.authenticate(), (req: Request, res: Response) => this.userFitibitProfileController.getFitbitProfile(req, res))
+
+        this.router.delete('/:user_id/profiles/fitbit', Auth.authenticate(), (req: Request, res: Response) => this.userFitibitProfileController.removeFitbitProfile(req, res))
+
+        this.router.get('/profiles/fitbit', Auth.authenticate(), (req: Request, res: Response) => this.userFitibitProfileController.getAllFitbitProfile(req, res))
+
+
+
+        this.router.post('/:user_id/profiles/fcm', Auth.authenticate(), (req: Request, res: Response) => this.userFirebaseProfileController.addFirebaseProfile(req, res))
+
+        this.router.get('/:user_id/profiles/fcm', Auth.authenticate(), (req: Request, res: Response) => this.userFirebaseProfileController.getFirebaseProfile(req, res))
+
+        this.router.delete('/:user_id/profiles/fcm', Auth.authenticate(), (req: Request, res: Response) => this.userFirebaseProfileController.removeFirebaseProfile(req, res))
+
+        this.router.get('/profiles/fcm', Auth.authenticate(), (req: Request, res: Response) => this.userFirebaseProfileController.getAllFirebaseProfile(req, res))
+
+
 
         return this.router
     }

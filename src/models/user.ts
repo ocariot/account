@@ -3,7 +3,10 @@ import mongoose, { Document } from 'mongoose'
 export interface IUser extends Document {
     id?: string
     name: string
-    age?: number
+    email: string
+    gender: string
+    dateOfBirth: number
+    height: number
     created_at?: Date
     update_at?: Date
 }
@@ -11,11 +14,27 @@ export interface IUser extends Document {
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: 'Name required!',
-        index: { unique: true }
+        required: 'Name required!'
     },
-    age: {
-        type: Number
+    email: {
+        type: String,
+        required: 'Email required!',
+    },
+    gender: {
+        type: String,
+        required: 'Gender required!'
+    },
+    dateOfBirth: {
+        type: Number,
+        required: 'Date Of Birthday required!'
+    },
+    height: {
+        type: Number,
+        required: 'Height required!'
+    },
+    password: {
+        type: Number,
+        required: 'Password required!'
     }
 },
     {

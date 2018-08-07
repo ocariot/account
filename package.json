@@ -5,12 +5,12 @@
   "main": "index.js",
   "scripts": {
     "build": "gulp build",
-    "start": "SET NODE_ENV=prod && node dist/server.js",
+    "start": "NODE_ENV=prod && node dist/server.js",
     "start:dev": "gulp build:dev",
-    "test": "SET NODE_ENV=test && mocha --opts test/mocha.opts test/**/*.spec.ts",
-    "test:integration": "SET NODE_ENV=test && mocha --opts test/mocha.opts test/integration/**/*.spec.ts",
-    "test:unit": "SET NODE_ENV=test && mocha --opts test/mocha.opts test/unit/**/*.spec.ts",
-    "test:cov": "SET NODE_ENV=test && nyc --reporter=html --reporter=text mocha --opts test/mocha.opts test/**/*.spec.ts"
+    "test": "NODE_ENV=test && mocha --opts test/mocha.opts test/**/*.spec.ts",
+    "test:integration": "NODE_ENV=test && mocha --opts test/mocha.opts test/integration/**/*.spec.ts",
+    "test:unit": "NODE_ENV=test && mocha --opts test/mocha.opts test/unit/**/*.spec.ts",
+    "test:cov": "NODE_ENV=test && nyc --reporter=html --reporter=text mocha --opts test/mocha.opts test/**/*.spec.ts"
   },
   "repository": {
     "type": "git",
@@ -46,7 +46,10 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.3",
+    "jwt-simple": "^0.5.1",
     "mongoose": "^5.1.1",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
     "swagger-ui-express": "^3.0.9",
     "yamljs": "^0.3.0"
   },

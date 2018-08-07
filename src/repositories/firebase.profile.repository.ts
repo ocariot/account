@@ -1,17 +1,15 @@
-import { IUser } from '../models/user'
+import { IFirebase } from '../models/firebase'
 import { resolve } from 'path'
 import { ApiException } from './../exceptions/api.exception'
-import { IUserRepository } from './repository.interface'
-import jwt from "jwt-simple"
-import config from './../../config/config'
+import { IProfileRepository } from './repository.interface'
 
 /**
  * Class to manipulate the data of the User entity.
  * 
  * @author Douglas Rafael <douglas.rafael@nutes.uepb.edu.br>
  */
-export class UserRepository implements IUserRepository<IUser> {
-    UserModel: any
+export class FirebaseProfileRepository implements IProfileRepository<IFirebase> {
+    FirebaseModel: any
     removeFields: Object
 
     /**
@@ -20,7 +18,7 @@ export class UserRepository implements IUserRepository<IUser> {
      * @param model
      */
     constructor(model: any) {
-        this.UserModel = model
+        this.FirebaseModel = model
         this.removeFields = { __v: false, updated_at: false }
     }
 
@@ -29,10 +27,10 @@ export class UserRepository implements IUserRepository<IUser> {
      * 
      * @param item Object to be saved. 
      */
-    save(item: IUser): Promise<IUser> {
+    save(item: IFirebase): Promise<IFirebase> {
         return new Promise((resolve, reject) => {
-            this.UserModel.create(item)
-                .then((user: IUser) => user)
+            this.FirebaseModel.create(item)
+                .then((user: IFirebase) => user)
                 .then((user) => {
                     user.__v = undefined
                     user.updated_at = undefined
@@ -54,9 +52,9 @@ export class UserRepository implements IUserRepository<IUser> {
      * 
      * @param params 
      */
-    getAll(params?: Object): Promise<IUser[]> {
+    getAll(params?: Object): Promise<IFirebase[]> {
         return new Promise((resolve, reject) => {
-            this.UserModel.find({}, this.removeFields)
+            this.FirebaseModel.find({}, this.removeFields)
                 .then(users => {
                     if (users.length == 0)
                         return reject(new ApiException(404, 'Users not found!'))
@@ -72,10 +70,10 @@ export class UserRepository implements IUserRepository<IUser> {
      * @param id User ID
      */
     delete(id: string): Promise<boolean> {
-        //throw new Error("Method not implemented.")
+        throw new Error("Method not implemented.")
         return new Promise((resolve, reject) => {
-            this.UserModel.findByIdAndDelete(id)
-            .then((user: IUser) => {
+            this.FirebaseModel.findByIdAndDelete(id)
+            .then((user: IFirebase) => {
                 if (!user) return reject(new ApiException(404, 'User not found!'))
 
                 resolve(true)
@@ -95,11 +93,11 @@ export class UserRepository implements IUserRepository<IUser> {
      * @param id User ID
      * @param item Object to be updated.  
      */
-    update(id: string, item: IUser): Promise<IUser> {
-        //throw new Error("Method not implemented.")
+    update(id: string, item: IFirebase): Promise<IFirebase> {
+        throw new Error("Method not implemented.")
         return new Promise((resolve, reject) => {
-            this.UserModel.findByIdAndUpdate(id, item)
-            .then((user: IUser) => {
+            this.FirebaseModel.findByIdAndUpdate(id, item)
+            .then((user: IFirebase) => {
                 if (!user) return reject(new ApiException(404, 'User not found!'))
 
                 resolve(user)
@@ -119,13 +117,13 @@ export class UserRepository implements IUserRepository<IUser> {
      * @param id User ID
      * @param params 
      */
-    getById(id: string, params?: Object): Promise<IUser> {
+    getById(id: string, params?: Object): Promise<IFirebase[]> {
         return new Promise((resolve, reject) => {
-            this.UserModel.findById(id, this.removeFields)
-                .then((user: IUser) => {
-                    if (!user) return reject(new ApiException(404, 'User not found!'))
+            this.FirebaseModel.find({user_id: id}, this.removeFields)
+                .then((profile: IFirebase[]) => {
+                    if (profile.length == 0) return reject(new ApiException(404, 'User not found!'))
 
-                    resolve(user)
+                    resolve(profile)
                 }).catch((err: any) => {
                     if (err.name == 'CastError')
                         return reject(new ApiException(400, 'Invalid parameter!', err.message))
@@ -135,25 +133,8 @@ export class UserRepository implements IUserRepository<IUser> {
         })
     }
 
-    getToken(req_id: string,req_password: string): Promise<any> {
-        //throw new Error("Method not implemented.")
-        return new Promise((resolve, reject) => {
-            this.UserModel.findOne({_id: req_id, password: req_password})
-                .then((user: IUser) => {
-                    console.log(user);
-                    
-                    if (!user) return reject(new ApiException(404, 'User not found!'))
-
-                    var payload = {_id: user._id};
-                    var token = jwt.encode(payload, config.jwtSecret);
-                    resolve({token: token})
-                }).catch((err: any) => {
-                    if (err.name == 'CastError')
-                        return reject(new ApiException(400, 'Invalid parameter!', err.message))
-
-                    reject(new ApiException(500, err.message))
-                })
-        })
+    getToken(id: string): Promise<string> {
+        throw new Error("Method not implemented.")
     }
 
     /////////////////////////////////////////////////////////////////////
