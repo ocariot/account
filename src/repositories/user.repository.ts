@@ -95,14 +95,14 @@ export class UserRepository implements IUserRepository<IUser> {
      * @param id User ID
      * @param item Object to be updated.  
      */
-    update(id: string, item: IUser): Promise<IUser> {
+    update(id: string, item: Object): Promise<IUser> {
         //throw new Error("Method not implemented.")
         return new Promise((resolve, reject) => {
             this.UserModel.findByIdAndUpdate(id, item)
             .then((user: IUser) => {
                 if (!user) return reject(new ApiException(404, 'User not found!'))
 
-                resolve(user)
+                resolve(this.getById(user._id))
             }).catch((err: any) => {
                 if (err.name == 'CastError')
                     return reject(new ApiException(400, 'Invalid parameter!', err.message))
@@ -135,17 +135,15 @@ export class UserRepository implements IUserRepository<IUser> {
         })
     }
 
-    getToken(req_id: string,req_password: string): Promise<any> {
+    getToken(req_user_name: string,req_password: string): Promise<any> {
         //throw new Error("Method not implemented.")
         return new Promise((resolve, reject) => {
-            this.UserModel.findOne({_id: req_id, password: req_password})
+            this.UserModel.findOne({user_name: req_user_name, password: req_password})
                 .then((user: IUser) => {
-                    console.log(user);
-                    
                     if (!user) return reject(new ApiException(404, 'User not found!'))
 
-                    var payload = {_id: user._id};
-                    var token = jwt.encode(payload, config.jwtSecret);
+                    // var payload = {user};
+                    var token = jwt.encode(user, config.jwtSecret);
                     resolve({token: token})
                 }).catch((err: any) => {
                     if (err.name == 'CastError')

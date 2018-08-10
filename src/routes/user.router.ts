@@ -50,7 +50,7 @@ class UserRouter implements IRouter<UserController> {
 
         this.router.get('/:user_id', Auth.authenticate(), (req: Request, res: Response) => this.userController.getUserById(req, res))
 
-        this.router.post('/:user_id/singup', (req: Request, res: Response) => this.userController.getUserAuthentication(req, res))
+        this.router.post('/auth', (req: Request, res: Response) => this.userController.userAuthentication(req, res))
 
 
 

@@ -19,10 +19,13 @@ export class Auth {
     static initialize(): any {
         // Definindo a estratégia JWT
         let strategy = new JwtStrategy(params, function (payload, done) {
+            
             User.findById(payload._id, function (err, user) {
                 if (err) return done(err, false);
 
-                if (user) return done(null, user);
+                // console.log(user);
+                
+                if (user) return done(null, {"TESTE":123});
 
                 return done(null, false);
             });

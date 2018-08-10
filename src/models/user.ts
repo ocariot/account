@@ -3,7 +3,7 @@ import mongoose, { Document } from 'mongoose'
 export interface IUser extends Document {
     id?: string
     name: string
-    email: string
+    user_name: string
     gender: string
     dateOfBirth: number
     height: number
@@ -16,9 +16,10 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: 'Name required!'
     },
-    email: {
+    user_name: {
         type: String,
         required: 'Email required!',
+        index: { unique: true }
     },
     gender: {
         type: String,

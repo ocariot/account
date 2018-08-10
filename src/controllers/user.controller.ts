@@ -63,7 +63,7 @@ export class UserController {
      * @returns any
      */
     updateUser(req: Request, res: Response): any {
-        return this.userRepository.update(req.params.user_id, new User(req.body))
+        return this.userRepository.update(req.params.user_id, req.body)
             .then((user: IUser) => res.status(201).send(user))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
@@ -76,8 +76,6 @@ export class UserController {
      * @returns any
      */
     getUserById(req: Request, res: Response): any {
-        console.log(req.params);
-        
         return this.userRepository
             .getById(req.params.user_id)
             .then((result: IUser) => res.send(result))
@@ -91,9 +89,9 @@ export class UserController {
      * @param res Response.
      * @returns any
      */
-    getUserAuthentication(req: Request, res: Response): any {
+    userAuthentication(req: Request, res: Response): any {
         return this.userRepository
-            .getToken(req.params.user_id,req.body.password)
+            .getToken(req.body.user_name,req.body.password)
             .then((result: any) => res.send(result))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
