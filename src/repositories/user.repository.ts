@@ -136,15 +136,24 @@ export class UserRepository implements IUserRepository<IUser> {
     }
 
     getToken(req_user_name: string,req_password: string): Promise<any> {
-        //throw new Error("Method not implemented.")
         return new Promise((resolve, reject) => {
             this.UserModel.findOne({user_name: req_user_name, password: req_password})
                 .then((user: IUser) => {
                     if (!user) return reject(new ApiException(404, 'User not found!'))
 
-                    // var payload = {user};
-                    var token = jwt.encode(user, config.jwtSecret);
-                    resolve({token: token})
+                    var payload = {
+                        sub: user._id,
+                        iss: "ocariot",
+                        iat: Math.round(Date.now() / 1000),
+                        exp: Math.round(Date.now() / 1000 + 24 * 60 * 60),
+                        scopes: [
+                            "profile",
+                            "activity",
+                            "sleep"
+                        ]
+                      }
+                    var token = jwt.encode(payload, config.jwtSecret);
+                    resolve({acess_token: token})
                 }).catch((err: any) => {
                     if (err.name == 'CastError')
                         return reject(new ApiException(400, 'Invalid parameter!', err.message))
