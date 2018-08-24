@@ -23,8 +23,6 @@ export class Auth {
             User.findById(payload.sub, function (err, user) {
                 if (err) return done(err, false);
 
-                // console.log(user);
-                
                 if (user) return done(null, user);
 
                 return done(null, false);

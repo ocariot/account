@@ -21,7 +21,7 @@ export class UserRepository implements IUserRepository<IUser> {
      */
     constructor(model: any) {
         this.UserModel = model
-        this.removeFields = { __v: false, updated_at: false }
+        this.removeFields = { __v: false, updated_at: false, _id: false }
     }
 
     /**

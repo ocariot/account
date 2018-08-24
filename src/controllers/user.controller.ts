@@ -38,7 +38,7 @@ export class UserController {
      */
     getAllUsers(req: Request, res: Response): any {
         return this.userRepository.getAll()
-            .then((users: Array<IUser>) => res.send(users))
+            .then((users: Array<IUser>) => res.status(200).send(users))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
 
@@ -51,7 +51,7 @@ export class UserController {
      */
     removeUser(req: Request, res: Response): any {
         return this.userRepository.delete(req.params.user_id)
-            .then((result: boolean) => res.status(201).send(result))
+            .then((result: boolean) => res.status(204).send({}))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
 
@@ -78,7 +78,7 @@ export class UserController {
     getUserById(req: Request, res: Response): any {
         return this.userRepository
             .getById(req.params.user_id)
-            .then((result: IUser) => res.send(result))
+            .then((result: IUser) => res.status(200).send(result))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
 
@@ -92,7 +92,7 @@ export class UserController {
     userAuthentication(req: Request, res: Response): any {
         return this.userRepository
             .getToken(req.body.user_name,req.body.password)
-            .then((result: any) => res.send(result))
+            .then((result: any) => res.status(200).send(result))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
  
