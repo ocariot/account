@@ -153,7 +153,7 @@ export class UserRepository implements IUserRepository<IUser> {
                         ]
                       }
                     var token = jwt.encode(payload, config.jwtSecret);
-                    resolve({acess_token: token})
+                    resolve({access_token: token})
                 }).catch((err: any) => {
                     if (err.name == 'CastError')
                         return reject(new ApiException(400, 'Invalid parameter!', err.message))
