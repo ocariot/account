@@ -5,10 +5,11 @@ export interface IUser extends Document {
     name: string
     user_name: string
     gender: string
-    dateOfBirth: number
+    date_birth: number
     height: number
     created_at?: Date
-    update_at?: Date
+    updated_at?: Date
+    password: string
 }
 
 const userSchema = new mongoose.Schema({

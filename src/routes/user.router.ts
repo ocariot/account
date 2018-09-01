@@ -58,7 +58,7 @@ class UserRouter implements IRouter<UserController> {
 
         this.router.get('/:user_id/profiles/fitbit', Auth.authenticate(), (req: Request, res: Response) => this.userFitibitProfileController.getFitbitProfile(req, res))
 
-        this.router.delete('/:user_id/profiles/fitbit', Auth.authenticate(), (req: Request, res: Response) => this.userFitibitProfileController.removeFitbitProfile(req, res))
+        this.router.delete('/:user_id/profiles/fitbit/:profile_id', Auth.authenticate(), (req: Request, res: Response) => this.userFitibitProfileController.removeFitbitProfile(req, res))
 
         this.router.get('/profiles/fitbit', Auth.authenticate(), (req: Request, res: Response) => this.userFitibitProfileController.getAllFitbitProfile(req, res))
 

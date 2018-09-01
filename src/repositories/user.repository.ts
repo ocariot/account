@@ -1,4 +1,4 @@
-import { IUser } from '../models/user'
+import { IUser, User } from '../models/user'
 import { resolve } from 'path'
 import { ApiException } from './../exceptions/api.exception'
 import { IUserRepository } from './repository.interface'
@@ -98,11 +98,17 @@ export class UserRepository implements IUserRepository<IUser> {
     update(id: string, item: Object): Promise<IUser> {
         //throw new Error("Method not implemented.")
         return new Promise((resolve, reject) => {
-            this.UserModel.findByIdAndUpdate(id, item)
+            this.UserModel.findByIdAndUpdate(id, item, this.removeFields)
             .then((user: IUser) => {
                 if (!user) return reject(new ApiException(404, 'User not found!'))
+                
+               let result:IUser = Object.assign(user,item).toJSON()
+               
+               delete result._id;
+               delete result.__v;
+               delete result.updated_at;
 
-                resolve(this.getById(user._id))
+               resolve(result)
             }).catch((err: any) => {
                 if (err.name == 'CastError')
                     return reject(new ApiException(400, 'Invalid parameter!', err.message))

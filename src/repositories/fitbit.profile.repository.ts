@@ -1,10 +1,10 @@
 import { IFitbit } from '../models/fitbit'
 import { resolve } from 'path'
 import { ApiException } from './../exceptions/api.exception'
-import { IProfileRepository } from './repository.interface'
+import { IProfileRepository, IUserRepository } from './repository.interface'
 
 import { UserRepository } from '../repositories/user.repository'
-import { User } from '../models/user';
+import { User, IUser } from '../models/user';
 
 /**
  * Class to manipulate the data of the User entity.
@@ -21,9 +21,9 @@ export class FitibitProfileRepository implements IProfileRepository<IFitbit> {
      * 
      * @param model
      */
-    constructor(model: any) {
-        this.userRepository = new UserRepository(User)
-        this.FitbitModel = model
+    constructor(fitbitModel: IFitbit, userRepositoryModel?: UserRepository) {
+        this.FitbitModel = fitbitModel
+        this.userRepository = userRepositoryModel == null?new UserRepository(User) : userRepositoryModel
         this.removeFields = { __v: false, updated_at: false }
     }
 
@@ -63,12 +63,17 @@ export class FitibitProfileRepository implements IProfileRepository<IFitbit> {
      */
     getAll(params?: Object): Promise<IFitbit[]> {
         return new Promise((resolve, reject) => {
-            this.FitbitModel.find({}, this.removeFields)
+            this.FitbitModel.find(params, this.removeFields)
                 .then(profiles => {
                     if (profiles.length == 0)
                         return reject(new ApiException(404, 'Profiles not found!'))
 
                     resolve(profiles)
+                }).catch((err: any) => {
+                    if (err.name == 'CastError')
+                        return reject(new ApiException(400, 'Invalid parameter!', err.message))
+
+                    reject(new ApiException(500, err.message))
                 })
         })
     }
@@ -78,12 +83,12 @@ export class FitibitProfileRepository implements IProfileRepository<IFitbit> {
      * 
      * @param id User ID
      */
-    delete(id: string): Promise<boolean> {
+    delete(user_id: string, profile_id: string): Promise<boolean> {
         //throw new Error("Method not implemented.")
         return new Promise((resolve, reject) => {
-            this.FitbitModel.findByIdAndDelete(id)
-            .then((user: IFitbit) => {
-                if (!user) return reject(new ApiException(404, 'User not found!'))
+            this.FitbitModel.findOneAndDelete({user_id: user_id, _id: profile_id})
+            .then((profile: IFitbit) => {
+                if (!profile) return reject(new ApiException(404, 'Profile not found!'))
 
                 resolve(true)
             }).catch((err: any) => {
@@ -106,7 +111,7 @@ export class FitibitProfileRepository implements IProfileRepository<IFitbit> {
         return new Promise((resolve, reject) => {
             this.FitbitModel.find({user_id: id}, this.removeFields)
                 .then((fitibProfile: IFitbit[]) => {
-                    if (fitibProfile.length == 0) return reject(new ApiException(404, 'Fitibit Profiles not found!'))
+                    if (fitibProfile.length == 0) return reject(new ApiException(404, 'Fitbit Profile not found!'))
 
                     resolve(fitibProfile)
                 }).catch((err: any) => {

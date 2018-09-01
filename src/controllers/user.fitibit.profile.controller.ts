@@ -52,7 +52,7 @@ export class UserFitibitProfileController {
      * @returns any
      */
     removeFitbitProfile(req: Request, res: Response): any {
-        return this.fitibitProfileRepository.delete(req.params.user_id)
+        return this.fitibitProfileRepository.delete(req.params.user_id,req.params.profile_id)
             .then((result: boolean) => res.status(201).send(result))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))  
     }
