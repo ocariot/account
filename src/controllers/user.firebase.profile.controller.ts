@@ -14,7 +14,6 @@ export class UserFirebaseProfileController {
 
     constructor(UserModel: any) {
         this.firebaseProfileRepository = new FirebaseProfileRepository(UserModel)
-
     }
 
                    /**
