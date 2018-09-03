@@ -2,7 +2,7 @@
   "name": "account-service",
   "version": "1.0.0",
   "description": "User management service",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "build": "gulp build",
     "start": "NODE_ENV=prod && node dist/server.js",
