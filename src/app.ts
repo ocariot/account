@@ -61,16 +61,20 @@ class App {
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: false }))
 
+        /**
+         * Middleware swagger. It should not run in the test environment.
+         */
+        if (env != undefined && env.trim() != 'test') {
+            let options = {
+                customCss: '.swagger-ui .topbar { display: none } .swagger-ui .try-out { display: none}',
+                customfavIcon: 'http://nutes.uepb.edu.br/wp-content/uploads/2014/01/icon.fw_.png',
+                customSiteTitle: `API Reference | ${config.APP_TITLE}`
+            }
 
-        let options = {
-            customCss: '.swagger-ui .topbar { display: none } .swagger-ui .try-out { display: none}',
-            customfavIcon: 'http://nutes.uepb.edu.br/wp-content/uploads/2014/01/icon.fw_.png',
-            customSiteTitle: `API Reference | ${config.APP_TITLE}`
+            this.app.use('/api/v1/reference', swaggerUi.serve, swaggerUi.setup(
+                yaml.load('./src/swagger/swagger.yaml'), options)
+            )
         }
-
-        this.app.use('/api/v1/reference', swaggerUi.serve, swaggerUi.setup(
-            yaml.load('./dist/src/swagger/swagger.yaml'), options)
-        )
 
         this.app.use(Auth.initialize());
     }
