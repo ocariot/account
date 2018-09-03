@@ -1,7 +1,8 @@
 import http from 'http'
 import App from './src/app'
+import config from './config/config';
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || config.PORT
 
 App.then((app) => {
     app.listen(port, () => console.log(`Server running on port ${port}`))
