@@ -35,7 +35,7 @@ const userSchema = new mongoose.Schema({
         required: 'Height required!'
     },
     password: {
-        type: Number,
+        type: String,
         required: 'Password required!'
     }
 },

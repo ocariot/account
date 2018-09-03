@@ -16,7 +16,7 @@ class Configs {
     <p>Access the API documentation <a href="/api/v1/reference">v.1.0</a></p>`
     jwtSecret = "MyS3cr3tK3Y"
     jwtSession = { session: false }
-    PORT: number = 3000
+    PORT: number = 5000
 }
 
 export default new Configs()

@@ -66,56 +66,56 @@ export class UserRepository implements IUserRepository<IUser> {
         })
     }
 
-         /**
-     * Delete user from Database.
-     * 
-     * @param id User ID
-     */
+    /**
+* Delete user from Database.
+* 
+* @param id User ID
+*/
     delete(id: string): Promise<boolean> {
         //throw new Error("Method not implemented.")
         return new Promise((resolve, reject) => {
             this.UserModel.findByIdAndDelete(id)
-            .then((user: IUser) => {
-                if (!user) return reject(new ApiException(404, 'User not found!'))
+                .then((user: IUser) => {
+                    if (!user) return reject(new ApiException(404, 'User not found!'))
 
-                resolve(true)
-            }).catch((err: any) => {
-                if (err.name == 'CastError')
-                    return reject(new ApiException(400, 'Invalid parameter!', err.message))
+                    resolve(true)
+                }).catch((err: any) => {
+                    if (err.name == 'CastError')
+                        return reject(new ApiException(400, 'Invalid parameter!', err.message))
 
-                reject(new ApiException(500, err.message))
-            })
-              
+                    reject(new ApiException(500, err.message))
+                })
+
         })
     }
 
-        /**
-     * Update user data.
-     * 
-     * @param id User ID
-     * @param item Object to be updated.  
-     */
+    /**
+ * Update user data.
+ * 
+ * @param id User ID
+ * @param item Object to be updated.  
+ */
     update(id: string, item: Object): Promise<IUser> {
         //throw new Error("Method not implemented.")
         return new Promise((resolve, reject) => {
             this.UserModel.findByIdAndUpdate(id, item, this.removeFields)
-            .then((user: IUser) => {
-                if (!user) return reject(new ApiException(404, 'User not found!'))
-                
-               let result:IUser = Object.assign(user,item).toJSON()
-               
-               delete result._id;
-               delete result.__v;
-               delete result.updated_at;
+                .then((user: IUser) => {
+                    if (!user) return reject(new ApiException(404, 'User not found!'))
 
-               resolve(result)
-            }).catch((err: any) => {
-                if (err.name == 'CastError')
-                    return reject(new ApiException(400, 'Invalid parameter!', err.message))
+                    let result: IUser = Object.assign(user, item).toJSON()
 
-                reject(new ApiException(500, err.message))
-            })
-              
+                    delete result._id;
+                    delete result.__v;
+                    delete result.updated_at;
+
+                    resolve(result)
+                }).catch((err: any) => {
+                    if (err.name == 'CastError')
+                        return reject(new ApiException(400, 'Invalid parameter!', err.message))
+
+                    reject(new ApiException(500, err.message))
+                })
+
         })
     }
 
@@ -141,25 +141,21 @@ export class UserRepository implements IUserRepository<IUser> {
         })
     }
 
-    getToken(req_user_name: string,req_password: string): Promise<any> {
+    getToken(req_user_name: string, req_password: string): Promise<any> {
         return new Promise((resolve, reject) => {
-            this.UserModel.findOne({user_name: req_user_name, password: req_password})
+            this.UserModel.findOne({ user_name: req_user_name, password: req_password })
                 .then((user: IUser) => {
                     if (!user) return reject(new ApiException(404, 'User not found!'))
 
-                    var payload = {
+                    let payload = {
                         sub: user._id,
                         iss: "ocariot",
                         iat: Math.round(Date.now() / 1000),
                         exp: Math.round(Date.now() / 1000 + 24 * 60 * 60),
-                        scopes: [
-                            "profile",
-                            "activity",
-                            "sleep"
-                        ]
-                      }
-                    var token = jwt.encode(payload, config.jwtSecret);
-                    resolve({access_token: token})
+                        scope: "activities:read activities:register activities:remove users:readAll users:register users:read users:update users:remove"
+                    }
+                    
+                    resolve({ access_token: jwt.encode(payload, config.jwtSecret) })
                 }).catch((err: any) => {
                     if (err.name == 'CastError')
                         return reject(new ApiException(400, 'Invalid parameter!', err.message))
@@ -171,5 +167,5 @@ export class UserRepository implements IUserRepository<IUser> {
 
     /////////////////////////////////////////////////////////////////////
 
-    
+
 }
