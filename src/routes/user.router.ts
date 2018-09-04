@@ -8,8 +8,6 @@ import { User } from '../models/user';
 import { Fitbit } from '../models/fitbit';
 import { Firebase } from '../models/firebase';
 
-import { Auth } from '../../config/passport'
-
 /**
  * Class that defines the routes of the User resource.
  * 

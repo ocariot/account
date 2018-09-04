@@ -7,7 +7,6 @@ import express, { Application, Request, Response, NextFunction } from "express"
 import { ApiException, IExceptionError } from './exceptions/api.exception'
 import database from './../config/database'
 import config from './../config/config'
-import { Auth } from '../config/passport'
 
 /**
  * Class App.
@@ -75,8 +74,6 @@ class App {
                 yaml.load('./src/swagger/swagger.yaml'), options)
             )
         }
-
-        this.app.use(Auth.initialize());
     }
 
     /**
