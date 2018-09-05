@@ -45,13 +45,13 @@ class UserRouter implements IRouter<UserController> {
         this.router.get('/:user_id', (req: Request, res: Response) => this.userController.getUserById(req, res))
         this.router.post('/auth', (req: Request, res: Response) => this.userController.userAuthentication(req, res))
 
-        // fitbit
+        // TODO - ROTAS NAO DEVEM FICAR AQUI. fORA DO ESCOPO!!!
         this.router.post('/:user_id/profiles/fitbit', (req: Request, res: Response) => this.userFitibitProfileController.addFitbitProfile(req, res))
         this.router.get('/:user_id/profiles/fitbit', (req: Request, res: Response) => this.userFitibitProfileController.getFitbitProfile(req, res))
         this.router.delete('/:user_id/profiles/fitbit/:profile_id', (req: Request, res: Response) => this.userFitibitProfileController.removeFitbitProfile(req, res))
         this.router.get('/profiles/fitbit', (req: Request, res: Response) => this.userFitibitProfileController.getAllFitbitProfile(req, res))
 
-        // firebase
+        // TODO - ROTAS NAO DEVEM FICAR AQUI. fORA DO ESCOPO!!!
         this.router.post('/:user_id/profiles/fcm', (req: Request, res: Response) => this.userFirebaseProfileController.addFirebaseProfile(req, res))
         this.router.get('/:user_id/profiles/fcm', (req: Request, res: Response) => this.userFirebaseProfileController.getFirebaseProfile(req, res))
         this.router.delete('/:user_id/profiles/fcm', (req: Request, res: Response) => this.userFirebaseProfileController.removeFirebaseProfile(req, res))
