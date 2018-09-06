@@ -24,7 +24,9 @@ class IndexRouter implements IRouter<any> {
         // Readme
         this.router.get('/', (req: Request, res: Response) => res.send(this.readme()))
         this.router.get('/api/v1', (req: Request, res: Response) => res.send(this.readme()))
-        this.router.use('/api/v1/users', usersRouter)
+
+        // Resource users
+        this.router.use('/api/v1/users', usersRouter);
     }
 
     /**
