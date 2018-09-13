@@ -10,8 +10,8 @@ class Configs {
      */
     APP_TITLE = 'Account Service'
     APP_DESCRIPTION = 'Microservice for user management.'
-    DB_URI: string = 'mongodb://127.0.0.1:27017/account'
-    DB_URI_TEST: string = 'mongodb://127.0.0.1:27017/account-test'
+    DB_URI: string = 'mongodb://mongo:27017/account'
+    DB_URI_TEST: string = 'mongodb://mongo:27017/account-test'
     README_DEFAULT: string = `<h2>${this.APP_TITLE} - <small>${this.APP_DESCRIPTION}.</small></h2>
     <p>Access the API documentation <a href="/api/v1/reference">v.1.0</a></p>`
     jwtSecret = "MyS3cr3tK3Y"
