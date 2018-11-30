@@ -6,8 +6,8 @@
  */
 export interface IUserRepository<T> {
     save(item: T): Promise<T>
-    getAll(params?: Object): Promise<Array<T>>
-    getById(id: string, params?: Object): Promise<T>
+    getAll(query?: Object): Promise<Array<T>>
+    getById(query?: Object): Promise<T>
     update(id: string, item: Object): Promise<T>
     delete(id: string): Promise<boolean>
 }

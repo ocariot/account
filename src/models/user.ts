@@ -6,15 +6,13 @@ export interface IUser extends Document {
     password: string
     school: object
     created_at?: Date
-    change_password: boolean
-
 }
 
 const userSchema = new mongoose.Schema({
     id: { type: String },
     user_name: {
         type: String,
-        required: 'Email required!',
+        required: 'User name required!',
         index: { unique: true }
     },
     password: {
@@ -38,8 +36,7 @@ const userSchema = new mongoose.Schema({
             type: String,
             required: 'Address of school is required!'
         }
-    },
-    change_password: { type: Boolean }
+    }
 },
     {
         timestamps: { createdAt: 'created_at', updatedAt: false },
@@ -50,7 +47,6 @@ const userSchema = new mongoose.Schema({
                 delete ret.__v
                 delete ret.updatedAt
                 delete ret.password
-                delete ret.change_password
                 return ret
             }
         }

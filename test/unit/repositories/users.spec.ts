@@ -1,88 +1,111 @@
 import sinon from 'sinon'
-import { User, IUser } from './../../../src/models/user'
+import { User } from './../../../src/models/user'
 import { UserRepository } from '../../../src/repositories/user.repository';
 import { assert } from 'chai'
 import { IExceptionError } from '../../../src/exceptions/api.exception';
+import { ObjectID } from 'bson';
+
+require('sinon-mongoose')
 
 const UserFake: any = User
-const UserRepositoryFake: any = UserRepository
 
 describe('Repositories: Users', () => {
+
     const defaultUser: any = {
-        _id: '5b13826de00324086854584a',
-        name: 'Tristan J. Maya',
-        date_birth: 10101994,
-        created_at: '2018-06-01T00:27:48.605Z'
+        "id": "5b13826de00324086854584a",
+        "user_name": "br-schoolA-studentB",
+        "password": "lorem123",
+        "school": {
+            "name": "Unifor",
+            "country": "BR",
+            "city": "Fortaleza",
+            "address": "Av. Washington Soares, 1321 - Edson Queiroz, Fortaleza - CE, 60811-905"
+        },
+        "created_at": new Date('2018-11-21 21:25:05')
     }
 
-    beforeEach(() => {
-        sinon.stub(UserFake, 'find')
-        sinon.stub(UserFake, 'findById')
-        sinon.stub(UserFake, 'create')
-        sinon.stub(UserFake, 'findByIdAndDelete')
-        sinon.stub(UserFake, 'findByIdAndUpdate')
-        sinon.stub(UserFake, 'findOne')
-    })
+    const defaultQuery: any = {
+        fields: {},
+        ordination: {},
+        pagination: { page: 1, limit: 100 },
+        filters: {}
+    }
 
     afterEach(() => {
-        UserFake.find.restore()
-        UserFake.findById.restore()
-        UserFake.create.restore()
-        UserFake.findByIdAndDelete.restore()
-        UserFake.findByIdAndUpdate.restore()
-        UserFake.findOne.restore()
+        sinon.restore()
     })
 
     describe('save()', () => {
-        it('should return the saved user', () => {
-            let newUser: IUser = new User(defaultUser)
+        context('when the parameters are correct', () => {
+            it('should return the saved user', () => {
 
-            UserFake.create
-                .withArgs(newUser)
-                .resolves(defaultUser)
+                const expectUser: any = defaultUser
 
-            let userRepository = new UserRepository(UserFake)
+                sinon
+                    .mock(UserFake)
+                    .expects('create')
+                    .withArgs(defaultUser)
+                    .resolves(defaultUser)
 
-            return userRepository
-                .save(newUser)
-                .then((user) => {
-                    assert.isNotEmpty(user)
-                    assert.equal(user, defaultUser)
-                })
-        })
+                const userRepository: any = new UserRepository(UserFake)
 
-        context('When there are validation errors', () => {
-            it('should return error 400 for the user with missing required fields', () => {
-                let newUser: IUser = new User({ age: 22 })
-    
-                UserFake.create
-                    .withArgs(newUser)
-                    .rejects({ name: 'ValidationError' })
-    
-                let userRepository = new UserRepository(UserFake)
-    
-                return userRepository
-                    .save(newUser)
-                    .catch((err: IExceptionError) => {
-                        assert.equal(err.code, 400)
-                        assert.equal(err.message, 'Required fields were not included!')
+                return userRepository.save(defaultUser)
+                    .then((user) => {
+                        assert.isNotNull(user)
+                        assert.property(user, 'user_name')
+                        assert.propertyVal(user, 'user_name', defaultUser.user_name)
+                        assert.property(user, 'password')
+                        assert.propertyVal(user, 'password', defaultUser.password)
+                        assert.property(user, 'school')
+                        assert.propertyVal(user, 'school', defaultUser.school)
+                        assert.property(user, 'created_at')
                     })
             })
-    
-            it('should return error 409 for the duplicate user', () => {
-                let newUser: IUser = new User(defaultUser)
-    
-                UserFake.create
-                    .withArgs(newUser)
-                    .rejects({ code: 11000 })
-    
-                let userRepository = new UserRepository(UserFake)
-    
-                return userRepository
-                    .save(newUser)
+        })
+
+        context('when there are validation errors', () => {
+            it('should return info message from missing required fields', () => {
+
+                const incompleteUser: any = {
+                    "user_name": "Incomplete Example",
+                    "password": "123"
+                }
+
+                sinon
+                    .mock(UserFake)
+                    .expects('create')
+                    .withArgs(incompleteUser)
+                    .rejects({ name: 'ValidationError' })
+
+                const userRepository: any = new UserRepository(UserFake)
+
+                return userRepository.save(incompleteUser)
                     .catch((err: IExceptionError) => {
+                        assert.isNotNull(err)
+                        assert.equal(err.code, 400)
+                        assert.property(err, 'message')
+                        assert.property(err, 'description')
+                    })
+            })
+        })
+
+        context('when data already exists', () => {
+            it('should return info message from duplicated data', () => {
+
+                sinon
+                    .mock(UserFake)
+                    .expects('create')
+                    .withArgs(defaultUser)
+                    .rejects({ name: 'MongoError', code: 11000 })
+
+                const userRepository: any = new UserRepository(UserFake)
+
+                return userRepository.save(defaultUser)
+                    .catch((err: IExceptionError) => {
+                        assert.isNotNull(err)
                         assert.equal(err.code, 409)
-                        assert.equal(err.message, 'Duplicate data is not allowed!')
+                        assert.property(err, 'message')
+                        assert.property(err, 'description')
                     })
             })
         })
@@ -90,258 +113,342 @@ describe('Repositories: Users', () => {
 
     describe('getAll()', () => {
         it('should return a list of users', () => {
-            UserFake.find
+
+            const resultExpected: any = [defaultUser]
+
+            sinon
+                .mock(UserFake)
+                .expects('find')
+                .chain('select')
                 .withArgs({})
-                .resolves([defaultUser])
+                .chain('sort')
+                .withArgs()
+                .chain('skip')
+                .withArgs(0)
+                .chain('limit')
+                .withArgs(100)
+                .chain('exec')
+                .resolves(resultExpected)
 
-            let userRepository = new UserRepository(UserFake)
-            let resultExpected: Array<IUser> = [defaultUser]
+            const userRepository: any = new UserRepository(UserFake)
 
-            return userRepository
-                .getAll().then((users) => {
+            return userRepository.getAll(defaultQuery)
+                .then((users) => {
+                    assert.isNotNull(users)
                     assert.equal(users.length, resultExpected.length)
-                    assert.equal(users[0], resultExpected[0])
+                    assert.property(users[0], 'user_name')
+                    assert.propertyVal(users[0], 'user_name', defaultUser.user_name)
+                    assert.property(users[0], 'password')
+                    assert.propertyVal(users[0], 'password', defaultUser.password)
+                    assert.property(users[0], 'school')
+                    assert.propertyVal(users[0], 'school', defaultUser.school)
+                    assert.property(users[0], 'created_at')
                 })
         })
 
-        context('when there are no registered users', () => {
-            it('should return error 404 and message: Users not found!', () => {
-                UserFake.find
+        context('when there are no users in database', () => {
+            it('should return info message from users not found', () => {
+
+                sinon
+                    .mock(UserFake)
+                    .expects('find')
+                    .chain('select')
                     .withArgs({})
+                    .chain('sort')
+                    .withArgs()
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(100)
+                    .chain('exec')
                     .resolves([])
 
-                let userRepository = new UserRepository(User)
-                let resultExpected: Array<IUser> = []
+                let userRepository: any = new UserRepository(UserFake)
 
-                return userRepository
-                    .getAll().catch((err: IExceptionError) => {
+                return userRepository.getAll(defaultQuery)
+                    .catch((err) => {
+                        assert.isNotNull(err)
                         assert.equal(err.code, 404)
-                        assert.equal(err.message, 'Users not found!')
-                    })
-            })
-        });
-    })
-
-    describe('delete()', () => {
-        it('should return true, if the user was delete', () => {
-
-            UserFake.findByIdAndDelete
-                    .withArgs(defaultUser._id)
-                    .resolves(defaultUser)
-
-            let userRepository = new UserRepository(UserFake)
-
-            return userRepository
-                .delete(defaultUser._id)
-                .then((value) => {
-                    assert.equal(value, true)
-                })
-        })
-
-        context("when the user wasn't delete", () => {
-            it('should return error 404 and message: Users not found!', () => {
-                UserFake.findByIdAndDelete
-                    .withArgs(defaultUser._id)
-                    .resolves(null)
-
-            let userRepository = new UserRepository(UserFake)
-
-            return userRepository
-                .delete(defaultUser._id)
-                .catch((err: IExceptionError) => {
-                    assert.equal(err.code, 404)
-                    assert.equal(err.message, 'User not found!')
-                })
-            })
-
-            it('should return error 400 and message: Invalid parameter!', () => {
-                UserFake.findByIdAndDelete
-                    .withArgs(defaultUser._id)
-                    .rejects({name: 'CastError'})
-
-                let userRepository = new UserRepository(UserFake)
-
-                return userRepository
-                    .delete(defaultUser._id)
-                    .catch((err: IExceptionError) => {
-                        assert.equal(err.code, 400)
-                        assert.equal(err.message, 'Invalid parameter!')
-                    })
-            })
-        })
-        
-    })
-
-    describe('update()', () => {
-        it('should return the updated user', () => {
-            let newUser = {name: 'Carlos Andrade'};
-            let copyDefaultUser = Object.assign({},defaultUser);
-
-            let updatedUser:IUser = new User(Object.assign(defaultUser,newUser)).toJSON();
-
-            delete updatedUser._id;
-            delete updatedUser.__v;
-            delete updatedUser.updated_at;
-
-            UserFake.findByIdAndUpdate
-                .withArgs(copyDefaultUser._id, newUser)
-                .resolves(new User(copyDefaultUser))
-
-            let userRepository = new UserRepository(UserFake)
-
-            return userRepository
-                .update(copyDefaultUser._id, newUser)
-                .then((users) => {
-                    assert.deepStrictEqual(users, updatedUser)
-                })
-        })
-
-        context('When the user is not found', () => {
-            it('should return error 404 and message: User not found!', () => {
-            let newUser: IUser = new User(defaultUser)
-
-
-            UserFake.findByIdAndUpdate
-                .withArgs(newUser._id, newUser)
-                .resolves(null)
-
-            let userRepository = new UserRepository(UserFake)
-
-            return userRepository
-                .update(newUser._id, newUser)
-                .catch((err: IExceptionError) => {
-                    assert.equal(err.code, 404)
-                    assert.equal(err.message, 'User not found!')
-                })
-            })
-        })
-
-        context('when the user ID is not in the valid format', () => {
-            it('should return error 400 and message: Invalid parameter!', () => {
-
-                let newUser: IUser = new User(defaultUser)
-                let invalidId: string = 'xxxx'
-
-                UserFake.findByIdAndUpdate
-                    .withArgs(invalidId, newUser)
-                    .rejects({ name: 'CastError' })
-
-                let userRepository = new UserRepository(UserFake)
-
-                return userRepository
-                    .update(invalidId, newUser).catch((err: IExceptionError) => {
-                        assert.equal(err.code, 400)
-                        assert.equal(err.message, 'Invalid parameter!')
+                        assert.property(err, 'message')
+                        assert.property(err, 'description')
                     })
             })
         })
     })
 
     describe('getById()', () => {
-        it('should return a user according to its ID', () => {
-            UserFake.findById
-                .withArgs(defaultUser._id)
+        it('should return a unique user', () => {
+
+            const customQueryMock: any = {
+                fields: {},
+                ordination: {},
+                pagination: { page: 1, limit: 100 },
+                filters: { id: defaultUser.id }
+            }
+
+            sinon
+                .mock(UserFake)
+                .expects('findOne')
+                .withArgs({ id: defaultUser.id })
+                .chain('select')
+                .withArgs({})
+                .chain('exec')
                 .resolves(defaultUser)
 
-            let userRepository = new UserRepository(UserFake)
+            const userRepository: any = new UserRepository(UserFake)
 
-            return userRepository
-                .getById(defaultUser._id)
+            return userRepository.getById(customQueryMock)
                 .then((user) => {
-                    assert.isNotEmpty(user)
-                    assert.equal(user, defaultUser)
+                    assert.isNotNull(user)
+                    assert.property(user, 'user_name')
+                    assert.propertyVal(user, 'user_name', defaultUser.user_name)
+                    assert.property(user, 'password')
+                    assert.propertyVal(user, 'password', defaultUser.password)
+                    assert.property(user, 'school')
+                    assert.propertyVal(user, 'school', defaultUser.school)
+                    assert.property(user, 'created_at')
                 })
         })
 
-        context('When the user is not found', () => {
-            it('should return error 404 and message: User not found!', () => {
-                UserFake.findById
-                    .withArgs(defaultUser._id)
-                    .resolves(null)
+        context('when the user is not found', () => {
+            it('should return info message from user not found', () => {
 
-                let userRepository = new UserRepository(UserFake)
+                const randomId: any = new ObjectID()
 
-                return userRepository
-                    .getById(defaultUser._id)
-                    .catch((err: IExceptionError) => {
+                const customQueryMock: any = {
+                    fields: {},
+                    ordination: {},
+                    pagination: { page: 1, limit: 100 },
+                    filters: { id: randomId }
+                }
+
+                sinon
+                    .mock(UserFake)
+                    .expects('findOne')
+                    .withArgs({ id: randomId })
+                    .chain('select')
+                    .withArgs({})
+                    .chain('exec')
+                    .resolves(undefined)
+
+                const userRepository: any = new UserRepository(UserFake)
+
+                return userRepository.getById(customQueryMock)
+                    .catch((err: any) => {
+                        assert.isNotNull(err)
                         assert.equal(err.code, 404)
-                        assert.equal(err.message, 'User not found!')
+                        assert.property(err, 'message')
+                        assert.property(err, 'description')
                     })
             })
         })
 
-        context('when the user ID is not in the valid format', () => {
-            it('should return error 400 and message: Invalid parameter!', () => {
-                let invalidId: string = 'xxxx'
-                UserFake.findById
-                    .withArgs(invalidId)
+        context('when the user id is invalid', () => {
+            it('should return info message about invalid parameter', () => {
+
+                const invalidId: string = '1a2b3c'
+
+                const customQueryMock: any = {
+                    fields: {},
+                    ordination: {},
+                    pagination: { page: 1, limit: 100 },
+                    filters: { id: invalidId }
+                }
+
+                sinon
+                    .mock(UserFake)
+                    .expects('findOne')
+                    .withArgs({ id: invalidId })
+                    .chain('select')
+                    .withArgs({})
+                    .chain('exec')
                     .rejects({ name: 'CastError' })
 
-                let userRepository = new UserRepository(UserFake)
+                const userRepository: any = new UserRepository(UserFake)
 
-                return userRepository
-                    .getById(invalidId).catch((err: IExceptionError) => {
+                return userRepository.getById(customQueryMock)
+                    .catch((err: any) => {
+                        assert.isNotNull(err)
                         assert.equal(err.code, 400)
-                        assert.equal(err.message, 'Invalid parameter!')
+                        assert.property(err, 'message')
+                        assert.property(err, 'description')
                     })
+
             })
         })
     })
 
-    describe("geToken()", () => {
-        it('should return the toke for an user', () => {
-            let user = {user_name: 'Tristan', password: '1234'}
+    describe('update()', () => {
+        it('should return the updated user', () => {
 
-            UserFake.findOne
-                .withArgs(user)
+            sinon
+                .mock(UserFake)
+                .expects('findOneAndUpdate')
+                .withArgs({ _id: defaultUser.id }, defaultUser, { new: true })
+                .chain('exec')
                 .resolves(defaultUser)
 
-            let userRepository = new UserRepository(UserFake)
+            const userRepository: any = new UserRepository(UserFake)
 
-            return userRepository
-                .getToken(user.user_name,user.password)
-                .then((token) => {
-                    assert.hasAllKeys(token,['acess_token'])
+            return userRepository.update(defaultUser)
+                .then((user) => {
+                    assert.isNotNull(user)
+                    assert.property(user, 'user_name')
+                    assert.propertyVal(user, 'user_name', defaultUser.user_name)
+                    assert.property(user, 'password')
+                    assert.propertyVal(user, 'password', defaultUser.password)
+                    assert.property(user, 'school')
+                    assert.propertyVal(user, 'school', defaultUser.school)
+                    assert.property(user, 'created_at')
                 })
         })
 
-        context('When the user is not found', () => {
-            it('should return error 404 and message: User not found!', () => {
-                let user = {user_name: 'Tristan', password: '1234'}
+        context('when data already exists', () => {
+            it('should return info message from duplicated data', () => {
+                sinon
+                    .mock(UserFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: defaultUser.id }, defaultUser, { new: true })
+                    .chain('exec')
+                    .rejects({ name: 'MongoError', code: 11000 })
 
-                UserFake.findOne
-                    .withArgs(user)
-                    .resolves(null)
+                const userRepository: any = new UserRepository(UserFake)
 
-                let userRepository = new UserRepository(UserFake)
-
-                return userRepository
-                    .getToken(user.user_name,user.password)
-                    .catch((err: IExceptionError) => {
-                        assert.equal(err.code, 404)
-                        assert.equal(err.message, 'User not found!')
+                return userRepository.update(defaultUser)
+                    .catch((err: any) => {
+                        assert.isNotNull(err)
+                        assert.equal(err.code, 409)
+                        assert.property(err, 'message')
+                        assert.property(err, 'description')
                     })
             })
         })
 
-        context('When there are validation errors', () => {
-            it('should return error 400 and message: Invalid parameter!', () => {
-                let user = {user_name: 'Tristan', password: '1234'}
+        context('when the user is not found', () => {
+            it('should return info message from user not found', () => {
 
-                UserFake.findOne
-                    .withArgs(user)
-                    .rejects({name: 'CastError'})
+                sinon
+                    .mock(UserFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: defaultUser.id }, defaultUser, { new: true })
+                    .chain('exec')
+                    .resolves(undefined)
 
-                let userRepository = new UserRepository(UserFake)
+                const userRepository: any = new UserRepository(UserFake)
 
-                return userRepository.getToken(user.user_name,user.password)
-                .catch((err: IExceptionError) => {
-                    assert.equal(err.code, 400)
-                    assert.equal(err.message, 'Invalid parameter!')
-                })
+                return userRepository.update(defaultUser)
+                    .catch((err: any) => {
+                        assert.isNotNull(err)
+                        assert.equal(err.code, 404)
+                        assert.property(err, 'message')
+                        assert.property(err, 'description')
+                    })
+            })
+        })
+
+        context('when the user id is invalid', () => {
+            it('should return info message about invalid parameter', () => {
+
+                const invalidUser: any = {
+                    "id": "1a2b3c",
+                    "user_name": "br-schoolA-studentB",
+                    "password": "lorem123",
+                    "school": {
+                        "name": "Unifor",
+                        "country": "BR",
+                        "city": "Fortaleza",
+                        "address": "Av. Washington Soares, 1321 - Edson Queiroz, Fortaleza - CE, 60811-905"
+                    },
+                    "created_at": new Date('2018-11-21 21:25:05')
+                }
+
+                sinon
+                    .mock(UserFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: invalidUser.id }, invalidUser, { new: true })
+                    .chain('exec')
+                    .rejects({ name: 'CastError' })
+
+                const userRepository: any = new UserRepository(UserFake)
+
+                return userRepository.update(invalidUser)
+                    .catch((err: any) => {
+                        assert.isNotNull(err)
+                        assert.equal(err.code, 400)
+                        assert.property(err, 'message')
+                        assert.property(err, 'description')
+                    })
             })
         })
     })
- 
-})
 
+    describe('delete()', () => {
+        it('should return true for confirm delete', () => {
+
+            const userId: string = '5b13826de00324086854584a' // The defaultUser id, but only the string
+
+            sinon
+                .mock(UserFake)
+                .expects('findOneAndDelete')
+                .withArgs({ _id: userId })
+                .chain('exec')
+                .resolves(true)
+
+            const userRepository: any = new UserRepository(UserFake)
+
+            return userRepository.delete(userId)
+                .then((isDeleted: Boolean) => {
+                    assert.isBoolean(isDeleted)
+                    assert.isTrue(isDeleted)
+                })
+        })
+
+        context('when the user is not found', () => {
+            it('should return false for confirm that user is not founded', () => {
+
+                const randomId: any = new ObjectID()
+
+                sinon
+                    .mock(UserFake)
+                    .expects('findOneAndDelete')
+                    .withArgs({ _id: randomId })
+                    .chain('exec')
+                    .resolves(false)
+
+                const userRepository: any = new UserRepository(UserFake)
+
+                return userRepository.delete(randomId)
+                    .catch((err: IExceptionError) => {
+                        assert.isNotNull(err)
+                        assert.equal(err.code, 404)
+                        assert.property(err, 'message')
+                        assert.property(err, 'description')
+                    })
+            })
+        })
+
+        context('when the user id is invalid', () => {
+            it('should return info message about invalid parameter', () => {
+
+                const invalidId: string = '1a2b3c'
+
+                sinon
+                    .mock(UserFake)
+                    .expects('findOneAndDelete')
+                    .withArgs({ _id: invalidId })
+                    .chain('exec')
+                    .rejects({ name: 'CastError' })
+
+                const userRepository: any = new UserRepository(UserFake)
+
+                return userRepository.delete(invalidId)
+                    .catch((err: any) => {
+                        assert.isNotNull(err)
+                        assert.equal(err.code, 400)
+                        assert.property(err, 'message')
+                        assert.property(err, 'description')
+                    })
+            })
+        })
+    })
+})

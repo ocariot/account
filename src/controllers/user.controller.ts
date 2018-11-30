@@ -1,5 +1,4 @@
 import { Request, Response } from 'express'
-import { User } from '../models/user'
 import { UserRepository } from '../repositories/user.repository'
 import { IUser } from '../models/user'
 import { IExceptionError } from './../exceptions/api.exception'

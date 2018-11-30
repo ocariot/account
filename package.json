@@ -59,7 +59,6 @@
     "dotenv": "^6.1.0",
     "express": "^4.16.3",
     "jsonwebtoken": "^8.4.0",
-    "mongoose": "^5.1.1",
     "query-strings-parser": "^1.0.0",
     "swagger-ui-express": "^3.0.9",
     "yamljs": "^0.3.0"
@@ -77,13 +76,15 @@
     "gulp-nodemon": "^2.2.1",
     "gulp-typescript": "^4.0.2",
     "mocha": "^5.1.1",
+    "mongoose": "^5.1.1",
     "morgan": "^1.9.0",
     "nyc": "^12.0.2",
+    "run-script-os": "^1.0.3",
     "sinon": "^5.0.10",
+    "sinon-mongoose": "^2.2.1",
     "source-map-support": "^0.5.6",
     "supertest": "^3.1.0",
     "ts-node": "^6.0.5",
-    "typescript": "^2.9.1",
-    "run-script-os": "^1.0.3"
+    "typescript": "^2.9.1"
   }
 }

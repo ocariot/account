@@ -6,8 +6,9 @@ require('dotenv').load()
 mongoose.Promise = Promise
 
 // Create the mongoose connection
-const connection = () => (process.env.NODE_ENV != undefined && process.env.NODE_ENV.trim() == 'test')
-    ? mongoose.connect(config.DB_URI_TEST, { useNewUrlParser: true }) : mongoose.connect(config.DB_URI, { useNewUrlParser: true })
+const connection = () => (process.env.NODE_ENV != undefined && process.env.NODE_ENV.trim() == 'test') ?
+    mongoose.connect(config.DB_URI_TEST, { useCreateIndex: true, useNewUrlParser: true }) :
+    mongoose.connect(config.DB_URI, { useCreateIndex: true, useNewUrlParser: true })
 
 /**
  * CONNECTION EVENTS

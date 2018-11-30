@@ -5,10 +5,10 @@ info:
   description: ' This is the RESTful API documentation of the API Gateway responsible for delivering features to the OCARIoT clients by integrating the OCARIoT services.'
 
 servers:
-  - description: Account Local Instance
-    url: http://127.0.0.1:5000/api/v1
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/nutes.ocariot/account-service/v1
+  - description: Account Local Instance
+    url: http://127.0.0.1:5000/api/v1
     
 tags:
   - name: users
