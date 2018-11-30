@@ -52,13 +52,6 @@ class App {
     private middlewares(): void {
         let env = process.env.NODE_ENV || config.NODE_ENV
 
-        /**
-         * Middlewares that must be run
-         * only in the development environment.
-         */
-        if (env != undefined && env.trim() == 'dev')
-            this.app.use(logger('dev'))
-
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: false }))
         this.app.use(qs({ use_page: true, default: { pagination: { limit: 20 }, sort: { created_at: 'desc' } } }))
