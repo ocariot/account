@@ -135,7 +135,7 @@ describe('Routes: Users', () => {
                     password: defaultUser.password
                 })
                 .set('Content-Type', 'application/json')
-                .expect(201)
+                .expect(200)
                 .then(res => {
                     expect(res.body).is.not.null
                     expect(res.body).to.have.property('access_token')
