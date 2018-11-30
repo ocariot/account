@@ -217,9 +217,9 @@ export class UserRepository implements IUserRepository<IUser> {
         }
 
         payload.scope = 'activities:read activities:register activities:remove ' +
-            'sleep:read sleep:register sleep:remove ' +
             'environment:read environment:register environment:remove ' +
-            'users:readAll users:register users:read users:update users:remove'
+            'users:readAll users:register users:read users:update users:remove' +
+            'sleep:readAll sleep:read sleep:register sleep:update sleep:remove'
 
         const secret: string = process.env.JWT_SECRET || config.JWT_SECRET
         const userToken: object = { access_token: jwt.sign(payload, secret) }
