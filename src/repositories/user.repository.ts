@@ -216,7 +216,7 @@ export class UserRepository implements IUserRepository<IUser> {
             exp: Math.round(Date.now() / 1000 + 24 * 60 * 60)
         }
 
-        payload.scope = 'activities:read activities:register activities:remove ' +
+        payload.scope = 'activities:readAll activities:read activities:register activities:remove ' +
             'environment:read environment:register environment:remove ' +
             'users:readAll users:register users:read users:update users:remove ' +
             'sleep:readAll sleep:read sleep:register sleep:update sleep:remove'
