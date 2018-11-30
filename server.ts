@@ -1,12 +1,13 @@
 import http from 'http'
 import App from './src/app'
 import config from './config/config';
+require('dotenv').load()
 
 const port = process.env.PORT || config.PORT
 
-App.then((app) => {
-    app.listen(port, () => console.log(`Server running on port ${port}`))
-}).catch(err => {
-    console.error(err.message)
-    process.exit(1)
+const app = App.getExpress()
+app.listen(port, () => console.log(`Server running on port ${port}`))
+
+process.on('SIGINT', () => {
+    process.exit()
 })

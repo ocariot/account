@@ -5,9 +5,9 @@ import yaml from 'yamljs'
 import routes from './routes'
 import express, { Application, Request, Response, NextFunction } from "express"
 import { ApiException, IExceptionError } from './exceptions/api.exception'
-import database from './../config/database'
 import qs from 'query-strings-parser'
 import config from '../config/config';
+import { tryConnect } from '../config/database';
 
 /**
  * Class App.
@@ -39,6 +39,7 @@ class App {
      * Bootstrap app.
      */
     bootstrap(): void {
+        tryConnect()
         this.middlewares()
         this.routes()
     }
@@ -102,4 +103,4 @@ class App {
     }
 }
 
-export default database.connection().then(() => new App().getExpress())
+export default new App()
