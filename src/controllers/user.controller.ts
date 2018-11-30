@@ -68,7 +68,7 @@ export class UserController {
     authUser(req: Request, res: Response): any {
         return this.userRepository
             .authenticate(req.body.user_name, req.body.password)
-            .then(token => res.status(201).send(token))
+            .then(token => res.status(200).send(token))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
 
