@@ -2,51 +2,59 @@ import mongoose, { Document } from 'mongoose'
 
 export interface IUser extends Document {
     id?: string
-    name: string
     user_name: string
-    gender: string
-    date_birth: number
-    height: number
-    created_at?: Date
-    updated_at?: Date
     password: string
+    school: object
+    created_at?: Date
+    change_password: boolean
+
 }
 
 const userSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: 'Name required!'
-    },
+    id: { type: String },
     user_name: {
         type: String,
         required: 'Email required!',
         index: { unique: true }
     },
-    gender: {
-        type: String,
-        required: 'Gender required!'
-    },
-    date_birth: {
-        type: Number,
-        required: 'Date Of Birthday required!'
-    },
-    height: {
-        type: Number,
-        required: 'Height required!'
-    },
     password: {
         type: String,
-        required: 'Password required!'
-    }
+        required: 'Password is required!'
+    },
+    school: {
+        name: {
+            type: String,
+            required: 'Name of school is required!'
+        },
+        country: {
+            type: String,
+            required: 'Country code of school is required!'
+        },
+        city: {
+            type: String,
+            required: 'City of school is required!'
+        },
+        address: {
+            type: String,
+            required: 'Address of school is required!'
+        }
+    },
+    change_password: { type: Boolean }
 },
     {
-        timestamps: { createdAt: 'created_at', updatedAt: 'updated_at' }
+        timestamps: { createdAt: 'created_at', updatedAt: false },
+        toJSON: {
+            transform: (doc, ret) => {
+                ret.id = ret._id
+                delete ret._id
+                delete ret.__v
+                delete ret.updatedAt
+                delete ret.password
+                delete ret.change_password
+                return ret
+            }
+        }
     }
 )
-
-userSchema.pre('save', (next) => {
-    // this will run before saving 
-    next()
-});
 
 export const User = mongoose.model<IUser>('User', userSchema)

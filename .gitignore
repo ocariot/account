@@ -39,3 +39,9 @@ jspm_packages
 
 # Directory files dist
 dist
+
+# VS Code configurations
+.vscode
+
+#Environment variables
+.env

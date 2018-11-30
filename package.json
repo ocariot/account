@@ -54,12 +54,13 @@
     "all": true
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
+    "dotenv": "^6.1.0",
     "express": "^4.16.3",
-    "jwt-simple": "^0.5.1",
+    "jsonwebtoken": "^8.4.0",
     "mongoose": "^5.1.1",
-    "passport": "^0.4.0",
-    "passport-jwt": "^4.0.0",
+    "query-strings-parser": "^1.0.0",
     "swagger-ui-express": "^3.0.9",
     "yamljs": "^0.3.0"
   },

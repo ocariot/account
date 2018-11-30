@@ -1,883 +1,588 @@
-swagger: '2.0'
+openapi: 3.0.0
 info:
-  version: "v1"
-  title: 'Account Service - API Reference'
-  description: "Esta é a documentação da API RESTful do micro serviço **Account Service** que serve para administrar a inserção, seleção, atualização e remoção de usuários."
-  contact:
-    email: "lucas.barbosa@nutes.uepb.edu.br"
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 'v1'
+  title: Account Service
+  description: ' This is the RESTful API documentation of the API Gateway responsible for delivering features to the OCARIoT clients by integrating the OCARIoT services.'
+
+servers:
+  - description: Account Local Instance
+    url: http://127.0.0.1:5000/api/v1
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/nutes.ocariot/account-service/v1
     
-# API URL
-host: 127.0.0.1:3000
-basePath: /api/v1
-#host: virtserver.swaggerhub.com
-#basePath: /lucas.barbosa/account-service/v1
-schemes:
-  - https
-consumes:
-- "application/json"
-produces:
-- "application/json"
-
 tags:
-- name: users
-  description: "Operações para o recurso usuário."
-- name: users.profiles.fitbit
-  description: "Operações para o recurso do perfil do Fitbit de um usuário."
-- name: users.profiles.firebase
-  description: "Operações para o recurso do perfil do Firebase de um usuário."
-  
-
+  - name: users
+    description: Operations for the User resource.
+    
 paths:
-  
   /users:
     post:
       tags:
         - users
-      summary: "Cadastrar usuário."
-      description: "Cadastra um novo usuário."
+      summary: Register a user on the platform.
+      description: Register a new user on the platform.
       operationId: addUser
-      parameters:
-        - name: signup
-          in: "body"
-          required: true
-          description: "Dados do usuário que deseja salvar."
-          schema:
-            $ref: '#/definitions/User'
       responses:
-        201:
-          description: "Usuário cadastrado com sucesso."
-          schema:
-            $ref: '#/definitions/User'
-        400:
-          description: "Requisição não pode ser atendida, sintaticamente incorreta ou viola o esquema. Normalmente ocorre devido problemas de validação, como campos que são esperados no corpo da requisição e não foram passados."
-          schema:
-            $ref: '#/definitions/Error'             
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para cadastrar usuários."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        415:
-          description: "O Servidor não oferece suporte ao formato de carga útil solicitado. Apenas application/json é aceito."
-          schema:
-            $ref: '#/definitions/Error'        
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'
-
+        '201':
+          description: User successfully registered.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '400':
+          description: >-
+            Request can not be met, syntactically incorrect or violates the
+            schema. Normally it occurs due to validation issues, such as fields
+            that are expected in the request body and not passed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Authentication failed due to invalid authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User does not have permission to register activities.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: >-
+            Specified resource does not exist. Usually when the URI is incorrect
+            or the resource is not found, or even no longer exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: >-
+            The server is not implementing the media type requested by the
+            client for the application response. Only application/json is
+            currently accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: >-
+            The server does not support the requested payload format. Only
+            application / json is accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The rate limit for requests exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: >-
+            An internal server error occurred. Although the client appears to
+            provide a correct request, the server encountered an unexpected
+            condition that prevented it from responding to the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_name: 
+                  type: string
+                  example:  br-schoolA-studentB
+                password:
+                  type: string
+                  example: 'lorem123'
+                school:
+                  type: object
+                  properties:
+                    name:
+                      type: string
+                      example: "Unifor"
+                    country:
+                      type: string
+                      example: "BR"
+                    city:
+                      type: string
+                      example: "Fortaleza" 
+                    address:
+                      type: string
+                      example: "Av. Washington Soares, 1321 - Edson Queiroz, Fortaleza - CE, 60811-905"
+        description: Data of the user to be saved.
+        required: true
+  
     get:
       tags:
-        - users
-      summary: "Recuperar todos os usuários."
-      description: "Retorna lista com os usuários. A consulta suporta Seleção de Campos, Paginação, Ordenação e Filtragem."
+      - users
+      summary: Recover list of users. Useful for users with administrator permissions.
       operationId: getAllUsers
+      description: >- 
+        Returns list with registered users on the platform. 
+        The query supports field selection, pagination, sorting, and filtering.
       parameters:
-        - $ref: '#/parameters/fieldsParam'
-        - $ref: '#/parameters/offsetParam'
-        - $ref: '#/parameters/limitParam'
-        - $ref: '#/parameters/sortParam'
-        - $ref: '#/parameters/filterParam'
+      - $ref: '#/components/parameters/fieldsParam'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/filterParam'
       responses:
-        200:
-          description: "Lista de usuários."
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/User'
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para acessar lista de usuários."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'
-            
-      
-  /users/{user_id}/profiles/firebase:
-    post:
-      tags:
-        - users.profiles.firebase
-      summary: "Cadastrar Token do Firebase Cloud Messaging."
-      description: "Realizar o cadastramento do token de acesso ao serviço de mensagens do Firebase Cloud Messaging (FCM), de um determinado usuário."
-      operationId: addFcmToken
-      parameters:
-        - name: user_id
-          in: path
-          type: string
-          required: true
-          description: "ID do usuário"
-          x-example: "5accb6215ba48413e81e7853e"
-        - name: fcm_token
-          in: "body"
-          required: true
-          description: "Dados do usuário que deseja salvar."
-          schema:
-            $ref: '#/definitions/FirebaseProfile'
-      responses:
-        201:
-          description: "Usuário cadastrado com sucesso."
-          schema:
-            $ref: '#/definitions/FirebaseProfile'
-        400:
-          description: "Requisição não pode ser atendida, sintaticamente incorreta ou viola o esquema. Normalmente ocorre devido problemas de validação, como campos que são esperados no corpo da requisição e não foram passados."
-          schema:
-            $ref: '#/definitions/Error'             
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para cadastrar usuários."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        415:
-          description: "O Servidor não oferece suporte ao formato de carga útil solicitado. Apenas application/json é aceito."
-          schema:
-            $ref: '#/definitions/Error'        
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'
-
+        '200':
+          description: Successful requisition.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '401':
+          description: Authentication failed due to invalid authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: User does not have permission to get activities.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: >-
+            Specified resource does not exist. Usually when the URI is incorrect
+            or the resource is not found, or even no longer exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: >-
+            The server is not implementing the media type requested by the
+            client for the application response. Only application/json is
+            currently accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The rate limit for requests exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: >-
+            An internal server error occurred. Although the client appears to
+            provide a correct request, the server encountered an unexpected
+            condition that prevented it from responding to the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  
+  /users/{user_id}:
     get:
       tags:
-        - users.profiles.firebase
-      summary: "Recuperar um perfil de usuário do firebase."
-      description: "Retorna lista com os usuários. A consulta suporta Seleção de Campos, Paginação, Ordenação e Filtragem."
-      operationId: getFirebaseProfile
-      parameters:
-        - name: user_id
-          in: path
-          type: string
-          required: true
-          description: "ID do usuário"
-          x-example: "5accb6215ba48413e81e7853e"
-        - $ref: '#/parameters/fieldsParam'
-        - $ref: '#/parameters/offsetParam'
-        - $ref: '#/parameters/limitParam'
-        - $ref: '#/parameters/sortParam'
-        - $ref: '#/parameters/filterParam'
-      responses:
-        200:
-          description: "Lista de usuários."
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/User'
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para acessar lista de usuários."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'
-   
-    delete:
-      tags:
-        - users.profiles.firebase
-      summary: "Remover o perfil do firebase de um usuário."
-      description: "Remove um  determinado perfil de usuário do banco de dados."
-      operationId: removeFcmToken
-      parameters:
-        - name: user_id
-          in: path
-          type: string
-          required: true
-          description: "ID do usuário"
-          x-example: "5accb6215ba48413e81e7853e"
-        - $ref: '#/parameters/fieldsParam'
-      responses:
-        200:
-          description: "Dados do usuário solicitado."
-          schema:
-            $ref: '#/definitions/User'
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para acessar dados do usuário."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'        
-  /users/{user_id}/profiles/fitbit:
-    post:
-      tags:
-        - users.profiles.fitbit
-      summary: "Cadastrar Token de acesso do Fitbit."
-      description: "Realizar o cadastramento do token de acesso, para consultar os dados de um determinado usuário."
-      operationId: addFitbitAcessToken
-      parameters:
-        - name: user_id
-          in: path
-          type: string
-          required: true
-          description: "ID do usuário"
-          x-example: "5accb6215ba48413e81e7853e"
-        - name: acess_token
-          in: "body"
-          required: true
-          description: "Dados do usuário que deseja salvar."
-          schema:
-            $ref: '#/definitions/FitbitProfile'
-      responses:
-        201:
-          description: "Usuário cadastrado com sucesso."
-          schema:
-            $ref: '#/definitions/FitbitProfile'
-        400:
-          description: "Requisição não pode ser atendida, sintaticamente incorreta ou viola o esquema. Normalmente ocorre devido problemas de validação, como campos que são esperados no corpo da requisição e não foram passados."
-          schema:
-            $ref: '#/definitions/Error'             
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para cadastrar usuários."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        415:
-          description: "O Servidor não oferece suporte ao formato de carga útil solicitado. Apenas application/json é aceito."
-          schema:
-            $ref: '#/definitions/Error'        
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'
-    get:
-      tags:
-        - users.profiles.fitbit
-      summary: "Recuperar um perfil de usuário do fitbit."
-      description: "Retorna o perfil do Fitbit de um usuário. A consulta suporta Seleção de Campos, Paginação, Ordenação e Filtragem."
-      operationId: getFitbitProfile
-      parameters:
-        - name: user_id
-          in: path
-          type: string
-          required: true
-          description: "ID do usuário"
-          x-example: "5accb6215ba48413e81e7853e"
-        - $ref: '#/parameters/fieldsParam'
-        - $ref: '#/parameters/offsetParam'
-        - $ref: '#/parameters/limitParam'
-        - $ref: '#/parameters/sortParam'
-        - $ref: '#/parameters/filterParam'
-      responses:
-        200:
-          description: "Lista de usuários."
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/User'
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para acessar lista de usuários."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'
-    delete:
-      tags:
-        - users.profiles.fitbit
-      summary: "Remover um perfil de usuário."
-      description: "Remove um  determinado perfil de usuário do banco de dados."
-      operationId: removeFitbitAcessToken
-      parameters:
-        - name: user_id
-          in: path
-          type: string
-          required: true
-          description: "ID do usuário"
-          x-example: "5accb6215ba48413e81e7853e"
-        - $ref: '#/parameters/fieldsParam'
-      responses:
-        200:
-          description: "Dados do usuário solicitado."
-          schema:
-            $ref: '#/definitions/User'
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para acessar dados do usuário."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'
-  /users/{user_id}:   
-    delete:
-      tags:
-        - users
-      summary: "Remover usuário."
-      description: "Remove um  determinado usuário do banco de dados."
-      operationId: removeUser
-      parameters:
-        - name: user_id
-          in: path
-          type: string
-          required: true
-          description: "ID do usuário"
-          x-example: "5accb6215ba48413e81e7853e"
-        - $ref: '#/parameters/fieldsParam'
-      responses:
-        200:
-          description: "Dados do usuário solicitado."
-          schema:
-            $ref: '#/definitions/User'
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para acessar dados do usuário."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'
-   
-    put:
-      tags:
-        - users
-      summary: "Atualizar dados do usuário."
-      description: "Atualiza  os dados de um determinados usuário,  a partir do 'user_id'."
-      operationId: updateUser
-      parameters:
-        - name: user_id
-          in: path
-          type: string
-          required: true
-          description: "ID do usuário"
-          x-example: "5accb6215ba48413e81e7853e"
-        - $ref: '#/parameters/fieldsParam'
-      responses:
-        200:
-          description: "Dados do usuário solicitado."
-          schema:
-            $ref: '#/definitions/User'
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para acessar dados do usuário."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'
-        
-    get:
-      tags:
-        - users
-      summary: "Recuperar dados do usuário."
-      description: "Recupera os dados de um determinado usuário, atrvés do 'user_id'."
+      - users
+      summary: Recover user data.
       operationId: getUserById
+      description: Retrieve the data of the user registered in the platform according to his id.
       parameters:
-        - name: user_id
-          in: path
-          type: string
-          required: true
-          description: "ID do usuário"
-          x-example: "5accb6215ba48413e81e7853e"
-        - $ref: '#/parameters/fieldsParam'
+      - in: path
+        name: user_id
+        required: true
+        description: Id of user.
+        example: 5a62be07d6f33400146c9b61
+        schema:
+          type: string      
+      - $ref: '#/components/parameters/fieldsParam'
+      - $ref: '#/components/parameters/pageParam'
+      - $ref: '#/components/parameters/limitParam'
+      - $ref: '#/components/parameters/sortParam'
+      - $ref: '#/components/parameters/filterParam'
       responses:
-        200:
-          description: "Dados do usuário solicitado."
-          schema:
-            $ref: '#/definitions/User'
-        401:
-          description: "Autenticação falhou devido credenciais de autenticação inválidas."
-          schema:
-            $ref: '#/definitions/Error'
-        403:
-          description: "Usuário não possui permissão para acessar dados do usuário."
-          schema:
-            $ref: '#/definitions/Error'
-        404:
-          description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-          schema:
-            $ref: '#/definitions/Error'
-        406:
-          description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-          schema:
-            $ref: '#/definitions/Error'
-        429:
-          description: "O limite de taxa para requisições excedeu."
-          schema:
-            $ref: '#/definitions/Error'
-        500:
-          description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-          schema:
-            $ref: '#/definitions/Error'
-            
-  /profiles/fitbit:
-      get:
-        tags:
-          - users.profiles.fitbit
-        summary: "Recuperar todos os perfis usuários do fitbit."
-        description: "Retorna lista com os usuários. A consulta suporta Seleção de Campos, Paginação, Ordenação e Filtragem."
-        operationId: getAllFitbitProfile
-        parameters:
-          - name: user_id
-            in: path
-            type: string
-            required: true
-            description: "ID do usuário"
-            x-example: "5accb6215ba48413e81e7853e"
-          - $ref: '#/parameters/fieldsParam'
-          - $ref: '#/parameters/offsetParam'
-          - $ref: '#/parameters/limitParam'
-          - $ref: '#/parameters/sortParam'
-          - $ref: '#/parameters/filterParam'
-        responses:
-          200:
-            description: "Lista de usuários."
-            schema:
-              type: array
-              items:
-                $ref: '#/definitions/User'
-          401:
-            description: "Autenticação falhou devido credenciais de autenticação inválidas."
-            schema:
-              $ref: '#/definitions/Error'
-          403:
-            description: "Usuário não possui permissão para acessar lista de usuários."
-            schema:
-              $ref: '#/definitions/Error'
-          404:
-            description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-            schema:
-              $ref: '#/definitions/Error'
-          406:
-            description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-            schema:
-              $ref: '#/definitions/Error'
-          429:
-            description: "O limite de taxa para requisições excedeu."
-            schema:
-              $ref: '#/definitions/Error'
-          500:
-            description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-            schema:
-              $ref: '#/definitions/Error'
-
-  /profiles/firebase:
-      get:
-        tags:
-          - users.profiles.firebase
-        summary: "Recuperar todos os perfis usuários do firebase."
-        description: "Retorna lista com os usuários. A consulta suporta Seleção de Campos, Paginação, Ordenação e Filtragem."
-        operationId: getAllFirebaseProfile
-        parameters:
-          - name: user_id
-            in: path
-            type: string
-            required: true
-            description: "ID do usuário"
-            x-example: "5accb6215ba48413e81e7853e"
-          - $ref: '#/parameters/fieldsParam'
-          - $ref: '#/parameters/offsetParam'
-          - $ref: '#/parameters/limitParam'
-          - $ref: '#/parameters/sortParam'
-          - $ref: '#/parameters/filterParam'
-        responses:
-          200:
-            description: "Lista de usuários."
-            schema:
-              type: array
-              items:
-                $ref: '#/definitions/User'
-          401:
-            description: "Autenticação falhou devido credenciais de autenticação inválidas."
-            schema:
-              $ref: '#/definitions/Error'
-          403:
-            description: "Usuário não possui permissão para acessar lista de usuários."
-            schema:
-              $ref: '#/definitions/Error'
-          404:
-            description: "Recurso especificado não existe. Normalmente quando a URI está incorreta ou o recurso não é encontrado, ou até mesmo não existe mais."
-            schema:
-              $ref: '#/definitions/Error'
-          406:
-            description: "O servidor não implementa o tipo de mídia solicitado pelo cliente para retorno da carga útil na resposta. Apenas application/json é aceito no momento."
-            schema:
-              $ref: '#/definitions/Error'
-          429:
-            description: "O limite de taxa para requisições excedeu."
-            schema:
-              $ref: '#/definitions/Error'
-          500:
-            description: "Ocorreu um erro interno no servidor. Embora o cliente pareça fornecer uma solicitação correta, o servidor encontrou uma condição inesperada que o impediu de atender a requisição."
-            schema:
-              $ref: '#/definitions/Error'
+        '200':
+          description: Successful requisition.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Authentication failed due to invalid authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: The user does not have permission to access the resource.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: >-
+            Specified resource does not exist. Usually when the URI is incorrect
+            or the resource is not found, or even no longer exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: >-
+            The server is not implementing the media type requested by the
+            client for the application response. Only application/json is
+            currently accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The rate limit for requests exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: >-
+            An internal server error occurred. Although the client appears to
+            provide a correct request, the server encountered an unexpected
+            condition that prevented it from responding to the request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
   
-# Definição dos schemas das entidades      
-definitions:
-  # Definição do schema User
-  User:
-    type: object
-    description: "Representação do recurso User."
-    required:
-      - name
-      - email
-      - gender
-      - dateOfBith
-      - height
-    properties:
-      id:
-        type: string
-        format: uuid
-        description: "Campo de chave primária gerado automaticamente."
-        example: "5accb6215ba48413e81e7853e"
-        readOnly: true
-      name:
-        type: string
-        description: "Nome completo do usuário."
-        example: "Tristan J. Maya"
-      email:
-        type: string
-        description: "Email cadastrado pelo usuário."
-        example: "haniot@nutes.uepb.edu.br"
-      gender:
-        type: string
-        description: "Gênero do usuário."
-        example: "M"
-      dateOfBith:
-        type: integer
-        description: "Idade do usuário"
-        example: 18
-      height:
-        type: number
-        description: "Altura do usuário"
-        example: 1.80
-      create_at:
-        type: string
-        format: date-time
-        description: "Data e hora no padrão UTC gerada automaticamente no momento em que o recurso é salvo no servidor."
-        readOnly: true 
-      profiles:
-        type: object
-        items:
-          $ref: '#/definitions/Profile'
-        readOnly: true
+  /users/auth:
+    post:
+      tags:
+      - users
+      summary: Authenticate user on platform.
+      operationId: auth
+      description: |
+        Retrieve a valid token to be used in requests. 
+        The authentication approach is following the specifications of JWT, 
+        which is a standard _[(RFC-7519)](https://tools.ietf.org/html/rfc7519)_ that defines how to transmit and store
+        JSON objects in a compact and secure way between different applications.
+        
+        The token payload will include the following information _[(RFC-7519)](https://tools.ietf.org/html/rfc7519#page-8)_:
+        - **sub** (subject) - Entity to which the token belongs, usually the user ID;
+        - **iss** (issuer) - defines the issuer of the token;
+        - **exp** (expiration) - Timestamp in seconds of when the token will expire;
+        - **iat** (issued on) - Timestamp in seconds from when the token was created;
+        - **escope** - Specifies the access scopes that the generated token has.
+        
+        Example of values that can make up the payload:
+        ```javascript
+        {
+          "exp": 1543142660,
+          "scope": "activities:read activities:register:remove",
+          "sub": "USER_ID",
+          "iss": "ocariot",
+          "iat": 1543200269
+        }
+      responses:
+        '201':
+          description: User successfully authenticated.
+          content:
+            application/json:
+              example:
+                access_token: eyJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1NDMxNDI2NjAsInNjb3BlIjoiYWN0aXZpdGllczpyZWFkIGFjdGl2aXRpZXM6cmVnaXN0ZXI6cmVtb3ZlIiwic3ViIjoiVVNFUl9JRCIsImlzcyI6Im9jYXJpb3QiLCJpYXQiOjE1NDMyMDAyNjl9.Dj3nRRRtQIBRhb6UMNVNTnePI2s3JfCltU0dtR499IM
+                      
+        '400':
+          description: >-
+            Request can not be met, syntactically incorrect or violates the 
+            schema. Normally it occurs due to validation issues, such as 
+            fields that are expected in the request body and not passed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Authentication failed due to invalid authentication credentials.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: >-
+            User password must be changed. It occours when the system requires that user change your password during the auth proccess.
           
+          content:
+            application/json:
+              schema:
+                example:
+                  code: 403
+                  message: Change password is necessary. 
+                  description: "To ensure information security, the user must change the access password. Access /api/v1/users/{user_id}/password to update then."
+                  redirect_link: /api/v1/users/{user_id}/password
+        '404':
+          description: >-
+            Specified resource does not exist. Usually when the URI is incorrect
+            or the resource is not found, or even no longer exists.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '406':
+          description: >-
+            The server is not implementing the media type requested by the client
+            for the application response. Only application/json is currently 
+            accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '415':
+          description: >-
+           The server does not support the requested payload format. Only 
+           application/json is accepted.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '429':
+          description: The rate limit for requests exceeded.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: >-
+            An internal server error occurred. Although the client appears to
+            provide a correct request, the server encountered an unexpected
+            condition that prevented it from responding to the request."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              example:
+                user_name: br-schoolA-studentB
+                password: lorem123
+        description: Data of the user to perform authentication.
+        required: true    
 
-  Profile:
-    type: object
-    description: "Representação dos perfis de um User."
-    properties:
-      id:
-        type: string
-        format: uuid
-        description: "Campo de chave primária gerado automaticamente."
-        example: "5accb6215ba48413e81e7853e"
-        readOnly: true
-      fitbitId:
-        type: string
-        format: uuid
-        description: "Id referente ao perfil do Fitbit"
-        example: "eyJfaWQiOiI1YWMyMzVmYWQ2YjQ2MDIzMzQzN2M0ZWQif"
-      firebaseId:
-        type: string
-        format: uuid
-        description: "Id referente ao perfil do Firebase"
-        example: "yJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ"
-
-  FirebaseProfile:
-    type: object
-    description: "Representação do recurso Firebase Profile de um User."
-    required:
-      - fcm_token
-    properties:
-      id:
-        type: string
-        format: uuid
-        description: "Campo de chave primária gerado automaticamente."
-        example: "5accb6215ba48413e81e7853e"
-        readOnly: true
-      fcm_token:
-        type: string
-        description: "Token de acesso do serviço FCM"
-        example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1YWMyMzVmYWQ2YjQ2MDIzMzQzN2M0ZWQifQ.dnUUZfjt97fNG13y-o41ukg8ECQE-XHQ4LfCf_VKXHY"
-  
-  FitbitProfile:
-    type: object
-    description: "Representação do recurso Fitbit Profile de um User."
-    required:
-      - acess_token
-      - expiresIn
-      - refresh_token
-    properties:
-      id:
-        type: string
-        format: uuid
-        description: "Campo de chave primária gerado automaticamente."
-        example: "5accb6215ba48413e81e7853e"
-        readOnly: true
-      acess_token:
-        type: string
-        description: "Token de acesso do Fitbit"
-        example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1YWMyMzVmYWQ2YjQ2MDIzMzQzN2M0ZWQifQ.dnUUZfjt97fNG13y-o41ukg8ECQE-XHQ4LfCf_VKXHY"
-      expiresIn:
+components:
+  parameters:
+    fieldsParam:
+      in: query
+      name: fields
+      required: false
+      description: >-
+        Allows you to retrieve only the information you want. To do this,
+        simply provide the name of the attributes separated by commas.
+        For example: **_fields=field1,field2_** indicates that only
+        field1 and field2 should be listed in the query result.
+      schema:
+        type: array
+        items:
+          type: string
+    pageParam:
+      in: query
+      name: page
+      required: false
+      description: The page number.
+      schema:
         type: integer
-        description: "Tempo para a expiração do Token de acesso"
-        example: 28800
-      refresh_token:
+        format: int32
+        minimum: 1
+        default: 1
+    limitParam:
+      in: query
+      name: limit
+      required: false
+      description: The number of items to return.
+      schema:
+        type: integer
+        format: int32
+        maximum: 100
+        default: 20
+    sortParam:
+      in: query
+      name: sort
+      required: false
+      description: >-
+        Contains the names of the attributes, separated by commas, that
+        will be used to sort the result of the query. For ascending sort,
+        use the '+' character before the attribute name. For descending
+        sort, use the '-' character before the attribute name. By default,
+        the order is ascending, so the '+' symbol is optional, just enter
+        the attribute.
+      schema:
+        type: array
+        items:
+          type: string
+          
+    filterParam:
+      in: query
+      name: ''
+      required: false
+      description: >-
+        To filter a collection by multiple concurrent attributes or filter
+        multiple values for an attribute, simply use the attribute/property
+        name with an equal sign and the expected values, separated by a comma.
+        **_property=value1,value2,value3_**. The query is not case sensitive.
+        Example: **_?name=elvis,john_** to retrieve exactly the same users with
+        elvis or john name.
+        For filtering with logical operators, just follow the syntax:
+        **_property=operator:value_**. The available operators are:
+         - **gt** -> Defines which value of the attribute is greater than
+                    (that is,>) the specified value.
+         - **gte** -> Defines which attribute value is greater than or equal to
+                    (that is,>=) the specified value.
+         - **lt** -> Define the value of the attribute to be less than (that is, <)
+                    the specified value.
+         - **lte** -> Defines which value of the attribute is less than or equal to
+                    (that is, <=) the specified value.
+
+        Example: **_?field1=gte:80&age=lt:100_** to recover the users with age
+        is greater than or equal to 80 and less then 100.
+      schema:
         type: string
-        description: "Token para dar refresh no token de acesso, quando o mesmo expirar"
-        example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJfaWQiOiI1YTk2ZmUzNmE3Yzk0ZDE0MGNlOGRmNzgifQ.TfsCOu0Ynhaq0P79VPvebMac8cA9b6lgZU7b4DJhq2k"
-      
-  # Definição do schema de erro padrão para as respostas das requisições
-  Error:
-    type: object
-    description: "Modelo padrão para mensagem de erro. Todos os erros retornados seguirão esse modelo."
-    required:
+    dateStartParam:
+      in: query
+      name: date_start
+      required: false
+      description: >-
+        Define start date in format: YYYY-MM-DD ou YYYY-MM-DD hh:mm:ss. The
+        attribute used for the query will be the registration_date.
+      schema:
+        type: string
+    dateEndParam:
+      in: query
+      name: date_end
+      required: false
+      description: >-
+        Define end date in format: YYYY-MM-DD ou YYYY-MM-DD hh:mm:ss.The
+        attribute used for the query will be the registration_date.
+      schema:
+        type: string
+        default: today
+    periodParam:
+      in: query
+      name: period
+      required: false
+      description: |-
+        Sets the period from the available ones:
+         - **[1..n]d** - Total days (1d, 2d, ...)
+         - **[1..n]w** - Total of weeks (1w, 2w, ...)
+         - **[1..n]m** - Total of months (1m, 2m, ...)
+         - **[1..n]y** - Total of years (1y, 2y, ...)
+
+        The attribute used for the query will be the registration_date.
+      schema:
+        type: string
+  # Reosurces 
+  schemas:
+    User:
+      type: object
+      required:
+        - user_name
+        - school
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Automatically generated key field.
+          example: 5a62be07d6f33400146c9b61
+          readOnly: true
+        user_name:
+          type: string
+          description: Username used for authentication.
+          example: br-schoolA-studentB
+        school:
+          type: object
+          properties:
+            name:
+              type: string
+              example: "Unifor"
+            country:
+              type: string
+              example: "BR"
+            city:
+              type: string
+              example: "Fortaleza" 
+            address:
+              type: string
+              example: "Av. Washington Soares, 1321 - Edson Queiroz, Fortaleza - CE, 60811-905"
+        create_at:
+          type: string
+          format: date-time
+          description: Date and time the resource was created on the server in the UTC standard, according to ISO 8601.
+          readOnly: true  
+
+    MultiStatus:
+      type: object
+      description: Default template for message when a request returns multiple status.
+      required:
+        - success
+        - error
+      properties:
+        success:
+          type: array
+          description: All items that were processed successfully.
+          items:
+            type: object
+            description: Item data processed.
+            properties:
+              code:
+                type: integer
+                description: The requisition status code for the item.
+                example: 201
+              item:
+                type: object
+                description: Item data that was successfully processed.
+        error:
+          type: array
+          description: All items that were were not processed due to some error.
+          items:
+            type: object
+            description: Item data not processed.
+            properties:
+              code:
+                type: integer
+                description: The requisition status code for the item.
+                example: 400
+              message:
+                type: string
+                description: Readable and short description of the error.
+              description:
+                type: string
+                description: Detailed description of the error.
+              item:
+                type: object
+                description: Item data that was not successfully processed
+                
+    Error:
+      type: object
+      description: >-
+        Default template for error message. 
+        All returned errors will follow this template.
+      required:
       - code
       - message
       - description
-    properties:
-      code:
-        type: integer
-        description: "Código exclusivo da API que indica detalhes específicos do erro, ou o próprio status code da resposta quando o código exclusivo não for cabível."
-      message:
-        type: string
-        description: "Descrição legível e curta do erro."
-      description:
-        type: string
-        description: "Descrição detalhada do erro."  
-
-# Definição dos parâmetros que são comuns 
-parameters:
-
-  # Respostas Parciais
-  fieldsParam:
-    in: query
-    name: fields
-    required: false
-    type: array
-    items:
-      type: string
-    description: "Permite recuperar apenas as informações que deseja. Para tal, basta fornecer o nome dos atributos separados por vírgula, por exemplo: **_fields=campo1,campo2_** sinaliza que apenas o campo1 e campo2 deverão ser listados no resultado da consulta."
-    
-  # Paginação
-  offsetParam:
-    in: query
-    name: offset
-    type: integer
-    format: int32
-    required: false
-    minimum: 0
-    default: 0
-    description: "O número de itens a serem ignorados antes de começar a coletar o conjunto de resultados."
-    
-  limitParam:
-    in: query
-    name: limit
-    type: integer
-    format: int32
-    required: false
-    maximum: 100
-    default: 20
-    description: "O número de itens a devolver."
-  
-  # Ordenação
-  sortParam:
-    in: query
-    name: sort
-    required: false
-    type: array
-    items:
-      type: string
-    default: ["created_at"]
-    description: "Contém os nomes dos atributos separados por vírgula que serão usados para ordenar o resultado da consulta. Para ordenação ascendente (crescente) utilize antes do nome do atributo o caractere + e para descendente (decrescente) utilize o caractere -. Por default a ordem é ascendente, com isso o símbolo + é opcional, bastando informar o atributo."
-  
-  # Filtragem
-  filterParam:
-    in: query
-    name: ""
-    required: false
-    type: string
-    description: "Para filtrar uma coleção por vários atributos ao mesmo tempo ou filtrar vários valores para um atributo, basta usar diretamente o nome do atributo/propriedade com um sinal de igual e os valores esperados, separados por vírgula **_property=value1,value2,value3_**. A consulta não é case sensitive. Exemplo,  **_?name=elvis,john_** para recuperar exatamente os idosos com nome igual a elvis ou john.\nPara filtragem com operadores lógicos basta seguir a sintaxe **_property=operator:value_**. Os operadores disponíveis são:\n - **gt** -> Define que valor do atributo é maior que (ou seja, >) o valor especificado.\n - **gte** -> Define que valor do atributo é maior ou igual que (ou seja, >=) o valor especificado.\n - **lt** -> Define que valor do atributo é menor que (ou seja, <) o valor especificado.\n - **lte** -> Define que valor do atributo é menor ou igual que (ou seja, <=) o valor especificado.\n\nExemplo, **_?campo1=gte:80&age=lt:100_** para recuperar os idosos com idade maior ou igual a 80 e menor que 100."
-    
-  # Data
-  dateStartParam:
-    in: query
-    name: date_start
-    required: false
-    type: string
-    description: "Define data início no formato: YYYY-MM-DD ou YYYY-MM-DD hh:mm:ss. O atributo utilizado para a consulta será o registration_date."
-  
-  dateEndParam:
-    in: query
-    name: date_end
-    required: false
-    type: string
-    description: "Define data final no formato: YYYY-MM-DD ou YYYY-MM-DD hh:mm:ss. O atributo utilizado para a consulta será o registration_date."
-    default: "today"
-    
-  periodParam:
-    in: query
-    name: period
-    required: false
-    type: string
-    description: "Define o período dentre os disponíveis:\n - **[1..n]d** - Total de dias (1d, 2d, ...)\n - **[1..n]w** - Total de semanas (1w, 2w, ...)\n - **[1..n]m** - Total de meses (1m, 2m, ...)\n - **[1..n]y** - Total de anos (1y, 2y, ...)\n\nO atributo utilizado para a consulta será o registration_date."
-    
-securityDefinitions:
- # X-API-Key: abcdef12345
- APIKeyHeader:
-   type: apiKey
-   in: header
-   name: X-API-Key
+      properties:
+        code:
+          type: integer
+          description: >-
+            Unique API code that indicates specific details of the error, or
+            the actual status code of the response when the unique code is not
+            appropriate.
+        message:
+          type: string
+          description: Readable and short description of the error.
+        description:
+          type: string
+          description: Detailed description of the error.

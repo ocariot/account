@@ -35,7 +35,8 @@ class IndexRouter implements IRouter<any> {
      * @returns String
      */
     readme(): String {
-        return config.README_DEFAULT
+        return `<h2> 'Account Service - <small>Microservice for user management.'.</small></h2>
+        <p>Access the API documentation <a href="/api/v1/reference">v.1.0</a></p>`
     }
 }
 

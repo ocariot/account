@@ -6,7 +6,8 @@ import routes from './routes'
 import express, { Application, Request, Response, NextFunction } from "express"
 import { ApiException, IExceptionError } from './exceptions/api.exception'
 import database from './../config/database'
-import config from './../config/config'
+import qs from 'query-strings-parser'
+import config from '../config/config';
 
 /**
  * Class App.
@@ -48,7 +49,7 @@ class App {
      * @returns void
      */
     private middlewares(): void {
-        let env = process.env.NODE_ENV
+        let env = process.env.NODE_ENV || config.NODE_ENV
 
         /**
          * Middlewares that must be run
@@ -59,15 +60,16 @@ class App {
 
         this.app.use(bodyParser.json());
         this.app.use(bodyParser.urlencoded({ extended: false }))
+        this.app.use(qs({ use_page: true, default: { pagination: { limit: 20 }, sort: { created_at: 'desc' } } }))
 
         /**
          * Middleware swagger. It should not run in the test environment.
          */
         if (env != undefined && env.trim() != 'test') {
             let options = {
-                customCss: '.swagger-ui .topbar { display: none } .swagger-ui .try-out { display: none}',
+                customCss: '.swagger-ui .topbar { display: none }',
                 customfavIcon: 'http://nutes.uepb.edu.br/wp-content/uploads/2014/01/icon.fw_.png',
-                customSiteTitle: `API Reference | ${config.APP_TITLE}`
+                customSiteTitle: `API Reference | Account Service`
             }
 
             this.app.use('/api/v1/reference', swaggerUi.serve, swaggerUi.setup(
@@ -95,7 +97,6 @@ class App {
         // Handle 500
         this.app.use((err: any, req: Request, res: Response, next: NextFunction) => {
             let errorMessage: IExceptionError = new ApiException(err.code, err.message, err.description)
-
             res.status(500).send(errorMessage.toJson())
         });
     }

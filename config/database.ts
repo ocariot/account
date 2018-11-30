@@ -1,11 +1,13 @@
 import mongoose from 'mongoose'
 import config from './config'
 
+require('dotenv').load()
+
 mongoose.Promise = Promise
 
 // Create the mongoose connection
 const connection = () => (process.env.NODE_ENV != undefined && process.env.NODE_ENV.trim() == 'test')
-    ? mongoose.connect(config.DB_URI_TEST) : mongoose.connect(config.DB_URI)
+    ? mongoose.connect(config.DB_URI_TEST, { useNewUrlParser: true }) : mongoose.connect(config.DB_URI, { useNewUrlParser: true })
 
 /**
  * CONNECTION EVENTS

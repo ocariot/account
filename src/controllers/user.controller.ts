@@ -24,12 +24,13 @@ export class UserController {
      * @returns any
      */
     addUser(req: Request, res: Response): any {
-        return this.userRepository.save(new User(req.body))
+        req.body.change_password = false
+        return this.userRepository.save(req.body)
             .then((user: IUser) => res.status(201).send(user))
-            .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))  
+            .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
 
-        /**
+    /**
      * Get all users.
      * 
      * @param req Request.
@@ -37,38 +38,12 @@ export class UserController {
      * @returns any
      */
     getAllUsers(req: Request, res: Response): any {
-        return this.userRepository.getAll()
+        return this.userRepository.getAll(req.query)
             .then((users: Array<IUser>) => res.status(200).send(users))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
 
- /**
-     * Remove user by id.
-     * 
-     * @param req Request.
-     * @param res Response.
-     * @returns any
-     */
-    removeUser(req: Request, res: Response): any {
-        return this.userRepository.delete(req.params.user_id)
-            .then((result: boolean) => res.status(204).send({}))
-            .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
-    }
-
     /**
-     * Update user by id.
-     * 
-     * @param req Request.
-     * @param res Response.
-     * @returns any
-     */
-    updateUser(req: Request, res: Response): any {
-        return this.userRepository.update(req.params.user_id, req.body)
-            .then((user: IUser) => res.status(201).send(user))
-            .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
-    }
-
-        /**
      * Get user by id.
      * 
      * @param req Request.
@@ -76,24 +51,26 @@ export class UserController {
      * @returns any
      */
     getUserById(req: Request, res: Response): any {
+        req.query.filters._id = req.params.user_id
         return this.userRepository
-            .getById(req.params.user_id)
+            .getById(req.query)
             .then((result: IUser) => res.status(200).send(result))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
 
-        /**
-     * Get user by id.
+    /**
+     * Authenticate user.
      * 
      * @param req Request.
      * @param res Response.
      * @returns any
      */
-    userAuthentication(req: Request, res: Response): any {
+
+    authUser(req: Request, res: Response): any {
         return this.userRepository
-            .getToken(req.body.user_name,req.body.password)
-            .then((result: any) => res.status(200).send(result))
+            .authenticate(req.body.user_name, req.body.password)
+            .then(token => res.status(201).send(token))
             .catch((err: IExceptionError) => res.status(err.code).send(err.toJson()))
     }
- 
+
 }

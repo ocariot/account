@@ -7,11 +7,13 @@
 export class ApiException extends Error implements IExceptionError {
     code: number
     description?: string
+    redirect_link?: string
 
-    constructor(code: number, message: string, description?: string) {
+    constructor(code: number, message: string, description?: string, redirect_link?: string) {
         super(message)
         this.code = code
         this.description = description
+        this.redirect_link = redirect_link
 
         // Set the prototype explicitly.
         Object.setPrototypeOf(this, new.target.prototype);
@@ -29,7 +31,8 @@ export class ApiException extends Error implements IExceptionError {
         return {
             'code': this.code,
             'message': this.message,
-            'description': this.description
+            'description': this.description,
+            'redirect_link': this.redirect_link
         }
     }
 }
@@ -43,5 +46,6 @@ export interface IExceptionError {
     code: number
     message: string
     description?: string
+    redirect_link?: string
     toJson(): Object
 }
