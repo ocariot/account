@@ -21,7 +21,7 @@ describe('Routes: Users', () => {
         }
     }
 
-    before(() => App.then((app) => request = supertest(app)))
+    before(()  => request = supertest(App.getExpress()))
 
     after(() => User.deleteMany({}))
 
