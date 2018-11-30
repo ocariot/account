@@ -3,10 +3,17 @@ import config from './config'
 
 mongoose.Promise = Promise
 
+function getDBUri(): string {
+    if (process.env.NODE_ENV && process.env.NODE_ENV === 'test') {
+        return process.env.MONGODB_URI_TEST || config.DB_URI_TEST
+    }
+    return process.env.MONGODB_URI || config.DB_URI
+}
+
 export function tryConnect() {
-    mongoose.connect(config.DB_URI, { useCreateIndex: true, useNewUrlParser: true })
+    mongoose.connect(getDBUri(), { useCreateIndex: true, useNewUrlParser: true })
         .then(con => {
-            console.log('MongoDB Connected1')
+            console.log('MongoDB Connected!')
         })
         .catch((err) => {
             console.log('MongoDB try connect error', err)
@@ -15,3 +22,4 @@ export function tryConnect() {
             }, 2000);
         });
 }
+
