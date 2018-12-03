@@ -13,7 +13,7 @@ function getDBUri(): string {
 export function tryConnect() {
     mongoose.connect(getDBUri(), { useCreateIndex: true, useNewUrlParser: true })
         .then(con => {
-            console.log('MongoDB Connected!')
+            console.log('MongoDB successfully connected!')
         })
         .catch((err) => {
             console.log('MongoDB try connect error', err)

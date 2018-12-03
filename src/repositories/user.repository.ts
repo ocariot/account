@@ -150,6 +150,7 @@ export class UserRepository implements IUserRepository<IUser> {
      */
 
     authenticate(user_name: string, password: string): Promise<object> {
+        console.log('users', user_name, password)
         return new Promise<object>((resolve, reject) => {
             const validation = ValidateAuthentication.validate(user_name, password)
             if (validation) {
@@ -161,12 +162,11 @@ export class UserRepository implements IUserRepository<IUser> {
             }
             return this.UserModel.findOne({ user_name: user_name })
                 .then(user => {
+                    console.log('user: ', user);
                     if (!user || !this.comparePasswords(password, user.password)) {
                         return reject(
-                            new ApiException(404,
-                                'User not found.',
-                                'User not found or already removed. A new operation for the same ' +
-                                'resource is not required!'))
+                            new ApiException(401,
+                                'Authentication failed due to invalid authentication credentials.'))
                     }
                     resolve(this.generateToken(user))
                 })
