@@ -150,7 +150,6 @@ export class UserRepository implements IUserRepository<IUser> {
      */
 
     authenticate(user_name: string, password: string): Promise<object> {
-        console.log('users', user_name, password)
         return new Promise<object>((resolve, reject) => {
             const validation = ValidateAuthentication.validate(user_name, password)
             if (validation) {
@@ -162,7 +161,6 @@ export class UserRepository implements IUserRepository<IUser> {
             }
             return this.UserModel.findOne({ user_name: user_name })
                 .then(user => {
-                    console.log('user: ', user);
                     if (!user || !this.comparePasswords(password, user.password)) {
                         return reject(
                             new ApiException(401,
@@ -171,7 +169,6 @@ export class UserRepository implements IUserRepository<IUser> {
                     resolve(this.generateToken(user))
                 })
                 .catch(err => {
-                    console.log('err: ', err);
                     if (err.name == 'CastError')
                         return reject(new ApiException(400, 'Invalid parameter!', err.message))
                     reject(new ApiException(500, err.message))
