@@ -6,5 +6,6 @@
  */
 export interface ISerializable<T> {
     serialize(): any
-    deserialize(item: any): T
+
+    deserialize(json: any): T
 }
