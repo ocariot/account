@@ -1,5 +1,6 @@
 import { ISerializable } from '../utils/serializable.interface'
-import { User } from './user'
+import { User, UserType } from './user'
+import { JsonUtils } from '../utils/json.utils'
 
 /**
  * Implementation of the application entity.
@@ -12,6 +13,7 @@ export class Application extends User implements ISerializable<Application> {
 
     constructor() {
         super()
+        super.type = UserType.APPLICATION
     }
 
     get application_name(): string | undefined {
@@ -43,7 +45,7 @@ export class Application extends User implements ISerializable<Application> {
         if (!json) return this
         super.deserialize(json)
 
-        if (typeof json === 'string' && super.isJsonString(json)) {
+        if (typeof json === 'string' && JsonUtils.isJsonString(json)) {
             json = JSON.parse(json)
         }
 

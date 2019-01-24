@@ -1,6 +1,7 @@
 import { ISerializable } from '../utils/serializable.interface'
 import { Entity } from './entity'
 import { Child } from './child'
+import { JsonUtils } from '../utils/json.utils'
 
 /**
  * Implementation of the children group entity.
@@ -64,7 +65,7 @@ export class ChildrenGroup extends Entity implements ISerializable<ChildrenGroup
     public deserialize(json: any): ChildrenGroup {
         if (!json) return this
         if (typeof json === 'string') {
-            if (!super.isJsonString(json)) {
+            if (!JsonUtils.isJsonString(json)) {
                 super.id = json
                 return this
             } else {

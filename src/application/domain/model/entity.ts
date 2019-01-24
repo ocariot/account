@@ -18,13 +18,4 @@ export class Entity {
     set id(value: string | undefined) {
         this._id = value
     }
-
-    public isJsonString(str): boolean {
-        try {
-            JSON.parse(str)
-        } catch (e) {
-            return false
-        }
-        return true
-    }
 }

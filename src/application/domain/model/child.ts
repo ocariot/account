@@ -1,5 +1,6 @@
 import { ISerializable } from '../utils/serializable.interface'
-import { User } from './user'
+import { User, UserType } from './user'
+import { JsonUtils } from '../utils/json.utils'
 
 /**
  * Implementation of the child entity.
@@ -13,6 +14,7 @@ export class Child extends User implements ISerializable<Child> {
 
     constructor() {
         super()
+        super.type = UserType.CHILD
     }
 
     get gender(): string | undefined {
@@ -54,7 +56,7 @@ export class Child extends User implements ISerializable<Child> {
         super.deserialize(json)
 
         if (typeof json === 'string') {
-            if (!super.isJsonString(json)) {
+            if (!JsonUtils.isJsonString(json)) {
                 super.id = json
                 return this
             } else {

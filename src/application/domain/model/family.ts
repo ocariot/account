@@ -1,6 +1,7 @@
 import { ISerializable } from '../utils/serializable.interface'
-import { User } from './user'
+import { User, UserType } from './user'
 import { Child } from './child'
+import { JsonUtils } from '../utils/json.utils'
 
 /**
  * Implementation of the family entity.
@@ -13,6 +14,7 @@ export class Family extends User implements ISerializable<Family> {
 
     constructor() {
         super()
+        super.type = UserType.FAMILY
     }
 
     get children(): Array<Child> | undefined {
@@ -44,7 +46,7 @@ export class Family extends User implements ISerializable<Family> {
         if (!json) return this
         super.deserialize(json)
 
-        if (typeof json === 'string' && super.isJsonString(json)) {
+        if (typeof json === 'string' && JsonUtils.isJsonString(json)) {
             json = JSON.parse(json)
         }
 

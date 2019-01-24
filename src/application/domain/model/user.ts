@@ -1,6 +1,7 @@
 import { Entity } from './entity'
 import { ISerializable } from '../utils/serializable.interface'
 import { Institution } from './institution'
+import { JsonUtils } from '../utils/json.utils'
 
 /**
  * Implementation of the user entity.
@@ -72,7 +73,7 @@ export class User extends Entity implements ISerializable<User> {
      */
     public deserialize(json: any): User {
         if (!json) return this
-        if (typeof json === 'string' && super.isJsonString(json)) {
+        if (typeof json === 'string' && JsonUtils.isJsonString(json)) {
             json = JSON.parse(json)
         }
 
@@ -97,5 +98,6 @@ export enum UserType {
     CHILD = 'child',
     EDUCATOR = 'educator',
     HEALTH_PROFESSIONAL = 'healthprofessional',
-    FAMILY = 'family'
+    FAMILY = 'family',
+    APPLICATION = 'application'
 }

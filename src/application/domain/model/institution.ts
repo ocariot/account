@@ -1,5 +1,6 @@
 import { Entity } from './entity'
 import { ISerializable } from '../utils/serializable.interface'
+import { JsonUtils } from '../utils/json.utils'
 
 /**
  * Implementation of the institution entity.
@@ -82,7 +83,7 @@ export class Institution extends Entity implements ISerializable<Institution> {
      */
     public deserialize(json: any): Institution {
         if (!json) return this
-        if (typeof json === 'string' && super.isJsonString(json)) {
+        if (typeof json === 'string' && JsonUtils.isJsonString(json)) {
             json = JSON.parse(json)
         }
 

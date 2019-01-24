@@ -1,6 +1,7 @@
 import { ISerializable } from '../utils/serializable.interface'
-import { User } from './user'
+import { User, UserType } from './user'
 import { ChildrenGroup } from './children.group'
+import { JsonUtils } from '../utils/json.utils'
 
 /**
  * Implementation of the educator entity.
@@ -13,6 +14,7 @@ export class Educator extends User implements ISerializable<Educator> {
 
     constructor() {
         super()
+        super.type = UserType.EDUCATOR
     }
 
     get children_groups(): Array<ChildrenGroup> | undefined {
@@ -46,7 +48,7 @@ export class Educator extends User implements ISerializable<Educator> {
         if (!json) return this
         super.deserialize(json)
 
-        if (typeof json === 'string' && super.isJsonString(json)) {
+        if (typeof json === 'string' && JsonUtils.isJsonString(json)) {
             json = JSON.parse(json)
         }
 
