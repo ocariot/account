@@ -1,6 +1,5 @@
 import { ISerializable } from '../utils/serializable.interface'
-import { Institution } from './institution'
-import { User, UserType } from './user'
+import { User } from './user'
 
 /**
  * Implementation of the child entity.
@@ -14,7 +13,6 @@ export class Child extends User implements ISerializable<Child> {
 
     constructor() {
         super()
-        super.type = UserType.CHILD
     }
 
     get gender(): string | undefined {
@@ -39,13 +37,10 @@ export class Child extends User implements ISerializable<Child> {
      * @returns {object}
      */
     public serialize(): any {
-        return {
-            id: super.id,
-            username: super.username,
+        return Object.assign(super.serialize(), {
             gender: this.gender,
-            age: this.age,
-            institution: super.institution ? super.institution.serialize() : super.institution
-        }
+            age: this.age
+        })
     }
 
     /**
@@ -56,20 +51,18 @@ export class Child extends User implements ISerializable<Child> {
      */
     public deserialize(json: any): Child {
         if (!json) return this
-        if (typeof json === 'string') json = JSON.parse(json)
+        super.deserialize(json)
 
-        if (json.id !== undefined) super.id = json.id
-        if (json.username !== undefined) super.username = json.username
-        if (json.password !== undefined) super.password = json.password
+        if (typeof json === 'string') {
+            if (!super.isJsonString(json)) {
+                super.id = json
+                return this
+            } else {
+                json = JSON.parse(json)
+            }
+        }
         if (json.gender !== undefined) this.gender = json.gender
         if (json.age !== undefined) this.age = json.age
-        if (json.institution !== undefined) {
-            super.institution = new Institution().deserialize(json.institution)
-        } else if (json.institution_id !== undefined) {
-            const institution = new Institution()
-            institution.id = json.institution_id
-            super.institution = institution
-        }
 
         return this
     }

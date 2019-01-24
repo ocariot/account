@@ -72,13 +72,19 @@ export class User extends Entity implements ISerializable<User> {
      */
     public deserialize(json: any): User {
         if (!json) return this
-        if (typeof json === 'string') json = JSON.parse(json)
+        if (typeof json === 'string' && super.isJsonString(json)) {
+            json = JSON.parse(json)
+        }
 
         if (json.id !== undefined) super.id = json.id
         if (json.username !== undefined) this.username = json.username
         if (json.password !== undefined) this.password = json.password
         if (json.type !== undefined) this.type = json.type
-        if (json.institution !== undefined) this.institution = new Institution().deserialize(json.institution)
+        if (json.institution !== undefined) {
+            this.institution = new Institution().deserialize(json.institution)
+        } else if (json.institution_id !== undefined) {
+            this.institution = new Institution().deserialize(json)
+        }
 
         return this
     }

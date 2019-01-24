@@ -82,7 +82,14 @@ export class Institution extends Entity implements ISerializable<Institution> {
      */
     public deserialize(json: any): Institution {
         if (!json) return this
-        if (typeof json === 'string') json = JSON.parse(json)
+        if (typeof json === 'string' && super.isJsonString(json)) {
+            json = JSON.parse(json)
+        }
+
+        if (json.institution_id !== undefined) {
+            super.id = json.institution_id
+            return this
+        }
 
         if (json.id !== undefined) super.id = json.id
         if (json.type !== undefined) this.type = json.type

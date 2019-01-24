@@ -63,7 +63,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
     public update(item: T): Promise<T> {
         const itemUp: T = this.mapper.transform(item)
         return new Promise<T>((resolve, reject) => {
-            this.Model.findOneAndUpdate({ _id: itemUp.getId() }, itemUp, { new: true })
+            this.Model.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
                 .exec()
                 .then((result: TModel) => {
                     if (!result) return resolve(undefined)

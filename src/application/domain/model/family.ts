@@ -1,6 +1,5 @@
 import { ISerializable } from '../utils/serializable.interface'
-import { Institution } from './institution'
-import { User, UserType } from './user'
+import { User } from './user'
 import { Child } from './child'
 
 /**
@@ -14,7 +13,6 @@ export class Family extends User implements ISerializable<Family> {
 
     constructor() {
         super()
-        super.type = UserType.FAMILY
     }
 
     get children(): Array<Child> | undefined {
@@ -31,12 +29,9 @@ export class Family extends User implements ISerializable<Family> {
      * @returns {object}
      */
     public serialize(): any {
-        return {
-            id: super.id,
-            username: super.username,
-            children: this.children ? this.children.map(item => item.serialize()) : this.children,
-            institution: super.institution ? super.institution.serialize() : super.institution
-        }
+        return Object.assign(super.serialize(), {
+            children: this.children ? this.children.map(item => item.serialize()) : this.children
+        })
     }
 
     /**
@@ -47,17 +42,16 @@ export class Family extends User implements ISerializable<Family> {
      */
     public deserialize(json: any): Family {
         if (!json) return this
-        if (typeof json === 'string') json = JSON.parse(json)
+        super.deserialize(json)
 
-        if (json.id !== undefined) super.id = json.id
-        if (json.username !== undefined) super.username = json.username
-        if (json.password !== undefined) super.password = json.password
-        if (json.institution !== undefined) {
-            super.institution = new Institution().deserialize(json.institution)
-        } else if (json.institution_id !== undefined) {
-            const institution = new Institution()
-            institution.id = json.institution_id
-            super.institution = institution
+        if (typeof json === 'string' && super.isJsonString(json)) {
+            json = JSON.parse(json)
+        }
+
+        if (json.children !== undefined) {
+            const childrenTemp: Array<Child> = []
+            json.children.forEach(elem => childrenTemp.push(new Child().deserialize(elem)))
+            this.children = childrenTemp
         }
 
         return this

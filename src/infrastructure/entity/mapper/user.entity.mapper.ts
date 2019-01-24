@@ -21,7 +21,7 @@ export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
      */
     public modelToModelEntity(item: User): UserEntity {
         const result: UserEntity = new UserEntity()
-        if (item.getId()) result.setId(item.getId())
+        // if (item.getId()) result.setId(item.getId())
         return result
     }
 
@@ -34,7 +34,7 @@ export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
      */
     public modelEntityToModel(item: UserEntity): User {
         const result: User = new User()
-        result.setId(item.getId())
+        // result.setId(item.getId())
         return result
     }
 
@@ -49,8 +49,8 @@ export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
         const result: User = new User()
         if (!json) return result
 
-        if (!(/^[0-9a-fA-F]{24}$/).test(json)) result.setId(json.id)
-        else result.setId(json)// json itself is already the user id
+        // if (!(/^[0-9a-fA-F]{24}$/).test(json)) result.setId(json.id)
+        // else result.setId(json)// json itself is already the user id
 
         return result
     }

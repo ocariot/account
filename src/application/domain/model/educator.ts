@@ -1,7 +1,6 @@
 import { ISerializable } from '../utils/serializable.interface'
-import { Institution } from './institution'
-import { User, UserType } from './user'
-import { Child } from './child'
+import { User } from './user'
+import { ChildrenGroup } from './children.group'
 
 /**
  * Implementation of the educator entity.
@@ -10,20 +9,18 @@ import { Child } from './child'
  * @implements {ISerializable<Educator>}
  */
 export class Educator extends User implements ISerializable<Educator> {
-    private _children?: Array<Child> // List of children associated with a family.
+    private _children_groups?: Array<ChildrenGroup> // List of children group.
 
-    constructor(username?: string, password?: string, institution?: Institution,
-                gender?: string, age?: number, children?: Array<Child>, id?: string) {
-        super(username, password, UserType.FAMILY, institution, id)
-        this.children = children
+    constructor() {
+        super()
     }
 
-    get children(): Array<Child> | undefined {
-        return this._children
+    get children_groups(): Array<ChildrenGroup> | undefined {
+        return this._children_groups
     }
 
-    set children(value: Array<Child> | undefined) {
-        this._children = value
+    set children_groups(value: Array<ChildrenGroup> | undefined) {
+        this._children_groups = value
     }
 
     /**
@@ -32,12 +29,11 @@ export class Educator extends User implements ISerializable<Educator> {
      * @returns {object}
      */
     public serialize(): any {
-        return {
-            id: super.id,
-            username: super.username,
-            children: this.children ? this.children.map(item => item.serialize()) : this.children,
-            institution: super.institution ? super.institution.serialize() : super.institution
-        }
+        return Object.assign(super.serialize(), {
+            children_groups: this.children_groups ?
+                this.children_groups.map(item => item.serialize()) :
+                this.children_groups
+        })
     }
 
     /**
@@ -48,17 +44,18 @@ export class Educator extends User implements ISerializable<Educator> {
      */
     public deserialize(json: any): Educator {
         if (!json) return this
-        if (typeof json === 'string') json = JSON.parse(json)
+        super.deserialize(json)
 
-        if (json.id !== undefined) super.id = json.id
-        if (json.username !== undefined) super.username = json.username
-        if (json.password !== undefined) super.password = json.password
-        if (json.institution !== undefined) {
-            super.institution = new Institution().deserialize(json.institution)
-        } else if (json.institution_id !== undefined) {
-            const institution = new Institution()
-            institution.id = json.institution_id
-            super.institution = institution
+        if (typeof json === 'string' && super.isJsonString(json)) {
+            json = JSON.parse(json)
+        }
+
+        if (json.children_groups !== undefined) {
+            const childrenGroupsTemp: Array<ChildrenGroup> = []
+            json.children_groups.forEach(elem => {
+                childrenGroupsTemp.push(new ChildrenGroup().deserialize(elem))
+            })
+            this.children_groups = childrenGroupsTemp
         }
 
         return this

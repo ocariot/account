@@ -63,9 +63,23 @@ export class ChildrenGroup extends Entity implements ISerializable<ChildrenGroup
      */
     public deserialize(json: any): ChildrenGroup {
         if (!json) return this
-        if (typeof json === 'string') json = JSON.parse(json)
+        if (typeof json === 'string') {
+            if (!super.isJsonString(json)) {
+                super.id = json
+                return this
+            } else {
+                json = JSON.parse(json)
+            }
+        }
 
         if (json.id !== undefined) super.id = json.id
+        if (json.name !== undefined) this.name = json.name
+        if (json.children !== undefined) {
+            const childrenTemp: Array<Child> = []
+            json.children.forEach(elem => childrenTemp.push(new Child().deserialize(elem)))
+            this.children = childrenTemp
+        }
+        if (json.school_class !== undefined) this.school_class = json.school_class
 
         return this
     }
