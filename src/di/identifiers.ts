@@ -8,16 +8,20 @@ export abstract class Identifier {
 
     // Controllers
     public static readonly HOME_CONTROLLER: any = Symbol.for('HomeController')
+    public static readonly CHILD_CONTROLLER: any = Symbol.for('ChildController')
 
     // Services
+    public static readonly CHILD_SERVICE: any = Symbol.for('ChildService')
 
     // Repositories
+    public static readonly CHILD_REPOSITORY: any = Symbol.for('ChildRepository')
 
     // Models
-    public static readonly USER_ENTITY: any = Symbol.for('UserEntity')
+    public static readonly USER_REPO_MODEL: any = Symbol.for('UserRepoModel')
+    public static readonly CHILD_ENTITY: any = Symbol.for('ChildEntity')
 
     // Mappers
-    public static readonly USER_ENTITY_MAPPER: any = Symbol.for('UserEntityMapper')
+    public static readonly CHILD_ENTITY_MAPPER: any = Symbol.for('ChildEntityMapper')
 
     // Background Services
     public static readonly RABBITMQ_EVENT_BUS: any = Symbol.for('EventBusRabbitMQ')

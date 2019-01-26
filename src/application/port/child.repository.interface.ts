@@ -6,12 +6,12 @@ import { Child } from '../domain/model/child'
  * Must be implemented by the user repository at the infrastructure layer.
  *
  * @see {@link ChildRepository} for further information.
- * @extends {IRepository<Child>}
+ * @extends {IRepository<User>}
  */
-export interface IActivityRepository extends IRepository<Child> {
+export interface IChildRepository extends IRepository<Child> {
     /**
-     * Checks if an child already has a registration.
-     * What differs from one child to another is the username.
+     * Checks if an user already has a registration.
+     * What differs from one user to another is the username.
      *
      * @param child
      * @return {Promise<boolean>} True if it exists or False, otherwise

@@ -61,7 +61,7 @@ export class App {
      */
     private middleware(): void {
         const inversifyExpress: InversifyExpressServer = new InversifyExpressServer(
-            this.container, null, { rootPath: '/' })
+            this.container, null, { rootPath: '/api/v1' })
 
         inversifyExpress.setConfig((app) => {
             // for handling query strings

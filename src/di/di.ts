@@ -3,7 +3,6 @@ import { Container } from 'inversify'
 import { HomeController } from '../ui/controller/home.controller'
 import { Identifier } from './identifiers'
 import { UserEntity } from '../infrastructure/entity/user.entity'
-import { UserEntityMapper } from '../infrastructure/entity/mapper/user.entity.mapper'
 import { IEntityMapper } from '../infrastructure/port/entity.mapper.interface'
 import { User } from '../application/domain/model/user'
 import { RabbitMQConnectionFactory } from '../infrastructure/eventbus/rabbitmq/rabbitmp.connection.factory'
@@ -18,6 +17,14 @@ import { IEventBus } from '../infrastructure/port/event.bus.interface'
 import { BackgroundService } from '../background/background.service'
 import { App } from '../app'
 import { CustomLogger, ILogger } from '../utils/custom.logger'
+import { IChildService } from '../application/port/child.service.interface'
+import { ChildService } from '../application/service/child.service'
+import { IChildRepository } from '../application/port/child.repository.interface'
+import { ChildRepository } from '../infrastructure/repository/child.repository'
+import { ChildEntity } from '../infrastructure/entity/child.entity'
+import { ChildEntityMapper } from '../infrastructure/entity/mapper/child.entity.mapper'
+import { ChildController } from '../ui/controller/child.controller'
+import { UserRepoModel } from '../infrastructure/database/schema/user.schema'
 
 export class DI {
     private static instance: DI
@@ -64,18 +71,22 @@ export class DI {
 
         // Controllers
         this.container.bind<HomeController>(Identifier.HOME_CONTROLLER).to(HomeController).inSingletonScope()
+        this.container.bind<ChildController>(Identifier.CHILD_CONTROLLER).to(ChildController).inSingletonScope()
 
         // Services
+        this.container.bind<IChildService>(Identifier.CHILD_SERVICE).to(ChildService).inSingletonScope()
 
         // Repositories
+        this.container.bind<IChildRepository>(Identifier.CHILD_REPOSITORY).to(ChildRepository).inSingletonScope()
 
         // Models
-        this.container.bind(Identifier.USER_ENTITY).toConstantValue(UserEntity)
+        this.container.bind(Identifier.USER_REPO_MODEL).toConstantValue(UserRepoModel)
+        this.container.bind(Identifier.CHILD_ENTITY).toConstantValue(ChildEntity)
 
         // Mappers
         this.container
-            .bind<IEntityMapper<User, UserEntity>>(Identifier.USER_ENTITY_MAPPER)
-            .to(UserEntityMapper).inSingletonScope()
+            .bind<IEntityMapper<User, UserEntity>>(Identifier.CHILD_ENTITY_MAPPER)
+            .to(ChildEntityMapper).inSingletonScope()
 
         // Background Services
         this.container
