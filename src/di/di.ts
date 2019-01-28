@@ -44,6 +44,11 @@ import { InstitutionRepository } from '../infrastructure/repository/institution.
 import { Institution } from '../application/domain/model/institution'
 import { InstitutionEntityMapper } from '../infrastructure/entity/mapper/institution.entity.mapper'
 import { InstitutionEntity } from '../infrastructure/entity/institution.entity'
+import { AuthController } from '../ui/controller/auth.controller'
+import { IAuthService } from '../application/port/auth.service.interface'
+import { AuthService } from '../application/service/auth.service'
+import { IAuthRepository } from '../application/port/auth.repository.interface'
+import { AuthRepository } from '../infrastructure/repository/auth.repository'
 
 export class DI {
     private static instance: DI
@@ -90,16 +95,20 @@ export class DI {
 
         // Controllers
         this.container.bind<HomeController>(Identifier.HOME_CONTROLLER).to(HomeController).inSingletonScope()
+        this.container.bind<AuthController>(Identifier.AUTH_CONTROLLER).to(AuthController).inSingletonScope()
         this.container.bind<ChildController>(Identifier.CHILD_CONTROLLER).to(ChildController).inSingletonScope()
         this.container.bind<FamilyController>(Identifier.FAMILY_CONTROLLER).to(FamilyController).inSingletonScope()
         this.container.bind<InstitutionController>(Identifier.INSTITUTION_CONTROLLER).to(InstitutionController).inSingletonScope()
 
         // Services
+        this.container.bind<IAuthService>(Identifier.AUTH_SERVICE).to(AuthService).inSingletonScope()
         this.container.bind<IChildService>(Identifier.CHILD_SERVICE).to(ChildService).inSingletonScope()
         this.container.bind<IFamilyService>(Identifier.FAMILY_SERVICE).to(FamilyService).inSingletonScope()
         this.container.bind<IInstitutionService>(Identifier.INSTITUTION_SERVICE).to(InstitutionService).inSingletonScope()
 
         // Repositories
+        this.container.bind<IAuthRepository>(Identifier.AUTH_REPOSITORY)
+            .to(AuthRepository).inSingletonScope()
         this.container.bind<IChildRepository>(Identifier.CHILD_REPOSITORY)
             .to(ChildRepository).inSingletonScope()
         this.container.bind<IFamilyRepository>(Identifier.FAMILY_REPOSITORY)
@@ -107,7 +116,7 @@ export class DI {
         this.container.bind<IInstitutionRepository>(Identifier.INSTITUTION_REPOSITORY)
             .to(InstitutionRepository).inSingletonScope()
 
-        // Models
+        // Mongoose Schema
         this.container.bind(Identifier.USER_REPO_MODEL).toConstantValue(UserRepoModel)
         this.container.bind(Identifier.INSTITUTION_REPO_MODEL).toConstantValue(InstitutionRepoModel)
 

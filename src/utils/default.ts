@@ -16,6 +16,9 @@ export abstract class Default {
     public static readonly PORT_HTTPS: number = 5001
     public static readonly SWAGGER_PATH: string = './src/ui/swagger/api.yaml'
 
+    // KEYS
+    public static readonly JWT_SECRET: string = 'p1c^HNy.cN;WKX4Ys1m"0:Ct>I1|@s'
+
     // MongoDB
     public static readonly MONGODB_URI: string = 'mongodb://127.0.0.1:27017/account-service'
     public static readonly MONGODB_URI_TEST: string = 'mongodb://127.0.0.1:27017/account-service-test'
@@ -43,5 +46,9 @@ export abstract class Default {
     public static readonly VALIDATION_INSTITUTION: any = {
         REGISTER_REQUIRED: 'The institution provided does not have a registration.',
         ALERT_REGISTER_REQUIRED: 'It is necessary that the institution be registered before trying again.'
+    }
+
+    public static readonly ERROR_MESSAGE: any = {
+        UNEXPECTED: 'An unexpected error has occurred. Please try again later...'
     }
 }

@@ -1,8 +1,3 @@
-/**
- * Implementation of the child repository.
- *
- * @implements {IChildRepository}
- */
 import bcrypt from 'bcryptjs'
 import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
@@ -18,6 +13,11 @@ import { Query } from './query/query'
 import { ObjectId } from 'bson'
 import { ValidationException } from '../../application/domain/exception/validation.exception'
 
+/**
+ * Implementation of the child repository.
+ *
+ * @implements {IChildRepository}
+ */
 @injectable()
 export class ChildRepository extends BaseRepository<Child, ChildEntity> implements IChildRepository {
 

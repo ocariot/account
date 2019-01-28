@@ -1,8 +1,3 @@
-/**
- * Implementation of the institution repository.
- *
- * @implements {IInstitutionRepository}
- */
 import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
 import { IEntityMapper } from '../port/entity.mapper.interface'
@@ -13,6 +8,11 @@ import { Institution } from '../../application/domain/model/institution'
 import { InstitutionEntity } from '../entity/institution.entity'
 import { IInstitutionRepository } from '../../application/port/institution.repository.interface'
 
+/**
+ * Implementation of the institution repository.
+ *
+ * @implements {IInstitutionRepository}
+ */
 @injectable()
 export class InstitutionRepository extends BaseRepository<Institution, InstitutionEntity>
     implements IInstitutionRepository {

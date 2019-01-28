@@ -13,7 +13,7 @@ export class FamilyValidator {
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
-                'Family validation failed: '.concat(fields.join(', ')).concat(' required!'))
+                'Family validation: '.concat(fields.join(', ')).concat(' required!'))
         }
     }
 }

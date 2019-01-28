@@ -1,8 +1,3 @@
-/**
- * Implementation of the family repository.
- *
- * @implements {IFamilyRepository}
- */
 import bcrypt from 'bcryptjs'
 import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
@@ -16,6 +11,11 @@ import { IFamilyRepository } from '../../application/port/family.repository.inte
 import { Family } from '../../application/domain/model/family'
 import { FamilyEntity } from '../entity/family.entity'
 
+/**
+ * Implementation of the family repository.
+ *
+ * @implements {IFamilyRepository}
+ */
 @injectable()
 export class FamilyRepository extends BaseRepository<Family, FamilyEntity> implements IFamilyRepository {
 
