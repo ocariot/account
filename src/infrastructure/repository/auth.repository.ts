@@ -9,6 +9,7 @@ import { IEntityMapper } from '../port/entity.mapper.interface'
 import { UserEntity } from '../entity/user.entity'
 import { Default } from '../../utils/default'
 import { RepositoryException } from '../../application/domain/exception/repository.exception'
+import { Strings } from '../../utils/strings'
 
 /**
  * Implementation of the auth repository.
@@ -39,7 +40,7 @@ export class AuthRepository implements IAuthRepository {
                     resolve(undefined)
                 })
                 .catch(err => {
-                    reject(new RepositoryException(Default.ERROR_MESSAGE.UNEXPECTED))
+                    reject(new RepositoryException(Strings.ERROR_MESSAGE.UNEXPECTED))
                 })
         })
     }

@@ -11,7 +11,6 @@ import { Institution } from '../domain/model/institution'
 export interface IInstitutionRepository extends IRepository<Institution> {
     /**
      * Checks if an institution already has a registration.
-     * What differs from one user to another is the username.
      *
      * @param institution
      * @return {Promise<boolean>} True if it exists or False, otherwise

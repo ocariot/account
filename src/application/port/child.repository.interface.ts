@@ -12,7 +12,7 @@ import { ValidationException } from '../domain/exception/validation.exception'
 export interface IChildRepository extends IRepository<Child> {
     /**
      * Checks if an child already has a registration.
-     * What differs from one user to another is the username.
+     * What differs from one child to another is the username.
      *
      * @param child
      * @return {Promise<boolean>} True if it exists or False, otherwise

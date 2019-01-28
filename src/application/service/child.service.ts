@@ -8,8 +8,9 @@ import { ILogger } from '../../utils/custom.logger'
 import { ChildValidator } from '../domain/validator/child.validator'
 import { ConflictException } from '../domain/exception/conflict.exception'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
-import { Default } from '../../utils/default'
 import { ValidationException } from '../domain/exception/validation.exception'
+import { Strings } from '../../utils/strings'
+import { UserType } from '../domain/model/user'
 
 /**
  * Implementing child Service.
@@ -29,15 +30,15 @@ export class ChildService implements IChildService {
 
         try {
             const childExist = await this._childRepository.checkExist(child)
-            if (childExist) throw new ConflictException(Default.VALIDATION_CHILD.CHILD_ALREADY_REGISTERED)
+            if (childExist) throw new ConflictException(Strings.VALIDATION_CHILD.ALREADY_REGISTERED)
 
             // Checks if the institution exists.
             if (child.institution && child.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(child.institution)
                 if (!institutionExist) {
                     throw new ValidationException(
-                        Default.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
-                        Default.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
+                        Strings.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
+                        Strings.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
                     )
                 }
             }
@@ -50,11 +51,12 @@ export class ChildService implements IChildService {
     }
 
     public async getAll(query: IQuery): Promise<Array<Child>> {
+        query.addFilter({ type: UserType.CHILD })
         return this._childRepository.find(query)
     }
 
     public async getById(id: string | number, query: IQuery): Promise<Child> {
-        query.filters = { _id: id }
+        query.addFilter({ _id: id, type: UserType.CHILD })
         return this._childRepository.findOne(query)
     }
 
@@ -65,8 +67,8 @@ export class ChildService implements IChildService {
                 const institutionExist = await this._institutionRepository.checkExist(child.institution)
                 if (!institutionExist) {
                     throw new ValidationException(
-                        Default.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
-                        Default.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
+                        Strings.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
+                        Strings.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
                     )
                 }
             }

@@ -1,58 +1,57 @@
 import { injectable } from 'inversify'
 import { IEntityMapper } from '../../port/entity.mapper.interface'
 import { Institution } from '../../../application/domain/model/institution'
-import { User } from '../../../application/domain/model/user'
-import { UserEntity } from '../user.entity'
+import { Application } from '../../../application/domain/model/application'
+import { ApplicationEntity } from '../application.entity'
 
 @injectable()
-export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
+export class ApplicationEntityMapper implements IEntityMapper<Application, ApplicationEntity> {
     public transform(item: any): any {
-        if (item instanceof User) return this.modelToModelEntity(item)
-        if (item instanceof UserEntity) return this.modelEntityToModel(item)
+        if (item instanceof Application) return this.modelToModelEntity(item)
+        if (item instanceof ApplicationEntity) return this.modelEntityToModel(item)
         return this.jsonToModel(item) // json
     }
 
     /**
-     * Convert {User} for {UserEntity}.
+     * Convert {Application} for {ApplicationEntity}.
      *
      * @see Creation Date should not be mapped to the type the repository understands.
      * Because this attribute is created automatically by the database.
      * Therefore, if a null value is passed at update time, an exception is thrown.
      * @param item
      */
-    public modelToModelEntity(item: User): UserEntity {
-        const result: UserEntity = new UserEntity()
-
+    public modelToModelEntity(item: Application): ApplicationEntity {
+        const result: ApplicationEntity = new ApplicationEntity()
         if (item.id) result.id = item.id
         if (item.username) result.username = item.username
         if (item.password) result.password = item.password
         if (item.type) result.type = item.type
         if (item.institution) result.institution = item.institution.id
-        if (item.scope) result.scope = item.scope.join(' ')
+        if (item.application_name) result.application_name = item.application_name
 
         return result
     }
 
     /**
-     * Convert {UserEntity} for {User}.
+     * Convert {ApplicationEntity} for {Application}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,
      * because at some point the attribute accessed may not exist.
      * @param item
      */
-    public modelEntityToModel(item: UserEntity): User {
+    public modelEntityToModel(item: ApplicationEntity): Application {
         throw Error('Not implemented!')
     }
 
     /**
-     * Convert JSON for {User}.
+     * Convert JSON for {Application}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,
      * because at some point the attribute accessed may not exist.
      * @param json
      */
-    public jsonToModel(json: any): User {
-        const result: User = new User()
+    public jsonToModel(json: any): Application {
+        const result: Application = new Application()
         if (!json) return result
 
         if (json.id !== undefined) result.id = json.id
@@ -63,7 +62,7 @@ export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
             if (json.institution === null) result.institution = undefined
             else result.institution = new Institution().fromJSON(json.institution)
         }
-        if (json.scope !== undefined) result.scope = json.scope.split(' ')
+        if (json.application_name !== undefined) result.application_name = json.application_name
 
         return result
     }

@@ -13,6 +13,7 @@ export abstract class Identifier {
     public static readonly CHILD_CONTROLLER: any = Symbol.for('ChildController')
     public static readonly FAMILY_CONTROLLER: any = Symbol.for('FamilyController')
     public static readonly EDUCATOR_CONTROLLER: any = Symbol.for('EducatorController')
+    public static readonly APPLICATION_CONTROLLER: any = Symbol.for('ApplicationController')
     public static readonly INSTITUTION_CONTROLLER: any = Symbol.for('InstitutionController')
 
     // Services
@@ -21,6 +22,7 @@ export abstract class Identifier {
     public static readonly CHILD_SERVICE: any = Symbol.for('ChildService')
     public static readonly FAMILY_SERVICE: any = Symbol.for('FamilyService')
     public static readonly EDUCATOR_SERVICE: any = Symbol.for('EducatorService')
+    public static readonly APPLICATION_SERVICE: any = Symbol.for('ApplicationService')
     public static readonly INSTITUTION_SERVICE: any = Symbol.for('InstitutionService')
 
     // Repositories
@@ -29,6 +31,7 @@ export abstract class Identifier {
     public static readonly CHILD_REPOSITORY: any = Symbol.for('ChildRepository')
     public static readonly FAMILY_REPOSITORY: any = Symbol.for('FamilyRepository')
     public static readonly EDUCATOR_REPOSITORY: any = Symbol.for('EducatorRepository')
+    public static readonly APPLICATION_REPOSITORY: any = Symbol.for('ApplicationRepository')
     public static readonly INSTITUTION_REPOSITORY: any = Symbol.for('InstitutionRepository')
 
     // Models
@@ -37,6 +40,7 @@ export abstract class Identifier {
     public static readonly CHILD_ENTITY: any = Symbol.for('ChildEntity')
     public static readonly FAMILY_ENTITY: any = Symbol.for('FamilyEntity')
     public static readonly EDUCATOR_ENTITY: any = Symbol.for('EducatorEntity')
+    public static readonly APPLICATION_ENTITY: any = Symbol.for('ApplicationEntity')
     public static readonly INSTITUTION_ENTITY: any = Symbol.for('InstitutionEntity')
 
     // Mappers
@@ -44,6 +48,7 @@ export abstract class Identifier {
     public static readonly CHILD_ENTITY_MAPPER: any = Symbol.for('ChildEntityMapper')
     public static readonly FAMILY_ENTITY_MAPPER: any = Symbol.for('FamilyEntityMapper')
     public static readonly EDUCATOR_ENTITY_MAPPER: any = Symbol.for('EducatorEntityMapper')
+    public static readonly APPLICATION_ENTITY_MAPPER: any = Symbol.for('ApplicationEntityMapper')
     public static readonly INSTITUTION_ENTITY_MAPPER: any = Symbol.for('InstitutionEntityMapper')
 
     // Background Services

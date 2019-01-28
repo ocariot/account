@@ -6,41 +6,41 @@ import { IEntityMapper } from '../port/entity.mapper.interface'
 import { ILogger } from '../../utils/custom.logger'
 import { Identifier } from '../../di/identifiers'
 import { Query } from './query/query'
-import { IFamilyRepository } from '../../application/port/family.repository.interface'
-import { Family } from '../../application/domain/model/family'
-import { FamilyEntity } from '../entity/family.entity'
+import { IApplicationRepository } from '../../application/port/application.repository.interface'
+import { Application } from '../../application/domain/model/application'
+import { ApplicationEntity } from '../entity/application.entity'
 
 /**
- * Implementation of the family repository.
+ * Implementation of the repository for user of type Application.
  *
- * @implements {IFamilyRepository}
+ * @implements {IApplicationRepository}
  */
 @injectable()
-export class FamilyRepository extends BaseRepository<Family, FamilyEntity> implements IFamilyRepository {
+export class ApplicationRepository extends BaseRepository<Application, ApplicationEntity> implements IApplicationRepository {
 
     constructor(
-        @inject(Identifier.USER_REPO_MODEL) readonly familyModel: any,
-        @inject(Identifier.FAMILY_ENTITY_MAPPER) readonly familyMapper: IEntityMapper<Family, FamilyEntity>,
+        @inject(Identifier.USER_REPO_MODEL) readonly applicationModel: any,
+        @inject(Identifier.CHILD_ENTITY_MAPPER) readonly childMapper: IEntityMapper<Application, ApplicationEntity>,
         @inject(Identifier.LOGGER) readonly logger: ILogger
     ) {
-        super(familyModel, familyMapper, logger)
+        super(applicationModel, childMapper, logger)
     }
 
-    public create(item: Family): Promise<Family> {
+    public create(item: Application): Promise<Application> {
         // Encrypt password
         item.password = bcrypt.hashSync(item.password, bcrypt.genSaltSync(10))
         return super.create(item)
     }
 
-    public checkExist(family: Family): Promise<boolean> {
+    public checkExist(application: Application): Promise<boolean> {
         const query: Query = new Query()
         return new Promise<boolean>((resolve, reject) => {
-            if (family.id) query.filters = { _id: family.id }
-            else query.filters = { username: family.username }
+            if (application.id) query.filters = { _id: application.id }
+            else query.filters = { username: application.username }
 
             query.addFilter({ type: UserType.FAMILY })
             super.findOne(query)
-                .then((result: Family) => {
+                .then((result: Application) => {
                     if (result) return resolve(true)
                     return resolve(false)
                 })

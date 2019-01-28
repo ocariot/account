@@ -16,6 +16,10 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     constructor() {
         super()
         super.type = UserType.CHILD
+        super.scope = [
+            'questionnaires:read',
+            'questionnaires:create'
+        ]
     }
 
     get gender(): string | undefined {

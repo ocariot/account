@@ -8,7 +8,6 @@ import { ChildEntity } from '../entity/child.entity'
 import { IEntityMapper } from '../port/entity.mapper.interface'
 import { ILogger } from '../../utils/custom.logger'
 import { Identifier } from '../../di/identifiers'
-import { IQuery } from '../../application/port/query.interface'
 import { Query } from './query/query'
 import { ObjectId } from 'bson'
 import { ValidationException } from '../../application/domain/exception/validation.exception'
@@ -33,16 +32,6 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
         // Encrypt password
         item.password = bcrypt.hashSync(item.password, bcrypt.genSaltSync(10))
         return super.create(item)
-    }
-
-    public find(query: IQuery): Promise<Array<Child>> {
-        query.addFilter({ type: UserType.CHILD })
-        return super.find(query)
-    }
-
-    public findOne(query: IQuery): Promise<Child> {
-        query.addFilter({ type: UserType.CHILD })
-        return super.findOne(query)
     }
 
     public checkExist(children: Child | Array<Child>): Promise<boolean | ValidationException> {

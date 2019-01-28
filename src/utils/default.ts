@@ -8,13 +8,10 @@
  * @abstract
  */
 export abstract class Default {
-    public static readonly APP_TITLE: string = 'Account Service'
     public static readonly APP_ID: string = 'account_service'
-    public static readonly APP_DESCRIPTION: string = 'Micro-service for Account.'
     public static readonly NODE_ENV: string = 'development' // development, test, production
     public static readonly PORT_HTTP: number = 5000
     public static readonly PORT_HTTPS: number = 5001
-    public static readonly SWAGGER_PATH: string = './src/ui/swagger/api.yaml'
 
     // KEYS
     public static readonly JWT_SECRET: string = 'p1c^HNy.cN;WKX4Ys1m"0:Ct>I1|@s'
@@ -34,21 +31,4 @@ export abstract class Default {
 
     // Log
     public static readonly LOG_DIR: string = 'logs'
-
-    // STRINGS
-    public static readonly VALIDATION_CHILD: any = {
-        CHILD_ALREADY_REGISTERED: 'Child is already registered!',
-        CHILDREN_REGISTER_REQUIRED: 'It is necessary for children to be registered before proceeding.',
-        IDS_WITHOUT_REGISTER: 'The following IDs were verified without registration:',
-        VERIFICATION_PROBLEM: 'There was a problem verifying children!'
-    }
-
-    public static readonly VALIDATION_INSTITUTION: any = {
-        REGISTER_REQUIRED: 'The institution provided does not have a registration.',
-        ALERT_REGISTER_REQUIRED: 'It is necessary that the institution be registered before trying again.'
-    }
-
-    public static readonly ERROR_MESSAGE: any = {
-        UNEXPECTED: 'An unexpected error has occurred. Please try again later...'
-    }
 }

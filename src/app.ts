@@ -1,5 +1,4 @@
 import 'reflect-metadata'
-import yaml from 'yamljs'
 import morgan from 'morgan'
 import helmet from 'helmet'
 import bodyParser from 'body-parser'
@@ -14,6 +13,7 @@ import { Default } from './utils/default'
 import { DI } from './di/di'
 import { Identifier } from './di/identifiers'
 import { ILogger } from './utils/custom.logger'
+import { Strings } from './utils/strings'
 
 /**
  * Implementation of class App.
@@ -87,12 +87,12 @@ export class App {
             // Middleware swagger. It should not run in the test environment.
             if ((process.env.NODE_ENV || Default.NODE_ENV) !== 'test') {
                 const options = {
+                    swaggerUrl: 'https://api.swaggerhub.com/apis/nutes.ocariot/account-service/v1/swagger.json',
                     customCss: '.swagger-ui .topbar { display: none }',
-                    customfavIcon: 'http://nutes.uepb.edu.br/wp-content/uploads/2014/01/icon.fw_.png',
-                    customSiteTitle: `API Reference | ${Default.APP_TITLE}`
+                    customfavIcon: 'http://www.ocariot.com.br/wp-content/uploads/2018/08/cropped-512-32x32.png',
+                    customSiteTitle: `API Reference | ${Strings.APP.TITLE}`
                 }
-
-                app.use('/reference', swaggerUi.serve, swaggerUi.setup(yaml.load(Default.SWAGGER_PATH), options))
+                app.use('/reference', swaggerUi.serve, swaggerUi.setup(null, options))
             }
         })
         this.express = inversifyExpress.build()

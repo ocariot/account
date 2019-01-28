@@ -11,7 +11,8 @@ import { IFamilyRepository } from '../port/family.repository.interface'
 import { Child } from '../domain/model/child'
 import { IChildRepository } from '../port/child.repository.interface'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
-import { Default } from '../../utils/default'
+import { Strings } from '../../utils/strings'
+import { UserType } from '../domain/model/user'
 
 /**
  * Implementing family Service.
@@ -33,15 +34,15 @@ export class FamilyService implements IFamilyService {
         try {
             // Checks if family already exists
             const familyExist = await this._familyRepository.checkExist(family)
-            if (familyExist) throw new ConflictException('Family is already registered!')
+            if (familyExist) throw new ConflictException(Strings.VALIDATION_FAMILY.ALREADY_REGISTERED)
 
             // Checks if the children to be associated have a record. Your registration is required.
             if (family.children) {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
                 if (checkChildrenExist instanceof ValidationException) {
                     throw new ValidationException(
-                        Default.VALIDATION_CHILD.CHILDREN_REGISTER_REQUIRED,
-                        Default.VALIDATION_CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
+                        Strings.VALIDATION_CHILD.CHILDREN_REGISTER_REQUIRED,
+                        Strings.VALIDATION_CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
                     )
                 }
             }
@@ -51,8 +52,8 @@ export class FamilyService implements IFamilyService {
                 const institutionExist = await this._institutionRepository.checkExist(family.institution)
                 if (!institutionExist) {
                     throw new ValidationException(
-                        Default.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
-                        Default.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
+                        Strings.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
+                        Strings.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
                     )
                 }
             }
@@ -65,11 +66,12 @@ export class FamilyService implements IFamilyService {
     }
 
     public async getAll(query: IQuery): Promise<Array<Family>> {
+        query.addFilter({ type: UserType.FAMILY })
         return this._familyRepository.find(query)
     }
 
     public async getById(id: string | number, query: IQuery): Promise<Family> {
-        query.filters = { _id: id }
+        query.addFilter({ _id: id, type: UserType.FAMILY })
         return this._familyRepository.findOne(query)
     }
 
@@ -80,8 +82,8 @@ export class FamilyService implements IFamilyService {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
                 if (checkChildrenExist instanceof ValidationException) {
                     throw new ValidationException(
-                        Default.VALIDATION_CHILD.CHILDREN_REGISTER_REQUIRED,
-                        Default.VALIDATION_CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
+                        Strings.VALIDATION_CHILD.CHILDREN_REGISTER_REQUIRED,
+                        Strings.VALIDATION_CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
                     )
                 }
             }
@@ -91,8 +93,8 @@ export class FamilyService implements IFamilyService {
                 const institutionExist = await this._institutionRepository.checkExist(family.institution)
                 if (!institutionExist) {
                     throw new ValidationException(
-                        Default.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
-                        Default.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
+                        Strings.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
+                        Strings.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
                     )
                 }
             }
