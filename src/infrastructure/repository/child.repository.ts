@@ -1,17 +1,22 @@
 /**
- * Implementation of the user repository.
+ * Implementation of the child repository.
  *
  * @implements {IChildRepository}
  */
+import bcrypt from 'bcryptjs'
 import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
-import { User } from '../../application/domain/model/user'
+import { UserType } from '../../application/domain/model/user'
 import { IChildRepository } from '../../application/port/child.repository.interface'
 import { Child } from '../../application/domain/model/child'
 import { ChildEntity } from '../entity/child.entity'
 import { IEntityMapper } from '../port/entity.mapper.interface'
 import { ILogger } from '../../utils/custom.logger'
 import { Identifier } from '../../di/identifiers'
+import { IQuery } from '../../application/port/query.interface'
+import { Query } from './query/query'
+import { ObjectId } from 'bson'
+import { ValidationException } from '../../application/domain/exception/validation.exception'
 
 @injectable()
 export class ChildRepository extends BaseRepository<Child, ChildEntity> implements IChildRepository {
@@ -24,7 +29,61 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
         super(childModel, childMapper, logger)
     }
 
-    public checkExist(user: User): Promise<boolean> {
-        throw Error('')
+    public create(item: Child): Promise<Child> {
+        // Encrypt password
+        item.password = bcrypt.hashSync(item.password, bcrypt.genSaltSync(10))
+        return super.create(item)
+    }
+
+    public find(query: IQuery): Promise<Array<Child>> {
+        query.addFilter({ type: UserType.CHILD })
+        return super.find(query)
+    }
+
+    public findOne(query: IQuery): Promise<Child> {
+        query.addFilter({ type: UserType.CHILD })
+        return super.findOne(query)
+    }
+
+    public checkExist(children: Child | Array<Child>): Promise<boolean | ValidationException> {
+        const query: Query = new Query()
+
+        return new Promise<boolean | ValidationException>((resolve, reject) => {
+            if (children instanceof Array) {
+                if (children.length === 0) return resolve(false)
+
+                let count = 0
+                const resultChildrenIDs: Array<string> = []
+                children.forEach((child: Child) => {
+                    if (child.id) query.filters = { _id: child.id }
+                    else query.filters = { username: child.username }
+
+                    query.addFilter({ type: UserType.CHILD })
+                    super.findOne(query)
+                        .then(result => {
+                            count++
+                            if (!result && child.id) resultChildrenIDs.push(child.id)
+                            if (count === children.length) {
+                                if (resultChildrenIDs.length > 0) {
+                                    return resolve(new ValidationException(resultChildrenIDs.join(', ')))
+                                }
+                                return resolve(true)
+                            }
+                        })
+                        .catch(err => reject(super.mongoDBErrorListener(err)))
+                })
+            } else {
+                if (children.id) query.filters = { _id: new ObjectId(children.id) }
+                else query.filters = { username: children.username }
+
+                query.addFilter({ type: UserType.CHILD })
+                super.findOne(query)
+                    .then((result: Child) => {
+                        if (result) return resolve(true)
+                        return resolve(false)
+                    })
+                    .catch(err => reject(super.mongoDBErrorListener(err)))
+            }
+        })
     }
 }

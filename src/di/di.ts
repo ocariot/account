@@ -25,6 +25,25 @@ import { ChildEntity } from '../infrastructure/entity/child.entity'
 import { ChildEntityMapper } from '../infrastructure/entity/mapper/child.entity.mapper'
 import { ChildController } from '../ui/controller/child.controller'
 import { UserRepoModel } from '../infrastructure/database/schema/user.schema'
+import { Child } from '../application/domain/model/child'
+import { UserEntityMapper } from '../infrastructure/entity/mapper/user.entity.mapper'
+import { InstitutionRepoModel } from '../infrastructure/database/schema/institution.schema'
+import { FamilyService } from '../application/service/family.service'
+import { IFamilyService } from '../application/port/family.service.interface'
+import { FamilyController } from '../ui/controller/family.controller'
+import { IFamilyRepository } from '../application/port/family.repository.interface'
+import { FamilyRepository } from '../infrastructure/repository/family.repository'
+import { FamilyEntity } from '../infrastructure/entity/family.entity'
+import { Family } from '../application/domain/model/family'
+import { FamilyEntityMapper } from '../infrastructure/entity/mapper/family.entity.mapper'
+import { InstitutionController } from '../ui/controller/institution.controller'
+import { IInstitutionService } from '../application/port/institution.service.interface'
+import { InstitutionService } from '../application/service/institution.service'
+import { IInstitutionRepository } from '../application/port/institution.repository.interface'
+import { InstitutionRepository } from '../infrastructure/repository/institution.repository'
+import { Institution } from '../application/domain/model/institution'
+import { InstitutionEntityMapper } from '../infrastructure/entity/mapper/institution.entity.mapper'
+import { InstitutionEntity } from '../infrastructure/entity/institution.entity'
 
 export class DI {
     private static instance: DI
@@ -72,21 +91,39 @@ export class DI {
         // Controllers
         this.container.bind<HomeController>(Identifier.HOME_CONTROLLER).to(HomeController).inSingletonScope()
         this.container.bind<ChildController>(Identifier.CHILD_CONTROLLER).to(ChildController).inSingletonScope()
+        this.container.bind<FamilyController>(Identifier.FAMILY_CONTROLLER).to(FamilyController).inSingletonScope()
+        this.container.bind<InstitutionController>(Identifier.INSTITUTION_CONTROLLER).to(InstitutionController).inSingletonScope()
 
         // Services
         this.container.bind<IChildService>(Identifier.CHILD_SERVICE).to(ChildService).inSingletonScope()
+        this.container.bind<IFamilyService>(Identifier.FAMILY_SERVICE).to(FamilyService).inSingletonScope()
+        this.container.bind<IInstitutionService>(Identifier.INSTITUTION_SERVICE).to(InstitutionService).inSingletonScope()
 
         // Repositories
-        this.container.bind<IChildRepository>(Identifier.CHILD_REPOSITORY).to(ChildRepository).inSingletonScope()
+        this.container.bind<IChildRepository>(Identifier.CHILD_REPOSITORY)
+            .to(ChildRepository).inSingletonScope()
+        this.container.bind<IFamilyRepository>(Identifier.FAMILY_REPOSITORY)
+            .to(FamilyRepository).inSingletonScope()
+        this.container.bind<IInstitutionRepository>(Identifier.INSTITUTION_REPOSITORY)
+            .to(InstitutionRepository).inSingletonScope()
 
         // Models
         this.container.bind(Identifier.USER_REPO_MODEL).toConstantValue(UserRepoModel)
-        this.container.bind(Identifier.CHILD_ENTITY).toConstantValue(ChildEntity)
+        this.container.bind(Identifier.INSTITUTION_REPO_MODEL).toConstantValue(InstitutionRepoModel)
 
         // Mappers
         this.container
-            .bind<IEntityMapper<User, UserEntity>>(Identifier.CHILD_ENTITY_MAPPER)
+            .bind<IEntityMapper<User, UserEntity>>(Identifier.USER_ENTITY_MAPPER)
+            .to(UserEntityMapper).inSingletonScope()
+        this.container
+            .bind<IEntityMapper<Child, ChildEntity>>(Identifier.CHILD_ENTITY_MAPPER)
             .to(ChildEntityMapper).inSingletonScope()
+        this.container
+            .bind<IEntityMapper<Family, FamilyEntity>>(Identifier.FAMILY_ENTITY_MAPPER)
+            .to(FamilyEntityMapper).inSingletonScope()
+        this.container
+            .bind<IEntityMapper<Institution, InstitutionEntity>>(Identifier.INSTITUTION_ENTITY_MAPPER)
+            .to(InstitutionEntityMapper).inSingletonScope()
 
         // Background Services
         this.container

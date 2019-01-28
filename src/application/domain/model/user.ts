@@ -1,7 +1,8 @@
 import { Entity } from './entity'
-import { ISerializable } from '../utils/serializable.interface'
 import { Institution } from './institution'
 import { JsonUtils } from '../utils/json.utils'
+import { IJSONSerializable } from '../utils/json.serializable.interface'
+import { IJSONDeserializable } from '../utils/json.deserializable.interface'
 
 /**
  * Implementation of the user entity.
@@ -9,7 +10,7 @@ import { JsonUtils } from '../utils/json.utils'
  * @extends {Entity}
  * @implements {ISerializable<User>}
  */
-export class User extends Entity implements ISerializable<User> {
+export class User extends Entity implements IJSONSerializable, IJSONDeserializable<User> {
     private _username?: string // Username for user authentication.
     private _password?: string // Password for user authentication.
     private _type?: string // Type of user. Can be Child, Educator, Health Professional or Family.
@@ -51,27 +52,7 @@ export class User extends Entity implements ISerializable<User> {
         this._institution = value
     }
 
-    /**
-     * Convert this object to json.
-     *
-     * @returns {object}
-     */
-    public serialize(): any {
-        return {
-            id: super.id,
-            username: this.username,
-            type: this.type,
-            institution: this.institution ? this.institution.serialize() : this.institution
-        }
-    }
-
-    /**
-     * Transform JSON into User object.
-     *
-     * @param json
-     * @return User
-     */
-    public deserialize(json: any): User {
+    public fromJSON(json: any): User {
         if (!json) return this
         if (typeof json === 'string' && JsonUtils.isJsonString(json)) {
             json = JSON.parse(json)
@@ -82,12 +63,21 @@ export class User extends Entity implements ISerializable<User> {
         if (json.password !== undefined) this.password = json.password
         if (json.type !== undefined) this.type = json.type
         if (json.institution !== undefined) {
-            this.institution = new Institution().deserialize(json.institution)
+            this.institution = new Institution().fromJSON(json.institution)
         } else if (json.institution_id !== undefined) {
-            this.institution = new Institution().deserialize(json)
+            this.institution = new Institution().fromJSON(json)
         }
 
         return this
+    }
+
+    public toJSON(): any {
+        return {
+            id: super.id,
+            username: this.username,
+            type: this.type,
+            institution: this.institution ? this.institution.toJSON() : this.institution
+        }
     }
 }
 

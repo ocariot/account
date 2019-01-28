@@ -31,4 +31,17 @@ export abstract class Default {
 
     // Log
     public static readonly LOG_DIR: string = 'logs'
+
+    // STRINGS
+    public static readonly VALIDATION_CHILD: any = {
+        CHILD_ALREADY_REGISTERED: 'Child is already registered!',
+        CHILDREN_REGISTER_REQUIRED: 'It is necessary for children to be registered before proceeding.',
+        IDS_WITHOUT_REGISTER: 'The following IDs were verified without registration:',
+        VERIFICATION_PROBLEM: 'There was a problem verifying children!'
+    }
+
+    public static readonly VALIDATION_INSTITUTION: any = {
+        REGISTER_REQUIRED: 'The institution provided does not have a registration.',
+        ALERT_REGISTER_REQUIRED: 'It is necessary that the institution be registered before trying again.'
+    }
 }

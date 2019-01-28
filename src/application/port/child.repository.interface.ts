@@ -1,5 +1,6 @@
 import { IRepository } from './repository.interface'
 import { Child } from '../domain/model/child'
+import { ValidationException } from '../domain/exception/validation.exception'
 
 /**
  * Interface of the child repository.
@@ -10,12 +11,12 @@ import { Child } from '../domain/model/child'
  */
 export interface IChildRepository extends IRepository<Child> {
     /**
-     * Checks if an user already has a registration.
+     * Checks if an child already has a registration.
      * What differs from one user to another is the username.
      *
      * @param child
      * @return {Promise<boolean>} True if it exists or False, otherwise
      * @throws {ValidationException | RepositoryException}
      */
-    checkExist(child: Child): Promise<boolean>
+    checkExist(child: Child | Array<Child>): Promise<boolean | ValidationException>
 }

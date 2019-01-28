@@ -61,7 +61,7 @@ export class App {
      */
     private middleware(): void {
         const inversifyExpress: InversifyExpressServer = new InversifyExpressServer(
-            this.container, null, { rootPath: '/api/v1' })
+            this.container, null, { rootPath: '/' })
 
         inversifyExpress.setConfig((app) => {
             // for handling query strings
@@ -92,7 +92,7 @@ export class App {
                     customSiteTitle: `API Reference | ${Default.APP_TITLE}`
                 }
 
-                app.use('/api/v1/reference', swaggerUi.serve, swaggerUi.setup(yaml.load(Default.SWAGGER_PATH), options))
+                app.use('/reference', swaggerUi.serve, swaggerUi.setup(yaml.load(Default.SWAGGER_PATH), options))
             }
         })
         this.express = inversifyExpress.build()

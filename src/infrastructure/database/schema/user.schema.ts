@@ -7,11 +7,22 @@ const userSchema = new Mongoose.Schema({
         username: { type: String },
         password: { type: String },
         type: { type: String },
-        institution: { type: Schema.Types.ObjectId, ref: 'Institution' },
+        institution: {
+            type: Schema.Types.ObjectId,
+            ref: 'Institution',
+            autopopulate: true
+        },
         gender: { type: String }, // User type Child
         age: { type: Number }, // User type Child
-        children: [{ type: Schema.Types.ObjectId, ref: 'User' }], // User type Family
-        children_groups: [{ type: Schema.Types.ObjectId, ref: 'ChildrenGroup' }], // User type Educator and HealthProfessional
+        children: [{
+            type: Schema.Types.ObjectId,
+            ref: 'User',
+            autopopulate: true
+        }], // User type Family
+        children_groups: [{
+            type: Schema.Types.ObjectId,
+            ref: 'ChildrenGroup'
+        }], // User type Educator and HealthProfessional
         application_name: { type: String } // User type Application
     },
     {
@@ -27,4 +38,5 @@ const userSchema = new Mongoose.Schema({
     }
 )
 userSchema.index({ username: 1 }, { unique: true }) // define index at schema level
+userSchema.plugin(require('mongoose-autopopulate'))
 export const UserRepoModel = Mongoose.model<IUserModel>('User', userSchema)

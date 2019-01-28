@@ -7,41 +7,41 @@ import { ApiExceptionManager } from '../exception/api.exception.manager'
 import { Query } from '../../infrastructure/repository/query/query'
 import { ApiException } from '../exception/api.exception'
 import { ILogger } from '../../utils/custom.logger'
-import { IChildService } from '../../application/port/child.service.interface'
-import { Child } from '../../application/domain/model/child'
+import { Family } from '../../application/domain/model/family'
+import { IFamilyService } from '../../application/port/family.service.interface'
 
 /**
- * Controller that implements Child feature operations.
+ * Controller that implements Family feature operations.
  *
  * @remarks To define paths, we use library inversify-express-utils.
  * @see {@link https://github.com/inversify/inversify-express-utils} for further information.
  */
-@controller('/users/children')
-export class ChildController {
+@controller('/users/families')
+export class FamilyController {
 
     /**
-     * Creates an instance of Child controller.
+     * Creates an instance of Family controller.
      *
-     * @param {IChildService} _childService
+     * @param {IFamilyService} _familyService
      * @param {ILogger} _logger
      */
     constructor(
-        @inject(Identifier.CHILD_SERVICE) private readonly _childService: IChildService,
+        @inject(Identifier.FAMILY_SERVICE) private readonly _familyService: IFamilyService,
         @inject(Identifier.LOGGER) readonly _logger: ILogger
     ) {
     }
 
     /**
-     * Add new child.
+     * Add new family.
      *
      * @param {Request} req
      * @param {Response} res
      */
     @httpPost('/')
-    public async saveChild(@request() req: Request, @response() res: Response) {
+    public async saveFamily(@request() req: Request, @response() res: Response) {
         try {
-            const child: Child = new Child().fromJSON(req.body)
-            const result: Child = await this._childService.add(child)
+            const family: Family = new Family().fromJSON(req.body)
+            const result: Family = await this._familyService.add(family)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -51,7 +51,7 @@ export class ChildController {
     }
 
     /**
-     * Get all children.
+     * Get all families.
      * For the query strings, the query-strings-parser middleware was used.
      * @see {@link https://www.npmjs.com/package/query-strings-parser} for further information.
      *
@@ -59,9 +59,9 @@ export class ChildController {
      * @param {Response} res
      */
     @httpGet('/')
-    public async getAllChildren(@request() req: Request, @response() res: Response): Promise<Response> {
+    public async getAllFamilies(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const result: Array<Child> = await this._childService
+            const result: Array<Family> = await this._familyService
                 .getAll(new Query().fromJSON(req.query))
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
@@ -72,19 +72,19 @@ export class ChildController {
     }
 
     /**
-     * Get child by id.
+     * Get family by id.
      * For the query strings, the query-strings-parser middleware was used.
      * @see {@link https://www.npmjs.com/package/query-strings-parser} for further information.
      *
      * @param {Request} req
      * @param {Response} res
      */
-    @httpGet('/:child_id')
-    public async getChildById(@request() req: Request, @response() res: Response): Promise<Response> {
+    @httpGet('/:family_id')
+    public async getFamilyById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const result: Child = await this._childService
-                .getById(req.params.child_id, new Query().fromJSON(req.query))
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundChild())
+            const result: Family = await this._familyService
+                .getById(req.params.family_id, new Query().fromJSON(req.query))
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundFamily())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -94,18 +94,39 @@ export class ChildController {
     }
 
     /**
-     * Update child by ID.
+     * Update family by ID.
      *
      * @param {Request} req
      * @param {Response} res
      */
-    @httpPatch('/:child_id')
-    public async updateChildById(@request() req: Request, @response() res: Response): Promise<Response> {
+    @httpPatch('/:family_id')
+    public async updateFamilyById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const child: Child = new Child().fromJSON(req.body)
-            child.id = req.params.child_id
-            const result: Child = await this._childService.update(child)
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundChild())
+            const family: Family = new Family().fromJSON(req.body)
+            family.id = req.params.family_id
+            const result: Family = await this._familyService.update(family)
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundFamily())
+            return res.status(HttpStatus.OK).send(this.toJSONView(result))
+        } catch (err) {
+            const handlerError = ApiExceptionManager.build(err)
+            return res.status(handlerError.code)
+                .send(handlerError.toJson())
+        }
+    }
+
+    /**
+     * Get all children from family.
+     * For the query strings, the query-strings-parser middleware was used.
+     * @see {@link https://www.npmjs.com/package/query-strings-parser} for further information.
+     *
+     * @param {Request} req
+     * @param {Response} res
+     */
+    @httpGet('/')
+    public async getAllChildrenFromFamily(@request() req: Request, @response() res: Response): Promise<Response> {
+        try {
+            const result: Array<Family> = await this._familyService
+                .getAll(new Query().fromJSON(req.query))
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -117,27 +138,27 @@ export class ChildController {
     /**
      * Convert object to json format expected by view.
      *
-     * @param child
+     * @param family
      */
-    private toJSONView(child: Child | Array<Child>): object {
-        if (child instanceof Array) {
-            return child.map(item => {
+    private toJSONView(family: Family | Array<Family>): object {
+        if (family instanceof Array) {
+            return family.map(item => {
                 item.type = undefined
                 return item.toJSON()
             })
         }
-        child.type = undefined
-        return child.toJSON()
+        family.type = undefined
+        return family.toJSON()
     }
 
     /**
      * Default message when resource is not found or does not exist.
      */
-    private getMessageNotFoundChild(): object {
+    private getMessageNotFoundFamily(): object {
         return new ApiException(
             HttpStatus.NOT_FOUND,
-            'Child not found!',
-            'Child not found or already removed. A new operation for the same resource is not required!'
+            'Family not found!',
+            'Family not found or already removed. A new operation for the same resource is not required!'
         ).toJson()
     }
 }

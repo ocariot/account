@@ -1,6 +1,7 @@
-import { ISerializable } from '../utils/serializable.interface'
 import { User, UserType } from './user'
 import { JsonUtils } from '../utils/json.utils'
+import { IJSONSerializable } from '../utils/json.serializable.interface'
+import { IJSONDeserializable } from '../utils/json.deserializable.interface'
 
 /**
  * Implementation of the child entity.
@@ -8,7 +9,7 @@ import { JsonUtils } from '../utils/json.utils'
  * @extends {User}
  * @implements {ISerializable<Child>}
  */
-export class Child extends User implements ISerializable<Child> {
+export class Child extends User implements IJSONSerializable, IJSONDeserializable<Child> {
     private _gender?: string // Gender of the child.
     private _age?: number  // Age of the child. Can be male or female
 
@@ -33,27 +34,9 @@ export class Child extends User implements ISerializable<Child> {
         this._age = value
     }
 
-    /**
-     * Convert this object to json.
-     *
-     * @returns {object}
-     */
-    public serialize(): any {
-        return Object.assign(super.serialize(), {
-            gender: this.gender,
-            age: this.age
-        })
-    }
-
-    /**
-     * Transform JSON into Child object.
-     *
-     * @param json
-     * @return Child
-     */
-    public deserialize(json: any): Child {
+    public fromJSON(json: any): Child {
         if (!json) return this
-        super.deserialize(json)
+        super.fromJSON(json)
 
         if (typeof json === 'string') {
             if (!JsonUtils.isJsonString(json)) {
@@ -67,5 +50,12 @@ export class Child extends User implements ISerializable<Child> {
         if (json.age !== undefined) this.age = json.age
 
         return this
+    }
+
+    public toJSON(): any {
+        return Object.assign(super.toJSON(), {
+            gender: this.gender,
+            age: this.age
+        })
     }
 }

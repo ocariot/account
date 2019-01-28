@@ -18,6 +18,7 @@ export class BackgroundService {
 
     public async startServices(): Promise<void> {
         this._logger.debug('startServices()')
+        await this._mongodb.tryConnect() // Initialize mongodb
     }
 
     public async stopServices(): Promise<void> {

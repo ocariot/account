@@ -23,7 +23,7 @@ export class Query implements IQuery {
     private _fields!: Array<string>
     private _ordination!: Map<string, string>
     private _pagination!: IPagination
-    private _filters!: object | string
+    private _filters!: object
 
     /**
      * Creates an instance of Query.
@@ -34,7 +34,7 @@ export class Query implements IQuery {
      * @param filters - Defines rules for filtering, such as filtering by some attribute.
      */
     constructor(fields?: Array<string>, ordination?: Map<string, string>,
-                pagination?: IPagination, filters?: object | string) {
+                pagination?: IPagination, filters?: object) {
         this.fields = (fields) ? fields : []
         this.ordination = (ordination) ? ordination : new Map().set('created_at', 'desc')
         this.pagination = (pagination) ? pagination : new Pagination()
@@ -65,43 +65,21 @@ export class Query implements IQuery {
         this._pagination = value
     }
 
-    get filters(): object | string {
+    get filters(): object {
         return this._filters
     }
 
-    set filters(value: object | string) {
+    set filters(value: object) {
         this._filters = value
     }
 
-    /**
-     * Called as default when the object
-     * is displayed in console.log()
-     */
-    public toJSON(): string {
-        return JSON.stringify(this.serialize())
-    }
-
-    /**
-     * Convert this object to json.
-     * To the format that MongoDB understands.
-     *
-     * @returns {any}
-     */
-    public serialize(): any {
-        return {
-            fields: [...this.fields].reduce((obj, value, key) => (obj[value] = 1, obj), {}),
-            ordination: [...this.ordination.entries()].reduce((obj, [key, value]) => (obj[key] = value, obj), {}),
-            pagination: this.pagination.serialize(),
-            filters: this.filters
+    public addFilter(filter: object): void {
+        if (filter instanceof Object) {
+            this._filters = Object.assign(this._filters, filter)
         }
     }
 
-    /**
-     * Transform JSON into Query object.
-     *
-     * @param json
-     */
-    public deserialize(json: any): IQuery {
+    public fromJSON(json: any): Query {
         if (!json) return this
 
         if (json.fields) {
@@ -115,9 +93,18 @@ export class Query implements IQuery {
             this.ordination = __ordination
         }
 
-        if (json.pagination) this.pagination = this.pagination.deserialize(json.pagination)
+        if (json.pagination) this.pagination = this.pagination.fromJSON(json.pagination)
         if (json.filters) this.filters = json.filters
 
         return this
+    }
+
+    public toJSON(): any {
+        return {
+            fields: [...this.fields].reduce((obj, value, key) => (obj[value] = 1, obj), {}),
+            ordination: [...this.ordination.entries()].reduce((obj, [key, value]) => (obj[key] = value, obj), {}),
+            pagination: this.pagination.toJSON(),
+            filters: this.filters
+        }
     }
 }

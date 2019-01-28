@@ -8,20 +8,35 @@ export abstract class Identifier {
 
     // Controllers
     public static readonly HOME_CONTROLLER: any = Symbol.for('HomeController')
+    public static readonly USER_CONTROLLER: any = Symbol.for('UserController')
     public static readonly CHILD_CONTROLLER: any = Symbol.for('ChildController')
+    public static readonly FAMILY_CONTROLLER: any = Symbol.for('FamilyController')
+    public static readonly INSTITUTION_CONTROLLER: any = Symbol.for('InstitutionController')
 
     // Services
+    public static readonly USER_SERVICE: any = Symbol.for('UserService')
     public static readonly CHILD_SERVICE: any = Symbol.for('ChildService')
+    public static readonly FAMILY_SERVICE: any = Symbol.for('FamilyService')
+    public static readonly INSTITUTION_SERVICE: any = Symbol.for('InstitutionService')
 
     // Repositories
+    public static readonly USER_REPOSITORY: any = Symbol.for('UserRepository')
     public static readonly CHILD_REPOSITORY: any = Symbol.for('ChildRepository')
+    public static readonly FAMILY_REPOSITORY: any = Symbol.for('FamilyRepository')
+    public static readonly INSTITUTION_REPOSITORY: any = Symbol.for('InstitutionRepository')
 
     // Models
     public static readonly USER_REPO_MODEL: any = Symbol.for('UserRepoModel')
+    public static readonly INSTITUTION_REPO_MODEL: any = Symbol.for('InstitutionRepoModel')
     public static readonly CHILD_ENTITY: any = Symbol.for('ChildEntity')
+    public static readonly FAMILY_ENTITY: any = Symbol.for('FamilyEntity')
+    public static readonly INSTITUTION_ENTITY: any = Symbol.for('InstitutionEntity')
 
     // Mappers
+    public static readonly USER_ENTITY_MAPPER: any = Symbol.for('UserEntityMapper')
     public static readonly CHILD_ENTITY_MAPPER: any = Symbol.for('ChildEntityMapper')
+    public static readonly FAMILY_ENTITY_MAPPER: any = Symbol.for('FamilyEntityMapper')
+    public static readonly INSTITUTION_ENTITY_MAPPER: any = Symbol.for('InstitutionEntityMapper')
 
     // Background Services
     public static readonly RABBITMQ_EVENT_BUS: any = Symbol.for('EventBusRabbitMQ')

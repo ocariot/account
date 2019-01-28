@@ -1,6 +1,7 @@
 import { Entity } from './entity'
-import { ISerializable } from '../utils/serializable.interface'
 import { JsonUtils } from '../utils/json.utils'
+import { IJSONSerializable } from '../utils/json.serializable.interface'
+import { IJSONDeserializable } from '../utils/json.deserializable.interface'
 
 /**
  * Implementation of the institution entity.
@@ -8,7 +9,7 @@ import { JsonUtils } from '../utils/json.utils'
  * @extends {Entity}
  * @implements {ISerializable<Institution>}
  */
-export class Institution extends Entity implements ISerializable<Institution> {
+export class Institution extends Entity implements IJSONSerializable, IJSONDeserializable<Institution> {
     private _type?: string // Type of institution, for example: Institute of Scientific Research.
     private _name?: string // Name of institution.
     private _address?: string // Address of institution.
@@ -59,36 +60,14 @@ export class Institution extends Entity implements ISerializable<Institution> {
         this._longitude = value
     }
 
-    /**
-     * Convert this object to json.
-     *
-     * @returns {object}
-     */
-    public serialize(): any {
-        return {
-            id: super.id,
-            type: this.type,
-            name: this.name,
-            address: this.address,
-            latitude: this.latitude,
-            longitude: this.longitude
-        }
-    }
-
-    /**
-     * Transform JSON into Institution object.
-     *
-     * @param json
-     * @return Institution
-     */
-    public deserialize(json: any): Institution {
+    public fromJSON(json: any): Institution {
         if (!json) return this
         if (typeof json === 'string' && JsonUtils.isJsonString(json)) {
             json = JSON.parse(json)
         }
 
         if (json.institution_id !== undefined) {
-            super.id = json.institution_id
+            super.id = json.institution_id.trim() !== '' ? json.institution_id : undefined
             return this
         }
 
@@ -100,5 +79,16 @@ export class Institution extends Entity implements ISerializable<Institution> {
         if (json.longitude !== undefined) this.longitude = json.longitude
 
         return this
+    }
+
+    public toJSON(): any {
+        return {
+            id: super.id,
+            type: this.type,
+            name: this.name,
+            address: this.address,
+            latitude: this.latitude,
+            longitude: this.longitude
+        }
     }
 }

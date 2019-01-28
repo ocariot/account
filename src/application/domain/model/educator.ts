@@ -1,7 +1,8 @@
-import { ISerializable } from '../utils/serializable.interface'
 import { User, UserType } from './user'
 import { ChildrenGroup } from './children.group'
 import { JsonUtils } from '../utils/json.utils'
+import { IJSONSerializable } from '../utils/json.serializable.interface'
+import { IJSONDeserializable } from '../utils/json.deserializable.interface'
 
 /**
  * Implementation of the educator entity.
@@ -9,7 +10,7 @@ import { JsonUtils } from '../utils/json.utils'
  * @extends {User}
  * @implements {ISerializable<Educator>}
  */
-export class Educator extends User implements ISerializable<Educator> {
+export class Educator extends User implements IJSONSerializable, IJSONDeserializable<Educator> {
     private _children_groups?: Array<ChildrenGroup> // List of children group.
 
     constructor() {
@@ -25,28 +26,9 @@ export class Educator extends User implements ISerializable<Educator> {
         this._children_groups = value
     }
 
-    /**
-     * Convert this object to json.
-     *
-     * @returns {object}
-     */
-    public serialize(): any {
-        return Object.assign(super.serialize(), {
-            children_groups: this.children_groups ?
-                this.children_groups.map(item => item.serialize()) :
-                this.children_groups
-        })
-    }
-
-    /**
-     * Transform JSON into Educator object.
-     *
-     * @param json
-     * @return Educator
-     */
-    public deserialize(json: any): Educator {
+    public fromJSON(json: any): Educator {
         if (!json) return this
-        super.deserialize(json)
+        super.fromJSON(json)
 
         if (typeof json === 'string' && JsonUtils.isJsonString(json)) {
             json = JSON.parse(json)
@@ -55,11 +37,19 @@ export class Educator extends User implements ISerializable<Educator> {
         if (json.children_groups !== undefined) {
             const childrenGroupsTemp: Array<ChildrenGroup> = []
             json.children_groups.forEach(elem => {
-                childrenGroupsTemp.push(new ChildrenGroup().deserialize(elem))
+                childrenGroupsTemp.push(new ChildrenGroup().fromJSON(elem))
             })
             this.children_groups = childrenGroupsTemp
         }
 
         return this
+    }
+
+    public toJSON(): any {
+        return Object.assign(super.toJSON(), {
+            children_groups: this.children_groups ?
+                this.children_groups.map(item => item.toJSON()) :
+                this.children_groups
+        })
     }
 }
