@@ -12,6 +12,8 @@ export interface IFamilyRepository extends IRepository<Family> {
     /**
      * Checks if an family already has a registration.
      * What differs from one user to another is the username.
+     * If the object to be verified has id, it will be considered
+     * as character in the verification, otherwise the username will be used.
      *
      * @param family
      * @return {Promise<boolean>} True if it exists or False, otherwise

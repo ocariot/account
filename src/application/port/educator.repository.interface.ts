@@ -11,6 +11,8 @@ import { Educator } from '../domain/model/educator'
 export interface IEducatorRepository extends IRepository<Educator> {
     /**
      * Checks if educator already has a registration.
+     * If the object to be verified has id, it will be considered
+     * as character in the verification, otherwise the username will be used.
      *
      * @param educator
      * @return {Promise<boolean>} True if it exists or False, otherwise

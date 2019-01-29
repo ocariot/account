@@ -11,6 +11,8 @@ import { Institution } from '../domain/model/institution'
 export interface IInstitutionRepository extends IRepository<Institution> {
     /**
      * Checks if an institution already has a registration.
+     * If the object to be verified has id, it will be considered
+     * as character in the verification, otherwise the name will be used.
      *
      * @param institution
      * @return {Promise<boolean>} True if it exists or False, otherwise

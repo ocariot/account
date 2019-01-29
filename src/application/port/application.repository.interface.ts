@@ -11,6 +11,8 @@ import { Application } from '../domain/model/application'
 export interface IApplicationRepository extends IRepository<Application> {
     /**
      * Checks if an user application already has a registration.
+     * If the object to be verified has id, it will be considered
+     * as character in the verification, otherwise the username will be used.
      *
      * @param application
      * @return {Promise<boolean>} True if it exists or False, otherwise

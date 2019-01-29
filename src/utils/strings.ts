@@ -17,9 +17,9 @@ export abstract class Strings {
         ALREADY_REGISTERED: 'Child is already registered!',
         CHILDREN_REGISTER_REQUIRED: 'It is necessary for children to be registered before proceeding.',
         IDS_WITHOUT_REGISTER: 'The following IDs were verified without registration:',
-        VERIFICATION_PROBLEM: 'There was a problem verifying children!',
         NOT_FOUND: 'Child not found!',
-        NOT_FOUND_DESCRIPTION: 'Child not found or already removed. A new operation for the same resource is not required.'
+        NOT_FOUND_DESCRIPTION: 'Child not found or already removed. A new operation for the same resource is not required.',
+        ASSOCIATION_FAILURE: 'The association could not be performed because the child does not have a record.'
     }
 
     public static readonly INSTITUTION: any = {

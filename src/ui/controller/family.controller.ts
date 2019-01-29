@@ -1,6 +1,6 @@
 import HttpStatus from 'http-status-codes'
 import { inject } from 'inversify'
-import { controller, httpGet, httpPatch, httpPost, request, response } from 'inversify-express-utils'
+import { controller, httpDelete, httpGet, httpPatch, httpPost, request, response } from 'inversify-express-utils'
 import { Request, Response } from 'express'
 import { Identifier } from '../../di/identifiers'
 import { ApiExceptionManager } from '../exception/api.exception.manager'
@@ -10,6 +10,7 @@ import { ILogger } from '../../utils/custom.logger'
 import { Family } from '../../application/domain/model/family'
 import { IFamilyService } from '../../application/port/family.service.interface'
 import { Strings } from '../../utils/strings'
+import { Child } from '../../application/domain/model/child'
 
 /**
  * Controller that implements Family feature operations.
@@ -123,12 +124,56 @@ export class FamilyController {
      * @param {Request} req
      * @param {Response} res
      */
-    @httpGet('/')
+    @httpGet('/:family_id/children')
     public async getAllChildrenFromFamily(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const result: Array<Family> = await this._familyService
-                .getAll(new Query().fromJSON(req.query))
+            const result: Array<Child> | undefined = await this._familyService
+                .getAllChildren(req.params.family_id, new Query().fromJSON(req.query))
+
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageFamilyNotFound())
+            return res.status(HttpStatus.OK).send(result.map(item => item.toJSON()))
+        } catch (err) {
+            const handlerError = ApiExceptionManager.build(err)
+            return res.status(handlerError.code)
+                .send(handlerError.toJson())
+        }
+    }
+
+    /**
+     * Associate a child with a family.
+     *
+     * @param {Request} req
+     * @param {Response} res
+     */
+    @httpPost('/:family_id/children/:child_id')
+    public async associateChildToFamily(@request() req: Request, @response() res: Response): Promise<Response> {
+        try {
+            const result: Family | undefined = await this._familyService
+                .associateChild(req.params.family_id, req.params.child_id)
+
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageFamilyNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
+        } catch (err) {
+            const handlerError = ApiExceptionManager.build(err)
+            return res.status(handlerError.code)
+                .send(handlerError.toJson())
+        }
+    }
+
+    /**
+     * Disassociate a child from a family.
+     *
+     * @param {Request} req
+     * @param {Response} res
+     */
+    @httpDelete('/:family_id/children/:child_id')
+    public async disassociateChildFromFamily(@request() req: Request, @response() res: Response): Promise<Response> {
+        try {
+            const result: boolean | undefined = await this._familyService
+                .disassociateChild(req.params.family_id, req.params.child_id)
+
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageFamilyNotFound())
+            return res.status(HttpStatus.NO_CONTENT).send()
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)

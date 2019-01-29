@@ -11,6 +11,8 @@ import { HealthProfessional } from '../domain/model/health.professional'
 export interface IHealthProfessionalRepository extends IRepository<HealthProfessional> {
     /**
      * Checks if healthProfessional already has a registration.
+     * If the object to be verified has id, it will be considered
+     * as character in the verification, otherwise the username will be used.
      *
      * @param healthProfessional
      * @return {Promise<boolean>} True if it exists or False, otherwise

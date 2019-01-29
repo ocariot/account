@@ -13,6 +13,7 @@ import { IChildRepository } from '../port/child.repository.interface'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
+import { Query } from '../../infrastructure/repository/query/query'
 
 /**
  * Implementing family Service.
@@ -58,7 +59,6 @@ export class FamilyService implements IFamilyService {
                 }
             }
         } catch (err) {
-            console.error('error', err.message)
             return Promise.reject(err)
         }
 
@@ -99,7 +99,6 @@ export class FamilyService implements IFamilyService {
                 }
             }
         } catch (err) {
-            console.error('error', err.message)
             return Promise.reject(err)
         }
         return this._familyRepository.update(family)
@@ -109,15 +108,69 @@ export class FamilyService implements IFamilyService {
         return this._familyRepository.delete(id)
     }
 
-    public async getAllChildren(familyId: string, query: IQuery): Promise<Array<Child>> {
-        throw new Error('Not implemented')
+    public async getAllChildren(familyId: string, query: IQuery): Promise<Array<Child> | undefined> {
+        query.addFilter({ _id: familyId, type: UserType.FAMILY })
+
+        try {
+            const family: Family = await this._familyRepository.findOne(query)
+            if (!family) return Promise.resolve(undefined)
+            return Promise.resolve(family.children ? family.children : [])
+        } catch (err) {
+            return Promise.reject(err)
+        }
     }
 
-    public async associateChild(familyId: string, childId: string): Promise<Family> {
-        throw new Error('Not implemented')
+    public async associateChild(familyId: string, childId: string): Promise<Family | undefined> {
+        const query: Query = new Query()
+        query.filters = { _id: familyId, type: UserType.FAMILY }
+
+        const child = new Child()
+        child.id = childId
+
+        try {
+            const family: Family = await this._familyRepository.findOne(query)
+            if (!family) return Promise.resolve(undefined)
+
+            // Checks if the child to be associated have a record. Your registration is required.
+            const checkChildExist: boolean | ValidationException = await this._childRepository.checkExist(child)
+            if (!checkChildExist) {
+                throw new ValidationException(Strings.CHILD.ASSOCIATION_FAILURE)
+            }
+
+            // verifies that the child is no longer associated
+            if (family.children) {
+                let childAlreadyExists = false
+                await family.children.forEach(item => {
+                    if (item.id === child.id) childAlreadyExists = true
+                })
+
+                if (childAlreadyExists) return Promise.resolve(family)
+                family.children.push(child)
+            }
+            else family.children = new Array<Child>(child)
+
+            return this._familyRepository.update(family)
+        } catch (err) {
+            return Promise.reject(err)
+        }
     }
 
-    public async disassociateChild(familyId: string, childId: string): Promise<boolean> {
-        throw new Error('Not implemented')
+    public async disassociateChild(familyId: string, childId: string): Promise<boolean | undefined> {
+        const query: Query = new Query()
+        query.filters = { _id: familyId, type: UserType.FAMILY }
+
+        try {
+            const family: Family = await this._familyRepository.findOne(query)
+            if (!family) return Promise.resolve(undefined)
+
+            // verifies that the child is no longer associated
+            if (family.children) {
+                family.children = await family.children.filter(child => child.id !== childId)
+                return await this._familyRepository.update(family) !== undefined
+            }
+            return await Promise.resolve(family) !== undefined
+        } catch (err) {
+            return Promise.reject(err)
+        }
     }
 }

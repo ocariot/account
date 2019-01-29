@@ -25,8 +25,20 @@ export class Query implements IQuery {
     private _pagination!: IPagination // Defines maximum page and number of data to be returned.
     private _filters!: object // Defines rules for filtering, such as filtering by some attribute.
 
-    constructor() {
-        // constructor empty
+    /**
+     *  Creates an instance of Query.
+     *
+     * @param fields
+     * @param ordination
+     * @param pagination
+     * @param filters
+     */
+    constructor(fields?: Array<string>, ordination?: Map<string, string>,
+                pagination?: IPagination, filters?: object) {
+        this.fields = fields ? fields : []
+        this.ordination = ordination ? ordination : new Map().set('created_at', 'desc')
+        this.pagination = pagination ? pagination : new Pagination()
+        this.filters = filters ? filters : {}
     }
 
     get fields(): Array<string> {
@@ -91,8 +103,10 @@ export class Query implements IQuery {
 
     public toJSON(): any {
         return {
-            fields: [...this.fields].reduce((obj, value, key) => (obj[value] = 1, obj), {}),
-            ordination: [...this.ordination.entries()].reduce((obj, [key, value]) => (obj[key] = value, obj), {}),
+            fields: this.fields ? [...this.fields].reduce((obj, value, key) => (obj[value] = 1, obj), {}) : [],
+            ordination: this.fields ?
+                [...this.ordination.entries()].reduce((obj, [key, value]) => (obj[key] = value, obj), {}) :
+                new Map(),
             pagination: this.pagination.toJSON(),
             filters: this.filters
         }

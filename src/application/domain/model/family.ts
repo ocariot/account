@@ -35,7 +35,11 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
         }
 
         if (json.children !== undefined) {
-            this.children = json.children.map(item => new Child().fromJSON(item))
+            this.children = json.children
+                .map(child => new Child().fromJSON(child))
+                .filter((obj, pos, arr) => { // remove repeated items
+                    return arr.map(mapObj => mapObj.id).indexOf(obj.id) === pos
+                })
         }
 
         return this
@@ -44,7 +48,15 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
     public toJSON(): any {
         return {
             ...super.toJSON(),
-            ...{ children: this.children ? this.children.map(item => item.toJSON()) : this.children }
+            ...{
+                children: this.children ?
+                    this.children.map(child => {
+                        child.toJSON()
+                        child.type = undefined
+                        return child
+                    }) :
+                    this.children
+            }
         }
     }
 }
