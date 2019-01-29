@@ -22,4 +22,5 @@ const institutionSchema = new Mongoose.Schema({
         }
     }
 )
+institutionSchema.index({ name: 1 }, { unique: true }) // define index at schema level
 export const InstitutionRepoModel = Mongoose.model<IInstitutionModel>('Institution', institutionSchema)

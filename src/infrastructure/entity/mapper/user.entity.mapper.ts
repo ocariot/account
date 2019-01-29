@@ -8,7 +8,6 @@ import { UserEntity } from '../user.entity'
 export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
     public transform(item: any): any {
         if (item instanceof User) return this.modelToModelEntity(item)
-        if (item instanceof UserEntity) return this.modelEntityToModel(item)
         return this.jsonToModel(item) // json
     }
 

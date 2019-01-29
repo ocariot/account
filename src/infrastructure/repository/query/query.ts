@@ -1,5 +1,5 @@
-import { Pagination } from './pagination'
 import { IPagination, IQuery } from '../../../application/port/query.interface'
+import { Pagination } from './pagination'
 
 /**
  * Defines object to be used for queries.
@@ -20,25 +20,13 @@ import { IPagination, IQuery } from '../../../application/port/query.interface'
  * @implements {IQuery}
  */
 export class Query implements IQuery {
-    private _fields!: Array<string>
-    private _ordination!: Map<string, string>
-    private _pagination!: IPagination
-    private _filters!: object
+    private _fields!: Array<string> // Defines the attributes that should be returned.
+    private _ordination!: Map<string, string> // Defines the attributes and how they should be sorted (ascending or descending).
+    private _pagination!: IPagination // Defines maximum page and number of data to be returned.
+    private _filters!: object // Defines rules for filtering, such as filtering by some attribute.
 
-    /**
-     * Creates an instance of Query.
-     *
-     * @param fields - Defines the attributes that should be returned.
-     * @param ordination - Defines the attributes and how they should be sorted (ascending or descending).
-     * @param pagination - Defines maximum page and number of data to be returned.
-     * @param filters - Defines rules for filtering, such as filtering by some attribute.
-     */
-    constructor(fields?: Array<string>, ordination?: Map<string, string>,
-                pagination?: IPagination, filters?: object) {
-        this.fields = (fields) ? fields : []
-        this.ordination = (ordination) ? ordination : new Map().set('created_at', 'desc')
-        this.pagination = (pagination) ? pagination : new Pagination()
-        this.filters = (filters) ? filters : {}
+    constructor() {
+        // constructor empty
     }
 
     get fields(): Array<string> {
@@ -74,8 +62,10 @@ export class Query implements IQuery {
     }
 
     public addFilter(filter: object): void {
-        if (filter instanceof Object) {
-            this._filters = Object.assign(this._filters, filter)
+        // this.filters = Object.assign(this.filters, filter)
+        this.filters = {
+            ...this.filters,
+            ...filter
         }
     }
 
@@ -93,8 +83,8 @@ export class Query implements IQuery {
             this.ordination = __ordination
         }
 
-        if (json.pagination) this.pagination = this.pagination.fromJSON(json.pagination)
-        if (json.filters) this.filters = json.filters
+        if (json.pagination) this.pagination = new Pagination().fromJSON(json.pagination)
+        if (json.filters) this.filters = new Object(json.filters)
 
         return this
     }

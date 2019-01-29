@@ -9,6 +9,7 @@ import { ApiException } from '../exception/api.exception'
 import { ILogger } from '../../utils/custom.logger'
 import { IInstitutionService } from '../../application/port/institution.service.interface'
 import { Institution } from '../../application/domain/model/institution'
+import { Strings } from '../../utils/strings'
 
 /**
  * Controller that implements Institution feature operations.
@@ -38,7 +39,7 @@ export class InstitutionController {
      * @param {Response} res
      */
     @httpPost('/')
-    public async saveInstitution(@request() req: Request, @response() res: Response) {
+    public async saveInstitution(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const institution: Institution = new Institution().fromJSON(req.body)
             const result: Institution = await this._institutionService.add(institution)
@@ -84,7 +85,7 @@ export class InstitutionController {
         try {
             const result: Institution = await this._institutionService
                 .getById(req.params.institution_id, new Query().fromJSON(req.query))
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundInstitution())
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageInstitutionNotFound())
             return res.status(HttpStatus.OK).send(result.toJSON())
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -105,7 +106,7 @@ export class InstitutionController {
             const institution: Institution = new Institution().fromJSON(req.body)
             institution.id = req.params.institution_id
             const result: Institution = await this._institutionService.update(institution)
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundInstitution())
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageInstitutionNotFound())
             return res.status(HttpStatus.OK).send(result.toJSON())
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -124,7 +125,7 @@ export class InstitutionController {
     public async deleteInstitution(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const result: boolean = await this._institutionService.remove(req.params.institution_id)
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundInstitution())
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageInstitutionNotFound())
             return res.status(HttpStatus.NO_CONTENT).send()
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -136,11 +137,11 @@ export class InstitutionController {
     /**
      * Default message when resource is not found or does not exist.
      */
-    private getMessageNotFoundInstitution(): object {
+    private getMessageInstitutionNotFound(): object {
         return new ApiException(
             HttpStatus.NOT_FOUND,
-            'Institution not found!',
-            'Institution not found or already removed. A new operation for the same resource is not required!'
+            Strings.INSTITUTION.NOT_FOUND,
+            Strings.INSTITUTION.NOT_FOUND_DESCRIPTION
         ).toJson()
     }
 }

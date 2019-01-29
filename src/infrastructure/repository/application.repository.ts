@@ -20,10 +20,10 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
 
     constructor(
         @inject(Identifier.USER_REPO_MODEL) readonly applicationModel: any,
-        @inject(Identifier.CHILD_ENTITY_MAPPER) readonly childMapper: IEntityMapper<Application, ApplicationEntity>,
+        @inject(Identifier.APPLICATION_ENTITY_MAPPER) readonly applicationMapper: IEntityMapper<Application, ApplicationEntity>,
         @inject(Identifier.LOGGER) readonly logger: ILogger
     ) {
-        super(applicationModel, childMapper, logger)
+        super(applicationModel, applicationMapper, logger)
     }
 
     public create(item: Application): Promise<Application> {
@@ -34,11 +34,11 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
 
     public checkExist(application: Application): Promise<boolean> {
         const query: Query = new Query()
-        return new Promise<boolean>((resolve, reject) => {
-            if (application.id) query.filters = { _id: application.id }
-            else query.filters = { username: application.username }
+        if (application.id) query.filters = { _id: application.id }
+        else query.filters = { username: application.username }
 
-            query.addFilter({ type: UserType.FAMILY })
+        query.addFilter({ type: UserType.APPLICATION })
+        return new Promise<boolean>((resolve, reject) => {
             super.findOne(query)
                 .then((result: Application) => {
                     if (result) return resolve(true)

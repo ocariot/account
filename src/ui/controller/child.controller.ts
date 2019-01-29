@@ -9,6 +9,7 @@ import { ApiException } from '../exception/api.exception'
 import { ILogger } from '../../utils/custom.logger'
 import { IChildService } from '../../application/port/child.service.interface'
 import { Child } from '../../application/domain/model/child'
+import { Strings } from '../../utils/strings'
 
 /**
  * Controller that implements Child feature operations.
@@ -38,7 +39,7 @@ export class ChildController {
      * @param {Response} res
      */
     @httpPost('/')
-    public async saveChild(@request() req: Request, @response() res: Response) {
+    public async saveChild(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const child: Child = new Child().fromJSON(req.body)
             const result: Child = await this._childService.add(child)
@@ -68,6 +69,8 @@ export class ChildController {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
                 .send(handlerError.toJson())
+        } finally {
+            req.query = {}
         }
     }
 
@@ -84,7 +87,7 @@ export class ChildController {
         try {
             const result: Child = await this._childService
                 .getById(req.params.child_id, new Query().fromJSON(req.query))
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundChild())
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -105,7 +108,7 @@ export class ChildController {
             const child: Child = new Child().fromJSON(req.body)
             child.id = req.params.child_id
             const result: Child = await this._childService.update(child)
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundChild())
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -133,11 +136,11 @@ export class ChildController {
     /**
      * Default message when resource is not found or does not exist.
      */
-    private getMessageNotFoundChild(): object {
+    private getMessageChildNotFound(): object {
         return new ApiException(
             HttpStatus.NOT_FOUND,
-            'Child not found!',
-            'Child not found or already removed. A new operation for the same resource is not required!'
+            Strings.CHILD.NOT_FOUND,
+            Strings.CHILD.NOT_FOUND_DESCRIPTION
         ).toJson()
     }
 }

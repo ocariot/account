@@ -6,41 +6,41 @@ import { IEntityMapper } from '../port/entity.mapper.interface'
 import { ILogger } from '../../utils/custom.logger'
 import { Identifier } from '../../di/identifiers'
 import { Query } from './query/query'
-import { IFamilyRepository } from '../../application/port/family.repository.interface'
-import { Family } from '../../application/domain/model/family'
-import { FamilyEntity } from '../entity/family.entity'
+import { Educator } from '../../application/domain/model/educator'
+import { EducatorEntity } from '../entity/educator.entity'
+import { IEducatorRepository } from '../../application/port/educator.repository.interface'
 
 /**
- * Implementation of the family repository.
+ * Implementation of the educator repository.
  *
- * @implements {IFamilyRepository}
+ * @implements {IEducatorRepository}
  */
 @injectable()
-export class FamilyRepository extends BaseRepository<Family, FamilyEntity> implements IFamilyRepository {
+export class EducatorRepository extends BaseRepository<Educator, EducatorEntity> implements IEducatorRepository {
 
     constructor(
-        @inject(Identifier.USER_REPO_MODEL) readonly familyModel: any,
-        @inject(Identifier.FAMILY_ENTITY_MAPPER) readonly familyMapper: IEntityMapper<Family, FamilyEntity>,
+        @inject(Identifier.USER_REPO_MODEL) readonly educatorModel: any,
+        @inject(Identifier.EDUCATOR_ENTITY_MAPPER) readonly educatorMapper: IEntityMapper<Educator, EducatorEntity>,
         @inject(Identifier.LOGGER) readonly logger: ILogger
     ) {
-        super(familyModel, familyMapper, logger)
+        super(educatorModel, educatorMapper, logger)
     }
 
-    public create(item: Family): Promise<Family> {
+    public create(item: Educator): Promise<Educator> {
         // Encrypt password
         item.password = bcrypt.hashSync(item.password, bcrypt.genSaltSync(10))
         return super.create(item)
     }
 
-    public checkExist(family: Family): Promise<boolean> {
+    public checkExist(educator: Educator): Promise<boolean> {
         const query: Query = new Query()
-        if (family.id) query.filters = { _id: family.id }
-        else query.filters = { username: family.username }
+        if (educator.id) query.filters = { _id: educator.id }
+        else query.filters = { username: educator.username }
 
-        query.addFilter({ type: UserType.FAMILY })
+        query.addFilter({ type: UserType.EDUCATOR })
         return new Promise<boolean>((resolve, reject) => {
             super.findOne(query)
-                .then((result: Family) => {
+                .then((result: Educator) => {
                     if (result) return resolve(true)
                     return resolve(false)
                 })

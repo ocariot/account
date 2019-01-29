@@ -34,15 +34,15 @@ export class FamilyService implements IFamilyService {
         try {
             // Checks if family already exists
             const familyExist = await this._familyRepository.checkExist(family)
-            if (familyExist) throw new ConflictException(Strings.VALIDATION_FAMILY.ALREADY_REGISTERED)
+            if (familyExist) throw new ConflictException(Strings.FAMILY.ALREADY_REGISTERED)
 
             // Checks if the children to be associated have a record. Your registration is required.
             if (family.children) {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
                 if (checkChildrenExist instanceof ValidationException) {
                     throw new ValidationException(
-                        Strings.VALIDATION_CHILD.CHILDREN_REGISTER_REQUIRED,
-                        Strings.VALIDATION_CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
+                        Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
+                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
                     )
                 }
             }
@@ -52,8 +52,8 @@ export class FamilyService implements IFamilyService {
                 const institutionExist = await this._institutionRepository.checkExist(family.institution)
                 if (!institutionExist) {
                     throw new ValidationException(
-                        Strings.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
-                        Strings.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
                     )
                 }
             }
@@ -82,8 +82,8 @@ export class FamilyService implements IFamilyService {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
                 if (checkChildrenExist instanceof ValidationException) {
                     throw new ValidationException(
-                        Strings.VALIDATION_CHILD.CHILDREN_REGISTER_REQUIRED,
-                        Strings.VALIDATION_CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
+                        Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
+                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
                     )
                 }
             }
@@ -93,8 +93,8 @@ export class FamilyService implements IFamilyService {
                 const institutionExist = await this._institutionRepository.checkExist(family.institution)
                 if (!institutionExist) {
                     throw new ValidationException(
-                        Strings.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
-                        Strings.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
                     )
                 }
             }

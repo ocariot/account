@@ -8,7 +8,6 @@ import { ApplicationEntity } from '../application.entity'
 export class ApplicationEntityMapper implements IEntityMapper<Application, ApplicationEntity> {
     public transform(item: any): any {
         if (item instanceof Application) return this.modelToModelEntity(item)
-        if (item instanceof ApplicationEntity) return this.modelEntityToModel(item)
         return this.jsonToModel(item) // json
     }
 

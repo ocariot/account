@@ -49,6 +49,30 @@ import { IAuthService } from '../application/port/auth.service.interface'
 import { AuthService } from '../application/service/auth.service'
 import { IAuthRepository } from '../application/port/auth.repository.interface'
 import { AuthRepository } from '../infrastructure/repository/auth.repository'
+import { ApplicationController } from '../ui/controller/application.controller'
+import { IApplicationService } from '../application/port/application.service.interface'
+import { ApplicationService } from '../application/service/application.service'
+import { IApplicationRepository } from '../application/port/application.repository.interface'
+import { ApplicationRepository } from '../infrastructure/repository/application.repository'
+import { Application } from '../application/domain/model/application'
+import { ApplicationEntity } from '../infrastructure/entity/application.entity'
+import { ApplicationEntityMapper } from '../infrastructure/entity/mapper/application.entity.mapper'
+import { EducatorController } from '../ui/controller/educator.controller'
+import { IEducatorRepository } from '../application/port/educator.repository.interface'
+import { EducatorRepository } from '../infrastructure/repository/educator.repository'
+import { EducatorEntity } from '../infrastructure/entity/educator.entity'
+import { Educator } from '../application/domain/model/educator'
+import { EducatorEntityMapper } from '../infrastructure/entity/mapper/educator.entity.mapper'
+import { IEducatorService } from '../application/port/educator.service.interface'
+import { EducatorService } from '../application/service/educator.service'
+import { HealthProfessionalController } from '../ui/controller/health.professional.controller'
+import { IHealthProfessionalService } from '../application/port/health.professional.service.interface'
+import { HealthProfessionalService } from '../application/service/health.professional.service'
+import { IHealthProfessionalRepository } from '../application/port/health.professional.repository.interface'
+import { HealthProfessionalRepository } from '../infrastructure/repository/health.professional.repository'
+import { HealthProfessional } from '../application/domain/model/health.professional'
+import { HealthProfessionalEntity } from '../infrastructure/entity/health.professional.entity'
+import { HealthProfessionalEntityMapper } from '../infrastructure/entity/mapper/health.professional.entity.mapper'
 
 export class DI {
     private static instance: DI
@@ -94,17 +118,38 @@ export class DI {
         this.container.bind(Identifier.APP).to(App).inSingletonScope()
 
         // Controllers
-        this.container.bind<HomeController>(Identifier.HOME_CONTROLLER).to(HomeController).inSingletonScope()
-        this.container.bind<AuthController>(Identifier.AUTH_CONTROLLER).to(AuthController).inSingletonScope()
-        this.container.bind<ChildController>(Identifier.CHILD_CONTROLLER).to(ChildController).inSingletonScope()
-        this.container.bind<FamilyController>(Identifier.FAMILY_CONTROLLER).to(FamilyController).inSingletonScope()
-        this.container.bind<InstitutionController>(Identifier.INSTITUTION_CONTROLLER).to(InstitutionController).inSingletonScope()
+        this.container.bind<HomeController>(Identifier.HOME_CONTROLLER)
+            .to(HomeController).inSingletonScope()
+        this.container.bind<AuthController>(Identifier.AUTH_CONTROLLER)
+            .to(AuthController).inSingletonScope()
+        this.container.bind<ChildController>(Identifier.CHILD_CONTROLLER)
+            .to(ChildController).inSingletonScope()
+        this.container.bind<FamilyController>(Identifier.FAMILY_CONTROLLER)
+            .to(FamilyController).inSingletonScope()
+        this.container.bind<ApplicationController>(Identifier.APPLICATION_CONTROLLER)
+            .to(ApplicationController).inSingletonScope()
+        this.container.bind<EducatorController>(Identifier.EDUCATOR_CONTROLLER)
+            .to(EducatorController).inSingletonScope()
+        this.container.bind<HealthProfessionalController>(Identifier.HEALTH_PROFESSIONAL_CONTROLLER)
+            .to(HealthProfessionalController).inSingletonScope()
+        this.container.bind<InstitutionController>(Identifier.INSTITUTION_CONTROLLER)
+            .to(InstitutionController).inSingletonScope()
 
         // Services
-        this.container.bind<IAuthService>(Identifier.AUTH_SERVICE).to(AuthService).inSingletonScope()
-        this.container.bind<IChildService>(Identifier.CHILD_SERVICE).to(ChildService).inSingletonScope()
-        this.container.bind<IFamilyService>(Identifier.FAMILY_SERVICE).to(FamilyService).inSingletonScope()
-        this.container.bind<IInstitutionService>(Identifier.INSTITUTION_SERVICE).to(InstitutionService).inSingletonScope()
+        this.container.bind<IAuthService>(Identifier.AUTH_SERVICE)
+            .to(AuthService).inSingletonScope()
+        this.container.bind<IChildService>(Identifier.CHILD_SERVICE)
+            .to(ChildService).inSingletonScope()
+        this.container.bind<IFamilyService>(Identifier.FAMILY_SERVICE)
+            .to(FamilyService).inSingletonScope()
+        this.container.bind<IApplicationService>(Identifier.APPLICATION_SERVICE)
+            .to(ApplicationService).inSingletonScope()
+        this.container.bind<IEducatorService>(Identifier.EDUCATOR_SERVICE)
+            .to(EducatorService).inSingletonScope()
+        this.container.bind<IHealthProfessionalService>(Identifier.HEALTH_PROFESSIONAL_SERVICE)
+            .to(HealthProfessionalService).inSingletonScope()
+        this.container.bind<IInstitutionService>(Identifier.INSTITUTION_SERVICE)
+            .to(InstitutionService).inSingletonScope()
 
         // Repositories
         this.container.bind<IAuthRepository>(Identifier.AUTH_REPOSITORY)
@@ -113,6 +158,12 @@ export class DI {
             .to(ChildRepository).inSingletonScope()
         this.container.bind<IFamilyRepository>(Identifier.FAMILY_REPOSITORY)
             .to(FamilyRepository).inSingletonScope()
+        this.container.bind<IApplicationRepository>(Identifier.APPLICATION_REPOSITORY)
+            .to(ApplicationRepository).inSingletonScope()
+        this.container.bind<IEducatorRepository>(Identifier.EDUCATOR_REPOSITORY)
+            .to(EducatorRepository).inSingletonScope()
+        this.container.bind<IHealthProfessionalRepository>(Identifier.HEALTH_PROFESSIONAL_REPOSITORY)
+            .to(HealthProfessionalRepository).inSingletonScope()
         this.container.bind<IInstitutionRepository>(Identifier.INSTITUTION_REPOSITORY)
             .to(InstitutionRepository).inSingletonScope()
 
@@ -121,37 +172,34 @@ export class DI {
         this.container.bind(Identifier.INSTITUTION_REPO_MODEL).toConstantValue(InstitutionRepoModel)
 
         // Mappers
-        this.container
-            .bind<IEntityMapper<User, UserEntity>>(Identifier.USER_ENTITY_MAPPER)
+        this.container.bind<IEntityMapper<User, UserEntity>>(Identifier.USER_ENTITY_MAPPER)
             .to(UserEntityMapper).inSingletonScope()
-        this.container
-            .bind<IEntityMapper<Child, ChildEntity>>(Identifier.CHILD_ENTITY_MAPPER)
+        this.container.bind<IEntityMapper<Child, ChildEntity>>(Identifier.CHILD_ENTITY_MAPPER)
             .to(ChildEntityMapper).inSingletonScope()
-        this.container
-            .bind<IEntityMapper<Family, FamilyEntity>>(Identifier.FAMILY_ENTITY_MAPPER)
+        this.container.bind<IEntityMapper<Family, FamilyEntity>>(Identifier.FAMILY_ENTITY_MAPPER)
             .to(FamilyEntityMapper).inSingletonScope()
+        this.container.bind<IEntityMapper<Application, ApplicationEntity>>(Identifier.APPLICATION_ENTITY_MAPPER)
+            .to(ApplicationEntityMapper).inSingletonScope()
+        this.container.bind<IEntityMapper<Educator, EducatorEntity>>(Identifier.EDUCATOR_ENTITY_MAPPER)
+            .to(EducatorEntityMapper).inSingletonScope()
         this.container
-            .bind<IEntityMapper<Institution, InstitutionEntity>>(Identifier.INSTITUTION_ENTITY_MAPPER)
+            .bind<IEntityMapper<HealthProfessional, HealthProfessionalEntity>>(Identifier.HEALTH_PROFESSIONAL_ENTITY_MAPPER)
+            .to(HealthProfessionalEntityMapper).inSingletonScope()
+        this.container.bind<IEntityMapper<Institution, InstitutionEntity>>(Identifier.INSTITUTION_ENTITY_MAPPER)
             .to(InstitutionEntityMapper).inSingletonScope()
 
         // Background Services
-        this.container
-            .bind(Identifier.BACKGROUND_SERVICE)
+        this.container.bind(Identifier.BACKGROUND_SERVICE)
             .to(BackgroundService).inSingletonScope()
-        this.container
-            .bind<IConnectionFactory>(Identifier.RABBITMQ_CONNECTION_FACTORY)
+        this.container.bind<IConnectionFactory>(Identifier.RABBITMQ_CONNECTION_FACTORY)
             .to(RabbitMQConnectionFactory).inSingletonScope()
-        this.container
-            .bind<IRabbitMQConnection>(Identifier.RABBITMQ_CONNECTION)
+        this.container.bind<IRabbitMQConnection>(Identifier.RABBITMQ_CONNECTION)
             .to(RabbitMQConnection).inSingletonScope()
-        this.container
-            .bind<IEventBus>(Identifier.RABBITMQ_EVENT_BUS)
+        this.container.bind<IEventBus>(Identifier.RABBITMQ_EVENT_BUS)
             .to(EventBusRabbitMQ).inSingletonScope()
-        this.container
-            .bind<IConnectionFactory>(Identifier.MONGODB_CONNECTION_FACTORY)
+        this.container.bind<IConnectionFactory>(Identifier.MONGODB_CONNECTION_FACTORY)
             .to(MongoDBConnectionFactory).inSingletonScope()
-        this.container
-            .bind<IDBConnection>(Identifier.MONGODB_CONNECTION)
+        this.container.bind<IDBConnection>(Identifier.MONGODB_CONNECTION)
             .to(MongoDBConnection).inSingletonScope()
 
         // Log

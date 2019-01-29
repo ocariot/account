@@ -27,11 +27,10 @@ export class InstitutionRepository extends BaseRepository<Institution, Instituti
 
     public checkExist(institution: Institution): Promise<boolean> {
         const query: Query = new Query()
-        if (!institution.id) return Promise.resolve(false)
+        if (institution.id) query.filters = { _id: institution.id }
+        else query.filters = { name: institution.name }
 
         return new Promise<boolean>((resolve, reject) => {
-            query.filters = { _id: institution.id }
-
             super.findOne(query)
                 .then((result: Institution) => {
                     if (result) return resolve(true)

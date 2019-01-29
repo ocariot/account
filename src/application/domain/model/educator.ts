@@ -46,10 +46,13 @@ export class Educator extends User implements IJSONSerializable, IJSONDeserializ
     }
 
     public toJSON(): any {
-        return Object.assign(super.toJSON(), {
-            children_groups: this.children_groups ?
-                this.children_groups.map(item => item.toJSON()) :
-                this.children_groups
-        })
+        return {
+            ...super.toJSON(),
+            ...{
+                children_groups: this.children_groups ?
+                    this.children_groups.map(item => item.toJSON()) :
+                    this.children_groups
+            }
+        }
     }
 }

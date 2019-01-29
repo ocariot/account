@@ -6,6 +6,7 @@ export class InstitutionValidator {
         const fields: Array<string> = []
 
         // validate null
+        if (!institution.name) fields.push('Name')
         if (!institution.type) fields.push('Type')
 
         if (fields.length > 0) {

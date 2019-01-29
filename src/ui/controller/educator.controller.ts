@@ -7,42 +7,42 @@ import { ApiExceptionManager } from '../exception/api.exception.manager'
 import { Query } from '../../infrastructure/repository/query/query'
 import { ApiException } from '../exception/api.exception'
 import { ILogger } from '../../utils/custom.logger'
-import { IApplicationService } from '../../application/port/application.service.interface'
 import { Strings } from '../../utils/strings'
-import { Application } from '../../application/domain/model/application'
+import { IEducatorService } from '../../application/port/educator.service.interface'
+import { Educator } from '../../application/domain/model/educator'
 
 /**
- * Controller that implements Application feature operations.
+ * Controller that implements Educator feature operations.
  *
  * @remarks To define paths, we use library inversify-express-utils.
  * @see {@link https://github.com/inversify/inversify-express-utils} for further information.
  */
-@controller('/users/applications')
-export class ApplicationController {
+@controller('/users/educators')
+export class EducatorController {
 
     /**
-     * Creates an instance of Application controller.
+     * Creates an instance of Educator controller.
      *
-     * @param {IApplicationService} _application
+     * @param {IEducatorService} _educatorService
      * @param {ILogger} _logger
      */
     constructor(
-        @inject(Identifier.APPLICATION_SERVICE) private readonly _application: IApplicationService,
+        @inject(Identifier.EDUCATOR_SERVICE) private readonly _educatorService: IEducatorService,
         @inject(Identifier.LOGGER) readonly _logger: ILogger
     ) {
     }
 
     /**
-     * Add new application.
+     * Add new educator.
      *
      * @param {Request} req
      * @param {Response} res
      */
     @httpPost('/')
-    public async saveApplication(@request() req: Request, @response() res: Response): Promise<Response> {
+    public async saveEducator(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const application: Application = new Application().fromJSON(req.body)
-            const result: Application = await this._application.add(application)
+            const educator: Educator = new Educator().fromJSON(req.body)
+            const result: Educator = await this._educatorService.add(educator)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -52,7 +52,7 @@ export class ApplicationController {
     }
 
     /**
-     * Get all applications.
+     * Get all educators.
      * For the query strings, the query-strings-parser middleware was used.
      * @see {@link https://www.npmjs.com/package/query-strings-parser} for further information.
      *
@@ -60,9 +60,9 @@ export class ApplicationController {
      * @param {Response} res
      */
     @httpGet('/')
-    public async getAllApplications(@request() req: Request, @response() res: Response): Promise<Response> {
+    public async getAllEducators(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const result: Array<Application> = await this._application
+            const result: Array<Educator> = await this._educatorService
                 .getAll(new Query().fromJSON(req.query))
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
@@ -73,19 +73,19 @@ export class ApplicationController {
     }
 
     /**
-     * Get application by ID.
+     * Get educator by id.
      * For the query strings, the query-strings-parser middleware was used.
      * @see {@link https://www.npmjs.com/package/query-strings-parser} for further information.
      *
      * @param {Request} req
      * @param {Response} res
      */
-    @httpGet('/:application_id')
-    public async getApplicationById(@request() req: Request, @response() res: Response): Promise<Response> {
+    @httpGet('/:educator_id')
+    public async getEducatorById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const result: Application = await this._application
-                .getById(req.params.application_id, new Query().fromJSON(req.query))
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundApplication())
+            const result: Educator = await this._educatorService
+                .getById(req.params.educator_id, new Query().fromJSON(req.query))
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageEducatorNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -95,18 +95,18 @@ export class ApplicationController {
     }
 
     /**
-     * Update application by ID.
+     * Update educator by ID.
      *
      * @param {Request} req
      * @param {Response} res
      */
-    @httpPatch('/:application_id')
-    public async updateApplicationById(@request() req: Request, @response() res: Response): Promise<Response> {
+    @httpPatch('/:educator_id')
+    public async updateEducatorById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const application: Application = new Application().fromJSON(req.body)
-            application.id = req.params.application_id
-            const result: Application = await this._application.update(application)
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundApplication())
+            const educator: Educator = new Educator().fromJSON(req.body)
+            educator.id = req.params.educator_id
+            const result: Educator = await this._educatorService.update(educator)
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageEducatorNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -118,27 +118,27 @@ export class ApplicationController {
     /**
      * Convert object to json format expected by view.
      *
-     * @param application
+     * @param educator
      */
-    private toJSONView(application: Application | Array<Application>): object {
-        if (application instanceof Array) {
-            return application.map(item => {
+    private toJSONView(educator: Educator | Array<Educator>): object {
+        if (educator instanceof Array) {
+            return educator.map(item => {
                 item.type = undefined
                 return item.toJSON()
             })
         }
-        application.type = undefined
-        return application.toJSON()
+        educator.type = undefined
+        return educator.toJSON()
     }
 
     /**
      * Default message when resource is not found or does not exist.
      */
-    private getMessageNotFoundApplication(): object {
+    private getMessageEducatorNotFound(): object {
         return new ApiException(
             HttpStatus.NOT_FOUND,
-            Strings.APPLICATION.NOT_FOUND,
-            Strings.APPLICATION.NOT_FOUND_DESCRIPTION
+            Strings.EDUCATOR.NOT_FOUND,
+            Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
         ).toJson()
     }
 }

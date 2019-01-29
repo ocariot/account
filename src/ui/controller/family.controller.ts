@@ -9,6 +9,7 @@ import { ApiException } from '../exception/api.exception'
 import { ILogger } from '../../utils/custom.logger'
 import { Family } from '../../application/domain/model/family'
 import { IFamilyService } from '../../application/port/family.service.interface'
+import { Strings } from '../../utils/strings'
 
 /**
  * Controller that implements Family feature operations.
@@ -38,7 +39,7 @@ export class FamilyController {
      * @param {Response} res
      */
     @httpPost('/')
-    public async saveFamily(@request() req: Request, @response() res: Response) {
+    public async saveFamily(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const family: Family = new Family().fromJSON(req.body)
             const result: Family = await this._familyService.add(family)
@@ -84,7 +85,7 @@ export class FamilyController {
         try {
             const result: Family = await this._familyService
                 .getById(req.params.family_id, new Query().fromJSON(req.query))
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundFamily())
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageFamilyNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -105,7 +106,7 @@ export class FamilyController {
             const family: Family = new Family().fromJSON(req.body)
             family.id = req.params.family_id
             const result: Family = await this._familyService.update(family)
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundFamily())
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageFamilyNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -154,11 +155,11 @@ export class FamilyController {
     /**
      * Default message when resource is not found or does not exist.
      */
-    private getMessageNotFoundFamily(): object {
+    private getMessageFamilyNotFound(): object {
         return new ApiException(
             HttpStatus.NOT_FOUND,
-            'Family not found!',
-            'Family not found or already removed. A new operation for the same resource is not required!'
+            Strings.FAMILY.NOT_FOUND,
+            Strings.FAMILY.NOT_FOUND_DESCRIPTION
         ).toJson()
     }
 }

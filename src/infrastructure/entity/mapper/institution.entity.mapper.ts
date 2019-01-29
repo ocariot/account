@@ -7,7 +7,6 @@ import { InstitutionEntity } from '../institution.entity'
 export class InstitutionEntityMapper implements IEntityMapper<Institution, InstitutionEntity> {
     public transform(item: any): any {
         if (item instanceof Institution) return this.modelToModelEntity(item)
-        if (item instanceof InstitutionEntity) return this.modelEntityToModel(item)
         return this.jsonToModel(item) // json
     }
 

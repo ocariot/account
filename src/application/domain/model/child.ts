@@ -57,9 +57,9 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     }
 
     public toJSON(): any {
-        return Object.assign(super.toJSON(), {
-            gender: this.gender,
-            age: this.age
-        })
+        return {
+            ...super.toJSON(),
+            ...{ gender: this.gender, age: this.age }
+        }
     }
 }

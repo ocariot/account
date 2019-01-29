@@ -26,12 +26,6 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
         this._children = value
     }
 
-    public toJSON(): any {
-        return Object.assign(super.toJSON(), {
-            children: this.children ? this.children.map(item => item.toJSON()) : this.children
-        })
-    }
-
     public fromJSON(json: any): Family {
         if (!json) return this
         super.fromJSON(json)
@@ -45,5 +39,12 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
         }
 
         return this
+    }
+
+    public toJSON(): any {
+        return {
+            ...super.toJSON(),
+            ...{ children: this.children ? this.children.map(item => item.toJSON()) : this.children }
+        }
     }
 }

@@ -33,9 +33,8 @@ export class UserController {
      * @param {Response} res
      */
     @httpPost('/')
-    public async auth(@request() req: Request, @response() res: Response) {
+    public async auth(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            console.log('inits', req.body, req.body.username)
             const result: any = await this._authService.authenticate(req.body.username, req.body.password)
             if (result) return res.status(HttpStatus.OK).send(result)
             return res.status(HttpStatus.UNAUTHORIZED)

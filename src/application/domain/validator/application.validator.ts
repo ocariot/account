@@ -6,6 +6,9 @@ export class ApplicationValidator {
         const fields: Array<string> = []
 
         // validate null
+        if (!application.username) fields.push('Username')
+        if (!application.password) fields.push('Password')
+        if (!application.type) fields.push('Type')
         if (!application.application_name) fields.push('Application Name')
 
         if (fields.length > 0) {

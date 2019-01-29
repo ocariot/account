@@ -7,6 +7,7 @@ import { IInstitutionService } from '../port/institution.service.interface'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { Institution } from '../domain/model/institution'
 import { InstitutionValidator } from '../domain/validator/institution.validator'
+import { Strings } from '../../utils/strings'
 
 /**
  * Implementing institution Service.
@@ -23,7 +24,7 @@ export class InstitutionService implements IInstitutionService {
     public async add(institution: Institution): Promise<Institution> {
         InstitutionValidator.validate(institution)
         const institutionExist = await this._institutionRepository.checkExist(institution)
-        if (institutionExist) throw new ConflictException('Institution is already registered!')
+        if (institutionExist) throw new ConflictException(Strings.INSTITUTION.ALREADY_REGISTERED)
 
         try {
             const institutionSaved: Institution = await this._institutionRepository.create(institution)

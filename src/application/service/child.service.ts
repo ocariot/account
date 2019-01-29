@@ -30,15 +30,15 @@ export class ChildService implements IChildService {
 
         try {
             const childExist = await this._childRepository.checkExist(child)
-            if (childExist) throw new ConflictException(Strings.VALIDATION_CHILD.ALREADY_REGISTERED)
+            if (childExist) throw new ConflictException(Strings.CHILD.ALREADY_REGISTERED)
 
             // Checks if the institution exists.
             if (child.institution && child.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(child.institution)
                 if (!institutionExist) {
                     throw new ValidationException(
-                        Strings.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
-                        Strings.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
                     )
                 }
             }
@@ -67,8 +67,8 @@ export class ChildService implements IChildService {
                 const institutionExist = await this._institutionRepository.checkExist(child.institution)
                 if (!institutionExist) {
                     throw new ValidationException(
-                        Strings.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
-                        Strings.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
                     )
                 }
             }

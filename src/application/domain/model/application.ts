@@ -39,8 +39,9 @@ export class Application extends User implements IJSONSerializable, IJSONDeseria
     }
 
     public toJSON(): any {
-        return Object.assign(super.toJSON(), {
-            application_name: this.application_name
-        })
+        return {
+            ...super.toJSON(),
+            ...{ application_name: this.application_name }
+        }
     }
 }

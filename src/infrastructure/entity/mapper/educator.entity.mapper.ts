@@ -1,62 +1,63 @@
 import { injectable } from 'inversify'
 import { IEntityMapper } from '../../port/entity.mapper.interface'
 import { Institution } from '../../../application/domain/model/institution'
-import { Family } from '../../../application/domain/model/family'
-import { FamilyEntity } from '../family.entity'
-import { Child } from '../../../application/domain/model/child'
+import { Educator } from '../../../application/domain/model/educator'
+import { EducatorEntity } from '../educator.entity'
+import { ChildrenGroup } from '../../../application/domain/model/children.group'
 
 @injectable()
-export class FamilyEntityMapper implements IEntityMapper<Family, FamilyEntity> {
+export class EducatorEntityMapper implements IEntityMapper<Educator, EducatorEntity> {
     public transform(item: any): any {
-        if (item instanceof Family) return this.modelToModelEntity(item)
+        if (item instanceof Educator) return this.modelToModelEntity(item)
         return this.jsonToModel(item) // json
     }
 
     /**
-     * Convert {Family} for {FamilyEntity}.
+     * Convert {Educator} for {EducatorEntity}.
      *
      * @see Creation Date should not be mapped to the type the repository understands.
      * Because this attribute is created automatically by the database.
      * Therefore, if a null value is passed at update time, an exception is thrown.
      * @param item
      */
-    public modelToModelEntity(item: Family): FamilyEntity {
-        const result: FamilyEntity = new FamilyEntity()
+    public modelToModelEntity(item: Educator): EducatorEntity {
+        const result: EducatorEntity = new EducatorEntity()
         if (item.id) result.id = item.id
         if (item.username) result.username = item.username
         if (item.password) result.password = item.password
         if (item.type) result.type = item.type
         if (item.institution) result.institution = item.institution.id
-        if (item.children) {
-            const childrenTemp: Array<string> = []
-            item.children.forEach(elem => {
-                if (elem.id) childrenTemp.push(elem.id)
+        if (item.children_groups) {
+            const childrenGroupsTemp: Array<string> = []
+            item.children_groups.forEach(elem => {
+                if (elem.id) childrenGroupsTemp.push(elem.id)
             })
-            result.children = childrenTemp
+            result.children_groups = childrenGroupsTemp
         }
+
         return result
     }
 
     /**
-     * Convert {FamilyEntity} for {Family}.
+     * Convert {EducatorEntity} for {Educator}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,
      * because at some point the attribute accessed may not exist.
      * @param item
      */
-    public modelEntityToModel(item: FamilyEntity): Family {
+    public modelEntityToModel(item: EducatorEntity): Educator {
         throw Error('Not implemented!')
     }
 
     /**
-     * Convert JSON for {Family}.
+     * Convert JSON for {Educator}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,
      * because at some point the attribute accessed may not exist.
      * @param json
      */
-    public jsonToModel(json: any): Family {
-        const result: Family = new Family()
+    public jsonToModel(json: any): Educator {
+        const result: Educator = new Educator()
         if (!json) return result
 
         if (json.id !== undefined) result.id = json.id
@@ -67,8 +68,8 @@ export class FamilyEntityMapper implements IEntityMapper<Family, FamilyEntity> {
             if (json.institution === null) result.institution = undefined
             else result.institution = new Institution().fromJSON(json.institution)
         }
-        if (json.children !== undefined) {
-            result.children = json.children.map(item => new Child().fromJSON(item))
+        if (json.children_groups !== undefined) {
+            result.children_groups = json.children_groups.map(item => new ChildrenGroup().fromJSON(item))
         }
 
         return result

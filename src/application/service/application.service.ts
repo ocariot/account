@@ -30,15 +30,15 @@ export class ApplicationService implements IApplicationService {
 
         try {
             const applicationExist = await this._applicationRepository.checkExist(application)
-            if (applicationExist) throw new ConflictException(Strings.VALIDATION_APPLICATION.ALREADY_REGISTERED)
+            if (applicationExist) throw new ConflictException(Strings.APPLICATION.ALREADY_REGISTERED)
 
             // Checks if the institution exists.
             if (application.institution && application.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(application.institution)
                 if (!institutionExist) {
                     throw new ValidationException(
-                        Strings.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
-                        Strings.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
                     )
                 }
             }
@@ -66,8 +66,8 @@ export class ApplicationService implements IApplicationService {
                 const institutionExist = await this._institutionRepository.checkExist(application.institution)
                 if (!institutionExist) {
                     throw new ValidationException(
-                        Strings.VALIDATION_INSTITUTION.REGISTER_REQUIRED,
-                        Strings.VALIDATION_INSTITUTION.ALERT_REGISTER_REQUIRED
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
                     )
                 }
             }

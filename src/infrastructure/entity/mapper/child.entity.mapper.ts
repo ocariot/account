@@ -8,7 +8,6 @@ import { ChildEntity } from '../child.entity'
 export class ChildEntityMapper implements IEntityMapper<Child, ChildEntity> {
     public transform(item: any): any {
         if (item instanceof Child) return this.modelToModelEntity(item)
-        if (item instanceof ChildEntity) return this.modelEntityToModel(item)
         return this.jsonToModel(item) // json
     }
 
