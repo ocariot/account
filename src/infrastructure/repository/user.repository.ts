@@ -64,4 +64,18 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
     public comparePasswords(passwordPlain: string, passwordHash: string): boolean {
         return bcrypt.compareSync(passwordPlain, passwordHash)
     }
+
+    public disassociateInstitution(institution_id: string): Promise<boolean> {
+        // Disassociate institution from users.
+        return new Promise<boolean>((resolve, reject) => {
+            this.userModel.updateMany(
+                { institution: institution_id },
+                { $set: { institution: undefined } },
+                { multi: true },
+                (err, numAffected) => {
+                    if (err) reject(super.mongoDBErrorListener((err)))
+                    resolve(true)
+                })
+        })
+    }
 }

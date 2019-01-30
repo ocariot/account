@@ -81,7 +81,7 @@ export class ChildrenGroupService implements IChildrenGroupService {
         return this._childrenGroupRepository.update(childrenGroup)
     }
 
-    public async remove(id: string | number): Promise<boolean> {
+    public async remove(id: string): Promise<boolean> {
         return this._childrenGroupRepository.delete(id)
     }
 }

@@ -124,8 +124,7 @@ export class InstitutionController {
     @httpDelete('/:institution_id')
     public async deleteInstitution(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const result: boolean = await this._institutionService.remove(req.params.institution_id)
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageInstitutionNotFound())
+            await this._institutionService.remove(req.params.institution_id)
             return res.status(HttpStatus.NO_CONTENT).send()
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)

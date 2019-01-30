@@ -84,7 +84,7 @@ export class ApplicationService implements IApplicationService {
         return this._applicationRepository.update(application)
     }
 
-    public async remove(id: string | number): Promise<boolean> {
+    public async remove(id: string): Promise<boolean> {
         return this._applicationRepository.delete(id)
     }
 }

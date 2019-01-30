@@ -87,7 +87,7 @@ export class EducatorService implements IEducatorService {
         return this._educatorRepository.update(educator)
     }
 
-    public async remove(id: string | number): Promise<boolean> {
+    public async remove(id: string): Promise<boolean> {
         return this._educatorRepository.delete(id)
     }
 

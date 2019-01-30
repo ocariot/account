@@ -84,7 +84,7 @@ export class ChildService implements IChildService {
         return this._childRepository.update(child)
     }
 
-    public async remove(id: string | number): Promise<boolean> {
+    public async remove(id: string): Promise<boolean> {
         return this._childRepository.delete(id)
     }
 }

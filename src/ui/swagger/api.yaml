@@ -8,39 +8,39 @@ info:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
 servers:
-- description: SwaggerHub API Auto Mocking
-  url: https://virtserver.swaggerhub.com/nutes.ocariot/account-service/v1
-- description: Account Local Instance
-  url: http://127.0.0.1:5000/api/v1
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/nutes.ocariot/account-service/v1
+  - description: Account Local Instance
+    url: http://localhost:5000/
 
 tags:
-- name: auth
-  description: Operations for the user authentication in plataform.
-- name: users
-  description: Operations for all plataform users.
-- name: users.children
-  description: Operations for the Child resource.
-- name: users.families
-  description: Operations for the Family resource.
-- name: users.families.children
-  description: Operations for the Children associated with a family.
-- name: users.educators
-  description: Operations for the Educator resource.
-- name: users.educators.children.groups
-  description: Operations for the Children group resource associated with a Educator.
-- name: users.healthprofessionals
-  description: Operations for the HealthProfessional resource.
-- name: users.healthprofessionals.children.groups
-  description: Operations for Children Group resource, associated with a Health Professional.
-- name: users.applications
-  description: Operations for the Application resource.
+  - name: auth
+    description: Operations for the user authentication in plataform.
+  - name: users
+    description: Operations for all plataform users.
+  - name: users.children
+    description: Operations for the Child resource.
+  - name: users.families
+    description: Operations for the Family resource.
+  - name: users.families.children
+    description: Operations for the Children associated with a family.
+  - name: users.educators
+    description: Operations for the Educator resource.
+  - name: users.educators.children.groups
+    description: Operations for the Children group resource associated with a Educator.
+  - name: users.healthprofessionals
+    description: Operations for the HealthProfessional resource.
+  - name: users.healthprofessionals.children.groups
+    description: Operations for Children Group resource, associated with a Health Professional.
+  - name: users.applications
+    description: Operations for the Application resource.
 
 paths:
   # auth
   /auth:
     post:
       tags:
-      - auth
+        - auth
       summary: Authenticate user on platform.
       operationId: auth
       description: |
@@ -132,7 +132,7 @@ paths:
   /auth/revoke:
     post:
       tags:
-      - auth
+        - auth
       summary: Revoke access token
       operationId: revokeAccessToken
       description: Revoking an access token means that the token will no longer function.
@@ -170,91 +170,21 @@ paths:
                 $ref: '#/components/schemas/Error'
 
   # users
-  /users:
-    get:
-      tags:
-      - users
-      summary: Recover all users.
-      operationId: getAllUsers
-      description: Returns list with users.
-        The query supports Field Selection, Paging and Sorting.
-      parameters:
-      - $ref: '#/components/parameters/fieldsParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortParam'
-      responses:
-        '200':
-          description: Successful requisition.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  oneOf:
-                  - $ref: '#/components/schemas/Educator'
-                  - $ref: '#/components/schemas/Child'
-                  - $ref: '#/components/schemas/Family'
-                  - $ref: '#/components/schemas/HealthProfessional'
-        '401':
-          description: Authentication failed due to invalid authentication credentials.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '403':
-          description: User does not have permission to get users.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '404':
-          description: >-
-            Specified resource does not exist. Usually when the URI is incorrect
-            or the resource is not found, or even no longer exists.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '406':
-          description: >-
-            The server is not implementing the media type requested by the
-            client for the application response. Only application/json is
-            currently accepted.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '429':
-          description: The rate limit for requests exceeded.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '500':
-          description: >-
-            An internal server error occurred. Although the client appears to
-            provide a correct request, the server encountered an unexpected
-            condition that prevented it from responding to the request.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
   /users/{user_id}:
     delete:
       tags:
-      - users
+        - users
       summary: Delete user data.
       description: Delete user informations.
       operationId: deleteUser
       parameters:
-      - in: path
-        name: user_id
-        required: true
-        description: Id of user.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: user_id
+          required: true
+          description: Id of user.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '204':
           description: Operation performed successfully. There is no data to be returned.
@@ -305,21 +235,30 @@ paths:
   /users/{user_id}/password:
     patch:
       tags:
-      - users
+        - users
       summary: Update user password.
       description: Update the user password.
       operationId: updateUser
       parameters:
-      - in: path
-        name: user_id
-        required: true
-        description: Id of user.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: user_id
+          required: true
+          description: Id of user.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '204':
           description: Operation performed successfully. There is no data to be returned.
+        '400':
+          description: >-
+            Request can not be met, syntactically incorrect or violates the
+            schema. Normally it occurs due to validation issues, such as fields
+            that are expected in the request body and not passed.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '401':
           description: Authentication failed due to invalid authentication credentials.
           content:
@@ -345,13 +284,6 @@ paths:
             The server is not implementing the media type requested by the client
             for the application response. Only application/json is currently
             accepted.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Error'
-        '409':
-          description: ->
-            Conflicts have probably occurred with data that can not be duplicated.
           content:
             application/json:
               schema:
@@ -398,7 +330,7 @@ paths:
   /users/children:
     post:
       tags:
-      - users.children
+        - users.children
       summary: Register a Child.
       operationId: saveChild
       description: |
@@ -448,6 +380,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '409':
+          description: ->
+            Conflicts have probably occurred with data that can not be duplicated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '415':
           description: >-
             The server does not support the requested payload format. Only
@@ -479,10 +418,10 @@ paths:
             schema:
               type: object
               required:
-              - username
-              - password
-              - gender
-              - age
+                - username
+                - password
+                - gender
+                - age
               properties:
                 username:
                   type: string
@@ -507,17 +446,17 @@ paths:
                   example: 11
     get:
       tags:
-      - users.children
+        - users.children
       summary: Recover all children.
       operationId: getAllChildren
       description: |
         Returns a list with children.
         The query supports Field Selection, Paging and Sorting.
       parameters:
-      - $ref: '#/components/parameters/fieldsParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/sortParam'
       responses:
         '200':
           description: Successful requisition.
@@ -575,19 +514,19 @@ paths:
   /users/children/{child_id}:
     get:
       tags:
-      - users.children
+        - users.children
       summary: Recover a child by id.
       operationId: getChildById
       description: Returns a unique child by id. The query supports field selection.
       parameters:
-      - in: path
-        name: child_id
-        required: true
-        description: Id of child.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
+        - in: path
+          name: child_id
+          required: true
+          description: Id of child.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
       responses:
         '200':
           description: Successful requisition.
@@ -641,18 +580,18 @@ paths:
                 $ref: '#/components/schemas/Error'
     patch:
       tags:
-      - users.children
+        - users.children
       summary: Update children.
       description: Update the children data.
       operationId: updateChildById
       parameters:
-      - in: path
-        name: child_id
-        required: true
-        description: Id of child.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: child_id
+          required: true
+          description: Id of child.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '200':
           description: Updated child data.
@@ -750,7 +689,7 @@ paths:
   /users/educators:
     post:
       tags:
-      - users.educators
+        - users.educators
       summary: Register a Educator.
       operationId: saveEducator
       description: |
@@ -800,6 +739,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '409':
+          description: ->
+            Conflicts have probably occurred with data that can not be duplicated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '415':
           description: >-
             The server does not support the requested payload format. Only
@@ -831,8 +777,8 @@ paths:
             schema:
               type: object
               required:
-              - username
-              - password
+                - username
+                - password
               properties:
                 username:
                   type: string
@@ -842,14 +788,6 @@ paths:
                   type: string
                   description: Password for educator authentication.
                   example: mys3cr3tp4ss
-                children_groups:
-                  type: array
-                  description: List of children group.
-                  items:
-                    type: string
-                    format: uuid
-                  example:
-                  - 5a62be07de34500146d9c544
                 institution_id:
                   type: string
                   format: uuid
@@ -857,17 +795,17 @@ paths:
                   example: 5a62be07de34500146d9c624
     get:
       tags:
-      - users.educators
+        - users.educators
       summary: Recover all educators.
       operationId: getAllEducators
       description: |
         Returns a list with educators.
         The query supports Field Selection, Paging and Sorting.
       parameters:
-      - $ref: '#/components/parameters/fieldsParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/sortParam'
       responses:
         '200':
           description: Successful requisition.
@@ -925,19 +863,19 @@ paths:
   /users/educators/{educator_id}:
     get:
       tags:
-      - users.educators
+        - users.educators
       summary: Recover a educator by id.
       operationId: getEducatorById
       description: Returns a unique educator by id. The query supports field selection.
       parameters:
-      - in: path
-        name: educator_id
-        required: true
-        description: Id of educator.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
+        - in: path
+          name: educator_id
+          required: true
+          description: Id of educator.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
       responses:
         '200':
           description: Successful requisition.
@@ -991,18 +929,18 @@ paths:
                 $ref: '#/components/schemas/Error'
     patch:
       tags:
-      - users.educators
+        - users.educators
       summary: Update Educator.
       description: Update the Educator data.
       operationId: updateEducator
       parameters:
-      - in: path
-        name: educator_id
-        required: true
-        description: Id of Educator.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: educator_id
+          required: true
+          description: Id of Educator.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '200':
           description: Updated Educator data.
@@ -1079,14 +1017,6 @@ paths:
                   type: string
                   description: Username for educator authentication.
                   example: elvisaaron
-                children_groups:
-                  type: array
-                  description: List of children group.
-                  items:
-                    type: string
-                    format: uuid
-                  example:
-                  - 5a62be07de34500146d9c544
                 institution_id:
                   type: string
                   format: uuid
@@ -1099,18 +1029,18 @@ paths:
   /users/educators/{educator_id}/children/groups:
     post:
       tags:
-      - users.educators.children.groups
+        - users.educators.children.groups
       summary: Register a children group from educator.
       operationId: saveChildrenGroupFromEducator
       description: Register a new children group, and associated it with an educator.
       parameters:
-      - in: path
-        name: educator_id
-        required: true
-        description: Id of Educator.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: educator_id
+          required: true
+          description: Id of Educator.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '201':
           description: Children group saved sucessfully.
@@ -1156,6 +1086,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '409':
+          description: ->
+            Conflicts have probably occurred with data that can not be duplicated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '415':
           description: >-
             The server does not support the requested payload format. Only
@@ -1187,8 +1124,8 @@ paths:
             schema:
               type: object
               required:
-              - name
-              - children
+                - name
+                - children
               properties:
                 name:
                   type: string
@@ -1201,29 +1138,29 @@ paths:
                     type: string
                     format: uuid
                   example:
-                  - 5a62be07de34500146d9c544
+                    - 5a62be07de34500146d9c544
                 school_class:
                   type: string
                   description: Class of the children from group.
                   example: 4th Grade
     get:
       tags:
-      - users.educators.children.groups
+        - users.educators.children.groups
       summary: Recover all group of children associated with an educator.
       operationId: getAllChildrenGroupFromEducator
       description: Returns list with all groups of children associated with an educator. The query supports Field Selection, Paging and Sorting.
       parameters:
-      - in: path
-        name: educator_id
-        required: true
-        description: Id of Educator.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortParam'
+        - in: path
+          name: educator_id
+          required: true
+          description: Id of Educator.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/sortParam'
       responses:
         '200':
           description: Successful requisition.
@@ -1280,26 +1217,26 @@ paths:
   /users/educators/{educator_id}/children/groups/{group_id}:
     get:
       tags:
-      - users.educators.children.groups
+        - users.educators.children.groups
       summary: Recover children group data from educator.
       operationId: getChildrenGroupFromEducatorById
-      description: Recover a unique children group associated with an educator by id. The query support fields selection.
+      description: Recover a unique children group associated with an educator by id.
       parameters:
-      - in: path
-        name: educator_id
-        required: true
-        description: Id of Educator.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - in: path
-        name: group_id
-        required: true
-        description: Id of children group.
-        example: 5a62be07d6f33400146c9b61
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
+        - in: path
+          name: educator_id
+          required: true
+          description: Id of Educator.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - in: path
+          name: group_id
+          required: true
+          description: Id of children group.
+          example: 5a62be07d6f33400146c9b61
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
       responses:
         '200':
           description: Successful requisition.
@@ -1353,25 +1290,25 @@ paths:
                 $ref: '#/components/schemas/Error'
     patch:
       tags:
-      - users.educators.children.groups
+        - users.educators.children.groups
       summary: Update children group data from educator.
       description: Update the children group data associated with an educator.
       operationId: updateChildrenGroupFromEducator
       parameters:
-      - in: path
-        name: educator_id
-        required: true
-        description: Id of Educator.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - in: path
-        name: group_id
-        required: true
-        description: Id of children group.
-        example: 5a62be07d6f33400146c9b61
-        schema:
-          type: string
+        - in: path
+          name: educator_id
+          required: true
+          description: Id of Educator.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - in: path
+          name: group_id
+          required: true
+          description: Id of children group.
+          example: 5a62be07d6f33400146c9b61
+          schema:
+            type: string
       responses:
         '200':
           description: Updated children group data.
@@ -1457,32 +1394,32 @@ paths:
                     type: string
                     format: uuid
                   example:
-                  - 5a62be07de34500146d9c544
+                    - 5a62be07de34500146d9c544
                 school_class:
                   type: string
                   description: Class of the children from group.
                   example: 4th Grade
     delete:
       tags:
-      - users.educators.children.groups
+        - users.educators.children.groups
       summary: Delete children group data from educator.
       description: Delete the children group data associated with an educator.
       operationId: deleteChildrenGroupFromEducator
       parameters:
-      - in: path
-        name: educator_id
-        required: true
-        description: Id of Educator.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - in: path
-        name: group_id
-        required: true
-        description: Id of children group.
-        example: 5a62be07d6f33400146c9b61
-        schema:
-          type: string
+        - in: path
+          name: educator_id
+          required: true
+          description: Id of Educator.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - in: path
+          name: group_id
+          required: true
+          description: Id of children group.
+          example: 5a62be07d6f33400146c9b61
+          schema:
+            type: string
       responses:
         '204':
           description: Operation performed successfully. There is no data to be returned.
@@ -1535,7 +1472,7 @@ paths:
   /users/families:
     post:
       tags:
-      - users.families
+        - users.families
       summary: Register a Family.
       operationId: saveFamily
       description: |
@@ -1585,6 +1522,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '409':
+          description: ->
+            Conflicts have probably occurred with data that can not be duplicated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '415':
           description: >-
             The server does not support the requested payload format. Only
@@ -1616,9 +1560,9 @@ paths:
             schema:
               type: object
               required:
-              - username
-              - password
-              - children
+                - username
+                - password
+                - children
               properties:
                 username:
                   type: string
@@ -1635,7 +1579,7 @@ paths:
                     type: string
                     format: uuid
                   example:
-                  - 5a62be07de34500146d9c544
+                    - 5a62be07de34500146d9c544
                 institution_id:
                   type: string
                   format: uuid
@@ -1643,17 +1587,17 @@ paths:
                   example: 5a62be07de34500146d9c544
     get:
       tags:
-      - users.families
+        - users.families
       summary: Recover all families.
       operationId: getAllFamilies
       description: |
         Returns a list with families.
         The query supports Field Selection, Paging and Sorting.
       parameters:
-      - $ref: '#/components/parameters/fieldsParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/sortParam'
       responses:
         '200':
           description: Successful requisition.
@@ -1711,19 +1655,19 @@ paths:
   /users/families/{family_id}:
     get:
       tags:
-      - users.families
+        - users.families
       summary: Recover a family by id.
       operationId: getFamilyById
       description: Returns a unique family by id. The query supports field selection.
       parameters:
-      - in: path
-        name: family_id
-        required: true
-        description: Id of family.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
+        - in: path
+          name: family_id
+          required: true
+          description: Id of family.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
       responses:
         '200':
           description: Successful requisition.
@@ -1777,18 +1721,18 @@ paths:
                 $ref: '#/components/schemas/Error'
     patch:
       tags:
-      - users.families
+        - users.families
       summary: Update family.
       description: Update the family data.
       operationId: updateFamily
       parameters:
-      - in: path
-        name: family_id
-        required: true
-        description: Id of family.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: family_id
+          required: true
+          description: Id of family.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '200':
           description: Updated family data.
@@ -1872,7 +1816,7 @@ paths:
                     type: string
                     format: uuid
                   example:
-                  - 5a62be07de34500146d9c544
+                    - 5a62be07de34500146d9c544
                 institution_id:
                   type: string
                   format: uuid
@@ -1885,24 +1829,24 @@ paths:
   /users/families/{family_id}/children:
     get:
       tags:
-      - users.families.children
+        - users.families.children
       summary: Recover all children associated with a family.
       operationId: getAllChildrenFromFamily
       description: |
         Returns a list with children associated with a family.
         The query supports Field Selection, Paging and Sorting.
       parameters:
-      - in: path
-        name: family_id
-        required: true
-        description: Id of family.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortParam'
+        - in: path
+          name: family_id
+          required: true
+          description: Id of family.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/sortParam'
       responses:
         '200':
           description: Successful requisition.
@@ -1960,27 +1904,27 @@ paths:
   /users/families/{family_id}/children/{child_id}:
     post:
       tags:
-      - users.families.children
+        - users.families.children
       summary: Associate a child with a family.
-      operationId: addChildToFami
+      operationId: associateChildToFamily
       description: Associate a child with a family by id.
       parameters:
-      - in: path
-        name: family_id
-        required: true
-        description: Id of family.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - in: path
-        name: child_id
-        required: true
-        description: Id of child.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: family_id
+          required: true
+          description: Id of family.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - in: path
+          name: child_id
+          required: true
+          description: Id of child.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
-        '201':
+        '200':
           description: Child associated sucessfully.
           content:
             application/json:
@@ -2024,6 +1968,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '409':
+          description: ->
+            Conflicts have probably occurred with data that can not be duplicated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '415':
           description: >-
             The server does not support the requested payload format. Only
@@ -2047,32 +1998,27 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Child'
     delete:
       tags:
-      - users.families.children
+        - users.families.children
       summary: Disassociate a child from a family.
       description: Disassociate a child from a family by id.
-      operationId: deleteChildFromFamily
+      operationId: disassociateChildFromFamily
       parameters:
-      - in: path
-        name: family_id
-        required: true
-        description: Id of family.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - in: path
-        name: child_id
-        required: true
-        description: Id of child.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: family_id
+          required: true
+          description: Id of family.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - in: path
+          name: child_id
+          required: true
+          description: Id of child.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '204':
           description: Operation performed successfully. There is no data to be returned.
@@ -2125,7 +2071,7 @@ paths:
   /users/healthprofessionals:
     post:
       tags:
-      - users.healthprofessionals
+        - users.healthprofessionals
       summary: Register a Health Professional.
       operationId: saveHealthProfessional
       description: |
@@ -2175,6 +2121,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '409':
+          description: ->
+            Conflicts have probably occurred with data that can not be duplicated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '415':
           description: >-
             The server does not support the requested payload format. Only
@@ -2206,8 +2159,8 @@ paths:
             schema:
               type: object
               required:
-              - username
-              - password
+                - username
+                - password
               properties:
                 username:
                   type: string
@@ -2217,14 +2170,6 @@ paths:
                   type: string
                   description: Password for health professional authentication.
                   example: mys3cr3tp4ss
-                children_groups:
-                  type: array
-                  description: List of children group.
-                  items:
-                    type: string
-                    format: uuid
-                  example:
-                  - 5a62be07de34500146d9c544
                 institution_id:
                   type: string
                   format: uuid
@@ -2232,17 +2177,17 @@ paths:
                   example: 5a62be07de34500146d9c624
     get:
       tags:
-      - users.healthprofessionals
+        - users.healthprofessionals
       summary: Recover all health professionals.
       operationId: getAllHealthProfessionals
       description: |
         Returns a list with health professionals.
         The query supports Field Selection, Paging and Sorting.
       parameters:
-      - $ref: '#/components/parameters/fieldsParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/sortParam'
       responses:
         '200':
           description: Successful requisition.
@@ -2300,19 +2245,19 @@ paths:
   /users/healthprofessionals/{healthprofessional_id}:
     get:
       tags:
-      - users.healthprofessionals
+        - users.healthprofessionals
       summary: Recover a health professional by id.
       operationId: getHealthProfessionalById
       description: Returns a unique health professional by id. The query supports field selection.
       parameters:
-      - in: path
-        name: healthprofessional_id
-        required: true
-        description: Id of health professional.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
+        - in: path
+          name: healthprofessional_id
+          required: true
+          description: Id of health professional.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
       responses:
         '200':
           description: Successful requisition.
@@ -2366,18 +2311,18 @@ paths:
                 $ref: '#/components/schemas/Error'
     patch:
       tags:
-      - users.healthprofessionals
+        - users.healthprofessionals
       summary: Update Health Professional.
       description: Update the Health Professional data.
       operationId: updateHealthProfessional
       parameters:
-      - in: path
-        name: healthprofessional_id
-        required: true
-        description: Id of Health Professional.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: healthprofessional_id
+          required: true
+          description: Id of Health Professional.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '200':
           description: Updated Health Professional data.
@@ -2454,14 +2399,6 @@ paths:
                   type: string
                   description: Username for health professional authentication.
                   example: elvisaaron
-                children_groups:
-                  type: array
-                  description: List of children group.
-                  items:
-                    type: string
-                    format: uuid
-                  example:
-                  - 5a62be07de34500146d9c544
                 institution_id:
                   type: string
                   format: uuid
@@ -2474,18 +2411,18 @@ paths:
   /users/healthprofessionals/{healthprofessional_id}/children/groups:
     post:
       tags:
-      - users.healthprofessionals.children.groups
+        - users.healthprofessionals.children.groups
       summary: Register a children group from health professional.
       operationId: saveChildrenGroupFromEducator
       description: Register a new children group, and associated it with an health professional.
       parameters:
-      - in: path
-        name: healthprofessional_id
-        required: true
-        description: Id of health professional.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: healthprofessional_id
+          required: true
+          description: Id of health professional.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '201':
           description: Children group saved sucessfully.
@@ -2531,6 +2468,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '409':
+          description: ->
+            Conflicts have probably occurred with data that can not be duplicated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '415':
           description: >-
             The server does not support the requested payload format. Only
@@ -2562,8 +2506,8 @@ paths:
             schema:
               type: object
               required:
-              - name
-              - children
+                - name
+                - children
               properties:
                 name:
                   type: string
@@ -2576,29 +2520,29 @@ paths:
                     type: string
                     format: uuid
                   example:
-                  - 5a62be07de34500146d9c544
+                    - 5a62be07de34500146d9c544
                 school_class:
                   type: string
                   description: Class of the children from group.
                   example: 4th Grade
     get:
       tags:
-      - users.healthprofessionals.children.groups
+        - users.healthprofessionals.children.groups
       summary: Recover all group of children associated with a health professional.
       operationId: getAllChildrenGroupFromHealthProfessional
       description: Returns list with all groups of children associated with a health professional. The query supports Field Selection, Paging and Sorting.
       parameters:
-      - in: path
-        name: healthprofessional_id
-        required: true
-        description: Id of Health Professional.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortParam'
+        - in: path
+          name: healthprofessional_id
+          required: true
+          description: Id of Health Professional.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/sortParam'
       responses:
         '200':
           description: Successful requisition.
@@ -2655,26 +2599,26 @@ paths:
   /users/healthprofessionals/{healthprofessional_id}/children/groups/{group_id}:
     get:
       tags:
-      - users.healthprofessionals.children.groups
+        - users.healthprofessionals.children.groups
       summary: Recover children group data from health professional.
       operationId: getChildrenGroupFromHealthProfessionalById
-      description: Recover a unique children group associated with a health professional by id. The query support fields selection.
+      description: Recover a unique children group associated with a health professional by id.
       parameters:
-      - in: path
-        name: healthprofessional_id
-        required: true
-        description: Id of Health Professional.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - in: path
-        name: group_id
-        required: true
-        description: Id of children group.
-        example: 5a62be07d6f33400146c9b61
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
+        - in: path
+          name: healthprofessional_id
+          required: true
+          description: Id of Health Professional.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - in: path
+          name: group_id
+          required: true
+          description: Id of children group.
+          example: 5a62be07d6f33400146c9b61
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
       responses:
         '200':
           description: Successful requisition.
@@ -2728,25 +2672,25 @@ paths:
                 $ref: '#/components/schemas/Error'
     patch:
       tags:
-      - users.healthprofessionals.children.groups
+        - users.healthprofessionals.children.groups
       summary: Update children group data from health professional.
       description: Update the children group data associated with a health professional.
       operationId: updateChildrenGroupFromHealthProfessional
       parameters:
-      - in: path
-        name: healthprofessional_id
-        required: true
-        description: Id of Health Professional.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - in: path
-        name: group_id
-        required: true
-        description: Id of children group.
-        example: 5a62be07d6f33400146c9b61
-        schema:
-          type: string
+        - in: path
+          name: healthprofessional_id
+          required: true
+          description: Id of Health Professional.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - in: path
+          name: group_id
+          required: true
+          description: Id of children group.
+          example: 5a62be07d6f33400146c9b61
+          schema:
+            type: string
       responses:
         '200':
           description: Updated children group data.
@@ -2832,32 +2776,32 @@ paths:
                     type: string
                     format: uuid
                   example:
-                  - 5a62be07de34500146d9c544
+                    - 5a62be07de34500146d9c544
                 school_class:
                   type: string
                   description: Class of the children from group.
                   example: 4th Grade
     delete:
       tags:
-      - users.healthprofessionals.children.groups
+        - users.healthprofessionals.children.groups
       summary: Delete children group data from health professional.
       description: Delete the children group data associated with a health professional.
       operationId: deleteChildrenGroupFromHealthProfessional
       parameters:
-      - in: path
-        name: healthprofessional_id
-        required: true
-        description: Id of Health Professional.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - in: path
-        name: group_id
-        required: true
-        description: Id of children group.
-        example: 5a62be07d6f33400146c9b61
-        schema:
-          type: string
+        - in: path
+          name: healthprofessional_id
+          required: true
+          description: Id of Health Professional.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - in: path
+          name: group_id
+          required: true
+          description: Id of children group.
+          example: 5a62be07d6f33400146c9b61
+          schema:
+            type: string
       responses:
         '204':
           description: Operation performed successfully. There is no data to be returned.
@@ -2910,7 +2854,7 @@ paths:
   /users/applications:
     post:
       tags:
-      - users.applications
+        - users.applications
       summary: Register application.
       operationId: saveApplication
       description: Register a new application.
@@ -2959,6 +2903,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '409':
+          description: ->
+            Conflicts have probably occurred with data that can not be duplicated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '415':
           description: >-
             The server does not support the requested payload format. Only
@@ -2988,9 +2939,9 @@ paths:
             schema:
               type: object
               required:
-              - username
-              - password
-              - application_name
+                - username
+                - password
+                - application_name
               properties:
                 username:
                   type: string
@@ -3013,17 +2964,17 @@ paths:
         required: true
     get:
       tags:
-      - users.applications
+        - users.applications
       summary: Recover all applications.
       operationId: getAllApplications
       description: |
         Returns a list with applications.
         The query supports Field Selection, Paging and Sorting.
       parameters:
-      - $ref: '#/components/parameters/fieldsParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/sortParam'
       responses:
         '200':
           description: Successful requisition.
@@ -3081,19 +3032,19 @@ paths:
   /users/applications/{application_id}:
     get:
       tags:
-      - users.applications
+        - users.applications
       summary: Recover a application by id.
       operationId: getApplicationById
       description: Returns a unique application by id. The query supports field selection.
       parameters:
-      - in: path
-        name: application_id
-        required: true
-        description: Id of application.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
+        - in: path
+          name: application_id
+          required: true
+          description: Id of application.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
       responses:
         '200':
           description: Successful requisition.
@@ -3147,18 +3098,18 @@ paths:
                 $ref: '#/components/schemas/Error'
     patch:
       tags:
-      - users.applications
+        - users.applications
       summary: Update application.
       description: Update the Application data.
       operationId: updateApplication
       parameters:
-      - in: path
-        name: application_id
-        required: true
-        description: Id of Application.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: application_id
+          required: true
+          description: Id of Application.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '200':
           description: Updated Application data.
@@ -3251,7 +3202,7 @@ paths:
   /institutions:
     post:
       tags:
-      - institutions
+        - institutions
       summary: Register institution.
       operationId: saveInstitution
       description: Register a new institution.
@@ -3300,6 +3251,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+        '409':
+          description: ->
+            Conflicts have probably occurred with data that can not be duplicated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '415':
           description: >-
             The server does not support the requested payload format. Only
@@ -3332,15 +3290,15 @@ paths:
               $ref: '#/components/schemas/Institution'
     get:
       tags:
-      - institutions
+        - institutions
       summary: Recover all institutions.
       operationId: getAllInstitutions
       description: Returns list with institutions. The query supports Field Selection, Paging and Sorting.
       parameters:
-      - $ref: '#/components/parameters/fieldsParam'
-      - $ref: '#/components/parameters/pageParam'
-      - $ref: '#/components/parameters/limitParam'
-      - $ref: '#/components/parameters/sortParam'
+        - $ref: '#/components/parameters/fieldsParam'
+        - $ref: '#/components/parameters/pageParam'
+        - $ref: '#/components/parameters/limitParam'
+        - $ref: '#/components/parameters/sortParam'
       responses:
         '200':
           description: Successful requisition.
@@ -3397,19 +3355,19 @@ paths:
   /institutions/{institution_id}:
     get:
       tags:
-      - institutions
+        - institutions
       summary: Recover a institution by id.
       operationId: getInstitutionById
       description: Returns a unique institution by id. The query supports field selection.
       parameters:
-      - in: path
-        name: institution_id
-        required: true
-        description: Id of institution.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
-      - $ref: '#/components/parameters/fieldsParam'
+        - in: path
+          name: institution_id
+          required: true
+          description: Id of institution.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
+        - $ref: '#/components/parameters/fieldsParam'
       responses:
         '200':
           description: Successful requisition.
@@ -3465,18 +3423,18 @@ paths:
                 $ref: '#/components/schemas/Error'
     patch:
       tags:
-      - institutions
+        - institutions
       summary: Update institution data.
       description: Update the institution data.
       operationId: updateInstitution
       parameters:
-      - in: path
-        name: institution_id
-        required: true
-        description: Id of institution.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: institution_id
+          required: true
+          description: Id of institution.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '200':
           description: Updated institution data.
@@ -3552,18 +3510,18 @@ paths:
         required: true
     delete:
       tags:
-      - institutions
+        - institutions
       summary: Delete institution data.
       description: Delete institution informations.
       operationId: deleteInstitution
       parameters:
-      - in: path
-        name: institution_id
-        required: true
-        description: Id of institution.
-        example: 5a62be07de34500146d9c544
-        schema:
-          type: string
+        - in: path
+          name: institution_id
+          required: true
+          description: Id of institution.
+          example: 5a62be07de34500146d9c544
+          schema:
+            type: string
       responses:
         '204':
           description: Operation performed successfully. There is no data to be returned.
@@ -3728,10 +3686,10 @@ components:
     User:
       type: object
       required:
-      - id
-      - username
-      - password
-      - type
+        - id
+        - username
+        - password
+        - type
       properties:
         id:
           readOnly: true
@@ -3754,10 +3712,10 @@ components:
     Child:
       type: object
       required:
-      - id
-      - username
-      - gender
-      - age
+        - id
+        - username
+        - gender
+        - age
       properties:
         id:
           readOnly: true
@@ -3784,9 +3742,9 @@ components:
     ChildrenGroup:
       type: object
       required:
-      - id
-      - name
-      - children
+        - id
+        - name
+        - children
       properties:
         id:
           readOnly: true
@@ -3812,9 +3770,9 @@ components:
     Family:
       type: object
       required:
-      - id
-      - username
-      - children
+        - id
+        - username
+        - children
       properties:
         id:
           readOnly: true
@@ -3838,8 +3796,8 @@ components:
     Educator:
       type: object
       required:
-      - id
-      - username
+        - id
+        - username
       properties:
         id:
           readOnly: true
@@ -3862,8 +3820,8 @@ components:
     HealthProfessional:
       type: object
       required:
-      - id
-      - username
+        - id
+        - username
       properties:
         id:
           readOnly: true
@@ -3887,8 +3845,8 @@ components:
     Application:
       type: object
       required:
-      - id
-      - username
+        - id
+        - username
       properties:
         id:
           readOnly: true
@@ -3911,8 +3869,9 @@ components:
     Institution:
       type: object
       required:
-      - id
-      - type
+        - id
+        - type
+        - name
       properties:
         id:
           readOnly: true
@@ -3947,9 +3906,9 @@ components:
         Default template for error message.
         All returned errors will follow this template.
       required:
-      - code
-      - message
-      - description
+        - code
+        - message
+        - description
       properties:
         code:
           type: integer

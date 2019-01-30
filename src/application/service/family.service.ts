@@ -109,7 +109,7 @@ export class FamilyService implements IFamilyService {
         return this._familyRepository.update(family)
     }
 
-    public async remove(id: string | number): Promise<boolean> {
+    public async remove(id: string): Promise<boolean> {
         return this._familyRepository.delete(id)
     }
 

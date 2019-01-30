@@ -36,4 +36,13 @@ export interface IUserRepository extends IRepository<User> {
      * @return True if the passwords matches, false otherwise.
      */
     comparePasswords(passwordPlain: string, passwordHash: string): boolean
+
+    /**
+     * Disassociate user with institution
+     *
+     * @param id - Id of institution
+     * @return True if the disassociate was successfully, false otherwise.
+     *
+     */
+    disassociateInstitution(id: string): Promise<boolean>
 }

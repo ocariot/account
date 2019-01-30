@@ -90,7 +90,7 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         return this._healthProfessionalRepository.update(healthProfessional)
     }
 
-    public async remove(id: string | number): Promise<boolean> {
+    public async remove(id: string): Promise<boolean> {
         return this._healthProfessionalRepository.delete(id)
     }
 

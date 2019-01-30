@@ -34,7 +34,7 @@ export class UserService implements IUserService {
         throw Error('Not implemented!')
     }
 
-    public async remove(id: string | number): Promise<boolean> {
+    public async remove(id: string): Promise<boolean> {
         return this._userRepository.delete(id)
     }
 
