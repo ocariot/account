@@ -17,4 +17,12 @@ export interface IChildrenGroupRepository extends IRepository<ChildrenGroup> {
      * @throws {ValidationException | RepositoryException}
      */
     checkExist(chidrenGroup: ChildrenGroup): Promise<boolean>
+
+    /**
+     * Delete all children groups associated with an user.
+     *
+     * @param userId
+     * @returns True if the deletion was successfully, false otherwise.
+     */
+    deleteMany(userId: string): Promise<boolean>
 }

@@ -5,6 +5,8 @@ import { IUserRepository } from '../port/user.repository.interface'
 import { User } from '../domain/model/user'
 import { IQuery } from '../port/query.interface'
 import { UpdatePasswordValidator } from '../domain/validator/update.password.validator'
+import { IEducatorService } from '../port/educator.service.interface'
+import { IHealthProfessionalService } from '../port/health.professional.service.interface'
 
 /**
  * Implementing user Service.
@@ -14,7 +16,10 @@ import { UpdatePasswordValidator } from '../domain/validator/update.password.val
 @injectable()
 export class UserService implements IUserService {
 
-    constructor(@inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository) {
+    constructor(@inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
+                @inject(Identifier.EDUCATOR_SERVICE) private readonly _educatorService: IEducatorService,
+                @inject(Identifier.HEALTH_PROFESSIONAL_SERVICE)
+                private readonly _healthProfessionalService: IHealthProfessionalService) {
     }
 
     public async add(item: User): Promise<User> {
@@ -31,10 +36,17 @@ export class UserService implements IUserService {
     }
 
     public async getById(id: string | number, query: IQuery): Promise<User> {
-        throw Error('Not implemented!')
+        query.addFilter({ _id: id })
+        return this._userRepository.findOne(query)
     }
 
     public async remove(id: string): Promise<boolean> {
+        const user = await this._userRepository.findById(id)
+        if (user.type === 'educator') {
+            return this._educatorService.remove(id)
+        } else if (user.type === 'healthprofessional') {
+            return this._healthProfessionalService.remove(id)
+        }
         return this._userRepository.delete(id)
     }
 

@@ -9,6 +9,16 @@ import { IRepository } from './repository.interface'
  * @extends {IRepository<User>}
  */
 export interface IUserRepository extends IRepository<User> {
+
+    /**
+     * Retrieves the educator according to ID.
+     *
+     * @param userId
+     * @return {Promise<Educator>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    findById(userId: string): Promise<User>
+
     /**
      * Change the user password.
      *

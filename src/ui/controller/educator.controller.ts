@@ -203,13 +203,13 @@ export class EducatorController {
     }
 
     /**
-     * Disassociate a child from a family.
+     * Disassociate a child from educator.
      *
      * @param {Request} req
      * @param {Response} res
      */
     @httpDelete('/:educator_id/children/groups/:group_id')
-    public async disassociateChildFromFamily(@request() req: Request, @response() res: Response): Promise<Response> {
+    public async disassociateChildFromEducator(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const result: boolean = await this._educatorService.deleteChildrenGroup(req.params.educator_id, req.params.group_id)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())

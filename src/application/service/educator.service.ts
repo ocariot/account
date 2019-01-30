@@ -14,6 +14,7 @@ import { CreateEducatorValidator } from '../domain/validator/create.educator.val
 import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
+import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 
 /**
  * Implementing educator Service.
@@ -25,6 +26,7 @@ export class EducatorService implements IEducatorService {
 
     constructor(@inject(Identifier.EDUCATOR_REPOSITORY) private readonly _educatorRepository: IEducatorRepository,
                 @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
+                @inject(Identifier.CHILDREN_GROUP_REPOSITORY) private readonly _childrenGroupRepository: IChildrenGroupRepository,
                 @inject(Identifier.CHILDREN_GROUP_SERVICE) private readonly _childrenGroupService: IChildrenGroupService,
                 @inject(Identifier.LOGGER) readonly logger: ILogger) {
     }
@@ -88,7 +90,19 @@ export class EducatorService implements IEducatorService {
     }
 
     public async remove(id: string): Promise<boolean> {
-        return this._educatorRepository.delete(id)
+        let isDeleted: boolean
+
+        // 1. Delete the educator by id and your children groups.
+        try {
+            isDeleted = await this._educatorRepository.delete(id)
+            console.log('I will delete all children groups now')
+            if (isDeleted) await this._childrenGroupRepository.deleteMany(id)
+        } catch (err) {
+            return Promise.reject(err)
+        }
+
+        // 2. Returns status for educator deletion.
+        return Promise.resolve(isDeleted)
     }
 
     public async saveChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {

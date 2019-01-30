@@ -14,6 +14,7 @@ import { CreateHealthProfessionalValidator } from '../domain/validator/create.he
 import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
+import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 
 /**
  * Implementing Health Professional Service.
@@ -28,6 +29,7 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             IHealthProfessionalRepository,
         @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
         @inject(Identifier.CHILDREN_GROUP_SERVICE) private readonly _childrenGroupService: IChildrenGroupService,
+        @inject(Identifier.CHILDREN_GROUP_REPOSITORY) private readonly _childrenGroupRepository: IChildrenGroupRepository,
         @inject(Identifier.LOGGER) readonly logger: ILogger
     ) {
     }
@@ -91,7 +93,18 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     }
 
     public async remove(id: string): Promise<boolean> {
-        return this._healthProfessionalRepository.delete(id)
+        let isDeleted: boolean
+
+        // 1. Delete the health professional by id and your children groups.
+        try {
+            isDeleted = await this._healthProfessionalRepository.delete(id)
+            if (isDeleted) await this._childrenGroupRepository.deleteMany(id)
+        } catch (err) {
+            return Promise.reject(err)
+        }
+
+        // 2. Returns status for health professional deletion.
+        return Promise.resolve(isDeleted)
     }
 
     public async saveChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {

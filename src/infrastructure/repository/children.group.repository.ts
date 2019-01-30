@@ -40,4 +40,13 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
+
+    public deleteMany(userId: string): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            this.childrenGroupModel.deleteMany({ user_id: userId }, (err) => {
+                if (err) return reject(super.mongoDBErrorListener(err))
+                return resolve(true)
+            })
+        })
+    }
 }

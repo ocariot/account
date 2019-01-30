@@ -78,4 +78,10 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
+
+    public findById(userId: string): Promise<User> {
+        const query = new Query()
+        query.addFilter({ _id: userId })
+        return super.findOne(query)
+    }
 }
