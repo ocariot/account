@@ -7,7 +7,7 @@ import { IJSONDeserializable } from '../utils/json.deserializable.interface'
  * Implementation of the application entity.
  *
  * @extends {User}
- * @implements {ISerializable<Application>}
+ * @implements { IJSONSerializable, IJSONDeserializable<Application>}
  */
 export class Application extends User implements IJSONSerializable, IJSONDeserializable<Application> {
     private _application_name?: string // Name of application.

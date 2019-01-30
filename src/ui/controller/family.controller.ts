@@ -131,7 +131,7 @@ export class FamilyController {
                 .getAllChildren(req.params.family_id, new Query().fromJSON(req.query))
 
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageFamilyNotFound())
-            return res.status(HttpStatus.OK).send(result.map(item => item.toJSON()))
+            return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
@@ -184,17 +184,17 @@ export class FamilyController {
     /**
      * Convert object to json format expected by view.
      *
-     * @param family
+     * @param user
      */
-    private toJSONView(family: Family | Array<Family>): object {
-        if (family instanceof Array) {
-            return family.map(item => {
+    private toJSONView(user: Family | Child | Array<Family | Child>): object {
+        if (user instanceof Array) {
+            return user.map(item => {
                 item.type = undefined
                 return item.toJSON()
             })
         }
-        family.type = undefined
-        return family.toJSON()
+        user.type = undefined
+        return user.toJSON()
     }
 
     /**

@@ -9,6 +9,16 @@ import { Educator } from '../domain/model/educator'
  * @extends {IRepository<Educator>}
  */
 export interface IEducatorRepository extends IRepository<Educator> {
+
+    /**
+     * Retrieves the educator according to ID.
+     *
+     * @param educatorId
+     * @return {Promise<Educator>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    findById(educatorId: string): Promise<Educator>
+
     /**
      * Checks if educator already has a registration.
      * If the object to be verified has id, it will be considered

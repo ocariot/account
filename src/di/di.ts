@@ -73,6 +73,14 @@ import { HealthProfessionalRepository } from '../infrastructure/repository/healt
 import { HealthProfessional } from '../application/domain/model/health.professional'
 import { HealthProfessionalEntity } from '../infrastructure/entity/health.professional.entity'
 import { HealthProfessionalEntityMapper } from '../infrastructure/entity/mapper/health.professional.entity.mapper'
+import { IChildrenGroupService } from '../application/port/children.group.service.interface'
+import { ChildrenGroupService } from '../application/service/children.group.service'
+import { IChildrenGroupRepository } from '../application/port/children.group.repository.interface'
+import { ChildrenGroupRepository } from '../infrastructure/repository/children.group.repository'
+import { ChildrenGroup } from '../application/domain/model/children.group'
+import { ChildrenGroupEntity } from '../infrastructure/entity/children.group.entity'
+import { ChildrenGroupEntityMapper } from '../infrastructure/entity/mapper/children.group.entity.mapper'
+import { ChildrenGroupRepoModel } from '../infrastructure/database/schema/children.group.schema'
 
 export class DI {
     private static instance: DI
@@ -150,6 +158,8 @@ export class DI {
             .to(HealthProfessionalService).inSingletonScope()
         this.container.bind<IInstitutionService>(Identifier.INSTITUTION_SERVICE)
             .to(InstitutionService).inSingletonScope()
+        this.container.bind<IChildrenGroupService>(Identifier.CHILDREN_GROUP_SERVICE)
+            .to(ChildrenGroupService).inSingletonScope()
 
         // Repositories
         this.container.bind<IAuthRepository>(Identifier.AUTH_REPOSITORY)
@@ -166,10 +176,13 @@ export class DI {
             .to(HealthProfessionalRepository).inSingletonScope()
         this.container.bind<IInstitutionRepository>(Identifier.INSTITUTION_REPOSITORY)
             .to(InstitutionRepository).inSingletonScope()
+        this.container.bind<IChildrenGroupRepository>(Identifier.CHILDREN_GROUP_REPOSITORY)
+            .to(ChildrenGroupRepository).inSingletonScope()
 
         // Mongoose Schema
         this.container.bind(Identifier.USER_REPO_MODEL).toConstantValue(UserRepoModel)
         this.container.bind(Identifier.INSTITUTION_REPO_MODEL).toConstantValue(InstitutionRepoModel)
+        this.container.bind(Identifier.CHILDREN_GROUP_REPO_MODEL).toConstantValue(ChildrenGroupRepoModel)
 
         // Mappers
         this.container.bind<IEntityMapper<User, UserEntity>>(Identifier.USER_ENTITY_MAPPER)
@@ -187,6 +200,8 @@ export class DI {
             .to(HealthProfessionalEntityMapper).inSingletonScope()
         this.container.bind<IEntityMapper<Institution, InstitutionEntity>>(Identifier.INSTITUTION_ENTITY_MAPPER)
             .to(InstitutionEntityMapper).inSingletonScope()
+        this.container.bind<IEntityMapper<ChildrenGroup, ChildrenGroupEntity>>(Identifier.CHILDREN_GROUP_ENTITY_MAPPER)
+            .to(ChildrenGroupEntityMapper).inSingletonScope()
 
         // Background Services
         this.container.bind(Identifier.BACKGROUND_SERVICE)

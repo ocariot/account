@@ -8,7 +8,7 @@ import { IJSONDeserializable } from '../utils/json.deserializable.interface'
  * Implementation of the user entity.
  *
  * @extends {Entity}
- * @implements {ISerializable<User>}
+ * @implements {IJSONSerializable, IJSONDeserializable<User>}
  */
 export class User extends Entity implements IJSONSerializable, IJSONDeserializable<User> {
     private _username?: string // Username for user authentication.

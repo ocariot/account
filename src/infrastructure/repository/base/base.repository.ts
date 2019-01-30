@@ -55,9 +55,10 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
     }
 
     public findOne(query: IQuery): Promise<T> {
+        const q: any = query.toJSON()
         return new Promise<T>((resolve, reject) => {
-            this.Model.findOne(query.toJSON().filters)
-                .select(query.toJSON().fields)
+            this.Model.findOne(q.filters)
+                .select(q.fields)
                 .exec()
                 .then((result: TModel) => {
                     if (!result) return resolve(undefined)

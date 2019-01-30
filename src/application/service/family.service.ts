@@ -120,35 +120,25 @@ export class FamilyService implements IFamilyService {
         }
     }
 
-    public async associateChild(familyId: string, childId: string): Promise<Family | undefined> {
-        const query: Query = new Query()
-        query.filters = { _id: familyId, type: UserType.FAMILY }
-
+    public async associateChild(familyId: string, childId: string): Promise<Family> {
         const child = new Child()
         child.id = childId
 
         try {
-            const family: Family = await this._familyRepository.findOne(query)
-            if (!family) return Promise.resolve(undefined)
+            // 1. Checks if the family exists
+            const family: Family = await this._familyRepository.findById(familyId)
+            if (!family) {
+                throw new ValidationException(Strings.FAMILY.NOT_FOUND, Strings.FAMILY.NOT_FOUND_DESCRIPTION)
+            }
 
-            // Checks if the child to be associated have a record. Your registration is required.
+            // 2. Checks if the child to be associated have a record. Your registration is required.
             const checkChildExist: boolean | ValidationException = await this._childRepository.checkExist(child)
             if (!checkChildExist) {
                 throw new ValidationException(Strings.CHILD.ASSOCIATION_FAILURE)
             }
 
-            // verifies that the child is no longer associated
-            if (family.children) {
-                let childAlreadyExists = false
-                await family.children.forEach(item => {
-                    if (item.id === child.id) childAlreadyExists = true
-                })
-
-                if (childAlreadyExists) return Promise.resolve(family)
-                family.children.push(child)
-            }
-            else family.children = new Array<Child>(child)
-
+            // 3. Associates the child with the family and updates the family register.
+            family.addChild(child)
             return this._familyRepository.update(family)
         } catch (err) {
             return Promise.reject(err)

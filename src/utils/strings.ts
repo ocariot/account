@@ -55,6 +55,13 @@ export abstract class Strings {
         NOT_FOUND_DESCRIPTION: 'Application not found or already removed. A new operation for the same resource is not required.'
     }
 
+    public static readonly CHILDREN_GROUP: any = {
+        ALREADY_REGISTERED: 'Children Group is already registered!',
+        NOT_FOUND: 'Children Group not found!',
+        NOT_FOUND_DESCRIPTION: 'Children Group not found or already removed. ' +
+            'A new operation for the same resource is not required.'
+    }
+
     public static readonly ERROR_MESSAGE: any = {
         UNEXPECTED: 'An unexpected error has occurred. Please try again later...'
     }

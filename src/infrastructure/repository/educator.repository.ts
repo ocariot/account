@@ -32,6 +32,12 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
         return super.create(item)
     }
 
+    public findById(educatorId: string): Promise<Educator> {
+        const query: Query = new Query()
+        query.filters = { _id: educatorId, type: UserType.EDUCATOR }
+        return super.findOne(query)
+    }
+
     public checkExist(educator: Educator): Promise<boolean> {
         const query: Query = new Query()
         if (educator.id) query.filters = { _id: educator.id }

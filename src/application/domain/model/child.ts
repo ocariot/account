@@ -7,7 +7,7 @@ import { IJSONDeserializable } from '../utils/json.deserializable.interface'
  * Implementation of the child entity.
  *
  * @extends {User}
- * @implements {ISerializable<Child>}
+ * @implements { IJSONSerializable, IJSONDeserializable<Child>}
  */
 export class Child extends User implements IJSONSerializable, IJSONDeserializable<Child> {
     private _gender?: string // Gender of the child.

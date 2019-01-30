@@ -26,6 +26,7 @@ export abstract class Identifier {
     public static readonly HEALTH_PROFESSIONAL_SERVICE: any = Symbol.for('HealthProfessionalService')
     public static readonly APPLICATION_SERVICE: any = Symbol.for('ApplicationService')
     public static readonly INSTITUTION_SERVICE: any = Symbol.for('InstitutionService')
+    public static readonly CHILDREN_GROUP_SERVICE: any = Symbol.for('ChildrenGroupService')
 
     // Repositories
     public static readonly AUTH_REPOSITORY: any = Symbol.for('AuthRepository')
@@ -36,10 +37,12 @@ export abstract class Identifier {
     public static readonly HEALTH_PROFESSIONAL_REPOSITORY: any = Symbol.for('HealthProfessionalRepository')
     public static readonly APPLICATION_REPOSITORY: any = Symbol.for('ApplicationRepository')
     public static readonly INSTITUTION_REPOSITORY: any = Symbol.for('InstitutionRepository')
+    public static readonly CHILDREN_GROUP_REPOSITORY: any = Symbol.for('ChildrenGroupRepository')
 
     // Models
     public static readonly USER_REPO_MODEL: any = Symbol.for('UserRepoModel')
     public static readonly INSTITUTION_REPO_MODEL: any = Symbol.for('InstitutionRepoModel')
+    public static readonly CHILDREN_GROUP_REPO_MODEL: any = Symbol.for('ChildrenGroupRepoModel')
 
     // Mappers
     public static readonly USER_ENTITY_MAPPER: any = Symbol.for('UserEntityMapper')
@@ -49,6 +52,7 @@ export abstract class Identifier {
     public static readonly HEALTH_PROFESSIONAL_ENTITY_MAPPER: any = Symbol.for('HealthProfessionalEntityMapper')
     public static readonly APPLICATION_ENTITY_MAPPER: any = Symbol.for('ApplicationEntityMapper')
     public static readonly INSTITUTION_ENTITY_MAPPER: any = Symbol.for('InstitutionEntityMapper')
+    public static readonly CHILDREN_GROUP_ENTITY_MAPPER: any = Symbol.for('ChildrenGroupEntityMapper')
 
     // Background Services
     public static readonly RABBITMQ_EVENT_BUS: any = Symbol.for('EventBusRabbitMQ')

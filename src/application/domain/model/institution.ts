@@ -7,7 +7,7 @@ import { IJSONDeserializable } from '../utils/json.deserializable.interface'
  * Implementation of the institution entity.
  *
  * @extends {Entity}
- * @implements {ISerializable<Institution>}
+ * @implements {IJSONSerializable, IJSONDeserializable<Institution>}
  */
 export class Institution extends Entity implements IJSONSerializable, IJSONDeserializable<Institution> {
     private _type?: string // Type of institution, for example: Institute of Scientific Research.

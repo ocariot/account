@@ -8,7 +8,7 @@ import { IJSONDeserializable } from '../utils/json.deserializable.interface'
  * Implementation of the family entity.
  *
  * @extends {User}
- * @implements {ISerializable<Family>}
+ * @implements {IJSONSerializable, IJSONDeserializable<Family>}
  */
 export class Family extends User implements IJSONSerializable, IJSONDeserializable<Family> {
     private _children?: Array<Child> // List of children associated with a family.
@@ -23,7 +23,19 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
     }
 
     set children(value: Array<Child> | undefined) {
-        this._children = value
+        this._children = value ? this.removesRepeatedChildren(value) : value
+    }
+
+    public addChild(child: Child): void {
+        if (!this.children) this.children = []
+        this.children.push(child)
+        this.children = this.removesRepeatedChildren(this.children)
+    }
+
+    public removesRepeatedChildren(children: Array<Child>): Array<Child> {
+        return children.filter((obj, pos, arr) => {
+            return arr.map(group => group.id).indexOf(obj.id) === pos
+        })
     }
 
     public fromJSON(json: any): Family {
@@ -35,11 +47,7 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
         }
 
         if (json.children !== undefined) {
-            this.children = json.children
-                .map(child => new Child().fromJSON(child))
-                .filter((obj, pos, arr) => { // remove repeated items
-                    return arr.map(mapObj => mapObj.id).indexOf(obj.id) === pos
-                })
+            this.children = json.children.map(child => new Child().fromJSON(child))
         }
 
         return this

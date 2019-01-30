@@ -32,6 +32,12 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
         return super.create(item)
     }
 
+    public findById(familyId: string): Promise<Family> {
+        const query: Query = new Query()
+        query.filters = { _id: familyId, type: UserType.FAMILY }
+        return super.findOne(query)
+    }
+
     public checkExist(family: Family): Promise<boolean> {
         const query: Query = new Query()
         if (family.id) query.filters = { _id: family.id }

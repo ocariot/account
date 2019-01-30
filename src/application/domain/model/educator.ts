@@ -8,7 +8,7 @@ import { IJSONDeserializable } from '../utils/json.deserializable.interface'
  * Implementation of the educator entity.
  *
  * @extends {User}
- * @implements {ISerializable<Educator>}
+ * @implements {IJSONSerializable, IJSONDeserializable<Educator>}
  */
 export class Educator extends User implements IJSONSerializable, IJSONDeserializable<Educator> {
     private _children_groups?: Array<ChildrenGroup> // List of children group.
@@ -23,7 +23,25 @@ export class Educator extends User implements IJSONSerializable, IJSONDeserializ
     }
 
     set children_groups(value: Array<ChildrenGroup> | undefined) {
-        this._children_groups = value
+        this._children_groups = value ? this.removesRepeatedChildrenGroup(value) : value
+    }
+
+    public addChildrenGroup(childrenGroup: ChildrenGroup): void {
+        if (!this.children_groups) this.children_groups = []
+        this.children_groups.push(childrenGroup)
+        this.children_groups = this.removesRepeatedChildrenGroup(this.children_groups)
+    }
+
+    public removeChildrenGroup(childrenGroup: ChildrenGroup): void {
+        if (this.children_groups) {
+            this.children_groups = this.children_groups.filter(item => item.id !== childrenGroup.id)
+        }
+    }
+
+    public removesRepeatedChildrenGroup(childrenGroups: Array<ChildrenGroup>): Array<ChildrenGroup> {
+        return childrenGroups.filter((obj, pos, arr) => {
+            return arr.map(group => group.id).indexOf(obj.id) === pos
+        })
     }
 
     public fromJSON(json: any): Educator {
@@ -35,11 +53,8 @@ export class Educator extends User implements IJSONSerializable, IJSONDeserializ
         }
 
         if (json.children_groups !== undefined) {
-            const childrenGroupsTemp: Array<ChildrenGroup> = []
-            json.children_groups.forEach(elem => {
-                childrenGroupsTemp.push(new ChildrenGroup().fromJSON(elem))
-            })
-            this.children_groups = childrenGroupsTemp
+            this.children_groups = json.children_groups
+                .map(childrenGroup => new ChildrenGroup().fromJSON(childrenGroup))
         }
 
         return this

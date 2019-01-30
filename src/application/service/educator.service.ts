@@ -11,6 +11,8 @@ import { IEducatorService } from '../port/educator.service.interface'
 import { IEducatorRepository } from '../port/educator.repository.interface'
 import { Educator } from '../domain/model/educator'
 import { EducatorValidator } from '../domain/validator/educator.validator'
+import { ChildrenGroup } from '../domain/model/children.group'
+import { IChildrenGroupService } from '../port/children.group.service.interface'
 
 /**
  * Implementing educator Service.
@@ -22,6 +24,7 @@ export class EducatorService implements IEducatorService {
 
     constructor(@inject(Identifier.EDUCATOR_REPOSITORY) private readonly _educatorRepository: IEducatorRepository,
                 @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
+                @inject(Identifier.CHILDREN_GROUP_SERVICE) private readonly _childrenGroupService: IChildrenGroupService,
                 @inject(Identifier.LOGGER) readonly logger: ILogger) {
     }
 
@@ -42,7 +45,6 @@ export class EducatorService implements IEducatorService {
                     )
                 }
             }
-
         } catch (err) {
             return Promise.reject(err)
         }
@@ -81,5 +83,105 @@ export class EducatorService implements IEducatorService {
 
     public async remove(id: string | number): Promise<boolean> {
         return this._educatorRepository.delete(id)
+    }
+
+    public async saveChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
+        try {
+            // 1. Checks if the educator exists.
+            const educator: Educator = await this._educatorRepository.findById(educatorId)
+            if (!educator || !educator.children_groups) throw new ValidationException(
+                Strings.EDUCATOR.NOT_FOUND, Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
+            )
+
+            // 2. Save children group.
+            const childrenGroupResult: ChildrenGroup = await this._childrenGroupService.add(childrenGroup)
+
+            // 3. Update educator with group of children created.
+            educator.addChildrenGroup(childrenGroupResult)
+            await this._educatorRepository.update(educator)
+
+            // 4. If everything succeeds, it returns the data of the created group.
+            return Promise.resolve(childrenGroupResult)
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+
+    public async getAllChildrenGroups(educatorId: string, query: IQuery): Promise<Array<ChildrenGroup>> {
+        try {
+            // 1. Checks if the educator exists.
+            const educator: Educator = await this._educatorRepository.findById(educatorId)
+            if (!educator || educator.id !== educatorId
+                || (educator.children_groups && educator.children_groups.length === 0)) {
+                return Promise.resolve([])
+            }
+
+            // 2. Retrieves children groups by educator id.
+            query.addFilter({ user_id: educatorId })
+            return this._childrenGroupService.getAll(query)
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+
+    public async getChildrenGroupById(educatorId: string, childrenGroupId: string, query: IQuery):
+        Promise<ChildrenGroup | undefined> {
+
+        // 1. Checks if the educator exists.
+        const educator: Educator = await this._educatorRepository.findById(educatorId)
+        if (!educator || !educator.children_groups) return Promise.resolve(undefined)
+
+        // 2. Verifies that the group of children belongs to the educator.
+        const checkGroups: Array<ChildrenGroup> = await educator.children_groups.filter((obj, pos, arr) => {
+            return arr.map(childrenGroup => childrenGroup.id).indexOf(childrenGroupId) === pos
+        })
+
+        // 3. The group to be selected does not exist or is not assigned to the educator.
+        //    When the group is assigned the checkGroups array size will be equal to 1.
+        if (checkGroups.length !== 1) return Promise.resolve(undefined)
+
+        // 4. The group to be selected exists and is related to the educator.
+        // Then, it can be selected.
+        return this._childrenGroupService.getById(childrenGroupId, query)
+    }
+
+    public async updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
+        try {
+            // 1. Checks if the educator exists.
+            const educator: Educator = await this._educatorRepository.findById(educatorId)
+            if (!educator) throw new ValidationException(Strings.EDUCATOR.NOT_FOUND, Strings.EDUCATOR.NOT_FOUND_DESCRIPTION)
+
+            // 2. Update children group.
+            const childrenGroupResult: ChildrenGroup = await this._childrenGroupService.update(childrenGroup)
+
+            // 3. If everything succeeds, it returns the data of the created group.
+            return Promise.resolve(childrenGroupResult)
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+
+    public async deleteChildrenGroup(educatorId: string, childrenGroupId: string): Promise<boolean> {
+        try {
+            // 1. Checks if the educator exists.
+            const educator: Educator = await this._educatorRepository.findById(educatorId)
+            if (!educator) throw new ValidationException(Strings.EDUCATOR.NOT_FOUND, Strings.EDUCATOR.NOT_FOUND_DESCRIPTION)
+
+            // 2. Remove the children group
+            const removeResult: boolean = await this._childrenGroupService.remove(childrenGroupId)
+
+            // 3. Remove association with educator
+            if (removeResult) {
+                const childrenGroup: ChildrenGroup = new ChildrenGroup()
+                childrenGroup.id = childrenGroupId
+                await educator.removeChildrenGroup(childrenGroup)
+
+                // 4. Update educator
+                await this._educatorRepository.update(educator)
+            }
+            return Promise.resolve(removeResult)
+        } catch (err) {
+            return Promise.reject(err)
+        }
     }
 }

@@ -21,7 +21,8 @@ const userSchema = new Mongoose.Schema({
         }], // User type Family
         children_groups: [{
             type: Schema.Types.ObjectId,
-            ref: 'ChildrenGroup'
+            ref: 'ChildrenGroup',
+            autopopulate: true
         }], // User type Educator and HealthProfessional
         application_name: { type: String }, // User type Application
         scope: { type: String } // Scope that signal the types of access the user has.

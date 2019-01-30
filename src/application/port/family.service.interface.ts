@@ -15,8 +15,8 @@ export interface IFamilyService extends IService<Family> {
      *
      * @param familyId
      * @param query
-     * @return {Promise<Array<Child>>}
-     * @throws {RepositoryException}
+     * @return {Promise<<Array<Child> | undefined>}
+     * @throws {ValidationException | RepositoryException}
      */
     getAllChildren(familyId: string, query: IQuery): Promise<Array<Child> | undefined>
 
@@ -27,9 +27,9 @@ export interface IFamilyService extends IService<Family> {
      * @param familyId
      * @param childId
      * @return {Promise<Family>}
-     * @throws {RepositoryException}
+     * @throws {ValidationException | RepositoryException}
      */
-    associateChild(familyId: string, childId: string): Promise<Family | undefined>
+    associateChild(familyId: string, childId: string): Promise<Family>
 
     /**
      * Dissociates a child from a family.
@@ -38,7 +38,7 @@ export interface IFamilyService extends IService<Family> {
      * @param familyId
      * @param childId
      * @return {Promise<boolean>}
-     * @throws {RepositoryException}
+     * @throws {ValidationException | RepositoryException}
      */
     disassociateChild(familyId: string, childId: string): Promise<boolean | undefined>
 }
