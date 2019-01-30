@@ -31,4 +31,8 @@ export abstract class Default {
 
     // Log
     public static readonly LOG_DIR: string = 'logs'
+
+    // ADMIN USER DEFAULT
+    public static readonly ADMIN_USERNAME: string = 'admin'
+    public static readonly ADMIN_PASSWORD: string = 'admin*159'
 }

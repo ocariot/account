@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
 import { UserType } from '../../application/domain/model/user'
@@ -9,6 +8,7 @@ import { Query } from './query/query'
 import { IFamilyRepository } from '../../application/port/family.repository.interface'
 import { Family } from '../../application/domain/model/family'
 import { FamilyEntity } from '../entity/family.entity'
+import { IUserRepository } from '../../application/port/user.repository.interface'
 
 /**
  * Implementation of the family repository.
@@ -21,6 +21,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
     constructor(
         @inject(Identifier.USER_REPO_MODEL) readonly familyModel: any,
         @inject(Identifier.FAMILY_ENTITY_MAPPER) readonly familyMapper: IEntityMapper<Family, FamilyEntity>,
+        @inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
         @inject(Identifier.LOGGER) readonly logger: ILogger
     ) {
         super(familyModel, familyMapper, logger)
@@ -28,7 +29,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
 
     public create(item: Family): Promise<Family> {
         // Encrypt password
-        item.password = bcrypt.hashSync(item.password, bcrypt.genSaltSync(10))
+        if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         return super.create(item)
     }
 

@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
 import { UserType } from '../../application/domain/model/user'
@@ -9,6 +8,7 @@ import { Query } from './query/query'
 import { Educator } from '../../application/domain/model/educator'
 import { EducatorEntity } from '../entity/educator.entity'
 import { IEducatorRepository } from '../../application/port/educator.repository.interface'
+import { IUserRepository } from '../../application/port/user.repository.interface'
 
 /**
  * Implementation of the educator repository.
@@ -21,6 +21,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
     constructor(
         @inject(Identifier.USER_REPO_MODEL) readonly educatorModel: any,
         @inject(Identifier.EDUCATOR_ENTITY_MAPPER) readonly educatorMapper: IEntityMapper<Educator, EducatorEntity>,
+        @inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
         @inject(Identifier.LOGGER) readonly logger: ILogger
     ) {
         super(educatorModel, educatorMapper, logger)
@@ -28,7 +29,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
     public create(item: Educator): Promise<Educator> {
         // Encrypt password
-        item.password = bcrypt.hashSync(item.password, bcrypt.genSaltSync(10))
+        if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         return super.create(item)
     }
 

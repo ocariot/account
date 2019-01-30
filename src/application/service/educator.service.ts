@@ -13,6 +13,7 @@ import { Educator } from '../domain/model/educator'
 import { CreateEducatorValidator } from '../domain/validator/create.educator.validator'
 import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
+import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 
 /**
  * Implementing educator Service.
@@ -65,6 +66,8 @@ export class EducatorService implements IEducatorService {
     }
 
     public async update(educator: Educator): Promise<Educator> {
+        UpdateUserValidator.validate(educator)
+
         try {
             // 1. Checks if the institution exists.
             if (educator.institution && educator.institution.id !== undefined) {

@@ -13,6 +13,7 @@ import { IChildRepository } from '../port/child.repository.interface'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
+import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 
 /**
  * Implementing family Service.
@@ -76,6 +77,8 @@ export class FamilyService implements IFamilyService {
     }
 
     public async update(family: Family): Promise<Family> {
+        UpdateUserValidator.validate(family)
+
         try {
             // 1. Checks if the children to be associated have a record. Your registration is required.
             if (family.children) {

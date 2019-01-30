@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
 import { UserType } from '../../application/domain/model/user'
@@ -9,6 +8,7 @@ import { Query } from './query/query'
 import { HealthProfessional } from '../../application/domain/model/health.professional'
 import { HealthProfessionalEntity } from '../entity/health.professional.entity'
 import { IHealthProfessionalRepository } from '../../application/port/health.professional.repository.interface'
+import { IUserRepository } from '../../application/port/user.repository.interface'
 
 /**
  * Implementation of the Health Professional repository.
@@ -23,6 +23,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
         @inject(Identifier.USER_REPO_MODEL) readonly healthProfessionalModel: any,
         @inject(Identifier.HEALTH_PROFESSIONAL_ENTITY_MAPPER) readonly healthProfessionalMapper:
             IEntityMapper<HealthProfessional, HealthProfessionalEntity>,
+        @inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
         @inject(Identifier.LOGGER) readonly logger: ILogger
     ) {
         super(healthProfessionalModel, healthProfessionalMapper, logger)
@@ -30,7 +31,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
 
     public create(item: HealthProfessional): Promise<HealthProfessional> {
         // Encrypt password
-        item.password = bcrypt.hashSync(item.password, bcrypt.genSaltSync(10))
+        if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         return super.create(item)
     }
 

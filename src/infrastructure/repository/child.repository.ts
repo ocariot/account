@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
 import { UserType } from '../../application/domain/model/user'
@@ -11,6 +10,7 @@ import { Identifier } from '../../di/identifiers'
 import { Query } from './query/query'
 import { ObjectId } from 'bson'
 import { ValidationException } from '../../application/domain/exception/validation.exception'
+import { IUserRepository } from '../../application/port/user.repository.interface'
 
 /**
  * Implementation of the child repository.
@@ -23,6 +23,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
     constructor(
         @inject(Identifier.USER_REPO_MODEL) readonly childModel: any,
         @inject(Identifier.CHILD_ENTITY_MAPPER) readonly childMapper: IEntityMapper<Child, ChildEntity>,
+        @inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
         @inject(Identifier.LOGGER) readonly logger: ILogger
     ) {
         super(childModel, childMapper, logger)
@@ -30,7 +31,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
 
     public create(item: Child): Promise<Child> {
         // Encrypt password
-        item.password = bcrypt.hashSync(item.password, bcrypt.genSaltSync(10))
+        if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         return super.create(item)
     }
 

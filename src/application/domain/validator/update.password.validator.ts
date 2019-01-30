@@ -1,6 +1,6 @@
 import { ValidationException } from '../exception/validation.exception'
 
-export class ChangePasswordValidator {
+export class UpdatePasswordValidator {
 
     public static validate(old_password: string, new_password: string): void | ValidationException {
         const fields: Array<string> = []

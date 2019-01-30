@@ -11,6 +11,7 @@ import { IInstitutionRepository } from '../port/institution.repository.interface
 import { ValidationException } from '../domain/exception/validation.exception'
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
+import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 
 /**
  * Implementing child Service.
@@ -62,6 +63,8 @@ export class ChildService implements IChildService {
     }
 
     public async update(child: Child): Promise<Child> {
+        UpdateUserValidator.validate(child)
+
         try {
             // 1. Checks if the institution exists.
             if (child.institution && child.institution.id !== undefined) {

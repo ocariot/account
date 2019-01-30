@@ -13,6 +13,13 @@ export abstract class Strings {
         APP_DESCRIPTION: 'Micro-service for Account.'
     }
 
+    public static readonly USER: any = {
+        NOT_FOUND: 'User not found!',
+        NOT_FOUND_DESCRIPTION: 'User not found or already removed. A new operation for the same resource is not required.',
+        PASSWORD_NOT_MATCH: 'Password does not match!',
+        PASSWORD_NOT_MATCH_DESCRIPTION: 'The old password parameter does not match with the actual user password.'
+    }
+
     public static readonly CHILD: any = {
         ALREADY_REGISTERED: 'Child is already registered!',
         CHILDREN_REGISTER_REQUIRED: 'It is necessary for children to be registered before proceeding.',

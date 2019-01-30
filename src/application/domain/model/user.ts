@@ -81,7 +81,6 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
         if (json.id !== undefined) super.id = json.id
         if (json.username !== undefined) this.username = json.username
         if (json.password !== undefined) this.password = json.password
-        if (json.type !== undefined) this.type = json.type
         if (json.institution !== undefined) {
             this.institution = new Institution().fromJSON(json.institution)
         } else if (json.institution_id !== undefined) {
@@ -106,6 +105,7 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
  * Names of user types supported.
  */
 export enum UserType {
+    ADMIN = 'admin',
     CHILD = 'child',
     EDUCATOR = 'educator',
     HEALTH_PROFESSIONAL = 'healthprofessional',

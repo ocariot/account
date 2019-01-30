@@ -11,6 +11,7 @@ import { Application } from '../domain/model/application'
 import { CreateApplicationValidator } from '../domain/validator/create.application.validator'
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
+import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 
 /**
  * Implementation of the service for user of type Application.
@@ -62,6 +63,8 @@ export class ApplicationService implements IApplicationService {
     }
 
     public async update(application: Application): Promise<Application> {
+        UpdateUserValidator.validate(application)
+
         try {
             // 1. Checks if the institution exists.
             if (application.institution && application.institution.id !== undefined) {

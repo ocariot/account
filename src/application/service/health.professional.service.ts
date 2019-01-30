@@ -13,6 +13,7 @@ import { HealthProfessional } from '../domain/model/health.professional'
 import { CreateHealthProfessionalValidator } from '../domain/validator/create.health.professional.validator'
 import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
+import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 
 /**
  * Implementing Health Professional Service.
@@ -68,6 +69,8 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     }
 
     public async update(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
+        UpdateUserValidator.validate(healthProfessional)
+
         try {
             // 1. Checks if the institution exists.
             if (healthProfessional.institution && healthProfessional.institution.id !== undefined) {

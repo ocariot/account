@@ -81,6 +81,11 @@ import { ChildrenGroup } from '../application/domain/model/children.group'
 import { ChildrenGroupEntity } from '../infrastructure/entity/children.group.entity'
 import { ChildrenGroupEntityMapper } from '../infrastructure/entity/mapper/children.group.entity.mapper'
 import { ChildrenGroupRepoModel } from '../infrastructure/database/schema/children.group.schema'
+import { UserController } from '../ui/controller/user.controller'
+import { IUserService } from '../application/port/user.service.interface'
+import { UserService } from '../application/service/user.service'
+import { IUserRepository } from '../application/port/user.repository.interface'
+import { UserRepository } from '../infrastructure/repository/user.repository'
 
 export class DI {
     private static instance: DI
@@ -128,6 +133,8 @@ export class DI {
         // Controllers
         this.container.bind<HomeController>(Identifier.HOME_CONTROLLER)
             .to(HomeController).inSingletonScope()
+        this.container.bind<UserController>(Identifier.USER_CONTROLLER)
+            .to(UserController).inSingletonScope()
         this.container.bind<AuthController>(Identifier.AUTH_CONTROLLER)
             .to(AuthController).inSingletonScope()
         this.container.bind<ChildController>(Identifier.CHILD_CONTROLLER)
@@ -146,6 +153,8 @@ export class DI {
         // Services
         this.container.bind<IAuthService>(Identifier.AUTH_SERVICE)
             .to(AuthService).inSingletonScope()
+        this.container.bind<IUserService>(Identifier.USER_SERVICE)
+            .to(UserService).inSingletonScope()
         this.container.bind<IChildService>(Identifier.CHILD_SERVICE)
             .to(ChildService).inSingletonScope()
         this.container.bind<IFamilyService>(Identifier.FAMILY_SERVICE)
@@ -164,6 +173,8 @@ export class DI {
         // Repositories
         this.container.bind<IAuthRepository>(Identifier.AUTH_REPOSITORY)
             .to(AuthRepository).inSingletonScope()
+        this.container.bind<IUserRepository>(Identifier.USER_REPOSITORY)
+            .to(UserRepository).inSingletonScope()
         this.container.bind<IChildRepository>(Identifier.CHILD_REPOSITORY)
             .to(ChildRepository).inSingletonScope()
         this.container.bind<IFamilyRepository>(Identifier.FAMILY_REPOSITORY)

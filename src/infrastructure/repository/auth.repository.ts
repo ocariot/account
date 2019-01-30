@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import { inject, injectable } from 'inversify'
 import { ILogger } from '../../utils/custom.logger'
@@ -10,6 +9,7 @@ import { UserEntity } from '../entity/user.entity'
 import { Default } from '../../utils/default'
 import { RepositoryException } from '../../application/domain/exception/repository.exception'
 import { Strings } from '../../utils/strings'
+import { IUserRepository } from '../../application/port/user.repository.interface'
 
 /**
  * Implementation of the auth repository.
@@ -22,6 +22,7 @@ export class AuthRepository implements IAuthRepository {
     constructor(
         @inject(Identifier.USER_REPO_MODEL) readonly userModel: any,
         @inject(Identifier.USER_ENTITY_MAPPER) readonly userMapper: IEntityMapper<User, UserEntity>,
+        @inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
         @inject(Identifier.LOGGER) readonly logger: ILogger
     ) {
     }
@@ -32,8 +33,10 @@ export class AuthRepository implements IAuthRepository {
                 .then(result => {
                     if (result) {
                         const user: User = this.userMapper.transform(result)
-                        // Validate password and generate access token
-                        if (bcrypt.compareSync(password, user.password)) {
+
+                        // Validate password and generate access token.
+                        if (!user.password) return resolve(undefined)
+                        if (this._userRepository.comparePasswords(password, user.password)) {
                             return resolve({ access_token: this.generateAccessToken(user) })
                         }
                     }

@@ -1,4 +1,3 @@
-import bcrypt from 'bcryptjs'
 import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
 import { UserType } from '../../application/domain/model/user'
@@ -9,6 +8,7 @@ import { Query } from './query/query'
 import { IApplicationRepository } from '../../application/port/application.repository.interface'
 import { Application } from '../../application/domain/model/application'
 import { ApplicationEntity } from '../entity/application.entity'
+import { IUserRepository } from '../../application/port/user.repository.interface'
 
 /**
  * Implementation of the repository for user of type Application.
@@ -21,6 +21,7 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
     constructor(
         @inject(Identifier.USER_REPO_MODEL) readonly applicationModel: any,
         @inject(Identifier.APPLICATION_ENTITY_MAPPER) readonly applicationMapper: IEntityMapper<Application, ApplicationEntity>,
+        @inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
         @inject(Identifier.LOGGER) readonly logger: ILogger
     ) {
         super(applicationModel, applicationMapper, logger)
@@ -28,7 +29,7 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
 
     public create(item: Application): Promise<Application> {
         // Encrypt password
-        item.password = bcrypt.hashSync(item.password, bcrypt.genSaltSync(10))
+        if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         return super.create(item)
     }
 
