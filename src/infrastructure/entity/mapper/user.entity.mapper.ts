@@ -27,7 +27,7 @@ export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
         if (item.password) result.password = item.password
         if (item.type) result.type = item.type
         if (item.institution) result.institution = item.institution.id
-        if (item.scope) result.scope = item.scope.join(' ')
+        if (item.scopes) result.scopes = item.scopes
 
         return result
     }
@@ -62,7 +62,7 @@ export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
             if (json.institution === null) result.institution = undefined
             else result.institution = new Institution().fromJSON(json.institution)
         }
-        if (json.scope !== undefined) result.scope = json.scope.split(' ')
+        if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result
     }

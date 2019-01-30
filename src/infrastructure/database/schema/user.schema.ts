@@ -31,7 +31,7 @@ const userSchema = new Mongoose.Schema({
             autopopulate: true
         }], // User type Educator and HealthProfessional
         application_name: { type: String }, // User type Application
-        scope: { type: String } // Scope that signal the types of access the user has.
+        scopes: [{ type: String }] // Scope that signal the types of access the user has.
     },
     {
         timestamps: { createdAt: 'created_at', updatedAt: false },

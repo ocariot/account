@@ -54,7 +54,7 @@ export class AuthRepository implements IAuthRepository {
             sub: user.id,
             iss: 'OCARIoT',
             iat: Math.floor(Date.now() / 1000),
-            scope: user.scope
+            scope: user.scopes.join(' ')
         }
         return jwt.sign(payload, secret, { expiresIn: '1d' })
     }

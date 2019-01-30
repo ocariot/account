@@ -28,6 +28,7 @@ export class ChildEntityMapper implements IEntityMapper<Child, ChildEntity> {
         if (item.institution) result.institution = item.institution.id
         if (item.gender) result.gender = item.gender
         if (item.age) result.age = item.age
+        if (item.scopes) result.scopes = item.scopes
 
         return result
     }
@@ -64,6 +65,7 @@ export class ChildEntityMapper implements IEntityMapper<Child, ChildEntity> {
         }
         if (json.gender !== undefined) result.gender = json.gender
         if (json.age !== undefined) result.age = json.age
+        if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result
     }

@@ -16,9 +16,20 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     constructor() {
         super()
         super.type = UserType.CHILD
-        super.scope = [
+        super.scopes = [
+            'children:read',
+            'questionnaires:create',
             'questionnaires:read',
-            'questionnaires:create'
+            'foodrecord:create',
+            'foodrecord:read',
+            'physicalactivities:create',
+            'physicalactivities:read',
+            'sleep:create',
+            'sleep:read',
+            'environment:read',
+            'missions:read',
+            'gamificationprofile:read',
+            'gamificationprofile:update'
         ]
     }
 

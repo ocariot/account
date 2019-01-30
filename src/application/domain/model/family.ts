@@ -16,6 +16,28 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
     constructor() {
         super()
         super.type = UserType.FAMILY
+        super.scopes = [
+            'families:read',
+            'questionnaires:create',
+            'questionnaires:read',
+            'questionnaires:update',
+            'questionnaires:delete',
+            'foodrecord:create',
+            'foodrecord:read',
+            'foodrecord:update',
+            'foodrecord:delete',
+            'physicalactivities:create',
+            'physicalactivities:read',
+            'physicalactivities:update',
+            'physicalactivities:delete',
+            'sleep:create',
+            'sleep:read',
+            'sleep:update',
+            'sleep:delete',
+            'environment:read',
+            'missions:read',
+            'gamificationprofile:read'
+        ]
     }
 
     get children(): Array<Child> | undefined {

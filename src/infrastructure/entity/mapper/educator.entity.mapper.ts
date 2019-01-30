@@ -34,6 +34,7 @@ export class EducatorEntityMapper implements IEntityMapper<Educator, EducatorEnt
             })
             result.children_groups = childrenGroupsTemp
         }
+        if (item.scopes) result.scopes = item.scopes
 
         return result
     }
@@ -71,6 +72,7 @@ export class EducatorEntityMapper implements IEntityMapper<Educator, EducatorEnt
         if (json.children_groups !== undefined) {
             result.children_groups = json.children_groups.map(item => new ChildrenGroup().fromJSON(item))
         }
+        if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result
     }

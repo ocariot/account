@@ -16,6 +16,32 @@ export class Educator extends User implements IJSONSerializable, IJSONDeserializ
     constructor() {
         super()
         super.type = UserType.EDUCATOR
+        super.scopes = [
+            'educators:read',
+            'childrengroups:create',
+            'childrengroups:read',
+            'childrengroups:update',
+            'childrengroups:delete',
+            'questionnaires:create',
+            'questionnaires:read',
+            'questionnaires:update',
+            'questionnaires:delete',
+            'foodrecord:create',
+            'foodrecord:read',
+            'foodrecord:update',
+            'foodrecord:delete',
+            'physicalactivities:create',
+            'physicalactivities:read',
+            'physicalactivities:update',
+            'physicalactivities:delete',
+            'sleep:create',
+            'sleep:read',
+            'sleep:update',
+            'sleep:delete',
+            'environment:read',
+            'missions:read',
+            'gamificationprofile:read'
+        ]
     }
 
     get children_groups(): Array<ChildrenGroup> | undefined {

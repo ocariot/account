@@ -27,6 +27,7 @@ export class ApplicationEntityMapper implements IEntityMapper<Application, Appli
         if (item.type) result.type = item.type
         if (item.institution) result.institution = item.institution.id
         if (item.application_name) result.application_name = item.application_name
+        if (item.scopes) result.scopes = item.scopes
 
         return result
     }
@@ -62,6 +63,7 @@ export class ApplicationEntityMapper implements IEntityMapper<Application, Appli
             else result.institution = new Institution().fromJSON(json.institution)
         }
         if (json.application_name !== undefined) result.application_name = json.application_name
+        if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result
     }

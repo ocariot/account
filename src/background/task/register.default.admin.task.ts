@@ -3,9 +3,10 @@ import { Identifier } from '../../di/identifiers'
 import { IUserRepository } from '../../application/port/user.repository.interface'
 import { ILogger } from '../../utils/custom.logger'
 import { IQuery } from '../../application/port/query.interface'
-import { User, UserType } from '../../application/domain/model/user'
+import { UserType } from '../../application/domain/model/user'
 import { Query } from '../../infrastructure/repository/query/query'
 import { Default } from '../../utils/default'
+import { Admin } from '../../application/domain/model/admin'
 
 /**
  * In this class it's checked whether there are any admin users in the database.
@@ -32,7 +33,7 @@ export class RegisterDefaultAdminTask {
         try {
             const countUser = await this._userRepository.count(query)
             if (!countUser) {
-                const userDefault: User = new User()
+                const userDefault: Admin = new Admin()
                 userDefault.username = process.env.ADMIN_USERNAME || Default.ADMIN_USERNAME
                 userDefault.password = process.env.ADMIN_PASSWORD || Default.ADMIN_PASSWORD
                 userDefault.type = UserType.ADMIN

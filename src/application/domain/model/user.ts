@@ -15,7 +15,7 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
     private _password?: string // Password for user authentication.
     private _type?: string // Type of user. Can be Child, Educator, Health Professional or Family.
     private _institution?: Institution // Institution to which the user belongs.
-    private _scope!: Array<string> // Scope that signal the types of access the user has.
+    private _scopes!: Array<string> // Scope that signal the types of access the user has.
 
     constructor() {
         super()
@@ -53,22 +53,22 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
         this._institution = value
     }
 
-    get scope(): Array<string> {
-        return this._scope
+    get scopes(): Array<string> {
+        return this._scopes
     }
 
-    set scope(value: Array<string>) {
-        this._scope = value
+    set scopes(value: Array<string>) {
+        this._scopes = value
     }
 
     public addScope(scope: string): void {
-        if (!this.scope) this._scope = []
-        if (scope) this._scope.push(scope)
+        if (!this.scopes) this._scopes = []
+        if (scope) this._scopes.push(scope)
     }
 
     public removeScope(scope: string): void {
         if (scope) {
-            this.scope = this.scope.filter(item => item !== scope)
+            this.scopes = this.scopes.filter(item => item !== scope)
         }
     }
 
@@ -86,7 +86,7 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
         } else if (json.institution_id !== undefined) {
             this.institution = new Institution().fromJSON(json)
         }
-        if (json.scope !== undefined) this.scope = json.scope
+        if (json.scope !== undefined) this.scopes = json.scope
 
         return this
     }
