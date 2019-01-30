@@ -29,10 +29,11 @@ export class ApplicationService implements IApplicationService {
         ApplicationValidator.validate(application)
 
         try {
+            // 1. Checks if Application already exists.
             const applicationExist = await this._applicationRepository.checkExist(application)
             if (applicationExist) throw new ConflictException(Strings.APPLICATION.ALREADY_REGISTERED)
 
-            // Checks if the institution exists.
+            // 2. Checks if the institution exists.
             if (application.institution && application.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(application.institution)
                 if (!institutionExist) {
@@ -46,6 +47,7 @@ export class ApplicationService implements IApplicationService {
             return Promise.reject(err)
         }
 
+        // 3. Create new Application register
         return this._applicationRepository.create(application)
     }
 
@@ -61,7 +63,7 @@ export class ApplicationService implements IApplicationService {
 
     public async update(application: Application): Promise<Application> {
         try {
-            // Checks if the institution exists.
+            // 1. Checks if the institution exists.
             if (application.institution && application.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(application.institution)
                 if (!institutionExist) {
@@ -75,6 +77,7 @@ export class ApplicationService implements IApplicationService {
             return Promise.reject(err)
         }
 
+        // 2. Update Application data.
         return this._applicationRepository.update(application)
     }
 

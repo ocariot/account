@@ -11,7 +11,7 @@ export class InstitutionValidator {
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
-                'Institution validation: '.concat(fields.join(', ')).concat(' required!'))
+                'Institution validation: '.concat(fields.join(', ')).concat(' is required!'))
         }
     }
 }

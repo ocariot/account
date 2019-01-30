@@ -34,6 +34,12 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
         return super.create(item)
     }
 
+    public findById(healthProfessionalId: string): Promise<HealthProfessional> {
+        const query: Query = new Query()
+        query.filters = { _id: healthProfessionalId, type: UserType.HEALTH_PROFESSIONAL }
+        return super.findOne(query)
+    }
+
     public checkExist(healthProfessional: HealthProfessional): Promise<boolean> {
         const query: Query = new Query()
         if (healthProfessional.id) query.filters = { _id: healthProfessional.id }

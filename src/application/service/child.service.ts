@@ -29,10 +29,11 @@ export class ChildService implements IChildService {
         ChildValidator.validate(child)
 
         try {
+            // 1. Checks if child already exists.
             const childExist = await this._childRepository.checkExist(child)
             if (childExist) throw new ConflictException(Strings.CHILD.ALREADY_REGISTERED)
 
-            // Checks if the institution exists.
+            // 2. Checks if the institution exists.
             if (child.institution && child.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(child.institution)
                 if (!institutionExist) {
@@ -42,11 +43,11 @@ export class ChildService implements IChildService {
                     )
                 }
             }
-
         } catch (err) {
             return Promise.reject(err)
         }
 
+        // 3. Create new child register.
         return this._childRepository.create(child)
     }
 
@@ -62,7 +63,7 @@ export class ChildService implements IChildService {
 
     public async update(child: Child): Promise<Child> {
         try {
-            // Checks if the institution exists.
+            // 1. Checks if the institution exists.
             if (child.institution && child.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(child.institution)
                 if (!institutionExist) {
@@ -76,6 +77,7 @@ export class ChildService implements IChildService {
             return Promise.reject(err)
         }
 
+        // 2. Update Child data.
         return this._childRepository.update(child)
     }
 

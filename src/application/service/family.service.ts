@@ -13,7 +13,6 @@ import { IChildRepository } from '../port/child.repository.interface'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
-import { Query } from '../../infrastructure/repository/query/query'
 
 /**
  * Implementing family Service.
@@ -33,11 +32,11 @@ export class FamilyService implements IFamilyService {
         FamilyValidator.validate(family)
 
         try {
-            // Checks if family already exists
+            // 1. Checks if family already exists.
             const familyExist = await this._familyRepository.checkExist(family)
             if (familyExist) throw new ConflictException(Strings.FAMILY.ALREADY_REGISTERED)
 
-            // Checks if the children to be associated have a record. Your registration is required.
+            // 2. Checks if the children to be associated have a record. Your registration is required.
             if (family.children) {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
                 if (checkChildrenExist instanceof ValidationException) {
@@ -48,7 +47,7 @@ export class FamilyService implements IFamilyService {
                 }
             }
 
-            // Checks if the institution exists.
+            // 3. Checks if the institution exists.
             if (family.institution && family.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(family.institution)
                 if (!institutionExist) {
@@ -62,6 +61,7 @@ export class FamilyService implements IFamilyService {
             return Promise.reject(err)
         }
 
+        // 4. Create new family register.
         return this._familyRepository.create(family)
     }
 
@@ -77,7 +77,7 @@ export class FamilyService implements IFamilyService {
 
     public async update(family: Family): Promise<Family> {
         try {
-            // Checks if the children to be associated have a record. Your registration is required.
+            // 1. Checks if the children to be associated have a record. Your registration is required.
             if (family.children) {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
                 if (checkChildrenExist instanceof ValidationException) {
@@ -88,7 +88,7 @@ export class FamilyService implements IFamilyService {
                 }
             }
 
-            // Checks if the institution exists.
+            // 2. Checks if the institution exists.
             if (family.institution && family.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(family.institution)
                 if (!institutionExist) {
@@ -101,6 +101,8 @@ export class FamilyService implements IFamilyService {
         } catch (err) {
             return Promise.reject(err)
         }
+
+        // 3. Update family data
         return this._familyRepository.update(family)
     }
 
@@ -112,8 +114,9 @@ export class FamilyService implements IFamilyService {
         query.addFilter({ _id: familyId, type: UserType.FAMILY })
 
         try {
-            const family: Family = await this._familyRepository.findOne(query)
+            const family: Family = await this._familyRepository.findById(familyId)
             if (!family) return Promise.resolve(undefined)
+
             return Promise.resolve(family.children ? family.children : [])
         } catch (err) {
             return Promise.reject(err)
@@ -125,7 +128,7 @@ export class FamilyService implements IFamilyService {
         child.id = childId
 
         try {
-            // 1. Checks if the family exists
+            // 1. Checks if the family exists.
             const family: Family = await this._familyRepository.findById(familyId)
             if (!family) {
                 throw new ValidationException(Strings.FAMILY.NOT_FOUND, Strings.FAMILY.NOT_FOUND_DESCRIPTION)
@@ -146,19 +149,19 @@ export class FamilyService implements IFamilyService {
     }
 
     public async disassociateChild(familyId: string, childId: string): Promise<boolean | undefined> {
-        const query: Query = new Query()
-        query.filters = { _id: familyId, type: UserType.FAMILY }
-
         try {
-            const family: Family = await this._familyRepository.findOne(query)
+            // 1. Checks if the family exists.
+            const family: Family = await this._familyRepository.findById(familyId)
             if (!family) return Promise.resolve(undefined)
 
-            // verifies that the child is no longer associated
+            // 2. verifies that the child is no longer associated.
             if (family.children) {
                 family.children = await family.children.filter(child => child.id !== childId)
                 return await this._familyRepository.update(family) !== undefined
             }
-            return await Promise.resolve(family) !== undefined
+
+            // 3. Successful operation, returns true.
+            return await Promise.resolve(true)
         } catch (err) {
             return Promise.reject(err)
         }

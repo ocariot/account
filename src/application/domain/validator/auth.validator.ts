@@ -10,7 +10,7 @@ export class AuthValidator {
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
-                'Authentication validation: '.concat(fields.join(', ')).concat(' required!'))
+                'Authentication validation: '.concat(fields.join(', ')).concat(' is required!'))
         }
     }
 }

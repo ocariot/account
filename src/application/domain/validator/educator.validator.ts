@@ -12,7 +12,7 @@ export class EducatorValidator {
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
-                'Educator validation: '.concat(fields.join(', ')).concat(' required!'))
+                'Educator validation: '.concat(fields.join(', ')).concat(' is required!'))
         }
     }
 }

@@ -14,7 +14,7 @@ export class ChildValidator {
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
-                'Child validation: '.concat(fields.join(', ')).concat(' required!'))
+                'Child validation: '.concat(fields.join(', ')).concat(' is required!'))
         }
     }
 }

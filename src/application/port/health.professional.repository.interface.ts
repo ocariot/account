@@ -9,6 +9,16 @@ import { HealthProfessional } from '../domain/model/health.professional'
  * @extends {IRepository<HealthProfessional>}
  */
 export interface IHealthProfessionalRepository extends IRepository<HealthProfessional> {
+
+    /**
+     * Retrieves the Health Professional according to ID.
+     *
+     * @param healthProfessionalId
+     * @return {Promise<Educator>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    findById(healthProfessionalId: string): Promise<HealthProfessional>
+
     /**
      * Checks if healthProfessional already has a registration.
      * If the object to be verified has id, it will be considered

@@ -46,7 +46,7 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
             json = JSON.parse(json)
         }
 
-        if (json.children !== undefined) {
+        if (json.children !== undefined && json.children instanceof Array) {
             this.children = json.children.map(child => new Child().fromJSON(child))
         }
 

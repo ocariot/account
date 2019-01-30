@@ -9,11 +9,19 @@ export class FamilyValidator {
         if (!family.username) fields.push('Username')
         if (!family.password) fields.push('Password')
         if (!family.type) fields.push('Type')
-        if (!family.children || family.children.length === 0) fields.push('Children')
+        if (!family.children || !family.children.length) {
+            fields.push('Collection with children IDs')
+        } else {
+            family.children.forEach(child => {
+                if (!child.id) {
+                    fields.push('Collection with children IDs (ID can not be empty)')
+                }
+            })
+        }
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
-                'Family validation: '.concat(fields.join(', ')).concat(' required!'))
+                'Family validation: '.concat(fields.join(', ')).concat(' is required!'))
         }
     }
 }

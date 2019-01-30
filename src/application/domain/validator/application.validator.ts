@@ -13,7 +13,7 @@ export class ApplicationValidator {
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
-                'Application validation: '.concat(fields.join(', ')).concat(' required!'))
+                'Application validation: '.concat(fields.join(', ')).concat(' is required!'))
         }
     }
 }
