@@ -10,7 +10,7 @@ import { UserType } from '../domain/model/user'
 import { IHealthProfessionalService } from '../port/health.professional.service.interface'
 import { IHealthProfessionalRepository } from '../port/health.professional.repository.interface'
 import { HealthProfessional } from '../domain/model/health.professional'
-import { HealthProfessionalValidator } from '../domain/validator/health.professional.validator'
+import { CreateHealthProfessionalValidator } from '../domain/validator/create.health.professional.validator'
 import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
 
@@ -32,7 +32,7 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     }
 
     public async add(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
-        HealthProfessionalValidator.validate(healthProfessional)
+        CreateHealthProfessionalValidator.validate(healthProfessional)
 
         try {
             // 1. Checks if Health Professional already exists.

@@ -5,8 +5,8 @@ export class AuthValidator {
         const fields: Array<string> = []
 
         // validate null
-        if (!username) fields.push('Username')
-        if (!password) fields.push('Password')
+        if (!username) fields.push('username')
+        if (!password) fields.push('password')
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',

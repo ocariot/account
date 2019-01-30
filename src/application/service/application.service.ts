@@ -8,7 +8,7 @@ import { ValidationException } from '../domain/exception/validation.exception'
 import { IApplicationService } from '../port/application.service.interface'
 import { IApplicationRepository } from '../port/application.repository.interface'
 import { Application } from '../domain/model/application'
-import { ApplicationValidator } from '../domain/validator/application.validator'
+import { CreateApplicationValidator } from '../domain/validator/create.application.validator'
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
 
@@ -26,7 +26,7 @@ export class ApplicationService implements IApplicationService {
     }
 
     public async add(application: Application): Promise<Application> {
-        ApplicationValidator.validate(application)
+        CreateApplicationValidator.validate(application)
 
         try {
             // 1. Checks if Application already exists.

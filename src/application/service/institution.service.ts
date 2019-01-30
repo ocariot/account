@@ -6,7 +6,7 @@ import { ConflictException } from '../domain/exception/conflict.exception'
 import { IInstitutionService } from '../port/institution.service.interface'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { Institution } from '../domain/model/institution'
-import { InstitutionValidator } from '../domain/validator/institution.validator'
+import { CreateInstitutionValidator } from '../domain/validator/create.institution.validator'
 import { Strings } from '../../utils/strings'
 
 /**
@@ -22,7 +22,7 @@ export class InstitutionService implements IInstitutionService {
     }
 
     public async add(institution: Institution): Promise<Institution> {
-        InstitutionValidator.validate(institution)
+        CreateInstitutionValidator.validate(institution)
 
         try {
             // 1. Checks if Institution already exists.

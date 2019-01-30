@@ -5,7 +5,7 @@ import { IQuery } from '../port/query.interface'
 import { Identifier } from '../../di/identifiers'
 import { IChildRepository } from '../port/child.repository.interface'
 import { ILogger } from '../../utils/custom.logger'
-import { ChildValidator } from '../domain/validator/child.validator'
+import { CreateChildValidator } from '../domain/validator/create.child.validator'
 import { ConflictException } from '../domain/exception/conflict.exception'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
@@ -26,7 +26,7 @@ export class ChildService implements IChildService {
     }
 
     public async add(child: Child): Promise<Child> {
-        ChildValidator.validate(child)
+        CreateChildValidator.validate(child)
 
         try {
             // 1. Checks if child already exists.

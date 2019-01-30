@@ -1,16 +1,16 @@
 import { ValidationException } from '../exception/validation.exception'
 import { Child } from '../model/child'
 
-export class ChildValidator {
+export class CreateChildValidator {
     public static validate(child: Child): void | ValidationException {
         const fields: Array<string> = []
 
         // validate null
-        if (!child.username) fields.push('Username')
-        if (!child.password) fields.push('Password')
-        if (!child.type) fields.push('Type')
-        if (!child.gender) fields.push('Gender')
-        if (!child.age) fields.push('Age')
+        if (!child.username) fields.push('username')
+        if (!child.password) fields.push('password')
+        if (!child.type) fields.push('type')
+        if (!child.gender) fields.push('gender')
+        if (!child.age) fields.push('age')
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',

@@ -1,14 +1,14 @@
 import { ValidationException } from '../exception/validation.exception'
 import { HealthProfessional } from '../model/health.professional'
 
-export class HealthProfessionalValidator {
+export class CreateHealthProfessionalValidator {
     public static validate(healthProfessional: HealthProfessional): void | ValidationException {
         const fields: Array<string> = []
 
         // validate null
-        if (!healthProfessional.username) fields.push('Username')
-        if (!healthProfessional.password) fields.push('Password')
-        if (!healthProfessional.type) fields.push('Type')
+        if (!healthProfessional.username) fields.push('username')
+        if (!healthProfessional.password) fields.push('password')
+        if (!healthProfessional.type) fields.push('type')
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',

@@ -1,12 +1,12 @@
 import { ValidationException } from '../exception/validation.exception'
 import { ChildrenGroup } from '../model/children.group'
 
-export class ChildrenGroupValidator {
+export class CreateChildrenGroupValidator {
     public static validate(childrenGroup: ChildrenGroup): void | ValidationException {
         const fields: Array<string> = []
 
         // validate null
-        if (!childrenGroup.name) fields.push('Name')
+        if (!childrenGroup.name) fields.push('name')
         if (!childrenGroup.children || !childrenGroup.children.length) {
             fields.push('Collection with children IDs')
         } else {

@@ -9,7 +9,7 @@ import { Strings } from '../../utils/strings'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
 import { ChildrenGroup } from '../domain/model/children.group'
-import { ChildrenGroupValidator } from '../domain/validator/children.group.validator'
+import { CreateChildrenGroupValidator } from '../domain/validator/create.children.group.validator'
 
 /**
  * Implementing Children Group Service.
@@ -25,7 +25,7 @@ export class ChildrenGroupService implements IChildrenGroupService {
     }
 
     public async add(childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
-        ChildrenGroupValidator.validate(childrenGroup)
+        CreateChildrenGroupValidator.validate(childrenGroup)
 
         try {
             // 1. Checks if Children Group already exists.

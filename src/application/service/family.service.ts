@@ -6,7 +6,7 @@ import { ConflictException } from '../domain/exception/conflict.exception'
 import { ValidationException } from '../domain/exception/validation.exception'
 import { IFamilyService } from '../port/family.service.interface'
 import { Family } from '../domain/model/family'
-import { FamilyValidator } from '../domain/validator/family.validator'
+import { CreateFamilyValidator } from '../domain/validator/create.family.validator'
 import { IFamilyRepository } from '../port/family.repository.interface'
 import { Child } from '../domain/model/child'
 import { IChildRepository } from '../port/child.repository.interface'
@@ -29,7 +29,7 @@ export class FamilyService implements IFamilyService {
     }
 
     public async add(family: Family): Promise<Family> {
-        FamilyValidator.validate(family)
+        CreateFamilyValidator.validate(family)
 
         try {
             // 1. Checks if family already exists.

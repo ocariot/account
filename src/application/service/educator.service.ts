@@ -10,7 +10,7 @@ import { UserType } from '../domain/model/user'
 import { IEducatorService } from '../port/educator.service.interface'
 import { IEducatorRepository } from '../port/educator.repository.interface'
 import { Educator } from '../domain/model/educator'
-import { EducatorValidator } from '../domain/validator/educator.validator'
+import { CreateEducatorValidator } from '../domain/validator/create.educator.validator'
 import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
 
@@ -29,7 +29,7 @@ export class EducatorService implements IEducatorService {
     }
 
     public async add(educator: Educator): Promise<Educator> {
-        EducatorValidator.validate(educator)
+        CreateEducatorValidator.validate(educator)
 
         try {
             // 1. Checks if Educator already exists.
