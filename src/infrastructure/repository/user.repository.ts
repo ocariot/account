@@ -9,6 +9,8 @@ import { UserEntity } from '../entity/user.entity'
 import { IUserRepository } from '../../application/port/user.repository.interface'
 import { ChangePasswordException } from '../../application/domain/exception/change.password.exception'
 import { Strings } from '../../utils/strings'
+import { IQuery } from '../../application/port/query.interface'
+import { Query } from './query/query'
 
 /**
  * Implementation of the user repository.
@@ -65,17 +67,15 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
         return bcrypt.compareSync(passwordPlain, passwordHash)
     }
 
-    public disassociateInstitution(institution_id: string): Promise<boolean> {
-        // Disassociate institution from users.
+    public hasInstitution(institutionId: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
-            this.userModel.updateMany(
-                { institution: institution_id },
-                { $set: { institution: undefined } },
-                { multi: true },
-                (err, numAffected) => {
-                    if (err) reject(super.mongoDBErrorListener((err)))
-                    resolve(true)
+            const query: IQuery = new Query()
+            query.filters = { institution: institutionId }
+            super.count(query)
+                .then(value => {
+                    return resolve(value > 0)
                 })
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 }

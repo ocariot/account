@@ -13,12 +13,12 @@ export interface IUserRepository extends IRepository<User> {
      * Change the user password.
      *
      * @param userId
-     * @param old_password
-     * @param new_password
+     * @param oldPassword
+     * @param newPassword
      * @return {Promise<boolean>} True if the password was changed or False, otherwise.
      * @throws {ValidationException | RepositoryException}
      */
-    changePassword(userId: string, old_password: string, new_password: string): Promise<boolean>
+    changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean>
 
     /**
      * Encrypt the user password
@@ -38,11 +38,10 @@ export interface IUserRepository extends IRepository<User> {
     comparePasswords(passwordPlain: string, passwordHash: string): boolean
 
     /**
-     * Disassociate user with institution
+     * Verify if a institution is associated with one or more users.
      *
-     * @param id - Id of institution
-     * @return True if the disassociate was successfully, false otherwise.
-     *
+     * @param institutionId
+     * @return True if the institution is associated with one or more users, false otherwise.
      */
-    disassociateInstitution(id: string): Promise<boolean>
+    hasInstitution(institutionId: string): Promise<boolean>
 }

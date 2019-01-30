@@ -9,6 +9,7 @@ import { Institution } from '../domain/model/institution'
 import { CreateInstitutionValidator } from '../domain/validator/create.institution.validator'
 import { Strings } from '../../utils/strings'
 import { IUserRepository } from '../port/user.repository.interface'
+import { ValidationException } from '../domain/exception/validation.exception'
 
 /**
  * Implementing Institution Service.
@@ -52,17 +53,15 @@ export class InstitutionService implements IInstitutionService {
     }
 
     public async remove(id: string): Promise<boolean> {
-        let result: boolean
-
         try {
-            // 1. Try remove an Institution and disassociate it with users.
-            result = await this._institutionRepository.delete(id)
-            await this._userRepository.disassociateInstitution(id)
+            // 1. Checks if Institution is associated with one or more users.
+            const hasInstitution = await this._userRepository.hasInstitution(id)
+            if (hasInstitution) throw new ValidationException(Strings.INSTITUTION.HAS_ASSOCIATION)
         } catch (err) {
             return Promise.reject(err)
         }
 
-        // 2. Returns the result of deletion.
-        return Promise.resolve(result)
+        // 2. Delete the Institution by id.
+        return this._institutionRepository.delete(id)
     }
 }

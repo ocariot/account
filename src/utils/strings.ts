@@ -34,6 +34,7 @@ export abstract class Strings {
         REGISTER_REQUIRED: 'The institution provided does not have a registration.',
         ALERT_REGISTER_REQUIRED: 'It is necessary that the institution be registered before trying again.',
         NOT_FOUND: 'Institution not found!',
+        HAS_ASSOCIATION: 'The institution is associated with one or more users.',
         NOT_FOUND_DESCRIPTION: 'Institution not found or already removed. A new operation for the same resource is not required.'
     }
 
