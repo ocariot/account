@@ -22,7 +22,7 @@ export class HealthProfessional extends Educator {
             'sleep:read',
             'environment:read',
             'missions:read',
-            'gamificationprofile :read'
+            'gamificationprofile:read'
         ]
     }
 }

@@ -41,7 +41,7 @@ export class Admin extends User implements IJSONSerializable, IJSONDeserializabl
             'sleep:read',
             'environment:read',
             'missions:read',
-            'gamificationprofile :read'
+            'gamificationprofile:read'
         ]
     }
 

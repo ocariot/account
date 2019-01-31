@@ -37,10 +37,10 @@ export class Application extends User implements IJSONSerializable, IJSONDeseria
             'missions:read',
             'missions:update',
             'missions:delete',
-            'gamificationprofile :create',
-            'gamificationprofile :read',
-            'gamificationprofile :update',
-            'gamificationprofile :delete'
+            'gamificationprofile:create',
+            'gamificationprofile:read',
+            'gamificationprofile:update',
+            'gamificationprofile:delete'
         ]
     }
 
