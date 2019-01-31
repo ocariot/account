@@ -52,7 +52,7 @@ export class AuthRepository implements IAuthRepository {
         const secret: string = process.env.JWT_SECRET || Default.JWT_SECRET
         const payload: object = {
             sub: user.id,
-            iss: 'OCARIoT',
+            iss: process.env.ISSUER || Default.JWT_ISSUER,
             iat: Math.floor(Date.now() / 1000),
             scope: user.scopes.join(' ')
         }

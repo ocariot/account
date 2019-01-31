@@ -14,6 +14,7 @@ export abstract class Default {
     public static readonly PORT_HTTPS: number = 5001
 
     // KEYS
+    public static readonly JWT_ISSUER: string = 'ocariot'
     public static readonly JWT_SECRET: string = 'p1c^HNy.cN;WKX4Ys1m"0:Ct>I1|@s'
 
     // MongoDB
