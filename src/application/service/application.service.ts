@@ -12,6 +12,8 @@ import { CreateApplicationValidator } from '../domain/validator/create.applicati
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
+import { UserUpdateEvent } from '../integration-event/event/user.update.event'
+import { IEventBus } from '../../infrastructure/port/event.bus.interface'
 
 /**
  * Implementation of the service for user of type Application.
@@ -23,7 +25,8 @@ export class ApplicationService implements IApplicationService {
 
     constructor(@inject(Identifier.APPLICATION_REPOSITORY) private readonly _applicationRepository: IApplicationRepository,
                 @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
-                @inject(Identifier.LOGGER) readonly logger: ILogger) {
+                @inject(Identifier.LOGGER) readonly logger: ILogger,
+                @inject(Identifier.RABBITMQ_EVENT_BUS) readonly _eventBus: IEventBus) {
     }
 
     public async add(application: Application): Promise<Application> {
@@ -81,7 +84,17 @@ export class ApplicationService implements IApplicationService {
         }
 
         // 2. Update Application data.
-        return this._applicationRepository.update(application)
+        const applicationUp = await this._applicationRepository.update(application)
+
+        // 3. Publish updated application data.
+        if (applicationUp) {
+            const event = new UserUpdateEvent<Application>(
+                'ApplicationUpdateEvent', new Date(), applicationUp)
+            this._eventBus.publish(event, 'applications.update')
+
+        }
+
+        return applicationUp
     }
 
     public async remove(id: string): Promise<boolean> {

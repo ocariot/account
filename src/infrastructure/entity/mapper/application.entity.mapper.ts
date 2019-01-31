@@ -25,8 +25,8 @@ export class ApplicationEntityMapper implements IEntityMapper<Application, Appli
         if (item.username) result.username = item.username
         if (item.password) result.password = item.password
         if (item.type) result.type = item.type
-        if (item.institution) result.institution = item.institution.id
-        if (item.application_name) result.application_name = item.application_name
+        if (item.institution !== undefined) result.institution = item.institution.id
+        if (item.application_name !== undefined) result.application_name = item.application_name
         if (item.scopes) result.scopes = item.scopes
 
         return result

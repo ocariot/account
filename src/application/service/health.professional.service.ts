@@ -15,6 +15,8 @@ import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
+import { UserUpdateEvent } from '../integration-event/event/user.update.event'
+import { IEventBus } from '../../infrastructure/port/event.bus.interface'
 
 /**
  * Implementing Health Professional Service.
@@ -30,7 +32,8 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
         @inject(Identifier.CHILDREN_GROUP_SERVICE) private readonly _childrenGroupService: IChildrenGroupService,
         @inject(Identifier.CHILDREN_GROUP_REPOSITORY) private readonly _childrenGroupRepository: IChildrenGroupRepository,
-        @inject(Identifier.LOGGER) readonly logger: ILogger
+        @inject(Identifier.LOGGER) readonly logger: ILogger,
+        @inject(Identifier.RABBITMQ_EVENT_BUS) readonly _eventBus: IEventBus
     ) {
     }
 
@@ -89,7 +92,17 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         }
 
         // 2. Update Health Professional data.
-        return this._healthProfessionalRepository.update(healthProfessional)
+        const healthProfessionalUp = await this._healthProfessionalRepository.update(healthProfessional)
+
+        // 3. Publish updated health professional data.
+        if (healthProfessionalUp) {
+            const event = new UserUpdateEvent<HealthProfessional>(
+                'HealthProfessionalUpdateEvent', new Date(), healthProfessionalUp)
+            this._eventBus.publish(event, 'healthprofessionals.update')
+        }
+
+        return healthProfessionalUp
+
     }
 
     public async remove(id: string): Promise<boolean> {

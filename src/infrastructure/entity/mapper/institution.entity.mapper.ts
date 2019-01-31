@@ -23,9 +23,9 @@ export class InstitutionEntityMapper implements IEntityMapper<Institution, Insti
         if (item.id) result.id = item.id
         if (item.type) result.type = item.type
         if (item.name) result.name = item.name
-        if (item.address) result.address = item.address
-        if (item.latitude) result.latitude = item.latitude
-        if (item.longitude) result.longitude = item.longitude
+        if (item.address !== undefined) result.address = item.address
+        if (item.latitude !== undefined) result.latitude = item.latitude
+        if (item.longitude !== undefined) result.longitude = item.longitude
 
         return result
     }

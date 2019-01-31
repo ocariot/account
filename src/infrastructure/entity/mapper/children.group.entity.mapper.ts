@@ -24,7 +24,7 @@ export class ChildrenGroupEntityMapper implements IEntityMapper<ChildrenGroup, C
         const result: ChildrenGroupEntity = new ChildrenGroupEntity()
         if (item.id) result.id = item.id
         if (item.name) result.name = item.name
-        if (item.school_class) result.school_class = item.school_class
+        if (item.school_class !== undefined) result.school_class = item.school_class
         if (item.children) {
             const childrenTemp: Array<string> = []
             item.children.forEach(elem => {

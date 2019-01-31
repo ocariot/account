@@ -15,6 +15,8 @@ import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
+import { IEventBus } from '../../infrastructure/port/event.bus.interface'
+import { UserUpdateEvent } from '../integration-event/event/user.update.event'
 
 /**
  * Implementing educator Service.
@@ -28,7 +30,8 @@ export class EducatorService implements IEducatorService {
                 @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
                 @inject(Identifier.CHILDREN_GROUP_REPOSITORY) private readonly _childrenGroupRepository: IChildrenGroupRepository,
                 @inject(Identifier.CHILDREN_GROUP_SERVICE) private readonly _childrenGroupService: IChildrenGroupService,
-                @inject(Identifier.LOGGER) readonly logger: ILogger) {
+                @inject(Identifier.LOGGER) readonly logger: ILogger,
+                @inject(Identifier.RABBITMQ_EVENT_BUS) readonly _eventBus: IEventBus) {
     }
 
     public async add(educator: Educator): Promise<Educator> {
@@ -86,7 +89,16 @@ export class EducatorService implements IEducatorService {
         }
 
         // 2. Update Educator data.
-        return this._educatorRepository.update(educator)
+        const educatorUp = await this._educatorRepository.update(educator)
+
+        // 3. Publish updated educator data.
+        if (educatorUp) {
+            const event = new UserUpdateEvent<Educator>('EducatorUpdateEvent', new Date(), educatorUp)
+            console.log(event.toJSON())
+            this._eventBus.publish(event, 'educators.update')
+        }
+
+        return educatorUp
     }
 
     public async remove(id: string): Promise<boolean> {
@@ -95,7 +107,6 @@ export class EducatorService implements IEducatorService {
         // 1. Delete the educator by id and your children groups.
         try {
             isDeleted = await this._educatorRepository.delete(id)
-            console.log('I will delete all children groups now')
             if (isDeleted) await this._childrenGroupRepository.deleteMany(id)
         } catch (err) {
             return Promise.reject(err)

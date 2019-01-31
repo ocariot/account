@@ -14,6 +14,8 @@ import { IInstitutionRepository } from '../port/institution.repository.interface
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
+import { IEventBus } from '../../infrastructure/port/event.bus.interface'
+import { UserUpdateEvent } from '../integration-event/event/user.update.event'
 
 /**
  * Implementing family Service.
@@ -26,7 +28,8 @@ export class FamilyService implements IFamilyService {
     constructor(@inject(Identifier.FAMILY_REPOSITORY) private readonly _familyRepository: IFamilyRepository,
                 @inject(Identifier.CHILD_REPOSITORY) private readonly _childRepository: IChildRepository,
                 @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
-                @inject(Identifier.LOGGER) readonly logger: ILogger) {
+                @inject(Identifier.LOGGER) readonly logger: ILogger,
+                @inject(Identifier.RABBITMQ_EVENT_BUS) readonly _eventBus: IEventBus) {
     }
 
     public async add(family: Family): Promise<Family> {
@@ -106,7 +109,15 @@ export class FamilyService implements IFamilyService {
         }
 
         // 3. Update family data
-        return this._familyRepository.update(family)
+        const familyUp = await this._familyRepository.update(family)
+
+        // 4. Publish updated family data.
+        if (familyUp) {
+            const event = new UserUpdateEvent<Family>('FamilyUpdateEvent', new Date(), familyUp)
+            this._eventBus.publish(event, 'families.update')
+        }
+
+        return familyUp
     }
 
     public async remove(id: string): Promise<boolean> {

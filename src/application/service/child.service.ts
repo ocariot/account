@@ -12,6 +12,8 @@ import { ValidationException } from '../domain/exception/validation.exception'
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
+import { IEventBus } from '../../infrastructure/port/event.bus.interface'
+import { UserUpdateEvent } from '../integration-event/event/user.update.event'
 
 /**
  * Implementing child Service.
@@ -23,7 +25,8 @@ export class ChildService implements IChildService {
 
     constructor(@inject(Identifier.CHILD_REPOSITORY) private readonly _childRepository: IChildRepository,
                 @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
-                @inject(Identifier.LOGGER) readonly logger: ILogger) {
+                @inject(Identifier.LOGGER) readonly logger: ILogger,
+                @inject(Identifier.RABBITMQ_EVENT_BUS) readonly _eventBus: IEventBus) {
     }
 
     public async add(child: Child): Promise<Child> {
@@ -80,8 +83,17 @@ export class ChildService implements IChildService {
             return Promise.reject(err)
         }
 
-        // 2. Update Child data.
-        return this._childRepository.update(child)
+        // 2. Update child data.
+        const childUp = await this._childRepository.update(child)
+
+        // 3. Publish updated child data.
+        if (childUp) {
+            const event = new UserUpdateEvent<Child>('ChildUpdateEvent', new Date(), childUp)
+            this._eventBus.publish(event, 'children.update')
+
+        }
+
+        return childUp
     }
 
     public async remove(id: string): Promise<boolean> {

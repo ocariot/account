@@ -25,7 +25,7 @@ export class ChildEntityMapper implements IEntityMapper<Child, ChildEntity> {
         if (item.username) result.username = item.username
         if (item.password) result.password = item.password
         if (item.type) result.type = item.type
-        if (item.institution) result.institution = item.institution.id
+        if (item.institution !== undefined) result.institution = item.institution.id
         if (item.gender) result.gender = item.gender
         if (item.age) result.age = item.age
         if (item.scopes) result.scopes = item.scopes

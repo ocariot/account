@@ -26,8 +26,8 @@ export class EducatorEntityMapper implements IEntityMapper<Educator, EducatorEnt
         if (item.username) result.username = item.username
         if (item.password) result.password = item.password
         if (item.type) result.type = item.type
-        if (item.institution) result.institution = item.institution.id
-        if (item.children_groups) {
+        if (item.institution !== undefined) result.institution = item.institution.id
+        if (item.children_groups !== undefined) {
             const childrenGroupsTemp: Array<string> = []
             item.children_groups.forEach(elem => {
                 if (elem.id) childrenGroupsTemp.push(elem.id)
