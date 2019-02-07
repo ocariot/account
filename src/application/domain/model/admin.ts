@@ -15,33 +15,42 @@ export class Admin extends User implements IJSONSerializable, IJSONDeserializabl
         super.type = UserType.ADMIN
 
         super.scopes = [
+            'users:delete',
             'educators:create',
             'educators:read',
+            'educators:readAll',
             'educators:update',
             'educators:delete',
             'families:create',
             'families:read',
             'families:update',
             'families:delete',
+            'families:readAll',
             'children:create',
             'children:read',
+            'children:readAll',
             'children:update',
             'children:delete',
             'healthprofessionals:create',
             'healthprofessionals:read',
+            'healthprofessionals:readAll',
             'healthprofessionals:update',
             'healthprofessionals:delete',
             'applications:create',
             'applications:read',
+            'applications:readAll',
             'applications:update',
             'applications:delete',
             'questionnaires:read',
             'foodrecord:read',
             'physicalactivities:read',
+            'physicalactivities:readAll',
             'sleep:read',
+            'sleep:readAll',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
+            'gamificationprofile:read',
+            'children:readAll'
         ]
     }
 
