@@ -107,7 +107,7 @@ export class EducatorService implements IEducatorService {
         // 1. Delete the educator by id and your children groups.
         try {
             isDeleted = await this._educatorRepository.delete(id)
-            if (isDeleted) await this._childrenGroupRepository.deleteMany(id)
+            if (isDeleted) await this._childrenGroupRepository.deleteAllChildrenGroupsFomUser(id)
         } catch (err) {
             return Promise.reject(err)
         }
