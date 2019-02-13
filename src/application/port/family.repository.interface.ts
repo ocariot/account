@@ -30,4 +30,13 @@ export interface IFamilyRepository extends IRepository<Family> {
      * @throws {ValidationException | RepositoryException}
      */
     checkExist(family: Family): Promise<boolean>
+
+    /**
+     * Disassociate a child from a family.
+     *
+     * @param childId
+     * @return {Promise<boolean>} True if the disassociation was done, false otherwise.
+     * @throws {ValidationException | RepositoryException}
+     */
+    disassociateChildFromFamily(childId: string): Promise<boolean>
 }

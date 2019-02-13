@@ -12,7 +12,6 @@ import { IUserRepository } from '../../application/port/user.repository.interfac
 
 /**
  * Implementation of the family repository.
- *
  * @implements {IFamilyRepository}
  */
 @injectable()
@@ -52,6 +51,17 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                     return resolve(false)
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
+        })
+    }
+
+    public disassociateChildFromFamily(childId: string): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            return this.familyModel.updateMany({ children: { $in: childId } },
+                { $pullAll: { children: [childId] } },
+                { multi: true }, (err) => {
+                    if (err) return reject(super.mongoDBErrorListener(err))
+                })
+            return resolve(true)
         })
     }
 }

@@ -14,6 +14,8 @@ import { UserType } from '../domain/model/user'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IEventBus } from '../../infrastructure/port/event.bus.interface'
 import { UserUpdateEvent } from '../integration-event/event/user.update.event'
+import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
+import { IFamilyRepository } from '../port/family.repository.interface'
 
 /**
  * Implementing child Service.
@@ -25,6 +27,8 @@ export class ChildService implements IChildService {
 
     constructor(@inject(Identifier.CHILD_REPOSITORY) private readonly _childRepository: IChildRepository,
                 @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
+                @inject(Identifier.CHILDREN_GROUP_REPOSITORY) private readonly _childrenGroupRepository: IChildrenGroupRepository,
+                @inject(Identifier.FAMILY_REPOSITORY) private readonly _familyRepository: IFamilyRepository,
                 @inject(Identifier.LOGGER) readonly logger: ILogger,
                 @inject(Identifier.RABBITMQ_EVENT_BUS) readonly _eventBus: IEventBus) {
     }
@@ -90,13 +94,31 @@ export class ChildService implements IChildService {
         if (childUp) {
             const event = new UserUpdateEvent<Child>('ChildUpdateEvent', new Date(), childUp)
             this._eventBus.publish(event, 'children.update')
-
         }
 
         return childUp
     }
 
     public async remove(id: string): Promise<boolean> {
-        return this._childRepository.delete(id)
+        // 1. Delete a child
+        const childDel = await this._childRepository.delete(id)
+        if (!childDel) return Promise.resolve(false)
+
+        // 2. Disassociate a child from another entities if the delete was successful
+        try {
+            await this._childrenGroupRepository.disassociateChildFromChildrenGroups(id)
+        } catch (err) {
+            // logger warn
+            this.logger.warn('A error occur when try disassociate the child from children groups!\n\n'.concat(err))
+        }
+
+        try {
+            await this._familyRepository.disassociateChildFromFamily(id)
+        } catch (err) {
+            // logger warn
+            this.logger.warn('A error ocour when try disassociate the child from family!\n\n'.concat(err))
+        }
+
+        return Promise.resolve(true)
     }
 }

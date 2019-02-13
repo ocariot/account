@@ -9,6 +9,9 @@ import { IEducatorService } from '../port/educator.service.interface'
 import { IHealthProfessionalService } from '../port/health.professional.service.interface'
 import { IEventBus } from '../../infrastructure/port/event.bus.interface'
 import { UserDeleteEvent } from '../integration-event/event/user.delete.event'
+import { IChildService } from '../port/child.service.interface'
+import { IFamilyService } from '../port/family.service.interface'
+import { IApplicationService } from '../port/application.service.interface'
 
 /**
  * Implementing user Service.
@@ -20,8 +23,11 @@ export class UserService implements IUserService {
 
     constructor(@inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
                 @inject(Identifier.EDUCATOR_SERVICE) private readonly _educatorService: IEducatorService,
+                @inject(Identifier.CHILD_SERVICE) private readonly _childService: IChildService,
                 @inject(Identifier.HEALTH_PROFESSIONAL_SERVICE)
                 private readonly _healthProfessionalService: IHealthProfessionalService,
+                @inject(Identifier.FAMILY_SERVICE) private readonly _familyService: IFamilyService,
+                @inject(Identifier.APPLICATION_SERVICE) private readonly _applicationService: IApplicationService,
                 @inject(Identifier.RABBITMQ_EVENT_BUS) readonly _eventBus: IEventBus) {
     }
 
@@ -48,55 +54,42 @@ export class UserService implements IUserService {
         const user = await this._userRepository.findById(id)
         if (!user) return Promise.resolve(false)
 
-        // 2. Delete a user by id.
-        const isDeleted: boolean = await this._userRepository.delete(id)
+        let userDel: boolean = false
 
-        if (isDeleted && user && user.type) {
-            // 3. Check the types of users to direct the deletion operation to their respective services.
-            if (user.type === UserType.EDUCATOR) await this._educatorService.remove(id)
-            else if (user.type === UserType.HEALTH_PROFESSIONAL) await this._healthProfessionalService.remove(id)
-
-            // 4. Publish a deleted user in successful delete.
+        if (user && user.type) {
+            // 2. Check the types of users to direct the deletion operation to their respective services.
             switch (user.type) {
                 case UserType.EDUCATOR:
-                    this._eventBus.publish(
-                        new UserDeleteEvent('EducatorDeleteEvent',
-                            new Date(), user), 'educators.delete'
-                    )
+                    userDel = await this._educatorService.remove(id)
                     break
                 case UserType.HEALTH_PROFESSIONAL:
-                    this._eventBus.publish(
-                        new UserDeleteEvent('HealthProfessionalDeleteEvent',
-                            new Date(), user), 'healthprofessionals.delete'
-                    )
+                    userDel = await this._healthProfessionalService.remove(id)
                     break
                 case UserType.FAMILY:
-                    this._eventBus.publish(
-                        new UserDeleteEvent('FamilyDeleteEvent',
-                            new Date(), user), 'families.delete'
-                    )
+                    userDel = await this._familyService.remove(id)
                     break
                 case UserType.CHILD:
-                    this._eventBus.publish(
-                        new UserDeleteEvent('ChildDeleteEvent',
-                            new Date(), user), 'children.delete'
-                    )
+                    userDel = await this._childService.remove(id)
                     break
                 case UserType.APPLICATION:
-                    this._eventBus.publish(
-                        new UserDeleteEvent('ApplicationDeleteEvent',
-                            new Date(), user), 'applications.delete'
-                    )
+                    userDel = await this._applicationService.remove(id)
                     break
                 default:
                     break
             }
         }
 
-        return Promise.resolve(isDeleted)
+        if (userDel) this.publishDeleteEvent(user)
+        return Promise.resolve(userDel)
     }
 
     public async update(item: User): Promise<User> {
         throw Error('Not implemented!')
+    }
+
+    private publishDeleteEvent(user: User) {
+        this._eventBus.publish(
+            new UserDeleteEvent('UserDeleteEvent',
+            new Date(), user), 'users.delete')
     }
 }

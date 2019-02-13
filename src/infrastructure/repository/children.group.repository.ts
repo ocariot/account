@@ -49,4 +49,15 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
             })
         })
     }
+
+    public disassociateChildFromChildrenGroups(childId: string) {
+        return new Promise<boolean>((resolve, reject) => {
+            this.childrenGroupModel.updateMany({ children: { $in: childId } },
+                { $pullAll: { children: [childId] } },
+                { multi: true }, (err) => {
+                    if (err) return reject(super.mongoDBErrorListener(err))
+                })
+            return resolve(true)
+        })
+    }
 }

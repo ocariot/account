@@ -25,4 +25,13 @@ export interface IChildrenGroupRepository extends IRepository<ChildrenGroup> {
      * @returns True if the deletion was successfully, false otherwise.
      */
     deleteMany(userId: string): Promise<boolean>
+
+    /**
+     * Disassociate a child from all children groups.
+     *
+     * @param childId
+     * @return {Promise<boolean>} True if it was disassociated.
+     * @throws {ValidationException | RepositoryException}
+     */
+    disassociateChildFromChildrenGroups(childId: string): Promise<boolean>
 }
