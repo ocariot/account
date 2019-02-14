@@ -36,7 +36,7 @@ export class BackgroundService {
              * Register your events using the event bus instance here.
              */
         } catch (err) {
-            this._logger.error('Error initializing services in background: '.concat(err.message))
+            this._logger.error(`Error initializing services in background: ${err.message}`)
         }
     }
 
@@ -47,7 +47,7 @@ export class BackgroundService {
             await this._eventBus.dispose()
             await this._mongodb.dispose()
         } catch (err) {
-            this._logger.error('Error stopping background services: '.concat(err.message))
+            this._logger.error(`Error stopping background services: ${err.message}`)
         }
     }
 }
