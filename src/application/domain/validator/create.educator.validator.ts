@@ -9,6 +9,7 @@ export class CreateEducatorValidator {
         if (!educator.username) fields.push('username')
         if (!educator.password) fields.push('password')
         if (!educator.type) fields.push('type')
+        if (!educator.institution || !educator.institution.id) fields.push('institution')
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',

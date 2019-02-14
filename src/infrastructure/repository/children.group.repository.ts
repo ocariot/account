@@ -56,8 +56,8 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
                 { $pullAll: { children: [childId] } },
                 { multi: true }, (err) => {
                     if (err) return reject(super.mongoDBErrorListener(err))
+                    return resolve(true)
                 })
-            return resolve(true)
         })
     }
 }

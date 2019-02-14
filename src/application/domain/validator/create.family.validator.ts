@@ -9,6 +9,7 @@ export class CreateFamilyValidator {
         if (!family.username) fields.push('username')
         if (!family.password) fields.push('password')
         if (!family.type) fields.push('type')
+        if (!family.institution || !family.institution.id) fields.push('institution')
         if (!family.children || !family.children.length) {
             fields.push('Collection with children IDs')
         } else {

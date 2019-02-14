@@ -71,7 +71,6 @@ export class Institution extends Entity implements IJSONSerializable, IJSONDeser
             return this
         }
 
-        console.log(json, 'text', json.address)
         if (json.id !== undefined) super.id = json.id
         if (json.type !== undefined) this.type = json.type
         if (json.name !== undefined) this.name = json.name

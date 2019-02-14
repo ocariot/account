@@ -60,8 +60,8 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                 { $pullAll: { children: [childId] } },
                 { multi: true }, (err) => {
                     if (err) return reject(super.mongoDBErrorListener(err))
+                    return resolve(true)
                 })
-            return resolve(true)
         })
     }
 }

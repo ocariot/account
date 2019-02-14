@@ -9,6 +9,7 @@ export class CreateChildValidator {
         if (!child.username) fields.push('username')
         if (!child.password) fields.push('password')
         if (!child.type) fields.push('type')
+        if (!child.institution || !child.institution.id) fields.push('institution')
         if (!child.gender) fields.push('gender')
         if (!child.age) fields.push('age')
 

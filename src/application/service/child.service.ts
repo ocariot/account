@@ -106,19 +106,13 @@ export class ChildService implements IChildService {
 
         // 2. Disassociate a child from another entities if the delete was successful
         try {
+            console.log('i will return the delete now')
             await this._childrenGroupRepository.disassociateChildFromChildrenGroups(id)
-        } catch (err) {
-            // logger warn
-            this.logger.warn('A error occur when try disassociate the child from children groups!\n\n'.concat(err))
-        }
-
-        try {
             await this._familyRepository.disassociateChildFromFamily(id)
         } catch (err) {
             // logger warn
-            this.logger.warn('A error ocour when try disassociate the child from family!\n\n'.concat(err))
+            this.logger.warn(`A error occur when try disassociate the child! ${err}`)
         }
-
         return Promise.resolve(true)
     }
 }

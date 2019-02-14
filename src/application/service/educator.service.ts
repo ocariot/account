@@ -94,7 +94,6 @@ export class EducatorService implements IEducatorService {
         // 3. Publish updated educator data.
         if (educatorUp) {
             const event = new UserUpdateEvent<Educator>('EducatorUpdateEvent', new Date(), educatorUp)
-            console.log(event.toJSON())
             this._eventBus.publish(event, 'educators.update')
         }
 

@@ -9,6 +9,7 @@ export class CreateHealthProfessionalValidator {
         if (!healthProfessional.username) fields.push('username')
         if (!healthProfessional.password) fields.push('password')
         if (!healthProfessional.type) fields.push('type')
+        if (!healthProfessional.institution || !healthProfessional.institution.id) fields.push('institution')
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
