@@ -33,12 +33,59 @@ export class FamilyService implements IFamilyService {
     }
 
     public async add(family: Family): Promise<Family> {
-        CreateFamilyValidator.validate(family)
 
         try {
-            // 1. Checks if family already exists.
+            // 1. Validate Family parameters.
+            CreateFamilyValidator.validate(family)
+
+            // 2. Checks if family already exists.
             const familyExist = await this._familyRepository.checkExist(family)
             if (familyExist) throw new ConflictException(Strings.FAMILY.ALREADY_REGISTERED)
+
+            // 3. Checks if the children to be associated have a record. Your registration is required.
+            if (family.children) {
+                const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
+                if (checkChildrenExist instanceof ValidationException) {
+                    throw new ValidationException(
+                        Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
+                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
+                    )
+                }
+            }
+
+            // 4. Checks if the institution exists.
+            if (family.institution && family.institution.id !== undefined) {
+                const institutionExist = await this._institutionRepository.checkExist(family.institution)
+                if (!institutionExist) {
+                    throw new ValidationException(
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
+                    )
+                }
+            }
+        } catch (err) {
+            return Promise.reject(err)
+        }
+
+        // 5. Create new family register.
+        return this._familyRepository.create(family)
+    }
+
+    public async getAll(query: IQuery): Promise<Array<Family>> {
+        query.addFilter({ type: UserType.FAMILY })
+        return this._familyRepository.find(query)
+    }
+
+    public async getById(id: string | number, query: IQuery): Promise<Family> {
+        query.addFilter({ _id: id, type: UserType.FAMILY })
+        return this._familyRepository.findOne(query)
+    }
+
+    public async update(family: Family): Promise<Family> {
+
+        try {
+            // 1. Validate Family parameters.
+            UpdateUserValidator.validate(family)
 
             // 2. Checks if the children to be associated have a record. Your registration is required.
             if (family.children) {
@@ -65,53 +112,10 @@ export class FamilyService implements IFamilyService {
             return Promise.reject(err)
         }
 
-        // 4. Create new family register.
-        return this._familyRepository.create(family)
-    }
-
-    public async getAll(query: IQuery): Promise<Array<Family>> {
-        query.addFilter({ type: UserType.FAMILY })
-        return this._familyRepository.find(query)
-    }
-
-    public async getById(id: string | number, query: IQuery): Promise<Family> {
-        query.addFilter({ _id: id, type: UserType.FAMILY })
-        return this._familyRepository.findOne(query)
-    }
-
-    public async update(family: Family): Promise<Family> {
-        UpdateUserValidator.validate(family)
-
-        try {
-            // 1. Checks if the children to be associated have a record. Your registration is required.
-            if (family.children) {
-                const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
-                if (checkChildrenExist instanceof ValidationException) {
-                    throw new ValidationException(
-                        Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
-                    )
-                }
-            }
-
-            // 2. Checks if the institution exists.
-            if (family.institution && family.institution.id !== undefined) {
-                const institutionExist = await this._institutionRepository.checkExist(family.institution)
-                if (!institutionExist) {
-                    throw new ValidationException(
-                        Strings.INSTITUTION.REGISTER_REQUIRED,
-                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
-                    )
-                }
-            }
-        } catch (err) {
-            return Promise.reject(err)
-        }
-
-        // 3. Update family data
+        // 4. Update family data
         const familyUp = await this._familyRepository.update(family)
 
-        // 4. Publish updated family data.
+        // 5. Publish updated family data.
         if (familyUp) {
             const event = new UserUpdateEvent<Family>('FamilyUpdateEvent', new Date(), familyUp)
             this._eventBus.publish(event, 'families.update')

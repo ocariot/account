@@ -35,12 +35,48 @@ export class EducatorService implements IEducatorService {
     }
 
     public async add(educator: Educator): Promise<Educator> {
-        CreateEducatorValidator.validate(educator)
 
         try {
-            // 1. Checks if Educator already exists.
+            // 1. Validate Educator parameters.
+            CreateEducatorValidator.validate(educator)
+
+            // 2. Checks if Educator already exists.
             const educatorExist = await this._educatorRepository.checkExist(educator)
             if (educatorExist) throw new ConflictException(Strings.EDUCATOR.ALREADY_REGISTERED)
+
+            // 3. Checks if the institution exists.
+            if (educator.institution && educator.institution.id !== undefined) {
+                const institutionExist = await this._institutionRepository.checkExist(educator.institution)
+                if (!institutionExist) {
+                    throw new ValidationException(
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
+                    )
+                }
+            }
+        } catch (err) {
+            return Promise.reject(err)
+        }
+
+        // 4. Create new Educator register.
+        return this._educatorRepository.create(educator)
+    }
+
+    public async getAll(query: IQuery): Promise<Array<Educator>> {
+        query.addFilter({ type: UserType.EDUCATOR })
+        return this._educatorRepository.find(query)
+    }
+
+    public async getById(id: string | number, query: IQuery): Promise<Educator> {
+        query.addFilter({ _id: id, type: UserType.EDUCATOR })
+        return this._educatorRepository.findOne(query)
+    }
+
+    public async update(educator: Educator): Promise<Educator> {
+
+        try {
+            // 1. Validate Educator parameters.
+            UpdateUserValidator.validate(educator)
 
             // 2. Checks if the institution exists.
             if (educator.institution && educator.institution.id !== undefined) {
@@ -56,42 +92,10 @@ export class EducatorService implements IEducatorService {
             return Promise.reject(err)
         }
 
-        // 3. Create new Educator register.
-        return this._educatorRepository.create(educator)
-    }
-
-    public async getAll(query: IQuery): Promise<Array<Educator>> {
-        query.addFilter({ type: UserType.EDUCATOR })
-        return this._educatorRepository.find(query)
-    }
-
-    public async getById(id: string | number, query: IQuery): Promise<Educator> {
-        query.addFilter({ _id: id, type: UserType.EDUCATOR })
-        return this._educatorRepository.findOne(query)
-    }
-
-    public async update(educator: Educator): Promise<Educator> {
-        UpdateUserValidator.validate(educator)
-
-        try {
-            // 1. Checks if the institution exists.
-            if (educator.institution && educator.institution.id !== undefined) {
-                const institutionExist = await this._institutionRepository.checkExist(educator.institution)
-                if (!institutionExist) {
-                    throw new ValidationException(
-                        Strings.INSTITUTION.REGISTER_REQUIRED,
-                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
-                    )
-                }
-            }
-        } catch (err) {
-            return Promise.reject(err)
-        }
-
-        // 2. Update Educator data.
+        // 3. Update Educator data.
         const educatorUp = await this._educatorRepository.update(educator)
 
-        // 3. Publish updated educator data.
+        // 4. Publish updated educator data.
         if (educatorUp) {
             const event = new UserUpdateEvent<Educator>('EducatorUpdateEvent', new Date(), educatorUp)
             this._eventBus.publish(event, 'educators.update')

@@ -34,12 +34,48 @@ export class ChildService implements IChildService {
     }
 
     public async add(child: Child): Promise<Child> {
-        CreateChildValidator.validate(child)
 
         try {
-            // 1. Checks if child already exists.
+            // 1. Validate Child parameters.
+            CreateChildValidator.validate(child)
+
+            // 2. Checks if child already exists.
             const childExist = await this._childRepository.checkExist(child)
             if (childExist) throw new ConflictException(Strings.CHILD.ALREADY_REGISTERED)
+
+            // 3. Checks if the institution exists.
+            if (child.institution && child.institution.id !== undefined) {
+                const institutionExist = await this._institutionRepository.checkExist(child.institution)
+                if (!institutionExist) {
+                    throw new ValidationException(
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
+                    )
+                }
+            }
+        } catch (err) {
+            return Promise.reject(err)
+        }
+
+        // 4. Create new child register.
+        return this._childRepository.create(child)
+    }
+
+    public async getAll(query: IQuery): Promise<Array<Child>> {
+        query.addFilter({ type: UserType.CHILD })
+        return this._childRepository.find(query)
+    }
+
+    public async getById(id: string | number, query: IQuery): Promise<Child> {
+        query.addFilter({ _id: id, type: UserType.CHILD })
+        return this._childRepository.findOne(query)
+    }
+
+    public async update(child: Child): Promise<Child> {
+
+        try {
+            // 1. Validate Child parameters.
+            UpdateUserValidator.validate(child)
 
             // 2. Checks if the institution exists.
             if (child.institution && child.institution.id !== undefined) {
@@ -55,42 +91,10 @@ export class ChildService implements IChildService {
             return Promise.reject(err)
         }
 
-        // 3. Create new child register.
-        return this._childRepository.create(child)
-    }
-
-    public async getAll(query: IQuery): Promise<Array<Child>> {
-        query.addFilter({ type: UserType.CHILD })
-        return this._childRepository.find(query)
-    }
-
-    public async getById(id: string | number, query: IQuery): Promise<Child> {
-        query.addFilter({ _id: id, type: UserType.CHILD })
-        return this._childRepository.findOne(query)
-    }
-
-    public async update(child: Child): Promise<Child> {
-        UpdateUserValidator.validate(child)
-
-        try {
-            // 1. Checks if the institution exists.
-            if (child.institution && child.institution.id !== undefined) {
-                const institutionExist = await this._institutionRepository.checkExist(child.institution)
-                if (!institutionExist) {
-                    throw new ValidationException(
-                        Strings.INSTITUTION.REGISTER_REQUIRED,
-                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
-                    )
-                }
-            }
-        } catch (err) {
-            return Promise.reject(err)
-        }
-
-        // 2. Update child data.
+        // 3. Update child data.
         const childUp = await this._childRepository.update(child)
 
-        // 3. Publish updated child data.
+        // 4. Publish updated child data.
         if (childUp) {
             const event = new UserUpdateEvent<Child>('ChildUpdateEvent', new Date(), childUp)
             this._eventBus.publish(event, 'children.update')
@@ -106,7 +110,6 @@ export class ChildService implements IChildService {
 
         // 2. Disassociate a child from another entities if the delete was successful
         try {
-            console.log('i will return the delete now')
             await this._childrenGroupRepository.disassociateChildFromChildrenGroups(id)
             await this._familyRepository.disassociateChildFromFamily(id)
         } catch (err) {

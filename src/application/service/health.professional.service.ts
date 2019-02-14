@@ -38,12 +38,48 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     }
 
     public async add(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
-        CreateHealthProfessionalValidator.validate(healthProfessional)
 
         try {
-            // 1. Checks if Health Professional already exists.
+            // 1. Validate Health Professional parameters.
+            CreateHealthProfessionalValidator.validate(healthProfessional)
+
+            // 2. Checks if Health Professional already exists.
             const healthProfessionalExist = await this._healthProfessionalRepository.checkExist(healthProfessional)
             if (healthProfessionalExist) throw new ConflictException(Strings.HEALTH_PROFESSIONAL.ALREADY_REGISTERED)
+
+            // 3. Checks if the institution exists.
+            if (healthProfessional.institution && healthProfessional.institution.id !== undefined) {
+                const institutionExist = await this._institutionRepository.checkExist(healthProfessional.institution)
+                if (!institutionExist) {
+                    throw new ValidationException(
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
+                    )
+                }
+            }
+        } catch (err) {
+            return Promise.reject(err)
+        }
+
+        // 4. Create new Health Professional register.
+        return this._healthProfessionalRepository.create(healthProfessional)
+    }
+
+    public async getAll(query: IQuery): Promise<Array<HealthProfessional>> {
+        query.addFilter({ type: UserType.HEALTH_PROFESSIONAL })
+        return this._healthProfessionalRepository.find(query)
+    }
+
+    public async getById(id: string | number, query: IQuery): Promise<HealthProfessional> {
+        query.addFilter({ _id: id, type: UserType.HEALTH_PROFESSIONAL })
+        return this._healthProfessionalRepository.findOne(query)
+    }
+
+    public async update(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
+
+        try {
+            // 1. Validate Health Professional parameters.
+            UpdateUserValidator.validate(healthProfessional)
 
             // 2. Checks if the institution exists.
             if (healthProfessional.institution && healthProfessional.institution.id !== undefined) {
@@ -59,42 +95,10 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             return Promise.reject(err)
         }
 
-        // 3. Create new Health Professional register.
-        return this._healthProfessionalRepository.create(healthProfessional)
-    }
-
-    public async getAll(query: IQuery): Promise<Array<HealthProfessional>> {
-        query.addFilter({ type: UserType.HEALTH_PROFESSIONAL })
-        return this._healthProfessionalRepository.find(query)
-    }
-
-    public async getById(id: string | number, query: IQuery): Promise<HealthProfessional> {
-        query.addFilter({ _id: id, type: UserType.HEALTH_PROFESSIONAL })
-        return this._healthProfessionalRepository.findOne(query)
-    }
-
-    public async update(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
-        UpdateUserValidator.validate(healthProfessional)
-
-        try {
-            // 1. Checks if the institution exists.
-            if (healthProfessional.institution && healthProfessional.institution.id !== undefined) {
-                const institutionExist = await this._institutionRepository.checkExist(healthProfessional.institution)
-                if (!institutionExist) {
-                    throw new ValidationException(
-                        Strings.INSTITUTION.REGISTER_REQUIRED,
-                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
-                    )
-                }
-            }
-        } catch (err) {
-            return Promise.reject(err)
-        }
-
-        // 2. Update Health Professional data.
+        // 3. Update Health Professional data.
         const healthProfessionalUp = await this._healthProfessionalRepository.update(healthProfessional)
 
-        // 3. Publish updated health professional data.
+        // 4. Publish updated health professional data.
         if (healthProfessionalUp) {
             const event = new UserUpdateEvent<HealthProfessional>(
                 'HealthProfessionalUpdateEvent', new Date(), healthProfessionalUp)

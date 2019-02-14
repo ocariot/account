@@ -25,14 +25,16 @@ export class ChildrenGroupService implements IChildrenGroupService {
     }
 
     public async add(childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
-        CreateChildrenGroupValidator.validate(childrenGroup)
 
         try {
-            // 1. Checks if Children Group already exists.
+            // 1. Validate Children Group parameters.
+            CreateChildrenGroupValidator.validate(childrenGroup)
+
+            // 2. Checks if Children Group already exists.
             const childrenGroupExist = await this._childrenGroupRepository.checkExist(childrenGroup)
             if (childrenGroupExist) throw new ConflictException(Strings.CHILDREN_GROUP.ALREADY_REGISTERED)
 
-            // 2. Checks if the children to be associated have a record. Your registration is required.
+            // 3. Checks if the children to be associated have a record. Your registration is required.
             if (childrenGroup.children) {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository
                     .checkExist(childrenGroup.children)
@@ -47,7 +49,7 @@ export class ChildrenGroupService implements IChildrenGroupService {
             return Promise.reject(err)
         }
 
-        // 3. Create new Children Group register.
+        // 4. Create new Children Group register.
         return this._childrenGroupRepository.create(childrenGroup)
     }
 

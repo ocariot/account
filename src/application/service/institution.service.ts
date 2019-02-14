@@ -25,17 +25,19 @@ export class InstitutionService implements IInstitutionService {
     }
 
     public async add(institution: Institution): Promise<Institution> {
-        CreateInstitutionValidator.validate(institution)
 
         try {
-            // 1. Checks if Institution already exists.
+            // 1. Validate Institution parameters
+            CreateInstitutionValidator.validate(institution)
+
+            // 2. Checks if Institution already exists.
             const institutionExist = await this._institutionRepository.checkExist(institution)
             if (institutionExist) throw new ConflictException(Strings.INSTITUTION.ALREADY_REGISTERED)
         } catch (err) {
             return Promise.reject(err)
         }
 
-        // 2. Create new Institution register.
+        // 3. Create new Institution register.
         return this._institutionRepository.create(institution)
     }
 

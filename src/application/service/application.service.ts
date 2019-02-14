@@ -30,12 +30,48 @@ export class ApplicationService implements IApplicationService {
     }
 
     public async add(application: Application): Promise<Application> {
-        CreateApplicationValidator.validate(application)
 
         try {
-            // 1. Checks if Application already exists.
+            // 1. Validate Application parameters.
+            CreateApplicationValidator.validate(application)
+
+            // 2. Checks if Application already exists.
             const applicationExist = await this._applicationRepository.checkExist(application)
             if (applicationExist) throw new ConflictException(Strings.APPLICATION.ALREADY_REGISTERED)
+
+            // 3. Checks if the institution exists.
+            if (application.institution && application.institution.id !== undefined) {
+                const institutionExist = await this._institutionRepository.checkExist(application.institution)
+                if (!institutionExist) {
+                    throw new ValidationException(
+                        Strings.INSTITUTION.REGISTER_REQUIRED,
+                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
+                    )
+                }
+            }
+        } catch (err) {
+            return Promise.reject(err)
+        }
+
+        // 4. Create new Application register
+        return this._applicationRepository.create(application)
+    }
+
+    public async getAll(query: IQuery): Promise<Array<Application>> {
+        query.addFilter({ type: UserType.APPLICATION })
+        return this._applicationRepository.find(query)
+    }
+
+    public async getById(id: string | number, query: IQuery): Promise<Application> {
+        query.addFilter({ _id: id, type: UserType.APPLICATION })
+        return this._applicationRepository.findOne(query)
+    }
+
+    public async update(application: Application): Promise<Application> {
+
+        try {
+            // 1. Validate Application parameters.
+            UpdateUserValidator.validate(application)
 
             // 2. Checks if the institution exists.
             if (application.institution && application.institution.id !== undefined) {
@@ -51,42 +87,10 @@ export class ApplicationService implements IApplicationService {
             return Promise.reject(err)
         }
 
-        // 3. Create new Application register
-        return this._applicationRepository.create(application)
-    }
-
-    public async getAll(query: IQuery): Promise<Array<Application>> {
-        query.addFilter({ type: UserType.APPLICATION })
-        return this._applicationRepository.find(query)
-    }
-
-    public async getById(id: string | number, query: IQuery): Promise<Application> {
-        query.addFilter({ _id: id, type: UserType.APPLICATION })
-        return this._applicationRepository.findOne(query)
-    }
-
-    public async update(application: Application): Promise<Application> {
-        UpdateUserValidator.validate(application)
-
-        try {
-            // 1. Checks if the institution exists.
-            if (application.institution && application.institution.id !== undefined) {
-                const institutionExist = await this._institutionRepository.checkExist(application.institution)
-                if (!institutionExist) {
-                    throw new ValidationException(
-                        Strings.INSTITUTION.REGISTER_REQUIRED,
-                        Strings.INSTITUTION.ALERT_REGISTER_REQUIRED
-                    )
-                }
-            }
-        } catch (err) {
-            return Promise.reject(err)
-        }
-
-        // 2. Update Application data.
+        // 3. Update Application data.
         const applicationUp = await this._applicationRepository.update(application)
 
-        // 3. Publish updated application data.
+        // 4. Publish updated application data.
         if (applicationUp) {
             const event = new UserUpdateEvent<Application>(
                 'ApplicationUpdateEvent', new Date(), applicationUp)
