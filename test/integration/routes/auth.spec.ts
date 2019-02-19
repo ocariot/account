@@ -33,8 +33,12 @@ describe('Routes: Auth', () => {
     )
 
     after(async () => {
-        await deleteAllUsers({})
-        await dbConnection.dispose()
+        try {
+            await deleteAllUsers({})
+            await dbConnection.dispose()
+        } catch (err) {
+            throw new Error('Failure on Child test: ' + err.message)
+        }
     })
 
     describe('POST /auth', () => {

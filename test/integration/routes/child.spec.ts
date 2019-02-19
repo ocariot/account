@@ -50,9 +50,13 @@ describe('Routes: Child', () => {
     )
 
     after(async () => {
-        await deleteAllUsers({})
-        await deleteAllInstitutions({})
-        await dbConnection.dispose()
+        try {
+            await deleteAllUsers({})
+            await deleteAllInstitutions({})
+            await dbConnection.dispose()
+        } catch (err) {
+            throw new Error('Failure on Child test: ' + err.message)
+        }
     })
 
     describe('POST /users/children', () => {
@@ -107,7 +111,7 @@ describe('Routes: Child', () => {
         })
 
         context('when a validation error occurs', () => {
-            it('should return status code 400 and message info about missing parameters', () => {
+            it('should return status code 400 and message info about missing or invalid parameters', () => {
                 const body = {
                     username: defaultChild.username,
                     age: defaultChild.age

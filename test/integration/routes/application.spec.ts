@@ -49,9 +49,13 @@ describe('Routes: Application', () => {
     )
 
     after(async () => {
-        await deleteAllUsers({})
-        await deleteAllInstitutions({})
-        await dbConnection.dispose()
+        try {
+            await deleteAllUsers({})
+            await deleteAllInstitutions({})
+            await dbConnection.dispose()
+        } catch (err) {
+            throw new Error('Failure on Child test: ' + err.message)
+        }
     })
 
     describe('POST /users/applications', () => {
@@ -104,7 +108,7 @@ describe('Routes: Application', () => {
         })
 
         context('when a validation error occurs', () => {
-            it('should return status code 400 and message info about missing parameters', () => {
+            it('should return status code 400 and message info about missing or invalid  parameters', () => {
                 const body = {
                     password: 'mysecretkey',
                     application_name: defaultApplication.application_name
@@ -256,7 +260,7 @@ describe('Routes: Application', () => {
         })
 
         context('when a validation error occurs', () => {
-            it('should return status code 400 and message info about missing parameters', () => {
+            it('should return status code 400 and message info about missing or invalid parameters', () => {
                 const body = {
                     password: 'mysecretkey'
                 }
@@ -332,7 +336,7 @@ describe('Routes: Application', () => {
 
     describe('GET /users/applications/', () => {
         context('when want get all applications in database', () => {
-            it('should return status code 200 and a list of users', () => {
+            it('should return status code 200 and a list of applications', () => {
                 return request
                     .get('/users/applications')
                     .set('Content-Type', 'application/json')
