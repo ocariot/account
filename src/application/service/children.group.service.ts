@@ -10,6 +10,7 @@ import { IChildrenGroupRepository } from '../port/children.group.repository.inte
 import { IChildrenGroupService } from '../port/children.group.service.interface'
 import { ChildrenGroup } from '../domain/model/children.group'
 import { CreateChildrenGroupValidator } from '../domain/validator/create.children.group.validator'
+import { UpdateChildrenGroupValidator } from '../domain/validator/update.children.group.validator'
 
 /**
  * Implementing Children Group Service.
@@ -57,14 +58,18 @@ export class ChildrenGroupService implements IChildrenGroupService {
         return this._childrenGroupRepository.find(query)
     }
 
-    public async getById(id: string | number, query: IQuery): Promise<ChildrenGroup> {
+    public async getById(id: string, query: IQuery): Promise<ChildrenGroup> {
         query.filters = ({ _id: id })
         return this._childrenGroupRepository.findOne(query)
     }
 
     public async update(childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
-            // 1. Checks if the children to be associated have a record. Your registration is required.
+
+            // 1. Validate Children Group parameters
+            UpdateChildrenGroupValidator.validate(childrenGroup)
+
+            // 2. Checks if the children to be associated have a record. Your registration is required.
             if (childrenGroup.children) {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository
                     .checkExist(childrenGroup.children)
@@ -79,7 +84,7 @@ export class ChildrenGroupService implements IChildrenGroupService {
             return Promise.reject(err)
         }
 
-        // 2. Update Children Group data.
+        // 3. Update Children Group data.
         return this._childrenGroupRepository.update(childrenGroup)
     }
 

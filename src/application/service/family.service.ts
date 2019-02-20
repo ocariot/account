@@ -16,6 +16,7 @@ import { UserType } from '../domain/model/user'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IEventBus } from '../../infrastructure/port/event.bus.interface'
 import { UserUpdateEvent } from '../integration-event/event/user.update.event'
+import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 
 /**
  * Implementing family Service.
@@ -142,23 +143,28 @@ export class FamilyService implements IFamilyService {
     }
 
     public async associateChild(familyId: string, childId: string): Promise<Family> {
+
+        // 1. Validate if family id or child id is valid
+        ObjectIdValidator.validate(familyId)
+        ObjectIdValidator.validate(childId)
+
         const child = new Child()
         child.id = childId
 
         try {
-            // 1. Checks if the family exists.
+            // 2. Checks if the family exists.
             const family: Family = await this._familyRepository.findById(familyId)
             if (!family) {
                 throw new ValidationException(Strings.FAMILY.NOT_FOUND, Strings.FAMILY.NOT_FOUND_DESCRIPTION)
             }
 
-            // 2. Checks if the child to be associated have a record. Your registration is required.
+            // 3. Checks if the child to be associated have a record. Your registration is required.
             const checkChildExist: boolean | ValidationException = await this._childRepository.checkExist(child)
             if (!checkChildExist) {
                 throw new ValidationException(Strings.CHILD.ASSOCIATION_FAILURE)
             }
 
-            // 3. Associates the child with the family and updates the family register.
+            // 4. Associates the child with the family and updates the family register.
             family.addChild(child)
             return this._familyRepository.update(family)
         } catch (err) {
@@ -168,17 +174,22 @@ export class FamilyService implements IFamilyService {
 
     public async disassociateChild(familyId: string, childId: string): Promise<boolean | undefined> {
         try {
-            // 1. Checks if the family exists.
+
+            // 1. Validate if family id or child id is valid
+            ObjectIdValidator.validate(familyId)
+            ObjectIdValidator.validate(childId)
+
+            // 2. Checks if the family exists.
             const family: Family = await this._familyRepository.findById(familyId)
             if (!family) return Promise.resolve(undefined)
 
-            // 2. verifies that the child is no longer associated.
+            // 3. verifies that the child is no longer associated.
             if (family.children) {
                 family.children = await family.children.filter(child => child.id !== childId)
                 return await this._familyRepository.update(family) !== undefined
             }
 
-            // 3. Successful operation, returns true.
+            // 4. Successful operation, returns true.
             return await Promise.resolve(true)
         } catch (err) {
             return Promise.reject(err)

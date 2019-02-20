@@ -379,7 +379,6 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        console.log(err.body)
                         expect(err.body).to.have.property('message')
                         expect(err.body).to.have.property('description')
                     })

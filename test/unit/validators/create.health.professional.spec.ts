@@ -1,5 +1,5 @@
 import { Institution } from '../../../src/application/domain/model/institution'
-import { expect } from 'chai'
+import { assert } from 'chai'
 import { ObjectID } from 'bson'
 import { HealthProfessional } from '../../../src/application/domain/model/health.professional'
 import { CreateHealthProfessionalValidator } from '../../../src/application/domain/validator/create.health.professional.validator'
@@ -16,7 +16,7 @@ describe('Validators: HealthProfessional', () => {
         healthProfessional.institution = institution
 
         const result = CreateHealthProfessionalValidator.validate(healthProfessional)
-        expect(result).is.undefined
+        assert.equal(result, undefined)
     })
 
     context('when the health professional was incomplete', () => {
@@ -29,10 +29,10 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Health Professional validation: username is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Health Professional validation: username is required!')
             }
         })
 
@@ -45,10 +45,10 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Health Professional validation: password is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Health Professional validation: password is required!')
             }
         })
 
@@ -63,10 +63,10 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Health Professional validation: type is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Health Professional validation: type is required!')
             }
         })
 
@@ -79,10 +79,10 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Health Professional validation: institution is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Health Professional validation: institution is required!')
             }
         })
 
@@ -96,10 +96,10 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Health Professional validation: institution is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Health Professional validation: institution is required!')
             }
         })
 
@@ -109,10 +109,10 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Health Professional validation: username, ' +
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Health Professional validation: username, ' +
                     'password, institution is required!')
             }
         })

@@ -17,6 +17,7 @@ import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 import { UserUpdateEvent } from '../integration-event/event/user.update.event'
 import { IEventBus } from '../../infrastructure/port/event.bus.interface'
+import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 
 /**
  * Implementing Health Professional Service.
@@ -170,29 +171,37 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         Promise<ChildrenGroup | undefined> {
 
         try {
-            // 1. Checks if the health professional exists.
+            // 1. Validate if health professional id or children group id is valid
+            ObjectIdValidator.validate(healthProfessionalId)
+            ObjectIdValidator.validate(childrenGroupId)
+
+            // 2. Checks if the health professional exists.
             const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
             if (!healthProfessional || !healthProfessional.children_groups) return Promise.resolve(undefined)
 
-            // 2. Verifies that the group of children belongs to the health professional.
+            // 3. Verifies that the group of children belongs to the health professional.
             const checkGroups: Array<ChildrenGroup> = await healthProfessional.children_groups.filter((obj, pos, arr) => {
                 return arr.map(childrenGroup => childrenGroup.id).indexOf(childrenGroupId) === pos
             })
 
-            // 3. The group to be selected does not exist or is not assigned to the health professional.
+            // 4. The group to be selected does not exist or is not assigned to the health professional.
             //    When the group is assigned the checkGroups array size will be equal to 1.
             if (checkGroups.length !== 1) return Promise.resolve(undefined)
         } catch (err) {
             return Promise.reject(err)
         }
 
-        // 4. The group to be selected exists and is related to the health professional.
+        // 5. The group to be selected exists and is related to the health professional.
         // Then, it can be selected.
         return this._childrenGroupService.getById(childrenGroupId, query)
     }
 
     public async updateChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
+            // 1. Validate if health professional id or children group id is valid
+            ObjectIdValidator.validate(healthProfessionalId)
+            if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id)
+
             // 1. Checks if the health professional exists.
             const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
             if (!healthProfessional) {
@@ -214,7 +223,11 @@ export class HealthProfessionalService implements IHealthProfessionalService {
 
     public async deleteChildrenGroup(healthProfessionalId: string, childrenGroupId: string): Promise<boolean> {
         try {
-            // 1. Checks if the health professional exists.
+            // 1. Validate if health professional id or children group id is valid
+            ObjectIdValidator.validate(healthProfessionalId)
+            ObjectIdValidator.validate(childrenGroupId)
+
+            // 2. Checks if the health professional exists.
             const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
             if (!healthProfessional) {
                 throw new ValidationException(
@@ -223,20 +236,20 @@ export class HealthProfessionalService implements IHealthProfessionalService {
                 )
             }
 
-            // 2. Remove the children group.
+            // 3. Remove the children group.
             const removeResult: boolean = await this._childrenGroupService.remove(childrenGroupId)
 
-            // 3. Remove association with health professional
+            // 4. Remove association with health professional
             if (removeResult) {
                 const childrenGroup: ChildrenGroup = new ChildrenGroup()
                 childrenGroup.id = childrenGroupId
                 await healthProfessional.removeChildrenGroup(childrenGroup)
 
-                // 4. Update health professional.
+                // 5. Update health professional.
                 await this._healthProfessionalRepository.update(healthProfessional)
             }
 
-            // 5. Returns true if the operation was successful, otherwise false.
+            // 6. Returns true if the operation was successful, otherwise false.
             return Promise.resolve(removeResult)
         } catch (err) {
             return Promise.reject(err)

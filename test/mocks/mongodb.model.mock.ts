@@ -3,10 +3,15 @@ import sinon from 'sinon'
 export class MongoDBModelMock {
     public mock = {
         find: {},
-        select: this.select(null)
+        select: this.select(null),
+        findOne: this.findOne(null)
     }
 
     public find(conditions: any) {
+        return this
+    }
+
+    public findOne(conditions: any) {
         return this
     }
 

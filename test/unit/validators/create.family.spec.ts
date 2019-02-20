@@ -1,5 +1,5 @@
 import { Institution } from '../../../src/application/domain/model/institution'
-import { expect } from 'chai'
+import { assert } from 'chai'
 import { ObjectID } from 'bson'
 import { Family } from '../../../src/application/domain/model/family'
 import { CreateFamilyValidator } from '../../../src/application/domain/validator/create.family.validator'
@@ -20,7 +20,7 @@ describe('Validators: Family', () => {
         family.institution = institution
 
         const result = CreateFamilyValidator.validate(family)
-        expect(result).is.undefined
+        assert.equal(result, undefined)
     })
 
     context('when the educator was incomplete', () => {
@@ -33,10 +33,10 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Family validation: username is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Family validation: username is required!')
             }
         })
 
@@ -49,10 +49,10 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Family validation: password is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Family validation: password is required!')
             }
         })
 
@@ -67,10 +67,10 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Family validation: type is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Family validation: type is required!')
             }
         })
 
@@ -83,10 +83,10 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Family validation: institution is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Family validation: institution is required!')
             }
         })
 
@@ -100,10 +100,10 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Family validation: institution is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Family validation: institution is required!')
             }
         })
 
@@ -116,10 +116,10 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Family validation: Collection with children IDs is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Family validation: Collection with children IDs is required!')
             }
         })
 
@@ -133,10 +133,10 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Family validation: Collection with children IDs is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Family validation: Collection with children IDs is required!')
             }
         })
 
@@ -150,10 +150,10 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Family validation: Collection with children IDs ' +
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Family validation: Collection with children IDs ' +
                     '(ID can not be empty) is required!')
             }
         })
@@ -164,10 +164,10 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Family validation: username, ' +
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Family validation: username, ' +
                     'password, institution, Collection with children IDs is required!')
             }
         })

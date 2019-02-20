@@ -17,6 +17,7 @@ import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 import { IEventBus } from '../../infrastructure/port/event.bus.interface'
 import { UserUpdateEvent } from '../integration-event/event/user.update.event'
+import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 
 /**
  * Implementing educator Service.
@@ -165,30 +166,39 @@ export class EducatorService implements IEducatorService {
         Promise<ChildrenGroup | undefined> {
 
         try {
-            // 1. Checks if the educator exists.
+            // 1. Validate if educator id or children group id is valid
+            ObjectIdValidator.validate(educatorId)
+            ObjectIdValidator.validate(childrenGroupId)
+
+            // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
             if (!educator || !educator.children_groups) return Promise.resolve(undefined)
 
-            // 2. Verifies that the group of children belongs to the educator.
+            // 3. Verifies that the group of children belongs to the educator.
             const checkGroups: Array<ChildrenGroup> = await educator.children_groups.filter((obj, pos, arr) => {
                 return arr.map(childrenGroup => childrenGroup.id).indexOf(childrenGroupId) === pos
             })
 
-            // 3. The group to be selected does not exist or is not assigned to the educator.
+            // 4. The group to be selected does not exist or is not assigned to the educator.
             //    When the group is assigned the checkGroups array size will be equal to 1.
             if (checkGroups.length !== 1) return Promise.resolve(undefined)
         } catch (err) {
             return Promise.reject(err)
         }
 
-        // 4. The group to be selected exists and is related to the educator.
+        // 5. The group to be selected exists and is related to the educator.
         // Then, it can be selected.
         return this._childrenGroupService.getById(childrenGroupId, query)
     }
 
     public async updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
-            // 1. Checks if the educator exists.
+
+            // 1. Validate if educator id or children group id is valid
+            ObjectIdValidator.validate(educatorId)
+            if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id)
+
+            // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
             if (!educator) {
                 throw new ValidationException(
@@ -197,10 +207,10 @@ export class EducatorService implements IEducatorService {
                 )
             }
 
-            // 2. Update children group.
+            // 3. Update children group.
             const childrenGroupResult: ChildrenGroup = await this._childrenGroupService.update(childrenGroup)
 
-            // 3. If everything succeeds, it returns the data of the created group.
+            // 4. If everything succeeds, it returns the data of the created group.
             return Promise.resolve(childrenGroupResult)
         } catch (err) {
             return Promise.reject(err)
@@ -209,7 +219,11 @@ export class EducatorService implements IEducatorService {
 
     public async deleteChildrenGroup(educatorId: string, childrenGroupId: string): Promise<boolean> {
         try {
-            // 1. Checks if the educator exists.
+            // 1. Validate if educator id or children group id is valid
+            ObjectIdValidator.validate(educatorId)
+            ObjectIdValidator.validate(childrenGroupId)
+
+            // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
             if (!educator) {
                 throw new ValidationException(
@@ -218,20 +232,20 @@ export class EducatorService implements IEducatorService {
                 )
             }
 
-            // 2. Remove the children group
+            // 3. Remove the children group
             const removeResult: boolean = await this._childrenGroupService.remove(childrenGroupId)
 
-            // 3. Remove association with educator
+            // 4. Remove association with educator
             if (removeResult) {
                 const childrenGroup: ChildrenGroup = new ChildrenGroup()
                 childrenGroup.id = childrenGroupId
                 await educator.removeChildrenGroup(childrenGroup)
 
-                // 4. Update educator.
+                // 5. Update educator.
                 await this._educatorRepository.update(educator)
             }
 
-            // 5. Returns true if the operation was successful, otherwise false.
+            // 6. Returns true if the operation was successful, otherwise false.
             return Promise.resolve(removeResult)
         } catch (err) {
             return Promise.reject(err)

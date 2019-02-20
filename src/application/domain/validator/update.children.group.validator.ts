@@ -1,18 +1,12 @@
-import { ValidationException } from '../exception/validation.exception'
 import { ChildrenGroup } from '../model/children.group'
 import { ObjectIdValidator } from './object.id.validator'
+import { ValidationException } from '../exception/validation.exception'
 
-export class CreateChildrenGroupValidator {
+export class UpdateChildrenGroupValidator {
     public static validate(childrenGroup: ChildrenGroup): void | ValidationException {
         const fields: Array<string> = []
 
-        // validate null
-        if (!childrenGroup.name) fields.push('name')
-        if (!childrenGroup.user || !childrenGroup.user.id) fields.push('user')
-        else ObjectIdValidator.validate(childrenGroup.user.id)
-        if (!childrenGroup.children || !childrenGroup.children.length) {
-            fields.push('Collection with children IDs')
-        } else {
+        if (childrenGroup.children) {
             childrenGroup.children.forEach(child => {
                 if (!child.id) {
                     fields.push('Collection with children IDs (ID can not be empty)')

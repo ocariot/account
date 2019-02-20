@@ -1,4 +1,4 @@
-import { expect } from 'chai'
+import { assert } from 'chai'
 import { CreateChildValidator } from '../../../src/application/domain/validator/create.child.validator'
 import { Child } from '../../../src/application/domain/model/child'
 import { Institution } from '../../../src/application/domain/model/institution'
@@ -18,7 +18,7 @@ describe('Validators: Child', () => {
         child.institution = institution
 
         const result = CreateChildValidator.validate(child)
-        expect(result).is.undefined
+        assert.equal(result, undefined)
     })
 
     context('when the child was incomplete', () => {
@@ -32,10 +32,10 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Child validation: username is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Child validation: username is required!')
             }
         })
 
@@ -49,10 +49,10 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Child validation: password is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Child validation: password is required!')
             }
         })
 
@@ -68,10 +68,10 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Child validation: type is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Child validation: type is required!')
             }
         })
 
@@ -85,10 +85,10 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Child validation: institution is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Child validation: institution is required!')
             }
         })
 
@@ -103,10 +103,10 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Child validation: institution is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Child validation: institution is required!')
             }
         })
 
@@ -120,10 +120,10 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Child validation: gender is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Child validation: gender is required!')
             }
         })
 
@@ -137,10 +137,10 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Child validation: age is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Child validation: age is required!')
             }
         })
 
@@ -150,10 +150,10 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Child validation: username, ' +
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Child validation: username, ' +
                     'password, institution, gender, age is required!')
             }
         })

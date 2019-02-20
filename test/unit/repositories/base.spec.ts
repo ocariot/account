@@ -1,32 +1,30 @@
 import sinon from 'sinon'
 import { BaseRepository } from '../../../src/infrastructure/repository/base/base.repository'
 import { Institution } from '../../../src/application/domain/model/institution'
-import { inject } from 'inversify'
-import { Identifier } from '../../../src/di/identifiers'
-import { IEntityMapper } from '../../../src/infrastructure/port/entity.mapper.interface'
 import { User, UserType } from '../../../src/application/domain/model/user'
-import { UserEntity } from '../../../src/infrastructure/entity/user.entity'
-import { ILogger } from '../../../src/utils/custom.logger'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { EntityMapperMock } from '../../mocks/entity.mapper.mock'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
 import { Application } from '../../../src/application/domain/model/application'
 import { assert } from 'chai'
 import { ObjectID } from 'bson'
+import { IEntityMapper } from '../../../src/infrastructure/port/entity.mapper.interface'
+import { ILogger } from '../../../src/utils/custom.logger'
+import { Entity } from '../../../src/application/domain/model/entity'
 
 require('sinon-mongoose')
 
-describe('Repositories: Base', () => {
-
-    class TestRepository extends BaseRepository<any, any> {
-        constructor(
-            @inject(Identifier.USER_REPO_MODEL) readonly userModel: any,
-            @inject(Identifier.USER_ENTITY_MAPPER) readonly userMapper: IEntityMapper<User, UserEntity>,
-            @inject(Identifier.LOGGER) readonly logger: ILogger
-        ) {
-            super(userModel, userMapper, logger)
-        }
+class TestRepository<T extends Entity, TModel> extends BaseRepository<any, any> {
+    constructor(
+        readonly userModel: any,
+        readonly userMapper: IEntityMapper<T, TModel>,
+        readonly logger: ILogger
+    ) {
+        super(userModel, userMapper, logger)
     }
+}
+
+describe('Repositories: Base', () => {
 
     const institution: Institution = new Institution()
     institution.id = '5b13826de00324086854584b'
@@ -57,7 +55,6 @@ describe('Repositories: Base', () => {
             }
         }
     }
-
 
     afterEach(() => {
         sinon.restore()

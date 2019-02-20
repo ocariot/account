@@ -20,10 +20,11 @@ const request = require('supertest')(app.getExpress())
 
 describe('Routes: User', () => {
 
-    const defaultUser: Admin = new Admin()
-    defaultUser.username = 'admin'
-    defaultUser.password = 'mysecretkey'
-    defaultUser.type = UserType.ADMIN
+    const defaultUser: Admin = new Admin().fromJSON({
+        username: 'admin',
+        password: 'mysecretkey',
+        type: UserType.ADMIN
+    })
 
     const institution: Institution = new Institution()
 
@@ -145,6 +146,25 @@ describe('Routes: User', () => {
                             expect(res.body).to.eql({})
                         })
                 })
+            })
+
+            it('should return status code 204 and no content for admin user', async () => {
+                const admin = defaultUser.toJSON()
+                admin.username = 'anotheradminuser'
+                admin.password = 'mysecretkey'
+                admin.institution = institution.id
+                admin.scopes = ['users:read']
+
+                await createUser(admin)
+                    .then(user => {
+                        return request
+                            .delete(`/users/${user._id}`)
+                            .set('Content-Type', 'application/json')
+                            .expect(204)
+                            .then(res => {
+                                expect(res.body).to.eql({})
+                            })
+                    })
             })
 
             it('should return status code 204 and no content for child user', async () => {

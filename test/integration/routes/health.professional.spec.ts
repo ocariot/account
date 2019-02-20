@@ -450,6 +450,7 @@ describe('Routes: HealthProfessional', () => {
             })
         })
 
+        // TODO implement validation for children group
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message from invalid ID', () => {
                 return request
@@ -512,7 +513,6 @@ describe('Routes: HealthProfessional', () => {
                     .expect(409)
                     .then(err => {
                         expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
                     })
             })
         })

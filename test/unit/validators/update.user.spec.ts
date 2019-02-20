@@ -1,7 +1,7 @@
 import { UpdateUserValidator } from '../../../src/application/domain/validator/update.user.validator'
 import { User } from '../../../src/application/domain/model/user'
 import { ObjectID } from 'bson'
-import { expect } from 'chai'
+import { assert } from 'chai'
 
 describe('Validators: UpdateUser', () => {
     const user: User = new User()
@@ -10,7 +10,7 @@ describe('Validators: UpdateUser', () => {
     it('should return undefined when the validation was successful', () => {
         user.username = 'newusername'
         const result = UpdateUserValidator.validate(user)
-        expect(result).is.undefined
+        assert.equal(result, undefined)
     })
 
     context('when the password parameter was provided', () => {
@@ -19,10 +19,10 @@ describe('Validators: UpdateUser', () => {
                 user.password = 'newpass'
                 UpdateUserValidator.validate(user)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('This parameter could not be updated.')
-                expect(err.description).to.eql('A specific route to update user password already exists.' +
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'This parameter could not be updated.')
+                assert.equal(err.description, 'A specific route to update user password already exists.' +
                     `Access: PATCH /users/${user.id}/password to update your password.`)
             }
         })

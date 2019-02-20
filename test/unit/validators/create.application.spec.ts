@@ -1,4 +1,4 @@
-import { expect } from 'chai'
+import { assert } from 'chai'
 import { CreateApplicationValidator } from '../../../src/application/domain/validator/create.application.validator'
 import { Application } from '../../../src/application/domain/model/application'
 
@@ -10,7 +10,7 @@ describe('Validators: Application', () => {
         app.application_name = 'AnyName'
 
         const result = CreateApplicationValidator.validate(app)
-        expect(result).is.undefined
+        assert.equal(result, undefined)
     })
 
     context('when the application was incomplete', () => {
@@ -22,10 +22,10 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Application validation: username is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Application validation: username is required!')
             }
         })
 
@@ -37,10 +37,10 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Application validation: password is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Application validation: password is required!')
             }
         })
 
@@ -54,10 +54,10 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Application validation: type is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Application validation: type is required!')
             }
         })
 
@@ -69,10 +69,10 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Application validation: application_name is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Application validation: application_name is required!')
             }
         })
 
@@ -82,10 +82,10 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Application validation: username, ' +
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Application validation: username, ' +
                     'password, application_name is required!')
             }
         })

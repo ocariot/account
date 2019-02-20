@@ -444,9 +444,8 @@ describe('Routes: Educator', () => {
             })
         })
 
-        // TODO implement validation for children group
         context('when the children group_id is invalid', () => {
-            it('Method not implemented', () => {
+            it('should return status code 400 and info message from invalid id', () => {
                 return request
                     .get(`/users/educators/${defaultEducator.id}/children/groups/123`)
                     .set('Content-Type', 'application/json')
@@ -483,9 +482,8 @@ describe('Routes: Educator', () => {
             })
         })
 
-        // TODO validate duplicated children groups
         context('when a duplicate error occurs', () => {
-            it('Method not implemented', () => {
+            it('should return status code 409 and info message about duplicate items', () => {
                 createChildrenGroup({
                     name: 'anothercoolname',
                     children: new Array<string | undefined>(defaultChild.id),
@@ -502,7 +500,6 @@ describe('Routes: Educator', () => {
                     .expect(409)
                     .then(err => {
                         expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
                     })
             })
         })
@@ -521,9 +518,8 @@ describe('Routes: Educator', () => {
             })
         })
 
-        // TODO validate invalid child id in update children groups
         context('when the children group was updated with a invalid child id', () => {
-            it('Not implemented yet.', () => {
+            it('should return status code 400 and info message from invalid id', () => {
                 return request
                     .patch(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ children: new Array<string>('123') })

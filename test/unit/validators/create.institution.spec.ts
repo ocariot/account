@@ -1,6 +1,6 @@
 import { CreateInstitutionValidator } from '../../../src/application/domain/validator/create.institution.validator'
 import { Institution } from '../../../src/application/domain/model/institution'
-import { expect } from 'chai'
+import { assert } from 'chai'
 
 describe('Validators: Institution', () => {
     it('should return undefined when the validation was successful', () => {
@@ -12,7 +12,7 @@ describe('Validators: Institution', () => {
         institution.longitude = 0
 
         const result = CreateInstitutionValidator.validate(institution)
-        expect(result).is.undefined
+        assert.equal(result, undefined)
     })
 
     context('when the institution was incomplete', () => {
@@ -26,10 +26,10 @@ describe('Validators: Institution', () => {
             try {
                 CreateInstitutionValidator.validate(institution)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Institution validation: name is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Institution validation: name is required!')
             }
         })
 
@@ -43,10 +43,10 @@ describe('Validators: Institution', () => {
             try {
                 CreateInstitutionValidator.validate(institution)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Institution validation: type is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Institution validation: type is required!')
             }
         })
     })

@@ -1,11 +1,12 @@
+import { assert } from 'chai'
 import sinon from 'sinon'
 import { User, UserType } from '../../../src/application/domain/model/user'
-import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { AuthRepository } from '../../../src/infrastructure/repository/auth.repository'
 import { EntityMapperMock } from '../../mocks/entity.mapper.mock'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
-import { UserRepository } from '../../../src/infrastructure/repository/user.repository'
 import { Institution } from '../../../src/application/domain/model/institution'
+import { UserRepositoryMock } from '../../mocks/user.repository.mock'
+import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 
 require('sinon-mongoose')
 
@@ -27,17 +28,43 @@ describe('Repositories: AuthRepository', () => {
     user.scopes = new Array<string>('i-can-everything')
 
     const modelFake: any = UserRepoModel
-    const userRepo = new UserRepository(modelFake, new EntityMapperMock(), new CustomLoggerMock())
+    const userRepo = new UserRepositoryMock()
     const repo = new AuthRepository(modelFake, new EntityMapperMock(), userRepo, new CustomLoggerMock())
 
     afterEach(() => {
         sinon.restore()
     })
 
-    // TODO implement test for authenticate method
     describe('authenticate()', () => {
-        it('Not implemented yet.', () => {
-            return repo
+        it('should return the access token', () => {
+            sinon
+                .mock(modelFake)
+                .expects('findOne')
+                .withArgs({ username: user.username })
+                .chain('exec')
+                .resolves(user)
+
+            return repo.authenticate('usertest', 'userpass')
+                .then(result => {
+                    assert.isNotNull(result)
+                    assert.property(result, 'access_token')
+                })
+        })
+
+        context('when the user is not found', () => {
+            it('should return undefined', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ username: user.username })
+                    .chain('exec')
+                    .resolves(undefined)
+
+                return repo.authenticate('usertest', 'userpass')
+                    .then(result => {
+                        assert.equal(result, undefined)
+                    })
+            })
         })
     })
 

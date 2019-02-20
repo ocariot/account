@@ -1,9 +1,9 @@
+import { assert } from 'chai'
 import { CreateChildrenGroupValidator } from '../../../src/application/domain/validator/create.children.group.validator'
 import { ChildrenGroup } from '../../../src/application/domain/model/children.group'
 import { User } from '../../../src/application/domain/model/user'
 import { ObjectID } from 'bson'
 import { Child } from '../../../src/application/domain/model/child'
-import { expect } from 'chai'
 
 describe('Validators: ChildrenGroup', () => {
     const user: User = new User()
@@ -20,7 +20,7 @@ describe('Validators: ChildrenGroup', () => {
         childrenGroup.children = [child]
 
         const result = CreateChildrenGroupValidator.validate(childrenGroup)
-        expect(result).is.undefined
+        assert.equal(result, undefined)
     })
 
     context('when the children group was incomplete', () => {
@@ -33,10 +33,10 @@ describe('Validators: ChildrenGroup', () => {
             try {
                 CreateChildrenGroupValidator.validate(childrenGroup)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Children Group validation: Collection with children IDs is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Children Group validation: Collection with children IDs is required!')
             }
         })
 
@@ -50,10 +50,10 @@ describe('Validators: ChildrenGroup', () => {
             try {
                 CreateChildrenGroupValidator.validate(childrenGroup)
             } catch (err) {
-                expect(err).to.have.property('message')
-                expect(err).to.have.property('description')
-                expect(err.message).to.eql('Required fields were not provided...')
-                expect(err.description).to.eql('Children Group validation: Collection with children IDs is required!')
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Children Group validation: Collection with children IDs is required!')
             }
         })
     })

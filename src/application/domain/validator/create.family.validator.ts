@@ -1,5 +1,6 @@
 import { ValidationException } from '../exception/validation.exception'
 import { Family } from '../model/family'
+import { ObjectIdValidator } from './object.id.validator'
 
 export class CreateFamilyValidator {
     public static validate(family: Family): void | ValidationException {
@@ -16,6 +17,8 @@ export class CreateFamilyValidator {
             family.children.forEach(child => {
                 if (!child.id) {
                     fields.push('Collection with children IDs (ID can not be empty)')
+                } else {
+                    ObjectIdValidator.validate(child.id)
                 }
             })
         }
