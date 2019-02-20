@@ -44,6 +44,23 @@ describe('Validators: Application', () => {
             }
         })
 
+        it('should throw an error for does not pass type', () => {
+            const app: Application = new Application()
+            app.username = 'application'
+            app.password = 'secretkey'
+            app.application_name = 'AnyName'
+            app.type = undefined
+
+            try {
+                CreateApplicationValidator.validate(app)
+            } catch (err) {
+                expect(err).to.have.property('message')
+                expect(err).to.have.property('description')
+                expect(err.message).to.eql('Required fields were not provided...')
+                expect(err.description).to.eql('Application validation: type is required!')
+            }
+        })
+
         it('should throw an error for does not pass application name', () => {
             const app: Application = new Application()
             app.username = 'application'

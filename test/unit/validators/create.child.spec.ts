@@ -56,6 +56,25 @@ describe('Validators: Child', () => {
             }
         })
 
+        it('should throw an error for does not pass type', () => {
+            const child: Child = new Child()
+            child.username = 'child'
+            child.password = 'secretkey'
+            child.age = 11
+            child.gender = 'male'
+            child.institution = institution
+            child.type = undefined
+
+            try {
+                CreateChildValidator.validate(child)
+            } catch (err) {
+                expect(err).to.have.property('message')
+                expect(err).to.have.property('description')
+                expect(err.message).to.eql('Required fields were not provided...')
+                expect(err.description).to.eql('Child validation: type is required!')
+            }
+        })
+
         it('should throw an error for does not pass institution', () => {
             const child: Child = new Child()
             child.username = 'child'

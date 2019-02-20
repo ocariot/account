@@ -52,6 +52,24 @@ describe('Validators: HealthProfessional', () => {
             }
         })
 
+        it('should throw an error for does not pass type', () => {
+            const healthProfessional: HealthProfessional = new HealthProfessional()
+            healthProfessional.username = 'healthProfessional'
+            healthProfessional.password = 'mysecretkey'
+            healthProfessional.children_groups = []
+            healthProfessional.institution = institution
+            healthProfessional.type = undefined
+
+            try {
+                CreateHealthProfessionalValidator.validate(healthProfessional)
+            } catch (err) {
+                expect(err).to.have.property('message')
+                expect(err).to.have.property('description')
+                expect(err.message).to.eql('Required fields were not provided...')
+                expect(err.description).to.eql('Health Professional validation: type is required!')
+            }
+        })
+
         it('should throw an error for does not pass institution', () => {
             const healthProfessional: HealthProfessional = new HealthProfessional()
             healthProfessional.username = 'healthprofessional'

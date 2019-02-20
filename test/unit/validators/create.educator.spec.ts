@@ -22,7 +22,6 @@ describe('Validators: Educator', () => {
     context('when the educator was incomplete', () => {
         it('should throw an error for does not pass username', () => {
             const educator: Educator = new Educator()
-
             educator.password = 'mysecretkey'
             educator.children_groups = []
             educator.institution = institution
@@ -50,6 +49,24 @@ describe('Validators: Educator', () => {
                 expect(err).to.have.property('description')
                 expect(err.message).to.eql('Required fields were not provided...')
                 expect(err.description).to.eql('Educator validation: password is required!')
+            }
+        })
+
+        it('should throw an error for does not pass type', () => {
+            const educator: Educator = new Educator()
+            educator.username = 'educator'
+            educator.password = 'mysecretkey'
+            educator.children_groups = []
+            educator.institution = institution
+            educator.type = undefined
+
+            try {
+                CreateEducatorValidator.validate(educator)
+            } catch (err) {
+                expect(err).to.have.property('message')
+                expect(err).to.have.property('description')
+                expect(err.message).to.eql('Required fields were not provided...')
+                expect(err.description).to.eql('Educator validation: type is required!')
             }
         })
 

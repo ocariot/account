@@ -56,6 +56,24 @@ describe('Validators: Family', () => {
             }
         })
 
+        it('should throw an error for does not pass type', () => {
+            const family: Family = new Family()
+            family.username = 'family'
+            family.password = 'mysecretkey'
+            family.children = [child]
+            family.institution = institution
+            family.type = undefined
+
+            try {
+                CreateFamilyValidator.validate(family)
+            } catch (err) {
+                expect(err).to.have.property('message')
+                expect(err).to.have.property('description')
+                expect(err.message).to.eql('Required fields were not provided...')
+                expect(err.description).to.eql('Family validation: type is required!')
+            }
+        })
+
         it('should throw an error for does not pass institution', () => {
             const family: Family = new Family()
             family.username = 'family'
@@ -119,6 +137,24 @@ describe('Validators: Family', () => {
                 expect(err).to.have.property('description')
                 expect(err.message).to.eql('Required fields were not provided...')
                 expect(err.description).to.eql('Family validation: Collection with children IDs is required!')
+            }
+        })
+
+        it('should throw an error for pass children collection with child without id', () => {
+            const family: Family = new Family()
+            family.username = 'family'
+            family.password = 'mysecretkey'
+            family.children = [new Child()]
+            family.institution = institution
+
+            try {
+                CreateFamilyValidator.validate(family)
+            } catch (err) {
+                expect(err).to.have.property('message')
+                expect(err).to.have.property('description')
+                expect(err.message).to.eql('Required fields were not provided...')
+                expect(err.description).to.eql('Family validation: Collection with children IDs ' +
+                    '(ID can not be empty) is required!')
             }
         })
 
