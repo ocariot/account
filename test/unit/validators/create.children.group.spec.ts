@@ -24,6 +24,22 @@ describe('Validators: ChildrenGroup', () => {
     })
 
     context('when the children group was incomplete', () => {
+        it('should throw an error  for does not pass user', () => {
+            const childrenGroup: ChildrenGroup = new ChildrenGroup()
+            childrenGroup.name = 'ChildrenGroupTest'
+            childrenGroup.school_class = '4th Grade'
+            childrenGroup.children = [child]
+
+            try {
+                CreateChildrenGroupValidator.validate(childrenGroup)
+            } catch (err) {
+                assert.property(err, 'message')
+                assert.property(err, 'description')
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Children Group validation: user is required!')
+            }
+        })
+
         it('should throw an error for does not pass children collection', () => {
             const childrenGroup: ChildrenGroup = new ChildrenGroup()
             childrenGroup.name = 'ChildrenGroupTest'
