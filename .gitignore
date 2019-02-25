@@ -72,3 +72,11 @@ docs
 
 # Bash
 bash.exe.stackdump
+
+# certificates and keys directories and filesaddons
+.certs
+*.pem
+*.crt
+*.key
+*.csr
+certs
