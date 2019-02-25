@@ -36,4 +36,9 @@ export abstract class Default {
     // ADMIN USER DEFAULT
     public static readonly ADMIN_USERNAME: string = 'admin'
     public static readonly ADMIN_PASSWORD: string = 'admin*159'
+
+    // Certificate
+    // To generate self-signed certificates, see: https://devcenter.heroku.com/articles/ssl-certificate-self
+    public static readonly PRIVATE_KEY_CERT_PATH: string = 'cert/server.key'
+    public static readonly CERT_PATH: string = 'cert/server.crt'
 }
