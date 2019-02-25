@@ -7,8 +7,7 @@ const childrenGroupSchema = new Mongoose.Schema({
         name: { type: String },
         children: [{
             type: Schema.Types.ObjectId,
-            ref: 'User',
-            autopopulate: true
+            ref: 'User'
         }],
         school_class: { type: String },
         user_id: { type: Schema.Types.ObjectId }
@@ -25,6 +24,5 @@ const childrenGroupSchema = new Mongoose.Schema({
         }
     }
 )
-childrenGroupSchema.plugin(require('mongoose-autopopulate'))
 childrenGroupSchema.index({ user_id: 1, children: 1, name: 1 }, { unique: true })
 export const ChildrenGroupRepoModel = Mongoose.model<IChildrenGroupModel>('ChildrenGroup', childrenGroupSchema)

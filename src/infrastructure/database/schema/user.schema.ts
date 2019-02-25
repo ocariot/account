@@ -15,20 +15,17 @@ const userSchema = new Mongoose.Schema({
         type: { type: String },
         institution: {
             type: Schema.Types.ObjectId,
-            ref: 'Institution',
-            autopopulate: true
+            ref: 'Institution'
         },
         gender: { type: String }, // User type Child
         age: { type: Number }, // User type Child
         children: [{
             type: Schema.Types.ObjectId,
-            ref: 'User',
-            autopopulate: true
+            ref: 'User'
         }], // User type Family
         children_groups: [{
             type: Schema.Types.ObjectId,
-            ref: 'ChildrenGroup',
-            autopopulate: true
+            ref: 'ChildrenGroup'
         }], // User type Educator and HealthProfessional
         application_name: { type: String }, // User type Application
         scopes: [{ type: String }] // Scope that signal the types of access the user has.
@@ -46,5 +43,4 @@ const userSchema = new Mongoose.Schema({
     }
 )
 userSchema.index({ username: 1 }, { unique: true }) // define index at schema level
-userSchema.plugin(require('mongoose-autopopulate'))
 export const UserRepoModel = Mongoose.model<IUserModel>('User', userSchema)
