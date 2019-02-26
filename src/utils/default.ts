@@ -38,7 +38,12 @@ export abstract class Default {
     public static readonly ADMIN_PASSWORD: string = 'admin*159'
 
     // Certificate Path
-    public static readonly CERT_PATH: string = './.certs'
+    public static readonly CERT_DIR_PATH: string = './.certs'
     public static readonly JWT_PRIVATE_KEY_PATH: string = './.certs/tls.key'
     public static readonly JWT_CERT_PATH: string = './.certs/tls.pem'
+
+    // Certificate
+    // To generate self-signed certificates, see: https://devcenter.heroku.com/articles/ssl-certificate-self
+    public static readonly PRIVATE_KEY_CERT_PATH: string = 'cert/server.key'
+    public static readonly CERT_PATH: string = 'cert/server.crt'
 }
