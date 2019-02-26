@@ -117,8 +117,8 @@ describe('Repositories: ChildrenGroup', () => {
         })
     })
 
-    // TODO implement deleteAllChildrenGroupsFomUser test
-    describe('deleteAllChildrenGroupsFomUser()', () => {
+    // TODO implement deleteAllChildrenGroupsFromUser test
+    describe('deleteAllChildrenGroupsFromUser()', () => {
         it('Not implemented yet.', () => {
             return
         })

@@ -10,6 +10,7 @@ import { Default } from '../../utils/default'
 import { RepositoryException } from '../../application/domain/exception/repository.exception'
 import { Strings } from '../../utils/strings'
 import { IUserRepository } from '../../application/port/user.repository.interface'
+import { readFileSync } from 'fs'
 
 /**
  * Implementation of the auth repository.
@@ -49,13 +50,14 @@ export class AuthRepository implements IAuthRepository {
     }
 
     public generateAccessToken(user: User): string {
-        const secret: string = process.env.JWT_SECRET || Default.JWT_SECRET
+        const private_key = readFileSync(process.env.JWT_PRIVATE_KEY_PATH || Default.JWT_PRIVATE_KEY_PATH)
+        // const secret: string = process.env.JWT_SECRET || Default.JWT_SECRET
         const payload: object = {
             sub: user.id,
             iss: process.env.ISSUER || Default.JWT_ISSUER,
             iat: Math.floor(Date.now() / 1000),
             scope: user.scopes.join(' ')
         }
-        return jwt.sign(payload, secret, { expiresIn: '1d' })
+        return jwt.sign(payload, private_key, { expiresIn: '1d', algorithm: 'RS256' })
     }
 }

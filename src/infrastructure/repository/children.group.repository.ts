@@ -121,7 +121,7 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
         })
     }
 
-    public deleteAllChildrenGroupsFomUser(userId: string): Promise<boolean> {
+    public deleteAllChildrenGroupsFromUser(userId: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             this.childrenGroupModel.deleteMany({ user_id: userId }, (err) => {
                 if (err) return reject(super.mongoDBErrorListener(err))

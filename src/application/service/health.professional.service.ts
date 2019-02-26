@@ -116,7 +116,7 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         // 1. Delete the health professional by id and your children groups.
         try {
             isDeleted = await this._healthProfessionalRepository.delete(id)
-            if (isDeleted) await this._childrenGroupRepository.deleteAllChildrenGroupsFomUser(id)
+            if (isDeleted) await this._childrenGroupRepository.deleteAllChildrenGroupsFromUser(id)
         } catch (err) {
             return Promise.reject(err)
         }

@@ -39,11 +39,11 @@ export abstract class Default {
 
     // Certificate Path
     public static readonly CERT_DIR_PATH: string = './.certs'
-    public static readonly JWT_PRIVATE_KEY_PATH: string = './.certs/tls.key'
-    public static readonly JWT_CERT_PATH: string = './.certs/tls.pem'
+    public static readonly JWT_PRIVATE_KEY_PATH: string = './.certs/jwt.key'
+    public static readonly JWT_PUBLIC_KEY_PATH: string = './.certs/jwt.pem'
 
     // Certificate
     // To generate self-signed certificates, see: https://devcenter.heroku.com/articles/ssl-certificate-self
-    public static readonly PRIVATE_KEY_CERT_PATH: string = 'cert/server.key'
-    public static readonly CERT_PATH: string = 'cert/server.crt'
+    public static readonly PRIVATE_KEY_CERT_PATH: string = './.certs/tls.key'
+    public static readonly CERT_PATH: string = './.certs/tls.pem'
 }

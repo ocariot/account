@@ -24,7 +24,7 @@ export interface IChildrenGroupRepository extends IRepository<ChildrenGroup> {
      * @param userId
      * @returns True if the deletion was successfully, false otherwise.
      */
-    deleteAllChildrenGroupsFomUser(userId: string): Promise<boolean>
+    deleteAllChildrenGroupsFromUser(userId: string): Promise<boolean>
 
     /**
      * Disassociate a child from all children groups.
