@@ -169,7 +169,6 @@ describe('Routes: Educator', () => {
 
         context('when the institution id provided was invalid', () => {
             it('should return status code 400 and message for invalid institution id', () => {
-
                 const body = {
                     username: 'anotherusername',
                     password: defaultEducator.password,
@@ -276,8 +275,8 @@ describe('Routes: Educator', () => {
         })
 
         context('when a duplication error occurs', () => {
-            it('should return status code 409 and info message from duplicate value', () => {
-                createUser({
+            it('should return status code 409 and info message from duplicate value', async () => {
+                await createUser({
                     username: 'anothercoolusername',
                     password: defaultEducator.password,
                     type: UserType.EDUCATOR,
@@ -356,7 +355,6 @@ describe('Routes: Educator', () => {
     describe('POST /users/educators/:educator_id/children/groups', () => {
         context('when posting a new children group', () => {
             it('should return status code 201 and a children group', () => {
-
                 defaultChildrenGroup.name = 'Children Group One'
                 defaultChildrenGroup.school_class = '3th Grade'
 
@@ -464,7 +462,6 @@ describe('Routes: Educator', () => {
     describe('GET /users/educators/:educator_id/children/groups/group_id', () => {
         context('when want get a unique children group', () => {
             it('should return status code 200 and a children group', () => {
-
                 return request
                     .get(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .set('Content-Type', 'application/json')
@@ -573,8 +570,8 @@ describe('Routes: Educator', () => {
         })
 
         context('when a duplicate error occurs', () => {
-            it('should return status code 409 and info message about duplicate items', () => {
-                createChildrenGroup({
+            it('should return status code 409 and info message about duplicate items', async () => {
+                await createChildrenGroup({
                     name: 'anothercoolname',
                     children: new Array<string | undefined>(defaultChild.id),
                     school_class: defaultChildrenGroup.school_class,
@@ -651,7 +648,6 @@ describe('Routes: Educator', () => {
 
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message for invalid children group ID', () => {
-
                 return request
                     .delete(`/users/educators/${defaultEducator.id}/children/groups/123}`)
                     .set('Content-Type', 'application/json')
@@ -706,8 +702,8 @@ describe('Routes: Educator', () => {
         })
 
         context('when there no are children groups associated witn an user', () => {
-            it('should return status code 200 and a empty array', () => {
-                deleteAllChildrenGroups({}).then()
+            it('should return status code 200 and a empty array', async () => {
+                await deleteAllChildrenGroups({}).then()
 
                 return request
                     .get(`/users/educators/${defaultEducator.id}/children/groups`)
@@ -764,9 +760,55 @@ describe('Routes: Educator', () => {
             })
         })
 
+        context('when use query strings', () => {
+            it('should return the result as required in query', async () => {
+                await createInstitution({
+                    type: 'University',
+                    name: 'UEPB',
+                    address: '221B Baker Street, St.',
+                    latitude: 0,
+                    longitude: 0
+                }).then(result => {
+                    createUser({
+                        username: 'ihaveauniqueusername',
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: result._id,
+                        scopes: new Array('users:read')
+                    }).then()
+                })
+
+                const url: string = '/users/educators/?sort=username&fields=username,institution.name&' +
+                    'institution.type=Any Type&page=1&limit=3'
+
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body).is.an.instanceOf(Array)
+                        expect(res.body.length).to.eql(2)
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0]).to.have.property('username')
+                        expect(res.body[0]).to.have.property('institution')
+                        expect(res.body[0].institution).to.have.property('id')
+                        expect(res.body[0].institution).to.have.property('name')
+                        expect(res.body[0].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
+                        expect(res.body[0]).to.have.property('children_groups')
+                        expect(res.body[1]).to.have.property('id')
+                        expect(res.body[1]).to.have.property('username')
+                        expect(res.body[1]).to.have.property('institution')
+                        expect(res.body[1].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
+                        expect(res.body[1].institution).to.have.property('id')
+                        expect(res.body[1].institution).to.have.property('name')
+                        expect(res.body[1]).to.have.property('children_groups')
+                    })
+            })
+        })
+
         context('when there are no institutions in database', () => {
-            it('should return status code 200 and a empty array', () => {
-                deleteAllUsers({}).then()
+            it('should return status code 200 and a empty array', async () => {
+                await deleteAllUsers({}).then()
 
                 return request
                     .get('/users/educators')

@@ -271,9 +271,9 @@ describe('Routes: Application', () => {
         })
 
         context('when a duplication error occurs', () => {
-            it('should return status code 409 and info message from duplicate value', () => {
+            it('should return status code 409 and info message from duplicate value', async () => {
 
-                createUser({
+                await createUser({
                     username: 'acoolusername',
                     password: 'mysecretkey',
                     application_name: defaultApplication.application_name,
@@ -411,9 +411,52 @@ describe('Routes: Application', () => {
             })
         })
 
+        context('when use query strings', () => {
+            it('should return the result as required in query', async () => {
+                await createInstitution({
+                    type: 'Home',
+                    name: 'Sherlock Neighbor',
+                    address: '221A Baker Street, St.',
+                    latitude: 1,
+                    longitude: 1
+                }).then(result => {
+                    createUser({
+                        username: 'ihaveaunknowusername',
+                        password: 'mysecretkey',
+                        application_name: defaultApplication.application_name,
+                        institution: new ObjectID(result._id),
+                        type: UserType.APPLICATION
+                    }).then()
+                })
+
+                const url: string = '/users/applications?fields=username,institution.name,institution.address&' +
+                    '?institution.type=Home&sort=username&page=1&limit=3'
+
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body).is.an.instanceOf(Array)
+                        expect(res.body.length).to.eql(1)
+                        expect(res.body[0]).to.not.have.any.keys('application_name')
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0]).to.have.property('username')
+                        expect(res.body[0].username).to.eql('ihaveaunknowusername')
+                        expect(res.body[0]).to.have.property('institution')
+                        expect(res.body[0].institution).to.not.have.any.keys('type', 'latitude', 'longitude')
+                        expect(res.body[0].institution).to.have.property('id')
+                        expect(res.body[0].institution).to.have.property('name')
+                        expect(res.body[0].institution.name).to.eql('Sherlock Neighbor')
+                        expect(res.body[0].institution).to.have.property('address')
+                        expect(res.body[0].institution.address).to.eql('221A Baker Street, St.')
+                    })
+            })
+        })
+
         context('when there are no applications in database', () => {
-            it('should return status code 200 and a empty array', () => {
-                deleteAllUsers({}).then()
+            it('should return status code 200 and a empty array', async () => {
+                await deleteAllUsers({}).then()
 
                 return request
                     .get('/users/applications')

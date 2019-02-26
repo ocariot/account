@@ -195,9 +195,8 @@ describe('Routes: Institution', () => {
         })
 
         context('when a duplication error occurs', () => {
-            it('should return status code 409 and info message from duplicate items', () => {
-
-                createInstitution({
+            it('should return status code 409 and info message from duplicate items', async () => {
+                await createInstitution({
                         type: 'Any Type',
                         name: 'Other Name',
                         address: '221A Baker Street, St.',
@@ -262,8 +261,8 @@ describe('Routes: Institution', () => {
         })
 
         context('when the institution was asscociated with an user', () => {
-            it('should return status code 400 and info message from existent association', () => {
-                createUser({
+            it('should return status code 400 and info message from existent association', async () => {
+                await createUser({
                     username: 'anothercoolusername',
                     password: 'mysecretkey',
                     type: UserType.CHILD,
@@ -335,9 +334,8 @@ describe('Routes: Institution', () => {
         })
 
         context('when does not have users in database', () => {
-            it('should return status code 200 and a empty array', () => {
-
-                deleteAllInstitutions({}).then()
+            it('should return status code 200 and a empty array', async () => {
+                await deleteAllInstitutions({}).then()
 
                 return request
                     .get('/institutions')

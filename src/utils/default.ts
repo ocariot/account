@@ -36,4 +36,9 @@ export abstract class Default {
     // ADMIN USER DEFAULT
     public static readonly ADMIN_USERNAME: string = 'admin'
     public static readonly ADMIN_PASSWORD: string = 'admin*159'
+
+    // Certificate Path
+    public static readonly CERT_PATH: string = './.certs'
+    public static readonly JWT_PRIVATE_KEY_PATH: string = './.certs/tls.key'
+    public static readonly JWT_CERT_PATH: string = './.certs/tls.pem'
 }

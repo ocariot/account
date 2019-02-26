@@ -170,7 +170,6 @@ describe('Routes: Family', () => {
 
         context('when the institution id provided was invalid', () => {
             it('should return status code 400 and message for invalid institution id', () => {
-
                 const body = {
                     username: 'anotherusername',
                     password: defaultFamily.password,
@@ -284,8 +283,8 @@ describe('Routes: Family', () => {
         })
 
         context('when a duplication error occurs', () => {
-            it('should return status code 409 and info message from duplicate value', () => {
-                createUser({
+            it('should return status code 409 and info message from duplicate value', async () => {
+                await createUser({
                     username: 'acoolusername',
                     password: defaultFamily.password,
                     type: UserType.FAMILY,
@@ -364,7 +363,6 @@ describe('Routes: Family', () => {
     describe('POST /users/families/:family_id/children/:child_id', () => {
         context('when want associate a child with a family', () => {
             it('should return status code 200 and a family', async () => {
-
                 anotherChild.username = 'ihaveauniqueusername'
                 anotherChild.password = 'mysecretkey'
                 anotherChild.gender = 'male'
@@ -376,7 +374,7 @@ describe('Routes: Family', () => {
                     anotherChild.id = item.id
                 })
 
-                request
+                return request
                     .post(`/users/families/${defaultFamily.id}/children/${anotherChild.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
@@ -406,7 +404,7 @@ describe('Routes: Family', () => {
 
         context('when the child id does not exists', () => {
             it('should return status code 400 and info message from invalid child ID', () => {
-                request
+                return request
                     .post(`/users/families/${defaultFamily.id}/children/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -418,7 +416,7 @@ describe('Routes: Family', () => {
 
         context('when the child id is invalid', () => {
             it('should return status code 400 and info message from invalid child ID', () => {
-                request
+                return request
                     .post(`/users/families/${defaultFamily.id}/children/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -433,7 +431,7 @@ describe('Routes: Family', () => {
     describe('DELETE /users/families/:family_id/children/:child_id', () => {
         context('when want disassociate a child from a family', () => {
             it('should return status code 204 and no content', () => {
-                request
+                return request
                     .delete(`/users/families/${defaultFamily.id}/children/${anotherChild.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
@@ -445,7 +443,7 @@ describe('Routes: Family', () => {
 
         context('when the child id does not exists', () => {
             it('should return status code 204 and no content, even the child id does not exists', () => {
-                request
+                return request
                     .delete(`/users/families/${defaultFamily.id}/children/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
@@ -457,7 +455,7 @@ describe('Routes: Family', () => {
 
         context('when the child id is invalid', () => {
             it('should return status code 400 and info message about invalid child id', () => {
-                request
+                return request
                     .delete(`/users/families/${defaultFamily.id}/children/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -471,14 +469,14 @@ describe('Routes: Family', () => {
 
     describe('GET /users/families/:family_id/children', () => {
         context('when want get all children from family', () => {
-            it('should return status code 200 and the family', () => {
-                request
+            it('should return status code 200 and the family children', () => {
+                return request
                     .get(`/users/families/${defaultFamily.id}/children`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body).is.an.instanceof(Array)
-                        expect(res.body.length).is.eql(2)
+                        expect(res.body.length).is.eql(1)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0].username).to.eql('anothercoolusername')
@@ -498,25 +496,6 @@ describe('Routes: Family', () => {
                         expect(res.body[0].age).to.eql(11)
                         expect(res.body[0]).to.have.property('gender')
                         expect(res.body[0].gender).to.eql('male')
-                        expect(res.body[1]).to.have.property('id')
-                        expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].username).to.eql('ihaveauniqueusername')
-                        expect(res.body[1]).to.have.property('institution')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution).to.have.property('type')
-                        expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution).to.have.property('name')
-                        expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution).to.have.property('address')
-                        expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution).to.have.property('latitude')
-                        expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution).to.have.property('longitude')
-                        expect(res.body[1].institution.longitude).to.eql(0)
-                        expect(res.body[1]).to.have.property('age')
-                        expect(res.body[1].age).to.eql(11)
-                        expect(res.body[1]).to.have.property('gender')
-                        expect(res.body[1].gender).to.eql('male')
                     })
             })
         })
@@ -539,7 +518,7 @@ describe('Routes: Family', () => {
 
         context('when family id does not exists', () => {
             it('should return status code 404 and info message from family not found', () => {
-                request
+                return request
                     .get(`/users/families/${new ObjectID()}/children`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -552,7 +531,7 @@ describe('Routes: Family', () => {
 
         context('when family id is invalid', () => {
             it('should return status code 400 and info message invalid family id', () => {
-                request
+                return request
                     .get('/users/families/123/children')
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -606,9 +585,55 @@ describe('Routes: Family', () => {
             })
         })
 
+        context('when use query strings', () => {
+            it('should return the result as required in query', async () => {
+                await createInstitution({
+                    type: 'University',
+                    name: 'UEPB',
+                    address: '221B Baker Street, St.',
+                    latitude: 0,
+                    longitude: 0
+                }).then(result => {
+                    createUser({
+                        username: 'myusernameisunique',
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: result._id,
+                        scopes: new Array('users:read')
+                    }).then()
+                })
+
+                const url: string = '/users/families/?sort=username&fields=username,institution.name&' +
+                    'institution.type=Any Type&page=1&limit=3'
+
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body).is.an.instanceOf(Array)
+                        expect(res.body.length).to.eql(2)
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0]).to.have.property('username')
+                        expect(res.body[0]).to.have.property('institution')
+                        expect(res.body[0].institution).to.have.property('id')
+                        expect(res.body[0].institution).to.have.property('name')
+                        expect(res.body[0].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
+                        expect(res.body[0]).to.have.property('children')
+                        expect(res.body[1]).to.have.property('id')
+                        expect(res.body[1]).to.have.property('username')
+                        expect(res.body[1]).to.have.property('institution')
+                        expect(res.body[1].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
+                        expect(res.body[1].institution).to.have.property('id')
+                        expect(res.body[1].institution).to.have.property('name')
+                        expect(res.body[1]).to.have.property('children')
+                    })
+            })
+        })
+
         context('when there are no institutions in database', () => {
-            it('should return status code 200 and a empty array', () => {
-                deleteAllUsers({}).then()
+            it('should return status code 200 and a empty array', async () => {
+                await deleteAllUsers({}).then()
 
                 return request
                     .get('/users/families')

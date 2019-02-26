@@ -279,8 +279,8 @@ describe('Routes: Child', () => {
         })
 
         context('when a duplication error occurs', () => {
-            it('should return status code 409 and info message from duplicate value', () => {
-                createUser({
+            it('should return status code 409 and info message from duplicate value', async () => {
+                await createUser({
                     username: 'anothercoolusername',
                     password: defaultChild.password,
                     type: UserType.CHILD,
@@ -404,9 +404,66 @@ describe('Routes: Child', () => {
             })
         })
 
+        context(' when use query strings', () => {
+            it('should return the result as required in query', async () => {
+                await createInstitution({
+                    type: 'School',
+                    name: 'UEPB Kids',
+                    address: '221A Baker Street, St.',
+                    latitude: 1,
+                    longitude: 1
+                }).then(result => {
+                    createUser({
+                        username: 'ihaveauniqueusername',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: 10,
+                        institution: result._id,
+                        scopes: new Array('users:read')
+                    }).then()
+                })
+
+                const url = '/users/children/?age=lte:11&fields=username,age,institution.name&sort=age,username' +
+                    '&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body).is.an.instanceOf(Array)
+                        expect(res.body.length).to.eql(3)
+                        expect(res.body[0]).to.not.have.any.keys('gender')
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0]).to.have.property('username')
+                        expect(res.body[0]).to.have.property('institution')
+                        expect(res.body[0].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
+                        expect(res.body[0].institution).to.have.property('id')
+                        expect(res.body[0].institution).to.have.property('name')
+                        expect(res.body[0]).to.have.property('age')
+                        expect(res.body[1]).to.not.have.any.keys('gender')
+                        expect(res.body[1]).to.have.property('id')
+                        expect(res.body[1]).to.have.property('username')
+                        expect(res.body[1]).to.have.property('institution')
+                        expect(res.body[1].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
+                        expect(res.body[1].institution).to.have.property('id')
+                        expect(res.body[1].institution).to.have.property('name')
+                        expect(res.body[1]).to.have.property('age')
+                        expect(res.body[2]).to.not.have.any.keys('gender')
+                        expect(res.body[2]).to.have.property('id')
+                        expect(res.body[2]).to.have.property('username')
+                        expect(res.body[2]).to.have.property('institution')
+                        expect(res.body[2].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
+                        expect(res.body[2].institution).to.have.property('id')
+                        expect(res.body[2].institution).to.have.property('name')
+                        expect(res.body[2]).to.have.property('age')
+                    })
+
+            })
+        })
         context('when there are no children in database', () => {
-            it('should return status code 200 and a empty array', () => {
-                deleteAllUsers({}).then()
+            it('should return status code 200 and a empty array', async () => {
+                await deleteAllUsers({}).then()
 
                 return request
                     .get('/users/children')
