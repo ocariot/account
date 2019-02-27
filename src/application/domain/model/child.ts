@@ -10,8 +10,8 @@ import { IJSONDeserializable } from '../utils/json.deserializable.interface'
  * @implements { IJSONSerializable, IJSONDeserializable<Child>}
  */
 export class Child extends User implements IJSONSerializable, IJSONDeserializable<Child> {
-    private _gender?: string // Gender of the child.
-    private _age?: number  // Age of the child. Can be male or female
+    private _gender?: string // Gender of the child. Can be male or female.
+    private _age?: number  // Age of the child.
 
     constructor() {
         super()
