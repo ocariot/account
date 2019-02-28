@@ -23,9 +23,9 @@ export class Admin extends User implements IJSONSerializable, IJSONDeserializabl
             'educators:delete',
             'families:create',
             'families:read',
+            'families:readAll',
             'families:update',
             'families:delete',
-            'families:readAll',
             'children:create',
             'children:read',
             'children:readAll',
@@ -41,16 +41,18 @@ export class Admin extends User implements IJSONSerializable, IJSONDeserializabl
             'applications:readAll',
             'applications:update',
             'applications:delete',
+            'institutions:create',
+            'institutions:read',
+            'institutions:readAll',
+            'institutions:update',
+            'institutions:delete',
             'questionnaires:read',
             'foodrecord:read',
             'physicalactivities:read',
-            'physicalactivities:readAll',
             'sleep:read',
-            'sleep:readAll',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read',
-            'children:readAll'
+            'gamificationprofile:read'
         ]
     }
 

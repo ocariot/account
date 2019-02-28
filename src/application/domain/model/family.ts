@@ -18,6 +18,7 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
         super.type = UserType.FAMILY
         super.scopes = [
             'families:read',
+            'institutions:read',
             'questionnaires:create',
             'questionnaires:read',
             'questionnaires:update',
