@@ -15,7 +15,6 @@ export abstract class Default {
 
     // KEYS
     public static readonly JWT_ISSUER: string = 'ocariot'
-    public static readonly JWT_SECRET: string = 'p1c^HNy.cN;WKX4Ys1m"0:Ct>I1|@s'
 
     // MongoDB
     public static readonly MONGODB_URI: string = 'mongodb://127.0.0.1:27017/account-service'
