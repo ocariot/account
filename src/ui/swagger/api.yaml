@@ -10,8 +10,10 @@ info:
 servers:
   - description: SwaggerHub API Auto Mocking
     url: https://virtserver.swaggerhub.com/nutes.ocariot/account-service/v1
-  - description: Account Local Instance
-    url: http://localhost:5000/
+  - description: Account Local HTTP Server
+    url: http://localhost:5000
+  - description: Account Local HTTPS Server
+    url: https://localhost:5001
 
 tags:
   - name: auth
@@ -3878,7 +3880,7 @@ components:
           type: string
           format: uuid
           description: Automatically generated key field.
-          example: 5a62be07de34500146d9c544
+          example: 5a62be07de34500146d9c624
         type:
           type: string
           description: Type of institution.
