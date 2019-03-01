@@ -3,6 +3,17 @@
 --
 User management service.
 
+## Pre Installation
+1. The microservice runs on HTTPS, so it is necessary to generate the private key and certificate. In the development and testing environment, you must use a self-signed certificate. You can do this as you wish, if you prefer, check the following links that will help you create the necessary files (file.key and file.crt).
+    - [Creating a Self-Signed SSL Certificate](https://pages.github.com/https://devcenter.heroku.com/articles/ssl-certificate-self).
+    - [Self-Signed Certificate Generator](http://www.selfsignedcertificate.com/).
+    
+    **NOTE:** For the production environment, do not use self-signed certificates, but certificates provided by certification authorities.
+
+2. Create a `cert` directory in the project root and save the files generated in step 1 to this directory, the directory will already be in .gitignore. Therefore, it will not be shared. 
+   
+3. Make a copy of the ".env.example" file, naming to .env. After that, open and edit the settings as needed.
+
 ## Installation and Development Server
 Requires [Node.js](https://nodejs.org/) v8+ and [MongoDB](https://www.mongodb.com) to run.
 Install the dependencies, start the local MongoDB, and start the server.
@@ -12,37 +23,29 @@ $ npm install
 $ mongod
 $ npm run start:dev
 ```
-Navigate to `http://localhost:3000/`.
+Navigate to `http://127.0.0.1:5000`.
 
-## Configurations
-In `/config/config.ts` modify the values of the variables for your deployment context.
- 
 ## Build
 - Run `npm run build` to build the project. The build artifacts will be stored in the `dist/` directory.
 
+## Run Server
+- Run `npm start` to run the project in production mode.
+- Run `npm run start:dev` to run the project in development mode. Code changes are automatically identified and rebuild is performed.
+- Run `npm run build && npm start` Perform the build and initialize the microservice. **Useful for production/deployment.**
+
 ## Running unit tests
-- Run `npm run test:unit` to run unit tests by _[Mocha](https://mochajs.org/)._
+- Run `npm run test:unit` to run unit tests by [Mocha](https://mochajs.org/).
 
 ## Running integration tests
-- Run `mongod` 
-- Run `npm run test:integration` to run integration tests by _[Mocha](https://mochajs.org/)._
+- Run `mongod`
+- Run `npm run test:integration` to run integration tests by [Mocha](https://mochajs.org/).
+
+## Running test coverage
+- Run `npm run test:cov` to run code coverage tests by [Instanbul](https://istanbul.js.org/).
 
 ## Running all tests
-- Run `mongod` 
-- Run `npm run test` to run the unit test and integration by _[Mocha](https://mochajs.org/)._
+- Run `mongod`
+- Run `npm run test` to run unit testing, integration and coverage by [Mocha](https://mochajs.org/) and [Instanbul](https://istanbul.js.org/).
 
-## Running coverage test
-- Run `npm run test:cov` to run code coverage tests by _[Instanbul](https://istanbul.js.org/)._ The other tests will be automatically executed
-
-## Project Structure
-![structure](https://i.imgur.com/XSyvG78.jpg)
-- `/config`: Directory to save application settings, such as global variables, settings for access to the database...
-- `/dist`: Directory where the .js files will be placed after the typescript transpiler.
-- `/src`: Application main directory
-    - `/controllers`: Responsible for the communication between the Routes and Repository. In this layer, all requests will be received and then sent to the Repository.
-    - `/exceptions`: Contains custom exceptions for application.
-    - `/models`: Contains the data models to represent the entities.
-    - `/repositories`: Responsible for doing data persistence and retrieval.
-    - `/routes`: Contains mapping to the resources provided by the application.
-    - `/swagger`: Contains the .yaml files that describe the API.
-- `/test`: Contains unit and integration tests.
+## Generating code documentation
+- Run `npm run build:doc` the html documentation will be generated in the /docs directory by [typedoc](https://typedoc.org/).

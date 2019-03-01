@@ -12,6 +12,8 @@ export abstract class Default {
     public static readonly NODE_ENV: string = 'development' // development, test, production
     public static readonly PORT_HTTP: number = 5000
     public static readonly PORT_HTTPS: number = 5001
+    public static readonly SWAGGER_URI: string = 'https://api.swaggerhub.com/apis/nutes.ocariot/account-service/v1/swagger.json'
+    public static readonly LOGO_URI: string = 'http://www.ocariot.com.br/wp-content/uploads/2018/08/cropped-512-32x32.png'
 
     // KEYS
     public static readonly JWT_ISSUER: string = 'ocariot'
@@ -23,11 +25,10 @@ export abstract class Default {
     public static readonly MONGODB_CON_RETRY_INTERVAL: number = 1000 // 1s
 
     // RabbitMQ
-    public static readonly RABBITMQ_AMQP_URI: string = 'amqp://127.0.0.1:5672'
-    public static readonly RABBITMQ_EXCHANGE_NAME: string = 'account-service'
-    public static readonly RABBITMQ_QUEUE_NAME: string = 'account_queue'
-    public static readonly RABBITMQ_CON_RETRY_COUNT: number = 0 // infinite
-    public static readonly RABBITMQ_CON_RETRY_INTERVAL: number = 1000 // 1s
+    public static readonly RABBITMQ_HOST: string = '127.0.0.1:5672'
+    public static readonly RABBITMQ_PORT: number = 5672
+    public static readonly RABBITMQ_USERNAME: string = 'guest'
+    public static readonly RABBITMQ_PASSWORD: string = 'guest'
 
     // Log
     public static readonly LOG_DIR: string = 'logs'
@@ -37,12 +38,14 @@ export abstract class Default {
     public static readonly ADMIN_PASSWORD: string = 'admin*159'
 
     // Certificate Path
-    public static readonly CERT_DIR_PATH: string = './.certs'
-    public static readonly JWT_PRIVATE_KEY_PATH: string = './.certs/jwt.key'
-    public static readonly JWT_PUBLIC_KEY_PATH: string = './.certs/jwt.pem'
+    public static readonly CERT_DIR_PATH: string = 'certs'
+    public static readonly JWT_PRIVATE_KEY_PATH: string = 'certs/jwt.key'
+    public static readonly JWT_PUBLIC_KEY_PATH: string = 'certs/jwt.pem'
 
     // Certificate
     // To generate self-signed certificates, see: https://devcenter.heroku.com/articles/ssl-certificate-self
-    public static readonly PRIVATE_KEY_CERT_PATH: string = './.certs/tls.key'
-    public static readonly CERT_PATH: string = './.certs/tls.pem'
+    public static readonly PRIVATE_KEY_CERT_PATH: string = 'certs/tls.key'
+    public static readonly CERT_PATH: string = 'certs/tls.pem'
+
+    public static readonly IP_WHITELIST: Array<string> = ['*']
 }
