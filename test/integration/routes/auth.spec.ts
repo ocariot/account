@@ -2,7 +2,7 @@ import { expect } from 'chai'
 import { App } from '../../../src/app'
 import { Identifier } from '../../../src/di/identifiers'
 import { DI } from '../../../src/di/di'
-import { IDBConnection } from '../../../src/infrastructure/port/db.connection.interface'
+import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
 import { Container } from 'inversify'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { UserType } from '../../../src/application/domain/model/user'
@@ -10,7 +10,7 @@ import { Admin } from '../../../src/application/domain/model/admin'
 import { IUserRepository } from '../../../src/application/port/user.repository.interface'
 
 const container: Container = DI.getInstance().getContainer()
-const dbConnection: IDBConnection = container.get(Identifier.MONGODB_CONNECTION)
+const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
 const userService: IUserRepository = container.get(Identifier.USER_REPOSITORY)
 const app: App = container.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
@@ -18,7 +18,7 @@ const request = require('supertest')(app.getExpress())
 describe('Routes: Auth', () => {
     before(async () => {
             try {
-                await dbConnection.tryConnect()
+                await dbConnection.tryConnect(0, 500)
 
                 const item: Admin = new Admin()
                 item.username = 'admin'

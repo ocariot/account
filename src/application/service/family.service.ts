@@ -17,6 +17,7 @@ import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IEventBus } from '../../infrastructure/port/event.bus.interface'
 import { UserUpdateEvent } from '../integration-event/event/user.update.event'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
 
 /**
  * Implementing family Service.
@@ -29,12 +30,13 @@ export class FamilyService implements IFamilyService {
     constructor(@inject(Identifier.FAMILY_REPOSITORY) private readonly _familyRepository: IFamilyRepository,
                 @inject(Identifier.CHILD_REPOSITORY) private readonly _childRepository: IChildRepository,
                 @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
-                @inject(Identifier.LOGGER) readonly logger: ILogger,
-                @inject(Identifier.RABBITMQ_EVENT_BUS) readonly _eventBus: IEventBus) {
+                @inject(Identifier.INTEGRATION_EVENT_REPOSITORY)
+                private readonly _integrationEventRepository: IIntegrationEventRepository,
+                @inject(Identifier.RABBITMQ_EVENT_BUS) private readonly _eventBus: IEventBus,
+                @inject(Identifier.LOGGER) private readonly _logger: ILogger) {
     }
 
     public async add(family: Family): Promise<Family> {
-
         try {
             // 1. Validate Family parameters.
             CreateFamilyValidator.validate(family)
@@ -83,7 +85,6 @@ export class FamilyService implements IFamilyService {
     }
 
     public async update(family: Family): Promise<Family> {
-
         try {
             // 1. Validate Family parameters.
             UpdateUserValidator.validate(family)
@@ -116,13 +117,19 @@ export class FamilyService implements IFamilyService {
         // 4. Update family data
         const familyUp = await this._familyRepository.update(family)
 
-        // 5. Publish updated family data.
+        // 5. If updated successfully, the object is published on the message bus.
         if (familyUp) {
             const event = new UserUpdateEvent<Family>('FamilyUpdateEvent', new Date(), familyUp)
-            this._eventBus.publish(event, 'families.update')
-        }
 
-        return familyUp
+            if (!(await this._eventBus.publish(event, 'families.update'))) {
+                // 6. Save Event for submission attempt later when there is connection to message channel.
+                this.saveEvent(event)
+            } else {
+                this._logger.info(`User of type Family with ID: ${familyUp.id} has been updated and published on event bus...`)
+            }
+        }
+        // 7. Returns the created object.
+        return Promise.resolve(familyUp)
     }
 
     public async remove(id: string): Promise<boolean> {
@@ -194,5 +201,27 @@ export class FamilyService implements IFamilyService {
         } catch (err) {
             return Promise.reject(err)
         }
+    }
+
+    /**
+     * Saves the event to the database.
+     * Useful when it is not possible to run the event and want to perform the
+     * operation at another time.
+     * @param event
+     */
+    private saveEvent(event: UserUpdateEvent<Family>): void {
+        const saveEvent: any = event.toJSON()
+        saveEvent.__operation = 'publish'
+        saveEvent.__routing_key = 'families.update'
+        this._integrationEventRepository
+            .create(JSON.parse(JSON.stringify(saveEvent)))
+            .then(() => {
+                this._logger.warn(`Could not publish the event named ${event.event_name}.`
+                    .concat(` The event was saved in the database for a possible recovery.`))
+            })
+            .catch(err => {
+                this._logger.error(`There was an error trying to save the name event: ${event.event_name}.`
+                    .concat(`Error: ${err.message}. Event: ${JSON.stringify(saveEvent)}`))
+            })
     }
 }

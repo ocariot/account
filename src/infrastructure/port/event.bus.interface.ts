@@ -1,9 +1,19 @@
 import { IDisposable } from './disposable.interface'
 import { IntegrationEvent } from '../../application/integration-event/event/integration.event'
 import { IIntegrationEventHandler } from '../../application/integration-event/handler/integration.event.handler.interface'
+import { IConnectionEventBus } from './connection.event.bus.interface'
 
 export interface IEventBus extends IDisposable {
-    publish(event: IntegrationEvent<any>, routing_key: string): void
+    connectionPub: IConnectionEventBus
+    connectionSub: IConnectionEventBus
 
-    subscribe(event: IntegrationEvent<any>, handler: IIntegrationEventHandler<IntegrationEvent<any>>, routing_key: string): void
+    publish(event: IntegrationEvent<any>, routing_key: string): Promise<boolean>
+
+    subscribe(
+        event: IntegrationEvent<any>,
+        handler: IIntegrationEventHandler<IntegrationEvent<any>>,
+        routing_key: string
+    ): Promise<boolean>
+
+    enableLogger(value: boolean): void
 }

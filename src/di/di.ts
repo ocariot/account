@@ -5,13 +5,10 @@ import { Identifier } from './identifiers'
 import { UserEntity } from '../infrastructure/entity/user.entity'
 import { IEntityMapper } from '../infrastructure/port/entity.mapper.interface'
 import { User } from '../application/domain/model/user'
-import { RabbitMQConnectionFactory } from '../infrastructure/eventbus/rabbitmq/rabbitmp.connection.factory'
-import { RabbitMQConnection } from '../infrastructure/eventbus/rabbitmq/rabbitmq.connection'
 import { EventBusRabbitMQ } from '../infrastructure/eventbus/rabbitmq/eventbus.rabbitmq'
-import { MongoDBConnectionFactory } from '../infrastructure/database/mongodb.connection.factory'
-import { MongoDBConnection } from '../infrastructure/database/mongodb.connection'
-import { IDBConnection } from '../infrastructure/port/db.connection.interface'
-import { IRabbitMQConnection } from '../infrastructure/port/rabbitmq.connection.interface'
+import { ConnectionFactoryMongoDB } from '../infrastructure/database/connection.factory.mongodb'
+import { ConnectionMongoDB } from '../infrastructure/database/connection.mongodb'
+import { IConnectionDB } from '../infrastructure/port/connection.db.interface'
 import { IConnectionFactory } from '../infrastructure/port/connection.factory.interface'
 import { IEventBus } from '../infrastructure/port/event.bus.interface'
 import { BackgroundService } from '../background/background.service'
@@ -86,6 +83,15 @@ import { IUserService } from '../application/port/user.service.interface'
 import { UserService } from '../application/service/user.service'
 import { IUserRepository } from '../application/port/user.repository.interface'
 import { UserRepository } from '../infrastructure/repository/user.repository'
+import { ConnectionFactoryRabbitMQ } from '../infrastructure/eventbus/rabbitmq/connection.factory.rabbitmq'
+import { IConnectionEventBus } from '../infrastructure/port/connection.event.bus.interface'
+import { ConnectionRabbitMQ } from '../infrastructure/eventbus/rabbitmq/connection.rabbitmq'
+import { EventBusTask } from '../background/task/eventbus.task'
+import { IIntegrationEventRepository } from '../application/port/integration.event.repository.interface'
+import { IntegrationEventRepository } from '../infrastructure/repository/integration.event.repository'
+import { IntegrationEventRepoModel } from '../infrastructure/database/schema/integration.event.schema'
+import { IBackgroundTask } from '../application/port/background.task.interface'
+import { RegisterDefaultAdminTask } from '../background/task/register.default.admin.task'
 
 export class DI {
     private static instance: DI
@@ -189,44 +195,70 @@ export class DI {
             .to(InstitutionRepository).inSingletonScope()
         this.container.bind<IChildrenGroupRepository>(Identifier.CHILDREN_GROUP_REPOSITORY)
             .to(ChildrenGroupRepository).inSingletonScope()
+        this.container
+            .bind<IIntegrationEventRepository>(Identifier.INTEGRATION_EVENT_REPOSITORY)
+            .to(IntegrationEventRepository).inSingletonScope()
 
         // Mongoose Schema
         this.container.bind(Identifier.USER_REPO_MODEL).toConstantValue(UserRepoModel)
         this.container.bind(Identifier.INSTITUTION_REPO_MODEL).toConstantValue(InstitutionRepoModel)
         this.container.bind(Identifier.CHILDREN_GROUP_REPO_MODEL).toConstantValue(ChildrenGroupRepoModel)
+        this.container.bind(Identifier.INTEGRATION_EVENT_REPO_MODEL).toConstantValue(IntegrationEventRepoModel)
 
         // Mappers
-        this.container.bind<IEntityMapper<User, UserEntity>>(Identifier.USER_ENTITY_MAPPER)
+        this.container
+            .bind<IEntityMapper<User, UserEntity>>(Identifier.USER_ENTITY_MAPPER)
             .to(UserEntityMapper).inSingletonScope()
-        this.container.bind<IEntityMapper<Child, ChildEntity>>(Identifier.CHILD_ENTITY_MAPPER)
+        this.container
+            .bind<IEntityMapper<Child, ChildEntity>>(Identifier.CHILD_ENTITY_MAPPER)
             .to(ChildEntityMapper).inSingletonScope()
-        this.container.bind<IEntityMapper<Family, FamilyEntity>>(Identifier.FAMILY_ENTITY_MAPPER)
+        this.container
+            .bind<IEntityMapper<Family, FamilyEntity>>(Identifier.FAMILY_ENTITY_MAPPER)
             .to(FamilyEntityMapper).inSingletonScope()
-        this.container.bind<IEntityMapper<Application, ApplicationEntity>>(Identifier.APPLICATION_ENTITY_MAPPER)
+        this.container
+            .bind<IEntityMapper<Application, ApplicationEntity>>(Identifier.APPLICATION_ENTITY_MAPPER)
             .to(ApplicationEntityMapper).inSingletonScope()
-        this.container.bind<IEntityMapper<Educator, EducatorEntity>>(Identifier.EDUCATOR_ENTITY_MAPPER)
+        this.container
+            .bind<IEntityMapper<Educator, EducatorEntity>>(Identifier.EDUCATOR_ENTITY_MAPPER)
             .to(EducatorEntityMapper).inSingletonScope()
         this.container
             .bind<IEntityMapper<HealthProfessional, HealthProfessionalEntity>>(Identifier.HEALTH_PROFESSIONAL_ENTITY_MAPPER)
             .to(HealthProfessionalEntityMapper).inSingletonScope()
-        this.container.bind<IEntityMapper<Institution, InstitutionEntity>>(Identifier.INSTITUTION_ENTITY_MAPPER)
+        this.container
+            .bind<IEntityMapper<Institution, InstitutionEntity>>(Identifier.INSTITUTION_ENTITY_MAPPER)
             .to(InstitutionEntityMapper).inSingletonScope()
-        this.container.bind<IEntityMapper<ChildrenGroup, ChildrenGroupEntity>>(Identifier.CHILDREN_GROUP_ENTITY_MAPPER)
+        this.container
+            .bind<IEntityMapper<ChildrenGroup, ChildrenGroupEntity>>(Identifier.CHILDREN_GROUP_ENTITY_MAPPER)
             .to(ChildrenGroupEntityMapper).inSingletonScope()
 
         // Background Services
-        this.container.bind(Identifier.BACKGROUND_SERVICE)
-            .to(BackgroundService).inSingletonScope()
-        this.container.bind<IConnectionFactory>(Identifier.RABBITMQ_CONNECTION_FACTORY)
-            .to(RabbitMQConnectionFactory).inSingletonScope()
-        this.container.bind<IRabbitMQConnection>(Identifier.RABBITMQ_CONNECTION)
-            .to(RabbitMQConnection).inSingletonScope()
-        this.container.bind<IEventBus>(Identifier.RABBITMQ_EVENT_BUS)
+        this.container
+            .bind<IConnectionFactory>(Identifier.RABBITMQ_CONNECTION_FACTORY)
+            .to(ConnectionFactoryRabbitMQ).inSingletonScope()
+        this.container
+            .bind<IConnectionEventBus>(Identifier.RABBITMQ_CONNECTION)
+            .to(ConnectionRabbitMQ)
+        this.container
+            .bind<IEventBus>(Identifier.RABBITMQ_EVENT_BUS)
             .to(EventBusRabbitMQ).inSingletonScope()
-        this.container.bind<IConnectionFactory>(Identifier.MONGODB_CONNECTION_FACTORY)
-            .to(MongoDBConnectionFactory).inSingletonScope()
-        this.container.bind<IDBConnection>(Identifier.MONGODB_CONNECTION)
-            .to(MongoDBConnection).inSingletonScope()
+        this.container
+            .bind<IConnectionFactory>(Identifier.MONGODB_CONNECTION_FACTORY)
+            .to(ConnectionFactoryMongoDB).inSingletonScope()
+        this.container
+            .bind<IConnectionDB>(Identifier.MONGODB_CONNECTION)
+            .to(ConnectionMongoDB).inSingletonScope()
+        this.container
+            .bind(Identifier.BACKGROUND_SERVICE)
+            .to(BackgroundService).inSingletonScope()
+
+        // Tasks
+        this.container
+            .bind<IBackgroundTask>(Identifier.EVENT_BUS_TASK)
+            .to(EventBusTask).inRequestScope()
+
+        this.container
+            .bind<IBackgroundTask>(Identifier.REGISTER_DEFAULT_ADMIN_TASK)
+            .to(RegisterDefaultAdminTask).inRequestScope()
 
         // Log
         this.container.bind<ILogger>(Identifier.LOGGER).to(CustomLogger).inSingletonScope()

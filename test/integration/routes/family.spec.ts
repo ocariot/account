@@ -1,6 +1,6 @@
 import { Container } from 'inversify'
 import { DI } from '../../../src/di/di'
-import { IDBConnection } from '../../../src/infrastructure/port/db.connection.interface'
+import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
 import { Family } from '../../../src/application/domain/model/family'
@@ -14,7 +14,7 @@ import { Child } from '../../../src/application/domain/model/child'
 import { IChildService } from '../../../src/application/port/child.service.interface'
 
 const container: Container = DI.getInstance().getContainer()
-const dbConnection: IDBConnection = container.get(Identifier.MONGODB_CONNECTION)
+const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
 const childService: IChildService = container.get(Identifier.CHILD_SERVICE)
 const app: App = container.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
@@ -40,7 +40,7 @@ describe('Routes: Family', () => {
 
     before(async () => {
             try {
-                await dbConnection.tryConnect()
+                await dbConnection.tryConnect(0, 500)
                 await deleteAllUsers({})
                 await deleteAllInstitutions({})
 

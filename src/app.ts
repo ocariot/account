@@ -25,7 +25,7 @@ import { Strings } from './utils/strings'
 @injectable()
 export class App {
     private readonly container: Container
-    private express: Application
+    private readonly express: Application
 
     /**
      * Creates an instance of App.

@@ -73,8 +73,12 @@ export class Query implements IQuery {
         this._filters = value
     }
 
+    public addOrdination(field: string, order: string): void {
+        if (!this.ordination) this.ordination = new Map()
+        this.ordination.set(field, order)
+    }
+
     public addFilter(filter: object): void {
-        // this.filters = Object.assign(this.filters, filter)
         this.filters = {
             ...this.filters,
             ...filter
@@ -96,7 +100,7 @@ export class Query implements IQuery {
         }
 
         if (json.pagination) this.pagination = new Pagination().fromJSON(json.pagination)
-        if (json.filters) this.filters = new Object(json.filters)
+        if (json.filters) this.filters = json.filters
 
         return this
     }
