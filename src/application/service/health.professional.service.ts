@@ -18,6 +18,7 @@ import { IChildrenGroupRepository } from '../port/children.group.repository.inte
 import { UserUpdateEvent } from '../integration-event/event/user.update.event'
 import { IEventBus } from '../../infrastructure/port/event.bus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
 
 /**
  * Implementing Health Professional Service.
@@ -33,9 +34,10 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
         @inject(Identifier.CHILDREN_GROUP_SERVICE) private readonly _childrenGroupService: IChildrenGroupService,
         @inject(Identifier.CHILDREN_GROUP_REPOSITORY) private readonly _childrenGroupRepository: IChildrenGroupRepository,
-        @inject(Identifier.LOGGER) readonly logger: ILogger,
-        @inject(Identifier.RABBITMQ_EVENT_BUS) readonly _eventBus: IEventBus
-    ) {
+        @inject(Identifier.INTEGRATION_EVENT_REPOSITORY)
+        private readonly _integrationEventRepository: IIntegrationEventRepository,
+        @inject(Identifier.RABBITMQ_EVENT_BUS) private readonly _eventBus: IEventBus,
+        @inject(Identifier.LOGGER) private readonly _logger: ILogger) {
     }
 
     public async add(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
@@ -99,15 +101,21 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         // 3. Update Health Professional data.
         const healthProfessionalUp = await this._healthProfessionalRepository.update(healthProfessional)
 
-        // 4. Publish updated health professional data.
+        // 4. If updated successfully, the object is published on the message bus.
         if (healthProfessionalUp) {
             const event = new UserUpdateEvent<HealthProfessional>(
                 'HealthProfessionalUpdateEvent', new Date(), healthProfessionalUp)
-            this._eventBus.publish(event, 'healthprofessionals.update')
+
+            if (!(await this._eventBus.publish(event, 'healthprofessionals.update'))) {
+                // 5. Save Event for submission attempt later when there is connection to message channel.
+                this.saveEvent(event)
+            } else {
+                this._logger.info(`User of type Health Professional with ID: ${healthProfessionalUp.id} has been updated`
+                    .concat('and published on event bus...'))
+            }
         }
-
-        return healthProfessionalUp
-
+        // 6. Returns the created object.
+        return Promise.resolve(healthProfessionalUp)
     }
 
     public async remove(id: string): Promise<boolean> {
@@ -254,5 +262,27 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         } catch (err) {
             return Promise.reject(err)
         }
+    }
+
+    /**
+     * Saves the event to the database.
+     * Useful when it is not possible to run the event and want to perform the
+     * operation at another time.
+     * @param event
+     */
+    private saveEvent(event: UserUpdateEvent<HealthProfessional>): void {
+        const saveEvent: any = event.toJSON()
+        saveEvent.__operation = 'publish'
+        saveEvent.__routing_key = 'healthprofessionals.update'
+        this._integrationEventRepository
+            .create(JSON.parse(JSON.stringify(saveEvent)))
+            .then(() => {
+                this._logger.warn(`Could not publish the event named ${event.event_name}.`
+                    .concat(` The event was saved in the database for a possible recovery.`))
+            })
+            .catch(err => {
+                this._logger.error(`There was an error trying to save the name event: ${event.event_name}.`
+                    .concat(`Error: ${err.message}. Event: ${JSON.stringify(saveEvent)}`))
+            })
     }
 }

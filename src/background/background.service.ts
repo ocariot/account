@@ -1,57 +1,47 @@
-import { Container, inject, injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 import { Identifier } from '../di/identifiers'
-import { IDBConnection } from '../infrastructure/port/db.connection.interface'
-import { IEventBus } from '../infrastructure/port/event.bus.interface'
-import { CustomLogger } from '../utils/custom.logger'
-import { RegisterDefaultAdminTask } from './task/register.default.admin.task'
-import { DI } from '../di/di'
-import { GenerateJwtKeysTask } from './task/generate.jwt.keys.task'
+import { IConnectionDB } from '../infrastructure/port/connection.db.interface'
+import { IBackgroundTask } from '../application/port/background.task.interface'
 
 @injectable()
 export class BackgroundService {
-    private readonly _diContainer: Container
 
     constructor(
-        @inject(Identifier.MONGODB_CONNECTION) private readonly _mongodb: IDBConnection,
-        @inject(Identifier.RABBITMQ_EVENT_BUS) private readonly _eventBus: IEventBus,
-        @inject(Identifier.LOGGER) private readonly _logger: CustomLogger
+        @inject(Identifier.MONGODB_CONNECTION) private readonly _mongodb: IConnectionDB,
+        @inject(Identifier.EVENT_BUS_TASK) private readonly _eventBusTask: IBackgroundTask,
+        @inject(Identifier.EVENT_BUS_TASK) private readonly _registerDefaultAdminTask: IBackgroundTask
     ) {
-        this._diContainer = DI.getInstance().getContainer()
     }
 
     public async startServices(): Promise<void> {
-        this._logger.debug('startServices()')
         try {
             /**
              * At the time the application goes up, an event is issued if the
              * database is connected, and in this case, a task is run to check
              * if there are registered admin users.
              */
-            await this._mongodb.eventConnection.on('connected', () => {
-                new RegisterDefaultAdminTask(this._diContainer.get(Identifier.USER_REPOSITORY), this._logger).run()
-            })
+            this._registerDefaultAdminTask.run()
 
-            await this._mongodb.tryConnect() // Initialize mongodb
+            // Trying to connect to mongodb.
+            // Go ahead only when the run is resolved.
+            // Since the application depends on the database connection to work.
+            await this._mongodb.tryConnect(0, 1000)
 
-            /**
-             * Register your events using the event bus instance here.
-             */
+            // Perform task responsible for signature and event publishing routines,
+            // which for some reason could not be sent and saved for later submission.
+            this._eventBusTask.run()
 
-            /** Create JWT Keys task. */
-            await new GenerateJwtKeysTask(this._logger).generateKeys()
         } catch (err) {
-            this._logger.error(`Error initializing services in background: ${err.message}`)
+            return Promise.reject(new Error(`Error initializing services in background! ${err.message}`))
         }
     }
 
     public async stopServices(): Promise<void> {
-        this._logger.debug('stopServices()')
-
         try {
-            await this._eventBus.dispose()
             await this._mongodb.dispose()
+            await this._eventBusTask.stop()
         } catch (err) {
-            this._logger.error(`Error stopping background services: ${err.message}`)
+            return Promise.reject(new Error(`Error stopping MongoDB! ${err.message}`))
         }
     }
 }

@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 import { Container } from 'inversify'
 import { DI } from '../../../src/di/di'
-import { IDBConnection } from '../../../src/infrastructure/port/db.connection.interface'
+import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
@@ -11,7 +11,7 @@ import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.
 import { UserType } from '../../../src/application/domain/model/user'
 
 const container: Container = DI.getInstance().getContainer()
-const dbConnection: IDBConnection = container.get(Identifier.MONGODB_CONNECTION)
+const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
 const app: App = container.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
@@ -28,7 +28,7 @@ describe('Routes: Institution', () => {
 
     before(async () => {
             try {
-                await dbConnection.tryConnect()
+                await dbConnection.tryConnect(0, 500)
                 await deleteAllInstitutions({})
             } catch (err) {
                 throw new Error('Failure on Child test: ' + err.message)

@@ -38,11 +38,13 @@ export abstract class Identifier {
     public static readonly APPLICATION_REPOSITORY: any = Symbol.for('ApplicationRepository')
     public static readonly INSTITUTION_REPOSITORY: any = Symbol.for('InstitutionRepository')
     public static readonly CHILDREN_GROUP_REPOSITORY: any = Symbol.for('ChildrenGroupRepository')
+    public static readonly INTEGRATION_EVENT_REPOSITORY: any = Symbol.for('IntegrationEventRepository')
 
     // Models
     public static readonly USER_REPO_MODEL: any = Symbol.for('UserRepoModel')
     public static readonly INSTITUTION_REPO_MODEL: any = Symbol.for('InstitutionRepoModel')
     public static readonly CHILDREN_GROUP_REPO_MODEL: any = Symbol.for('ChildrenGroupRepoModel')
+    public static readonly INTEGRATION_EVENT_REPO_MODEL: any = Symbol.for('IntegrationEventRepoModel')
 
     // Mappers
     public static readonly USER_ENTITY_MAPPER: any = Symbol.for('UserEntityMapper')
@@ -57,10 +59,14 @@ export abstract class Identifier {
     // Background Services
     public static readonly RABBITMQ_EVENT_BUS: any = Symbol.for('EventBusRabbitMQ')
     public static readonly RABBITMQ_CONNECTION_FACTORY: any = Symbol.for('RabbitMQConnectionFactory')
-    public static readonly RABBITMQ_CONNECTION: any = Symbol.for('RabbitMQConnection')
-    public static readonly MONGODB_CONNECTION_FACTORY: any = Symbol.for('MongoDBConnectionFactory')
-    public static readonly MONGODB_CONNECTION: any = Symbol.for('MongoDBConnection')
+    public static readonly RABBITMQ_CONNECTION: any = Symbol.for('ConnectionRabbitmq')
+    public static readonly MONGODB_CONNECTION_FACTORY: any = Symbol.for('ConnectionFactoryMongoDB')
+    public static readonly MONGODB_CONNECTION: any = Symbol.for('ConnectionMongoDB')
     public static readonly BACKGROUND_SERVICE: any = Symbol.for('BackgroundService')
+
+    // Tasks
+    public static readonly REGISTER_DEFAULT_ADMIN_TASK: any = Symbol.for('RegisterDefaultAdminTask')
+    public static readonly EVENT_BUS_TASK: any = Symbol.for('EventBusTask')
 
     // Log
     public static readonly LOGGER: any = Symbol.for('CustomLogger')

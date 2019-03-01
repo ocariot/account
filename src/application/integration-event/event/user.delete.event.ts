@@ -1,9 +1,9 @@
-import { IntegrationEvent } from './integration.event'
+import { EventType, IntegrationEvent } from './integration.event'
 import { User } from '../../domain/model/user'
 
 export class UserDeleteEvent extends IntegrationEvent<User> {
     constructor(public event_name: string, public timestamp?: Date, public user?: User) {
-        super(event_name, timestamp)
+        super(event_name, EventType.USERS, timestamp)
     }
 
     public toJSON(): any {

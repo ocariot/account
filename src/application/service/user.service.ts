@@ -12,6 +12,8 @@ import { UserDeleteEvent } from '../integration-event/event/user.delete.event'
 import { IChildService } from '../port/child.service.interface'
 import { IFamilyService } from '../port/family.service.interface'
 import { IApplicationService } from '../port/application.service.interface'
+import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
+import { ILogger } from '../../utils/custom.logger'
 
 /**
  * Implementing user Service.
@@ -28,7 +30,10 @@ export class UserService implements IUserService {
                 private readonly _healthProfessionalService: IHealthProfessionalService,
                 @inject(Identifier.FAMILY_SERVICE) private readonly _familyService: IFamilyService,
                 @inject(Identifier.APPLICATION_SERVICE) private readonly _applicationService: IApplicationService,
-                @inject(Identifier.RABBITMQ_EVENT_BUS) readonly _eventBus: IEventBus) {
+                @inject(Identifier.INTEGRATION_EVENT_REPOSITORY)
+                private readonly _integrationEventRepository: IIntegrationEventRepository,
+                @inject(Identifier.RABBITMQ_EVENT_BUS) private readonly _eventBus: IEventBus,
+                @inject(Identifier.LOGGER) private readonly _logger: ILogger) {
     }
 
     public async add(item: User): Promise<User> {
@@ -79,7 +84,7 @@ export class UserService implements IUserService {
             }
         }
 
-        if (userDel) this.publishDeleteEvent(user)
+        if (userDel) await this.publishDeleteEvent(user)
         return Promise.resolve(userDel)
     }
 
@@ -87,9 +92,38 @@ export class UserService implements IUserService {
         throw Error('Not implemented!')
     }
 
-    private publishDeleteEvent(user: User) {
-        this._eventBus.publish(
-            new UserDeleteEvent('UserDeleteEvent',
-            new Date(), user), 'users.delete')
+    private async publishDeleteEvent(user: User): Promise<void> {
+        if (user) {
+            const event: UserDeleteEvent = new UserDeleteEvent('UserDeleteEvent',
+                new Date(), user)
+            if (!(await this._eventBus.publish(event, 'users.delete'))) {
+                // Save Event for submission attempt later when there is connection to message channel.
+                this.saveEvent(event)
+            } else {
+                this._logger.info(`User with ID: ${user.id} has been deleted and published on event bus...`)
+            }
+        }
+    }
+
+    /**
+     * Saves the event to the database.
+     * Useful when it is not possible to run the event and want to perform the
+     * operation at another time.
+     * @param event
+     */
+    private saveEvent(event: UserDeleteEvent): void {
+        const saveEvent: any = event.toJSON()
+        saveEvent.__operation = 'publish'
+        saveEvent.__routing_key = 'users.delete'
+        this._integrationEventRepository
+            .create(JSON.parse(JSON.stringify(saveEvent)))
+            .then(() => {
+                this._logger.warn(`Could not publish the event named ${event.event_name}.`
+                    .concat(` The event was saved in the database for a possible recovery.`))
+            })
+            .catch(err => {
+                this._logger.error(`There was an error trying to save the name event: ${event.event_name}.`
+                    .concat(`Error: ${err.message}. Event: ${JSON.stringify(saveEvent)}`))
+            })
     }
 }

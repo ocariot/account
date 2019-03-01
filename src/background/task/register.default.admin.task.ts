@@ -1,4 +1,4 @@
-import { inject } from 'inversify'
+import { inject, injectable } from 'inversify'
 import { Identifier } from '../../di/identifiers'
 import { IUserRepository } from '../../application/port/user.repository.interface'
 import { ILogger } from '../../utils/custom.logger'
@@ -7,6 +7,8 @@ import { UserType } from '../../application/domain/model/user'
 import { Query } from '../../infrastructure/repository/query/query'
 import { Default } from '../../utils/default'
 import { Admin } from '../../application/domain/model/admin'
+import { IConnectionDB } from '../../infrastructure/port/connection.db.interface'
+import { IBackgroundTask } from '../../application/port/background.task.interface'
 
 /**
  * In this class it's checked whether there are any admin users in the database.
@@ -19,14 +21,23 @@ import { Admin } from '../../application/domain/model/admin'
  * if it is in production, do not use, for your own security find a more
  * secure way to configure the credentials.
  */
-export class RegisterDefaultAdminTask {
+@injectable()
+export class RegisterDefaultAdminTask implements IBackgroundTask {
     constructor(
+        @inject(Identifier.MONGODB_CONNECTION) private readonly _mongodb: IConnectionDB,
         @inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
         @inject(Identifier.LOGGER) private readonly _logger: ILogger
     ) {
+
     }
 
     public async run(): Promise<void> {
+        await this._mongodb.eventConnection.on('connected', () => {
+            this.createUserAdmin().then()
+        })
+    }
+
+    private async createUserAdmin(): Promise<void> {
         const query: IQuery = new Query()
         query.filters = { type: UserType.ADMIN }
 
@@ -43,8 +54,12 @@ export class RegisterDefaultAdminTask {
                 else this._logger.info('Default admin user created successfully.')
             }
         } catch (err) {
-            this._logger.error(err.message)
-            setTimeout(run, 2000)
+            this._logger.error(`Error trying to create admin user: ${err.message}`)
+            setTimeout(this.createUserAdmin, 2000)
         }
+    }
+
+    public stop(): Promise<void> {
+        return Promise.resolve()
     }
 }
