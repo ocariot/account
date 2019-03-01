@@ -5,6 +5,7 @@ import { IEventBus } from '../infrastructure/port/event.bus.interface'
 import { CustomLogger } from '../utils/custom.logger'
 import { RegisterDefaultAdminTask } from './task/register.default.admin.task'
 import { DI } from '../di/di'
+import { GenerateJwtKeysTask } from './task/generate.jwt.keys.task'
 
 @injectable()
 export class BackgroundService {
@@ -35,6 +36,9 @@ export class BackgroundService {
             /**
              * Register your events using the event bus instance here.
              */
+
+            /** Create JWT Keys task. */
+            await new GenerateJwtKeysTask(this._logger).generateKeys()
         } catch (err) {
             this._logger.error(`Error initializing services in background: ${err.message}`)
         }
