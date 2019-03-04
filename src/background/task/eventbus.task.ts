@@ -6,7 +6,7 @@ import { Query } from '../../infrastructure/repository/query/query'
 import { IIntegrationEventRepository } from '../../application/port/integration.event.repository.interface'
 import { IntegrationEvent } from '../../application/integration-event/event/integration.event'
 import { UserDeleteEvent } from '../../application/integration-event/event/user.delete.event'
-import { User, UserType } from '../../application/domain/model/user'
+import { User } from '../../application/domain/model/user'
 import { UserUpdateEvent } from '../../application/integration-event/event/user.update.event'
 import { Child } from '../../application/domain/model/child'
 import { Family } from '../../application/domain/model/family'
@@ -61,8 +61,10 @@ export class EventBusTask implements IBackgroundTask {
     private publishSavedEvents(): void {
         this._eventBus.connectionPub
             .tryConnect(0, 1500)
-            .then(() => {
+            .then(async () => {
                 this._logger.info('Connection to publish established successfully!')
+                await this.internalPublishSavedEvents(this.publishEvent, this._eventBus,
+                    this._integrationEventRepository, this._logger)
 
                 this.handlerPub = setInterval(this.internalPublishSavedEvents, 300000, // 5min
                     this.publishEvent,
@@ -112,43 +114,41 @@ export class EventBusTask implements IBackgroundTask {
                 new User().fromJSON(event.user)
             )
             return eventBus.publish(userDeleteEvent, event.__routing_key)
-        } else if (event.event_name === 'UserUpdateEvent') {
-            if (event.user.type === UserType.CHILD) {
-                const userChildUpdateEvent: UserUpdateEvent<Child> = new UserUpdateEvent(
-                    event.event_name,
-                    event.timestamp,
-                    new Child().fromJSON(event.child)
-                )
-                return eventBus.publish(userChildUpdateEvent, event.__routing_key)
-            } else if (event.user.type === UserType.FAMILY) {
-                const userFamilyUpdateEvent: UserUpdateEvent<Family> = new UserUpdateEvent(
-                    event.event_name,
-                    event.timestamp,
-                    new Family().fromJSON(event.child)
-                )
-                return eventBus.publish(userFamilyUpdateEvent, event.__routing_key)
-            } else if (event.user.type === UserType.EDUCATOR) {
-                const userEducatorUpdateEvent: UserUpdateEvent<Educator> = new UserUpdateEvent(
-                    event.event_name,
-                    event.timestamp,
-                    new Educator().fromJSON(event.child)
-                )
-                return eventBus.publish(userEducatorUpdateEvent, event.__routing_key)
-            } else if (event.user.type === UserType.HEALTH_PROFESSIONAL) {
-                const userHealthProfessionalUpdateEvent: UserUpdateEvent<HealthProfessional> = new UserUpdateEvent(
-                    event.event_name,
-                    event.timestamp,
-                    new HealthProfessional().fromJSON(event.child)
-                )
-                return eventBus.publish(userHealthProfessionalUpdateEvent, event.__routing_key)
-            } else if (event.user.type === UserType.APPLICATION) {
-                const userApplicationUpdateEvent: UserUpdateEvent<Application> = new UserUpdateEvent(
-                    event.event_name,
-                    event.timestamp,
-                    new Application().fromJSON(event.child)
-                )
-                return eventBus.publish(userApplicationUpdateEvent, event.__routing_key)
-            }
+        } else if (event.event_name === 'ChildUpdateEvent') {
+            const userChildUpdateEvent: UserUpdateEvent<Child> = new UserUpdateEvent(
+                event.event_name,
+                event.timestamp,
+                new Child().fromJSON(event.child)
+            )
+            return eventBus.publish(userChildUpdateEvent, event.__routing_key)
+        } else if (event.event_name === 'FamilyUpdateEvent') {
+            const userFamilyUpdateEvent: UserUpdateEvent<Family> = new UserUpdateEvent(
+                event.event_name,
+                event.timestamp,
+                new Family().fromJSON(event.child)
+            )
+            return eventBus.publish(userFamilyUpdateEvent, event.__routing_key)
+        } else if (event.event_name === 'EducatorUpdateEvent') {
+            const userEducatorUpdateEvent: UserUpdateEvent<Educator> = new UserUpdateEvent(
+                event.event_name,
+                event.timestamp,
+                new Educator().fromJSON(event.child)
+            )
+            return eventBus.publish(userEducatorUpdateEvent, event.__routing_key)
+        } else if (event.event_name === 'HealthProfessionalUpdateEvent') {
+            const userHealthProfessionalUpdateEvent: UserUpdateEvent<HealthProfessional> = new UserUpdateEvent(
+                event.event_name,
+                event.timestamp,
+                new HealthProfessional().fromJSON(event.child)
+            )
+            return eventBus.publish(userHealthProfessionalUpdateEvent, event.__routing_key)
+        } else if (event.event_name === 'ApplicationUpdateEvent') {
+            const userApplicationUpdateEvent: UserUpdateEvent<Application> = new UserUpdateEvent(
+                event.event_name,
+                event.timestamp,
+                new Application().fromJSON(event.child)
+            )
+            return eventBus.publish(userApplicationUpdateEvent, event.__routing_key)
         }
         return Promise.resolve(false)
     }

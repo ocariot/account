@@ -67,6 +67,7 @@ export abstract class Identifier {
     // Tasks
     public static readonly REGISTER_DEFAULT_ADMIN_TASK: any = Symbol.for('RegisterDefaultAdminTask')
     public static readonly EVENT_BUS_TASK: any = Symbol.for('EventBusTask')
+    public static readonly GENERATE_JWT_KEYS_TASK: any = Symbol.for('GenerateJwtKeysTask')
 
     // Log
     public static readonly LOGGER: any = Symbol.for('CustomLogger')

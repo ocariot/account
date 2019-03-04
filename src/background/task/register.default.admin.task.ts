@@ -32,8 +32,8 @@ export class RegisterDefaultAdminTask implements IBackgroundTask {
     }
 
     public async run(): Promise<void> {
-        await this._mongodb.eventConnection.on('connected', () => {
-            this.createUserAdmin().then()
+        this._mongodb.eventConnection.on('connected', async () => {
+            await this.createUserAdmin()
         })
     }
 

@@ -92,6 +92,7 @@ import { IntegrationEventRepository } from '../infrastructure/repository/integra
 import { IntegrationEventRepoModel } from '../infrastructure/database/schema/integration.event.schema'
 import { IBackgroundTask } from '../application/port/background.task.interface'
 import { RegisterDefaultAdminTask } from '../background/task/register.default.admin.task'
+import { GenerateJwtKeysTask } from '../background/task/generate.jwt.keys.task'
 
 export class DI {
     private static instance: DI
@@ -255,10 +256,12 @@ export class DI {
         this.container
             .bind<IBackgroundTask>(Identifier.EVENT_BUS_TASK)
             .to(EventBusTask).inRequestScope()
-
         this.container
             .bind<IBackgroundTask>(Identifier.REGISTER_DEFAULT_ADMIN_TASK)
             .to(RegisterDefaultAdminTask).inRequestScope()
+        this.container
+            .bind<IBackgroundTask>(Identifier.GENERATE_JWT_KEYS_TASK)
+            .to(GenerateJwtKeysTask).inRequestScope()
 
         // Log
         this.container.bind<ILogger>(Identifier.LOGGER).to(CustomLogger).inSingletonScope()

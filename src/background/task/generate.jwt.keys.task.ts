@@ -1,15 +1,23 @@
-import { inject } from 'inversify'
+import pem from 'pem'
+import fs from 'fs'
+import { inject, injectable } from 'inversify'
 import { Identifier } from '../../di/identifiers'
 import { ILogger } from '../../utils/custom.logger'
 import { Default } from '../../utils/default'
-import pem from 'pem'
-import * as fs from 'fs'
+import { IBackgroundTask } from '../../application/port/background.task.interface'
 
 const jwt_private_key_path = process.env.JWT_PRIVATE_KEY_PATH || Default.JWT_PRIVATE_KEY_PATH
 const jwt_public_key_path = process.env.JWT_PUBLIC_KEY_PATH || Default.JWT_PUBLIC_KEY_PATH
 
-export class GenerateJwtKeysTask {
-    constructor(@inject(Identifier.LOGGER) private readonly _logger: ILogger){}
+@injectable()
+export class GenerateJwtKeysTask implements IBackgroundTask {
+
+    constructor(@inject(Identifier.LOGGER) private readonly _logger: ILogger) {
+    }
+
+    public async run(): Promise<void> {
+        await this.generateKeys()
+    }
 
     public async generateKeys(): Promise<void> {
         if (!fs.existsSync(jwt_private_key_path) || !fs.existsSync(jwt_public_key_path)) {
@@ -19,7 +27,7 @@ export class GenerateJwtKeysTask {
                 fs.writeFileSync(jwt_private_key_path, privateKey, 'ascii')
                 fs.writeFileSync(jwt_public_key_path, publicKey, 'ascii')
             } catch (err) {
-                this._logger.error('Failure generating JWT keys: \r\n' + err)
+                this._logger.error(`Failure generating JWT keys: ${err.message}`)
             }
         }
     }
@@ -40,5 +48,9 @@ export class GenerateJwtKeysTask {
                 return resolve(key.publicKey)
             })
         })
+    }
+
+    public stop(): Promise<void> {
+        return Promise.resolve()
     }
 }
