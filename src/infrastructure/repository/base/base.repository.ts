@@ -81,7 +81,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         })
     }
 
-    public delete(id: string | number): Promise<boolean> {
+    public delete(id: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             this.Model.findOneAndDelete({ _id: id })
                 .exec()

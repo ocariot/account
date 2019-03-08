@@ -41,7 +41,6 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     }
 
     public async add(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
-
         try {
             // 1. Validate Health Professional parameters.
             CreateHealthProfessionalValidator.validate(healthProfessional)
@@ -73,13 +72,16 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         return this._healthProfessionalRepository.find(query)
     }
 
-    public async getById(id: string | number, query: IQuery): Promise<HealthProfessional> {
+    public async getById(id: string, query: IQuery): Promise<HealthProfessional> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Find a health professional.
         query.addFilter({ _id: id, type: UserType.HEALTH_PROFESSIONAL })
         return this._healthProfessionalRepository.findOne(query)
     }
 
     public async update(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
-
         try {
             // 1. Validate Health Professional parameters.
             UpdateUserValidator.validate(healthProfessional)
@@ -121,22 +123,28 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     public async remove(id: string): Promise<boolean> {
         let isDeleted: boolean
 
-        // 1. Delete the health professional by id and your children groups.
         try {
+            // 1. Validate id.
+            ObjectIdValidator.validate(id)
+
+            // 2. Delete the health professional by id and your children groups.
             isDeleted = await this._healthProfessionalRepository.delete(id)
             if (isDeleted) await this._childrenGroupRepository.deleteAllChildrenGroupsFromUser(id)
         } catch (err) {
             return Promise.reject(err)
         }
 
-        // 2. Returns status for health professional deletion.
+        // 3. Returns status for health professional deletion.
         return Promise.resolve(isDeleted)
     }
 
     public async saveChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
-            // 1. Checks if the health professional exists.
-            const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
+            // 1. Validate id.
+            ObjectIdValidator.validate(healthProfessionalId)
+            // 2. Checks if the health professional exists.
+            const healthProfessional: HealthProfessional =
+                await this._healthProfessionalRepository.findById(healthProfessionalId)
             if (!healthProfessional || !healthProfessional.children_groups) {
                 throw new ValidationException(
                     Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
@@ -144,14 +152,14 @@ export class HealthProfessionalService implements IHealthProfessionalService {
                 )
             }
 
-            // 2. Save children group.
+            // 3. Save children group.
             const childrenGroupResult: ChildrenGroup = await this._childrenGroupService.add(childrenGroup)
 
-            // 3. Update health professional with group of children created.
+            // 4. Update health professional with group of children created.
             healthProfessional.addChildrenGroup(childrenGroupResult)
             await this._healthProfessionalRepository.update(healthProfessional)
 
-            // 4. If everything succeeds, it returns the data of the created group.
+            // 5. If everything succeeds, it returns the data of the created group.
             return Promise.resolve(childrenGroupResult)
         } catch (err) {
             return Promise.reject(err)
@@ -160,14 +168,18 @@ export class HealthProfessionalService implements IHealthProfessionalService {
 
     public async getAllChildrenGroups(healthProfessionalId: string, query: IQuery): Promise<Array<ChildrenGroup>> {
         try {
-            // 1. Checks if the health professional exists.
-            const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
+            // 1. Validate id.
+            ObjectIdValidator.validate(healthProfessionalId)
+
+            // 2. Checks if the health professional exists.
+            const healthProfessional: HealthProfessional =
+                await this._healthProfessionalRepository.findById(healthProfessionalId)
             if (!healthProfessional || healthProfessional.id !== healthProfessionalId
                 || (healthProfessional.children_groups && healthProfessional.children_groups.length === 0)) {
                 return Promise.resolve([])
             }
 
-            // 2. Retrieves children groups by health professional id.
+            // 3. Retrieves children groups by health professional id.
             query.addFilter({ user_id: healthProfessionalId })
             return this._childrenGroupService.getAll(query)
         } catch (err) {

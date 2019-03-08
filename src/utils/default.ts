@@ -36,14 +36,14 @@ export abstract class Default {
     public static readonly ADMIN_PASSWORD: string = 'admin*159'
 
     // Certificate Path
-    public static readonly CERT_DIR_PATH: string = 'certs'
-    public static readonly JWT_PRIVATE_KEY_PATH: string = 'certs/jwt.key'
-    public static readonly JWT_PUBLIC_KEY_PATH: string = 'certs/jwt.pem'
+    public static readonly CERT_DIR_PATH: string = '.certs'
+    public static readonly JWT_PRIVATE_KEY_PATH: string = '.certs/jwt.key'
+    public static readonly JWT_PUBLIC_KEY_PATH: string = '.certs/jwt.pem'
 
     // Certificate
     // To generate self-signed certificates, see: https://devcenter.heroku.com/articles/ssl-certificate-self
-    public static readonly PRIVATE_KEY_CERT_PATH: string = 'certs/server.key'
-    public static readonly CERT_PATH: string = 'certs/server.crt'
+    public static readonly PRIVATE_KEY_CERT_PATH: string = '.certs/server.key'
+    public static readonly CERT_PATH: string = '.certs/server.crt'
 
     public static readonly IP_WHITELIST: Array<string> = ['*']
 }

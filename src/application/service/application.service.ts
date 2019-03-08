@@ -15,6 +15,7 @@ import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { UserUpdateEvent } from '../integration-event/event/user.update.event'
 import { IEventBus } from '../../infrastructure/port/event.bus.interface'
 import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
+import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 
 /**
  * Implementation of the service for user of type Application.
@@ -64,7 +65,11 @@ export class ApplicationService implements IApplicationService {
         return this._applicationRepository.find(query)
     }
 
-    public async getById(id: string | number, query: IQuery): Promise<Application> {
+    public async getById(id: string, query: IQuery): Promise<Application> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Get a application.
         query.addFilter({ _id: id, type: UserType.APPLICATION })
         return this._applicationRepository.findOne(query)
     }
@@ -109,6 +114,10 @@ export class ApplicationService implements IApplicationService {
     }
 
     public async remove(id: string): Promise<boolean> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Delete a application.
         return this._applicationRepository.delete(id)
     }
 

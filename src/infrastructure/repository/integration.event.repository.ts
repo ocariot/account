@@ -37,7 +37,7 @@ export class IntegrationEventRepository implements IIntegrationEventRepository {
         })
     }
 
-    public delete(id: string | number): Promise<boolean> {
+    public delete(id: string): Promise<boolean> {
         return new Promise<boolean>((resolve, reject) => {
             this.model.findOneAndDelete({ _id: id })
                 .exec()

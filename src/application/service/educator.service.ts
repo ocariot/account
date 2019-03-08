@@ -69,7 +69,11 @@ export class EducatorService implements IEducatorService {
         return this._educatorRepository.find(query)
     }
 
-    public async getById(id: string | number, query: IQuery): Promise<Educator> {
+    public async getById(id: string, query: IQuery): Promise<Educator> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Get a educator.
         query.addFilter({ _id: id, type: UserType.EDUCATOR })
         return this._educatorRepository.findOne(query)
     }
@@ -115,22 +119,27 @@ export class EducatorService implements IEducatorService {
 
     public async remove(id: string): Promise<boolean> {
         let isDeleted: boolean
-
-        // 1. Delete the educator by id and your children groups.
         try {
+            // 1. Validate id.
+            ObjectIdValidator.validate(id)
+
+            // 2.Delete the educator by id and your children groups.
             isDeleted = await this._educatorRepository.delete(id)
             if (isDeleted) await this._childrenGroupRepository.deleteAllChildrenGroupsFromUser(id)
         } catch (err) {
             return Promise.reject(err)
         }
 
-        // 2. Returns status for educator deletion.
+        // 3. Returns status for educator deletion.
         return Promise.resolve(isDeleted)
     }
 
     public async saveChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
-            // 1. Checks if the educator exists.
+            // 1. Validate id.
+            ObjectIdValidator.validate(educatorId)
+
+            // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
             if (!educator || !educator.children_groups) {
                 throw new ValidationException(
@@ -155,14 +164,17 @@ export class EducatorService implements IEducatorService {
 
     public async getAllChildrenGroups(educatorId: string, query: IQuery): Promise<Array<ChildrenGroup>> {
         try {
-            // 1. Checks if the educator exists.
+            // 1. Validate id.
+            ObjectIdValidator.validate(educatorId)
+
+            // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
             if (!educator || educator.id !== educatorId
                 || (educator.children_groups && educator.children_groups.length === 0)) {
                 return Promise.resolve([])
             }
 
-            // 2. Retrieves children groups by educator id.
+            // 3. Retrieves children groups by educator id.
             query.addFilter({ user_id: educatorId })
             return this._childrenGroupService.getAll(query)
         } catch (err) {
@@ -200,7 +212,6 @@ export class EducatorService implements IEducatorService {
 
     public async updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
-
             // 1. Validate if educator id or children group id is valid
             ObjectIdValidator.validate(educatorId)
             if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id)

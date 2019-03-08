@@ -14,6 +14,7 @@ import { IFamilyService } from '../port/family.service.interface'
 import { IApplicationService } from '../port/application.service.interface'
 import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
 import { ILogger } from '../../utils/custom.logger'
+import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 
 /**
  * Implementing user Service.
@@ -41,7 +42,13 @@ export class UserService implements IUserService {
     }
 
     public async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(userId)
+
+        // 2. Validate passwords.
         UpdatePasswordValidator.validate(oldPassword, newPassword)
+
+        // 3. Update user password.
         return this._userRepository.changePassword(userId, oldPassword, newPassword)
     }
 
@@ -49,20 +56,27 @@ export class UserService implements IUserService {
         return this._userRepository.find(query)
     }
 
-    public async getById(id: string | number, query: IQuery): Promise<User> {
+    public async getById(id: string, query: IQuery): Promise<User> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Get a user.
         query.addFilter({ _id: id })
         return this._userRepository.findOne(query)
     }
 
     public async remove(id: string): Promise<boolean> {
-        // 1. Find a user by id.
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Find a user by id.
         const user = await this._userRepository.findById(id)
         if (!user) return Promise.resolve(false)
 
         let userDel: boolean = false
 
         if (user && user.type) {
-            // 2. Check the types of users to direct the deletion operation to their respective services.
+            // 3. Check the types of users to direct the deletion operation to their respective services.
             switch (user.type) {
                 case UserType.EDUCATOR:
                     userDel = await this._educatorService.remove(id)

@@ -79,7 +79,11 @@ export class FamilyService implements IFamilyService {
         return this._familyRepository.find(query)
     }
 
-    public async getById(id: string | number, query: IQuery): Promise<Family> {
+    public async getById(id: string, query: IQuery): Promise<Family> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Find a family.
         query.addFilter({ _id: id, type: UserType.FAMILY })
         return this._familyRepository.findOne(query)
     }
@@ -133,10 +137,18 @@ export class FamilyService implements IFamilyService {
     }
 
     public async remove(id: string): Promise<boolean> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Delete a family.
         return this._familyRepository.delete(id)
     }
 
     public async getAllChildren(familyId: string, query: IQuery): Promise<Array<Child> | undefined> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(familyId)
+
+        // 2. Get all children from family.
         query.addFilter({ _id: familyId, type: UserType.FAMILY })
 
         try {

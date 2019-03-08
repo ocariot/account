@@ -11,6 +11,7 @@ export class CreateFamilyValidator {
         if (!family.password) fields.push('password')
         if (!family.type) fields.push('type')
         if (!family.institution || !family.institution.id) fields.push('institution')
+        else ObjectIdValidator.validate(family.institution.id)
         if (!family.children || !family.children.length) {
             fields.push('Collection with children IDs')
         } else {

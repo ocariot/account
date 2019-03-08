@@ -17,6 +17,7 @@ import { UserUpdateEvent } from '../integration-event/event/user.update.event'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 import { IFamilyRepository } from '../port/family.repository.interface'
 import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
+import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 
 /**
  * Implementing child Service.
@@ -68,7 +69,11 @@ export class ChildService implements IChildService {
         return this._childRepository.find(query)
     }
 
-    public async getById(id: string | number, query: IQuery): Promise<Child> {
+    public async getById(id: string, query: IQuery): Promise<Child> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Get a child.
         query.addFilter({ _id: id, type: UserType.CHILD })
         return this._childRepository.findOne(query)
     }
@@ -112,11 +117,14 @@ export class ChildService implements IChildService {
     }
 
     public async remove(id: string): Promise<boolean> {
-        // 1. Delete a child
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Delete a child
         const childDel = await this._childRepository.delete(id)
         if (!childDel) return Promise.resolve(false)
 
-        // 2. Disassociate a child from another entities if the delete was successful
+        // 3. Disassociate a child from another entities if the delete was successful
         try {
             await this._childrenGroupRepository.disassociateChildFromChildrenGroups(id)
             await this._familyRepository.disassociateChildFromFamily(id)

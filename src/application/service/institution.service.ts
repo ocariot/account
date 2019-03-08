@@ -10,6 +10,7 @@ import { CreateInstitutionValidator } from '../domain/validator/create.instituti
 import { Strings } from '../../utils/strings'
 import { IUserRepository } from '../port/user.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
+import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 
 /**
  * Implementing Institution Service.
@@ -45,25 +46,36 @@ export class InstitutionService implements IInstitutionService {
         return this._institutionRepository.find(query)
     }
 
-    public async getById(id: string | number, query: IQuery): Promise<Institution> {
+    public async getById(id: string, query: IQuery): Promise<Institution> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(id)
+
+        // 2. Get a institution.
         query.filters = { _id: id }
         return this._institutionRepository.findOne(query)
     }
 
     public async update(institution: Institution): Promise<Institution> {
+        // 1. Validate id.
+        if (institution.id) ObjectIdValidator.validate(institution.id)
+
+        // 2. Update a institution.
         return this._institutionRepository.update(institution)
     }
 
     public async remove(id: string): Promise<boolean> {
         try {
-            // 1. Checks if Institution is associated with one or more users.
+            // 1. Validate id.
+            ObjectIdValidator.validate(id)
+
+            // 2. Checks if Institution is associated with one or more users.
             const hasInstitution = await this._userRepository.hasInstitution(id)
             if (hasInstitution) throw new ValidationException(Strings.INSTITUTION.HAS_ASSOCIATION)
         } catch (err) {
             return Promise.reject(err)
         }
 
-        // 2. Delete the Institution by id.
+        // 3. Delete the Institution by id.
         return this._institutionRepository.delete(id)
     }
 }
