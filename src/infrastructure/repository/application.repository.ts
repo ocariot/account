@@ -71,11 +71,16 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<Application>) => resolve(
-                    result
+                .then((result: Array<Application>) => {
+                    if (!(Object.keys(populate.match).length)) {
+                        return resolve(result.map(item => this.mapper.transform(item)))
+                    }
+
+                    return resolve(result
                         .filter(item => item.institution)
                         .map(item => this.mapper.transform(item))
-                ))
+                    )
+                })
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
