@@ -16,6 +16,7 @@ export class CreateChildrenGroupValidator {
             childrenGroup.children.forEach(child => {
                 if (!child.id) {
                     fields.push('Collection with children IDs (ID can not be empty)')
+                    return
                 } else {
                     ObjectIdValidator.validate(child.id)
                 }
