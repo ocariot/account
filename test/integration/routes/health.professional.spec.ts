@@ -459,7 +459,7 @@ describe('Routes: HealthProfessional', () => {
 
     })
 
-    describe('GET /users/healthprofessionals/:healthprofessional_id/children/groups/group_id', () => {
+    describe('GET /users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when want get a unique children group', () => {
             it('should return status code 200 and a children group', () => {
                 const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
@@ -531,7 +531,7 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('PATCH /users/healthprofessionals/:healthprofessional_id/children/groups/group_id', () => {
+    describe('PATCH /users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and a updated children group', () => {
                 defaultChildrenGroup.school_class = '5th Grade'
@@ -637,7 +637,7 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('DELETE /users/healthprofessionals/:healthprofessional_id/children/groups/group_id', () => {
+    describe('DELETE /users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when the delete was successful', () => {
             it('should return status code 204 and no content', () => {
                 const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`

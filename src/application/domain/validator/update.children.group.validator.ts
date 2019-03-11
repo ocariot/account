@@ -15,8 +15,6 @@ export class UpdateChildrenGroupValidator {
                     ObjectIdValidator.validate(child.id)
                 }
             })
-        } else {
-            fields.push('Collection with children IDs')
         }
 
         if (fields.length > 0) {

@@ -459,7 +459,7 @@ describe('Routes: Educator', () => {
 
     })
 
-    describe('GET /users/educators/:educator_id/children/groups/group_id', () => {
+    describe('GET /users/educators/:educator_id/children/groups/:group_id', () => {
         context('when want get a unique children group', () => {
             it('should return status code 200 and a children group', () => {
                 return request
@@ -526,7 +526,7 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('PATCH /users/educators/:educator_id/children/groups/group_id', () => {
+    describe('PATCH /users/educators/:educator_id/children/groups/:group_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and a updated children group', () => {
                 defaultChildrenGroup.school_class = '5th Grade'
@@ -620,7 +620,7 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('DELETE /users/educators/:educator_id/children/groups/group_id', () => {
+    describe('DELETE /users/educators/:educator_id/children/groups/:group_id', () => {
         context('when the delete was successful', () => {
             it('should return status code 204 and no content', () => {
                 return request
