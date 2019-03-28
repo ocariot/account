@@ -1,8 +1,6 @@
 import { Institution } from '../../src/application/domain/model/institution'
-import { ChildMock } from './child.mock'
 import { Educator } from '../../src/application/domain/model/educator'
-import { ChildrenGroup } from '../../src/application/domain/model/children.group'
-import { UserMock } from './user.mock'
+import { ChildrenGroupMock } from './children.group.mock'
 
 export class EducatorMock extends Educator {
 
@@ -18,13 +16,7 @@ export class EducatorMock extends Educator {
         educator.password = 'password_mock'
         educator.institution = this.generateInstitution()
 
-        const children_group: ChildrenGroup = new ChildrenGroup()
-        children_group.name = 'children group 1'
-        children_group.children = [new ChildMock(), new ChildMock(), new ChildMock()]
-        children_group.school_class = 'Room 01'
-        children_group.user = new UserMock()
-
-        educator.children_groups = [children_group]
+        educator.children_groups = [new ChildrenGroupMock(), new ChildrenGroupMock()]
 
         return educator
     }
