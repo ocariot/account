@@ -61,9 +61,46 @@ describe('Repositories: Base', () => {
     })
 
     // TODO implement test for create method
-    describe('create()', () => {
-        it('Not implemented yet.', () => {
-            return repo
+    describe('create(item: T)', () => {
+        context('when a database error occurs (arguments not passed to findOne)', () => {
+            it('should throw a ValidationException', () => {
+
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .chain('exec')
+                    .resolves(defaultUser)
+
+                return repo.create(queryMock)
+                    .catch(err => {
+                        assert.isNotNull(err)
+                        assert.property(err, 'message')
+                        assert.propertyVal(err, 'message', 'Invalid query parameters!')
+                    })
+            })
+        })
+
+        context('when a database error occurs (internal error in the database)', () => {
+            it('should throw a RepositoryException', () => {
+
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                return repo.create(queryMock)
+                    .catch(err => {
+                        assert.isNotNull(err)
+                        assert.property(err, 'message')
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.property(err, 'description')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
         })
     })
 
@@ -124,6 +161,36 @@ describe('Repositories: Base', () => {
                     })
             })
         })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('find')
+                    .chain('select')
+                    .withArgs(queryMock.toJSON().fields)
+                    .chain('sort')
+                    .withArgs(queryMock.toJSON().ordination)
+                    .chain('skip')
+                    .withArgs(queryMock.toJSON().pagination.skip)
+                    .chain('limit')
+                    .withArgs(queryMock.toJSON().pagination.limit)
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                return repo.find(queryMock)
+                    .catch (err => {
+                        assert.isNotNull(err)
+                        assert.property(err, 'message')
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.property(err, 'description')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
     })
 
     describe('findOne()', () => {
@@ -176,6 +243,31 @@ describe('Repositories: Base', () => {
                 return repo.findOne(customQueryMock)
                     .then(user => {
                         assert.isNotObject(user)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(customQueryMock.toJSON().filters)
+                    .chain('select')
+                    .withArgs(customQueryMock.toJSON().fields)
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                return repo.findOne(customQueryMock)
+                    .catch (err => {
+                        assert.isNotNull(err)
+                        assert.property(err, 'message')
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.property(err, 'description')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
                     })
             })
         })
@@ -364,6 +456,41 @@ describe('Repositories: Base', () => {
                     .then((countUsers: number) => {
                         assert.isNumber(countUsers)
                         assert.equal(countUsers, 0)
+                    })
+            })
+        })
+
+        context('when a database occurs', () => {
+            it('should throw a RepositoryException', () => {
+
+                const customQueryMock: any = {
+                    toJSON: () => {
+                        return {
+                            fields: {},
+                            ordination: {},
+                            pagination: { page: 1, limit: 100 },
+                            filters: { type: 3 }
+                        }
+                    }
+                }
+
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs(customQueryMock.toJSON().filters)
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                return repo.count(customQueryMock)
+                    .catch (err => {
+                        assert.isNotNull(err)
+                        assert.property(err, 'message')
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.property(err, 'description')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
                     })
             })
         })

@@ -58,8 +58,8 @@ export abstract class Identifier {
 
     // Background Services
     public static readonly RABBITMQ_EVENT_BUS: any = Symbol.for('EventBusRabbitMQ')
-    public static readonly RABBITMQ_CONNECTION_FACTORY: any = Symbol.for('RabbitMQConnectionFactory')
-    public static readonly RABBITMQ_CONNECTION: any = Symbol.for('ConnectionRabbitmq')
+    public static readonly RABBITMQ_CONNECTION_FACTORY: any = Symbol.for('ConnectionFactoryRabbitMQ')
+    public static readonly RABBITMQ_CONNECTION: any = Symbol.for('ConnectionRabbitMQ')
     public static readonly MONGODB_CONNECTION_FACTORY: any = Symbol.for('ConnectionFactoryMongoDB')
     public static readonly MONGODB_CONNECTION: any = Symbol.for('ConnectionMongoDB')
     public static readonly BACKGROUND_SERVICE: any = Symbol.for('BackgroundService')

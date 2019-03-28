@@ -1,0 +1,4 @@
+
+describe('Mappers: ApplicationEntity', () => {
+    //
+})
