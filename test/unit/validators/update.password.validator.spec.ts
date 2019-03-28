@@ -1,7 +1,7 @@
 import { UpdatePasswordValidator } from '../../../src/application/domain/validator/update.password.validator'
 import { assert } from 'chai'
 
-describe('Validators: UpdatePassworld', () => {
+describe('Validators: UpdatePassword', () => {
     it('should return undefined when the validation was successful', () => {
         const result = UpdatePasswordValidator.validate('oldpass', 'newpass')
         assert.equal(result, undefined)
