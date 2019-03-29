@@ -60,6 +60,11 @@ describe('Services: Educator', () => {
 
     const incorrectChildrenGroup: ChildrenGroup = new ChildrenGroup()
 
+    const childrenGroupArr: Array<ChildrenGroup> = new Array<ChildrenGroupMock>()
+    for (let i = 0; i < 3; i++) {
+        childrenGroupArr.push(new ChildrenGroupMock())
+    }
+
     const modelFake: any = UserRepoModel
     const modelChildrenGroupFake: any = ChildrenGroupRepoModel
     const educatorRepo: IEducatorRepository = new EducatorRepositoryMock()
@@ -220,7 +225,7 @@ describe('Services: Educator', () => {
                     .expects('find')
                     .withArgs(query)
                     .chain('exec')
-                    .resolves(new Array(new EducatorMock()))
+                    .resolves(new Array<EducatorMock>())
 
                 return educatorService.getAll(query)
                     .then(result => {
@@ -671,165 +676,185 @@ describe('Services: Educator', () => {
      * Method "getAllChildrenGroups(educatorId: string, query: IQuery)"
      */
     describe('getAllChildrenGroups(educatorId: string, query: IQuery)', () => {
-        // context('when there is Educator with the received parameter', () => {
-        //     it('should return a ChildrenGroup that was added', () => {
-        //         const query: IQuery = new Query()
-        //         query.filters = { user_id : educator.id }
-        //         sinon
-        //             .mock(modelChildrenGroupFake)
-        //             .expects('create')
-        //             .withArgs(childrenGroup)
-        //             .chain('exec')
-        //             .resolves(childrenGroup)
-        //
-        //         return educatorService.getAllChildrenGroups(educator.id!, query)
-        //             .then(result => {
-        //                 assert.propertyVal(result, 'id', childrenGroup.id)
-        //                 assert.propertyVal(result, 'name', childrenGroup.name)
-        //                 assert.equal(result.children![0], childrenGroup.children![0])
-        //                 assert.equal(result.children![1], childrenGroup.children![1])
-        //                 assert.propertyVal(result, 'school_class', childrenGroup.school_class)
-        //             })
-        //     })
-        // })
+        context('when there is Educator with the received parameter', () => {
+            it('should return a ChildrenGroup array', () => {
+                educator.id = '507f1f77bcf86cd799439011'
+                const query: IQuery = new Query()
+                query.filters = { _id : educator.id }
+                sinon
+                    .mock(modelChildrenGroupFake)
+                    .expects('create')
+                    .withArgs(childrenGroup)
+                    .chain('exec')
+                    .resolves(childrenGroupArr)
 
-        // context('when there is no Educator with the received parameter', () => {
-        //     it('should return a ChildrenGroup that was added', () => {
-        //         educator.id = '507f1f77bcf86cd799439012'
-        //         sinon
-        //             .mock(modelChildrenGroupFake)
-        //             .expects('create')
-        //             .withArgs(childrenGroup)
-        //             .chain('exec')
-        //             .rejects({ message: Strings.EDUCATOR.NOT_FOUND,
-        //                 description: Strings.EDUCATOR.NOT_FOUND_DESCRIPTION })
-        //
-        //         return educatorService.saveChildrenGroup(educator.id, childrenGroup)
-        //             .catch(err => {
-        //                 assert.propertyVal(err, 'message', Strings.EDUCATOR.NOT_FOUND)
-        //                 assert.propertyVal(err, 'description', Strings.EDUCATOR.NOT_FOUND_DESCRIPTION)
-        //             })
-        //     })
-        // })
-        //
-        // context('when the ChildrenGroup is correct but already exists in the repository', () => {
-        //     it('should throw a ConflictException', () => {
-        //         educator.id = '507f1f77bcf86cd799439011'
-        //         childrenGroup.id = '507f1f77bcf86cd799439011'        // Make mock throw a exception
-        //         sinon
-        //             .mock(modelFake)
-        //             .expects('create')
-        //             .withArgs(childrenGroup)
-        //             .chain('exec')
-        //             .rejects({ message: Strings.CHILDREN_GROUP.ALREADY_REGISTERED})
-        //
-        //         return educatorService.saveChildrenGroup(educator.id!, childrenGroup)
-        //             .catch(err => {
-        //                 assert.propertyVal(err, 'message', Strings.CHILDREN_GROUP.ALREADY_REGISTERED)
-        //             })
-        //     })
-        // })
-        //
-        // context('when the ChildrenGroup is correct and it still does not exist in the repository but the children are not ' +
-        //     'registered', () => {
-        //     it('should throw a ValidationException', () => {
-        //         childrenGroup.id = '507f1f77bcf86cd799439012'
-        //         childrenGroup.children![0].id = '507f1f77bcf86cd799439012'      // Make mock throw a exception
-        //         sinon
-        //             .mock(modelFake)
-        //             .expects('create')
-        //             .withArgs(childrenGroup)
-        //             .chain('exec')
-        //             .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-        //                 description: Strings.CHILD.IDS_WITHOUT_REGISTER })
-        //
-        //         return educatorService.saveChildrenGroup(educator.id!, childrenGroup)
-        //             .catch(err => {
-        //                 assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-        //                 assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER)
-        //             })
-        //     })
-        // })
-        //
-        // context('when the ChildrenGroup is incorrect (the user id is invalid)', () => {
-        //     it('should throw a ValidationException', () => {
-        //         childrenGroup.id = '507f1f77bcf86cd799439012'
-        //         childrenGroup.user!.id = '507f1f77bcf86cd7994390111'      // Make mock throw a exception
-        //         sinon
-        //             .mock(modelFake)
-        //             .expects('create')
-        //             .withArgs(childrenGroup)
-        //             .chain('exec')
-        //             .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-        //                 description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
-        //
-        //         return educatorService.saveChildrenGroup(educator.id!, childrenGroup)
-        //             .catch(err => {
-        //                 assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
-        //                 assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
-        //             })
-        //     })
-        // })
-        //
-        // context('when the ChildrenGroup is incorrect (missing ChildrenGroup fields)', () => {
-        //     it('should throw a ValidationException', () => {
-        //         sinon
-        //             .mock(modelFake)
-        //             .expects('create')
-        //             .withArgs(incorrectChildrenGroup)
-        //             .chain('exec')
-        //             .rejects({ message: 'Required fields were not provided...',
-        //                 description: 'Children Group validation: name, user, Collection with children IDs is required!' })
-        //
-        //         return educatorService.saveChildrenGroup(educator.id!, incorrectChildrenGroup)
-        //             .catch(err => {
-        //                 assert.propertyVal(err, 'message', 'Required fields were not provided...')
-        //                 assert.propertyVal(err, 'description', 'Children Group validation: name, user, Collection with ' +
-        //                     'children IDs is required!')
-        //             })
-        //     })
-        // })
-        //
-        // context('when the ChildrenGroup is incorrect (missing ChildrenGroup (missing some child id) fields)', () => {
-        //     it('should throw a ValidationException', () => {
-        //         incorrectChildrenGroup.children = [new Child()]         // Make mock throw a exception
-        //         sinon
-        //             .mock(modelFake)
-        //             .expects('create')
-        //             .withArgs(incorrectChildrenGroup)
-        //             .chain('exec')
-        //             .rejects({ message: 'Required fields were not provided...',
-        //                 description: 'Children Group validation: name, user, Collection with children IDs (ID can not ' +
-        //                     'be empty) is required!' })
-        //
-        //         return educatorService.saveChildrenGroup(educator.id!, incorrectChildrenGroup)
-        //             .catch(err => {
-        //                 assert.propertyVal(err, 'message', 'Required fields were not provided...')
-        //                 assert.propertyVal(err, 'description', 'Children Group validation: name, user, Collection with ' +
-        //                     'children IDs (ID can not be empty) is required!')
-        //             })
-        //     })
-        // })
-        //
-        // context('when the ChildrenGroup is incorrect (some child id is invalid)', () => {
-        //     it('should throw a ValidationException', () => {
-        //         const childTest: Child = new Child()
-        //         childTest.id = '507f1f77bcf86cd7994390111'          // Make mock throw a exception
-        //         incorrectChildrenGroup.children = [childTest]
-        //         sinon
-        //             .mock(modelFake)
-        //             .expects('create')
-        //             .withArgs(incorrectChildrenGroup)
-        //             .chain('exec')
-        //             .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-        //                 description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
-        //
-        //         return educatorService.saveChildrenGroup(educator.id!, childrenGroup)
-        //             .catch(err => {
-        //                 assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
-        //                 assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
-        //             })
-        //     })
-        // })
+                return educatorService.getAllChildrenGroups(educator.id, query)
+                    .then(result => {
+                        assert(result, 'result must not be undefined')
+                        assert.isArray(result)
+                        assert.isNotEmpty(result)
+                    })
+            })
+        })
+
+        context('when there is no Educator with the received parameter', () => {
+            it('should return an empty array', () => {
+                educator.id = '507f1f77bcf86cd799439012'
+                const query: IQuery = new Query()
+                query.filters = { _id : educator.id }
+                sinon
+                    .mock(modelChildrenGroupFake)
+                    .expects('create')
+                    .withArgs(childrenGroup)
+                    .chain('exec')
+                    .resolves(new Array<ChildrenGroupMock>())
+
+                return educatorService.getAllChildrenGroups(educator.id, query)
+                    .then(result => {
+                        assert(result, 'result must not be undefined')
+                        assert.isArray(result)
+                        assert.isEmpty(result)
+                    })
+            })
+        })
+
+        context('when the Educator id is invalid', () => {
+            it('should throw a ValidationException', () => {
+                educator.id = '507f1f77bcf86cd7994390111'      // Make mock throw a exception
+                const query: IQuery = new Query()
+                query.filters = { _id : educator.id }
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(childrenGroup)
+                    .chain('exec')
+                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
+                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+
+                return educatorService.getAllChildrenGroups(educator.id, query)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+    })
+
+    /**
+     * Method "getChildrenGroupById(educatorId: string, childrenGroupId: string, query: IQuery)"
+     */
+    describe('getChildrenGroupById(educatorId: string, childrenGroupId: string, query: IQuery)', () => {
+        context('when there is Educator with the received parameter', () => {
+            it('should return the ChildrenGroup that was found', () => {
+                educator.id = '507f1f77bcf86cd799439011'            // Make mock return a ChildrenGroup
+                educator.children_groups![0].id = '507f1f77bcf86cd799439011'
+                const query: IQuery = new Query()
+                query.filters = { _id : educator.children_groups![0].id }
+                sinon
+                    .mock(modelChildrenGroupFake)
+                    .expects('create')
+                    .withArgs(childrenGroup)
+                    .chain('exec')
+                    .resolves(childrenGroup)
+
+                return educatorService.getChildrenGroupById(educator.id, educator.children_groups![0].id, query)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', educator.children_groups![0].id)
+                        assert.propertyVal(result, 'name', educator.children_groups![0].name)
+                        assert.property(result, 'children')
+                        assert.propertyVal(result, 'school_class', educator.children_groups![0].school_class)
+                    })
+            })
+        })
+
+        context('when there is no Educator with the received parameter', () => {
+            it('should return undefined', () => {
+                educator.id = '507f1f77bcf86cd799439012'            // Make mock return undefined
+                educator.children_groups![0].id = '507f1f77bcf86cd799439011'
+                const query: IQuery = new Query()
+                query.filters = { _id : educator.children_groups![0].id }
+                sinon
+                    .mock(modelChildrenGroupFake)
+                    .expects('create')
+                    .withArgs(childrenGroup)
+                    .chain('exec')
+                    .resolves(undefined)
+
+                return educatorService.getChildrenGroupById(educator.id, educator.children_groups![0].id, query)
+                    .then(result => {
+                        assert.isUndefined(result)
+                    })
+            })
+        })
+
+        context('when the Educator id is invalid', () => {
+            it('should throw a ValidationException', () => {
+                educator.id = '507f1f77bcf86cd7994390111'      // Make mock throw a exception
+                educator.children_groups![0].id = '507f1f77bcf86cd799439011'
+                const query: IQuery = new Query()
+                query.filters = { _id : educator.children_groups![0].id }
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(childrenGroup)
+                    .chain('exec')
+                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
+                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+
+                return educatorService.getChildrenGroupById(educator.id, educator.children_groups![0].id, query)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+
+        context('when the ChildrenGroup id is invalid', () => {
+            it('should throw a ValidationException', () => {
+                educator.id = '507f1f77bcf86cd799439011'
+                educator.children_groups![0].id = '507f1f77bcf86cd7994390111'  // Make mock throw a exception
+                const query: IQuery = new Query()
+                query.filters = { _id : educator.children_groups![0].id }
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(childrenGroup)
+                    .chain('exec')
+                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
+                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+
+                return educatorService.getChildrenGroupById(educator.id, educator.children_groups![0].id, query)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+    })
+
+    /**
+     * Method "updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup)"
+     */
+    describe('updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup)', () => {
+        context('when there is Educator with the received parameter', () => {
+            it('should return the ChildrenGroup that was updated', () => {
+                educator.children_groups![0].id = '507f1f77bcf86cd799439011'        // Make id valid again
+                sinon
+                    .mock(modelChildrenGroupFake)
+                    .expects('create')
+                    .withArgs(childrenGroup)
+                    .chain('exec')
+                    .resolves(childrenGroup)
+
+                return educatorService.updateChildrenGroup(educator.id!, educator.children_groups![0])
+                    .then(result => {
+                        assert.propertyVal(result, 'id', educator.children_groups![0].id)
+                        assert.propertyVal(result, 'name', educator.children_groups![0].name)
+                        assert.equal(result.children![0], educator.children_groups![0].children![0])
+                        assert.equal(result.children![1], educator.children_groups![0].children![1])
+                        assert.propertyVal(result, 'school_class', educator.children_groups![0].school_class)
+                    })
+            })
+        })
     })
 })

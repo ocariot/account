@@ -205,7 +205,7 @@ describe('Services: Child', () => {
                     .expects('find')
                     .withArgs(query)
                     .chain('exec')
-                    .resolves(new Array(new ChildMock()))
+                    .resolves(new Array<ChildMock>())
 
                 return childService.getAll(query)
                     .then(result => {

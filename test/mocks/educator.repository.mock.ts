@@ -34,6 +34,8 @@ export class EducatorRepositoryMock implements IEducatorRepository {
     public findById(educatorId: string): Promise<Educator> {
         if (educatorId === '507f1f77bcf86cd799439011') {
             const educator: Educator = new EducatorMock()
+            educator.id = '507f1f77bcf86cd799439011'
+            educator.children_groups![0].id = '507f1f77bcf86cd799439011'
             return Promise.resolve(educator)
         }
         return Promise.resolve(undefined!)

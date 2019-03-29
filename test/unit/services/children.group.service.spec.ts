@@ -95,7 +95,7 @@ describe('Services: ChildrenGroup', () => {
                     .withArgs(childrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                        description: Strings.CHILD.IDS_WITHOUT_REGISTER })
+                               description: Strings.CHILD.IDS_WITHOUT_REGISTER })
 
                 return childrenGroupService.add(childrenGroup)
                     .catch(err => {
@@ -115,7 +115,7 @@ describe('Services: ChildrenGroup', () => {
                     .withArgs(childrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childrenGroupService.add(childrenGroup)
                     .catch(err => {
@@ -133,7 +133,7 @@ describe('Services: ChildrenGroup', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: 'Required fields were not provided...',
-                        description: 'Children Group validation: name, user, Collection with children IDs is required!' })
+                               description: 'Children Group validation: name, user, Collection with children IDs is required!' })
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
@@ -153,8 +153,8 @@ describe('Services: ChildrenGroup', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: 'Required fields were not provided...',
-                        description: 'Children Group validation: name, user, Collection with children IDs (ID can not ' +
-                            'be empty) is required!' })
+                               description: 'Children Group validation: name, user, Collection with children IDs (ID can not ' +
+                                   'be empty) is required!' })
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
@@ -176,7 +176,7 @@ describe('Services: ChildrenGroup', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
@@ -222,7 +222,7 @@ describe('Services: ChildrenGroup', () => {
                     .expects('find')
                     .withArgs(query)
                     .chain('exec')
-                    .resolves(new Array(new ChildrenGroupMock()))
+                    .resolves(new Array<ChildrenGroupMock>())
 
                 return childrenGroupService.getAll(query)
                     .then(result => {
@@ -252,7 +252,10 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.getById(childrenGroup.id, query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
+                        assert.propertyVal(result, 'id', childrenGroup.id)
+                        assert.propertyVal(result, 'name', childrenGroup.name)
+                        assert.property(result, 'children')
+                        assert.propertyVal(result, 'school_class', childrenGroup.school_class)
                     })
             })
         })
@@ -320,6 +323,26 @@ describe('Services: ChildrenGroup', () => {
             })
         })
 
+        context('when the ChildrenGroup exists in the database but the children are not registered', () => {
+            it('should throw a ValidationException', () => {
+                childrenGroup.id = '507f1f77bcf86cd799439011'         // Make mock return an updated child
+                childrenGroup.children![0].id = '507f1f77bcf86cd799439012'
+                sinon
+                    .mock(modelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs(childrenGroup)
+                    .chain('exec')
+                    .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
+                               description: Strings.CHILD.IDS_WITHOUT_REGISTER })
+
+                return childrenGroupService.update(childrenGroup)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
+                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER)
+                    })
+            })
+        })
+
         context('when the ChildrenGroup is incorrect (missing ChildrenGroup (missing some child id) fields)', () => {
             it('should throw a ValidationException', () => {
                 incorrectChildrenGroup.children = [new Child()]         // Make mock throw a exception
@@ -329,8 +352,8 @@ describe('Services: ChildrenGroup', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: 'Required fields were not provided...',
-                        description: 'Children Group validation: Collection with children IDs (ID can not be empty) ' +
-                            'is required!' })
+                               description: 'Children Group validation: Collection with children IDs (ID can not be empty) ' +
+                                   'is required!' })
 
                 return childrenGroupService.update(incorrectChildrenGroup)
                     .catch(err => {
@@ -352,7 +375,7 @@ describe('Services: ChildrenGroup', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childrenGroupService.update(incorrectChildrenGroup)
                     .catch(err => {

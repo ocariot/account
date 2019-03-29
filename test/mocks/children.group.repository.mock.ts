@@ -46,14 +46,16 @@ export class ChildrenGroupRepositoryMock implements IChildrenGroupRepository {
         const id: string = query.filters._id
         if (id === '507f1f77bcf86cd799439011') {
             const childrenGroup: ChildrenGroup = new ChildrenGroupMock()
+            childrenGroup.id = '507f1f77bcf86cd799439011'
             return Promise.resolve(childrenGroup)
         }
         return Promise.resolve(undefined!)
     }
 
     public update(childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
-        if (childrenGroup.id === '507f1f77bcf86cd799439011')
+        if (childrenGroup.id === '507f1f77bcf86cd799439011') {
             return Promise.resolve(childrenGroup)
+        }
         return Promise.resolve(undefined!)
     }
 
