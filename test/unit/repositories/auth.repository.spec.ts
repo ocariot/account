@@ -66,6 +66,23 @@ describe('Repositories: AuthRepository', () => {
                     })
             })
         })
+
+        context('when the user is not found', () => {
+            it('should return the access token', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ username: user.username })
+                    .chain('exec')
+                    .resolves(user)
+
+                return repo.authenticate('usertest', 'userpass')
+                    .then(result => {
+                        assert.isNotNull(result)
+                        assert.property(result, 'access_token')
+                    })
+            })
+        })
     })
 
 })

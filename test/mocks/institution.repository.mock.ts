@@ -4,9 +4,7 @@ import { InstitutionMock } from './institution.mock'
 
 export class InstitutionRepositoryMock implements IInstitutionRepository {
     public checkExist(institution: Institution): Promise<boolean> {
-        if (institution.id === '507f1f77bcf86cd799439011')
-            return Promise.resolve(true)
-        return Promise.resolve(false)
+        return Promise.resolve(institution.id === '507f1f77bcf86cd799439011')
     }
 
     public count(query: any): Promise<number> {
@@ -18,9 +16,7 @@ export class InstitutionRepositoryMock implements IInstitutionRepository {
     }
 
     public delete(id: string): Promise<boolean> {
-        if (id === '507f1f77bcf86cd799439011')
-            return Promise.resolve(true)
-        return Promise.resolve(false)
+        return Promise.resolve(id === '507f1f77bcf86cd799439012')
     }
 
     public find(query: any): Promise<Array<Institution>> {
@@ -44,8 +40,10 @@ export class InstitutionRepositoryMock implements IInstitutionRepository {
         return Promise.resolve(undefined!)
     }
 
-    public update(item: Institution): Promise<Institution> {
-        return Promise.resolve(item)
+    public update(institution: Institution): Promise<Institution> {
+        if (institution.id === '507f1f77bcf86cd799439011')
+            return Promise.resolve(institution)
+        return Promise.resolve(undefined!)
     }
 
 }

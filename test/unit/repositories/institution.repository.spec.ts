@@ -113,5 +113,41 @@ describe('Repositories: Institution', () => {
                     })
             })
         })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', async () => {
+                const customInstitution = new Institution()
+                customInstitution.id = `${new ObjectID()}`
+                customInstitution.type = UserType.EDUCATOR
+
+                const customQueryMock: any = {
+                    toJSON: () => {
+                        return {
+                            fields: {},
+                            ordination: {},
+                            pagination: { page: 1, limit: 100, skip: 0 },
+                            filters: { _id: customInstitution.id }
+                        }
+                    }
+                }
+
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(customQueryMock.toJSON().filters)
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                try {
+                    await repo.checkExist(customInstitution)
+                } catch (err) {
+                    assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                    assert.propertyVal(err, 'description', 'Please try again later...')
+                }
+            })
+        })
     })
 })

@@ -1,5 +1,6 @@
 import { IUserRepository } from '../../src/application/port/user.repository.interface'
 import { User } from '../../src/application/domain/model/user'
+import { UserMock } from './user.mock'
 
 export class UserRepositoryMock implements IUserRepository {
 
@@ -17,13 +18,13 @@ export class UserRepositoryMock implements IUserRepository {
     }
 
     public findById(userId: string): Promise<User> {
-        const user = new User()
+        const user = new UserMock()
         user.id = userId
         return Promise.resolve(user)
     }
 
     public hasInstitution(institutionId: string): Promise<boolean> {
-        return Promise.resolve(institutionId !== '')
+        return Promise.resolve(institutionId === '507f1f77bcf86cd799439011')
     }
 
     public count(query: any): Promise<number> {
@@ -43,7 +44,7 @@ export class UserRepositoryMock implements IUserRepository {
     }
 
     public findOne(query: any): Promise<User> {
-        const user = new User()
+        const user = new UserMock()
         user.id = query.id
         return Promise.resolve(user)
     }

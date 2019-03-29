@@ -39,6 +39,67 @@ describe('Repositories: HealthProfessional', () => {
         sinon.restore()
     })
 
+    describe('create(item: HealthProfessional)', () => {
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', async () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(defaultHealthProfessional)
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                try {
+                    await repo.create(defaultHealthProfessional)
+                } catch (err) {
+                    assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                    assert.propertyVal(err, 'description', 'Please try again later...')
+                }
+            })
+        })
+    })
+
+    describe('findOne(query: IQuery)', () => {
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', async () => {
+                const customHealthProfessional = new HealthProfessional()
+                customHealthProfessional.id = `${new ObjectID()}`
+                customHealthProfessional.type = UserType.HEALTH_PROFESSIONAL
+
+                const customQueryMock: any = {
+                    toJSON: () => {
+                        return {
+                            fields: {},
+                            ordination: {},
+                            pagination: { page: 1, limit: 100, skip: 0 },
+                            filters: { _id: customHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
+                        }
+                    }
+                }
+
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(customQueryMock.toJSON().filters)
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                try {
+                    await repo.findOne(customQueryMock)
+                } catch (err) {
+                    assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                    assert.propertyVal(err, 'description', 'Please try again later...')
+                }
+            })
+        })
+    })
+
     describe('checkExists()', () => {
         it('should return true if exists in search by id', () => {
             const customQueryMock: any = {
@@ -125,6 +186,42 @@ describe('Repositories: HealthProfessional', () => {
                         assert.isBoolean(result)
                         assert.isFalse(result)
                     })
+            })
+        })
+
+        context('when a database occurs', () => {
+            it('should throw a ValidationException', async () => {
+                const customHealthProfessional = new HealthProfessional()
+                customHealthProfessional.id = `${new ObjectID()}`
+                customHealthProfessional.type = UserType.HEALTH_PROFESSIONAL
+
+                const customQueryMock: any = {
+                    toJSON: () => {
+                        return {
+                            fields: {},
+                            ordination: {},
+                            pagination: { page: 1, limit: 100, skip: 0 },
+                            filters: { _id: customHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
+                        }
+                    }
+                }
+
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(customQueryMock.toJSON().filters)
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                try {
+                    await repo.checkExist(customHealthProfessional)
+                } catch (err) {
+                    assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                    assert.propertyVal(err, 'description', 'Please try again later...')
+                }
             })
         })
     })
