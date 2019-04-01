@@ -7,6 +7,7 @@ import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
 import { Institution } from '../../../src/application/domain/model/institution'
 import { UserRepositoryMock } from '../../mocks/user.repository.mock'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
+import { Strings } from '../../../src/utils/strings'
 
 require('sinon-mongoose')
 
@@ -83,6 +84,37 @@ describe('Repositories: AuthRepository', () => {
                     })
             })
         })
-    })
 
+        context('when the user password is empty', () => {
+            it('should return the access token', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ username: user.username })
+                    .chain('exec')
+                    .resolves(user)
+
+                return repo.authenticate('usertest', undefined!)
+                    .then(result => {
+                        assert.isUndefined(result)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should return the access token', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ username: user.username })
+                    .chain('exec')
+                    .rejects({ message: Strings.ERROR_MESSAGE.UNEXPECTED })
+
+                return repo.authenticate('usertest', undefined!)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UNEXPECTED)
+                    })
+            })
+        })
+    })
 })

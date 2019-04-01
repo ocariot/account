@@ -33,7 +33,7 @@ describe('Repositories: Application', () => {
 
     const modelFake: any = UserRepoModel
     const userRepo = new UserRepository(modelFake, new EntityMapperMock(), new CustomLoggerMock())
-    const repo: IApplicationRepository =
+    const applicationRepo: IApplicationRepository =
         new ApplicationRepository(modelFake, new EntityMapperMock(), userRepo, new CustomLoggerMock())
 
     afterEach(() => {
@@ -60,7 +60,7 @@ describe('Repositories: Application', () => {
                 .chain('exec')
                 .resolves(defaultApplication)
 
-            return repo.checkExist(defaultApplication)
+            return applicationRepo.checkExist(defaultApplication)
                 .then(result => {
                     assert.isBoolean(result)
                     assert.isTrue(result)
@@ -90,7 +90,7 @@ describe('Repositories: Application', () => {
                 .chain('exec')
                 .resolves(defaultApplication)
 
-            return repo.checkExist(appWithoutId)
+            return applicationRepo.checkExist(appWithoutId)
                 .then(result => {
                     assert.isBoolean(result)
                     assert.isTrue(result)
@@ -121,7 +121,7 @@ describe('Repositories: Application', () => {
                     .chain('exec')
                     .resolves(undefined)
 
-                return repo.checkExist(customApp)
+                return applicationRepo.checkExist(customApp)
                     .then(result => {
                         assert.isBoolean(result)
                         assert.isFalse(result)
