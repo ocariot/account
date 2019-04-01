@@ -17,7 +17,7 @@ export class FamilyRepositoryMock implements IFamilyRepository {
     }
 
     public delete(id: string): Promise<boolean> {
-        return Promise.resolve(id === '507f1f77bcf86cd799439012')
+        return Promise.resolve(id === '507f1f77bcf86cd799439014')
     }
 
     public disassociateChildFromFamily(childId: string): Promise<boolean> {
@@ -39,7 +39,10 @@ export class FamilyRepositoryMock implements IFamilyRepository {
 
     public findById(familyId: string): Promise<Family> {
         if (familyId === '507f1f77bcf86cd799439011') {
-            return Promise.resolve(new FamilyMock())
+            const family: Family = new FamilyMock()
+            family.id = '507f1f77bcf86cd799439011'
+            family.children![0].id = '507f1f77bcf86cd799439011'
+            return Promise.resolve(family)
         }
         return Promise.resolve(undefined!)
     }
@@ -54,8 +57,9 @@ export class FamilyRepositoryMock implements IFamilyRepository {
     }
 
     public update(family: Family): Promise<Family> {
-        if (family.id === '507f1f77bcf86cd799439011')
+        if (family.id === '507f1f77bcf86cd799439011'){
             return Promise.resolve(family)
+        }
         return Promise.resolve(undefined!)
     }
 

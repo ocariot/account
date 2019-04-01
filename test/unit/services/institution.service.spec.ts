@@ -66,7 +66,7 @@ describe('Services: Institution', () => {
 
         context('when the Institution is correct but already exists in the repository', () => {
             it('should throw a ConflictException', () => {
-                incorrectInstitution.id = '507f1f77bcf86cd799439011'        // Make mock throw a exception
+                incorrectInstitution.id = '507f1f77bcf86cd799439011'        // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('create')
@@ -83,7 +83,7 @@ describe('Services: Institution', () => {
 
         context('when the Institution is incorrect (missing fields)', () => {
             it('should throw a ValidationException', () => {
-                incorrectInstitution.name = ''      // Make mock throw a exception
+                incorrectInstitution.name = ''      // Make mock throw an exception
                 incorrectInstitution.type = ''
                 sinon
                     .mock(modelFake)
@@ -193,7 +193,7 @@ describe('Services: Institution', () => {
 
         context('when the institution id is invalid', () => {
             it('should throw a ValidationException', () => {
-                incorrectInstitution.id = '507f1f77bcf86cd7994390113'       // Make mock throw a exception
+                incorrectInstitution.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
                 const query: IQuery = new Query()
                 query.filters = { _id: incorrectInstitution.id }
                 sinon
@@ -258,7 +258,7 @@ describe('Services: Institution', () => {
 
         context('when the Institution is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
-                incorrectInstitution.id = '507f1f77bcf86cd7994390113'       // Make mock throw a exception
+                incorrectInstitution.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('findOneAndUpdate')
@@ -316,7 +316,7 @@ describe('Services: Institution', () => {
 
         context('when the Institution is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
-                incorrectInstitution.id = '507f1f77bcf86cd7994390111'       // Make mock throw a exception
+                incorrectInstitution.id = '507f1f77bcf86cd7994390111'       // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('deleteOne')
@@ -335,7 +335,7 @@ describe('Services: Institution', () => {
 
         context('when the Institution is associated with one or more users.', () => {
             it('should throw a ValidationException', () => {
-                incorrectInstitution.id = '507f1f77bcf86cd799439011'       // Make mock throw a exception
+                incorrectInstitution.id = '507f1f77bcf86cd799439011'       // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('deleteOne')

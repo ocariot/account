@@ -15,7 +15,7 @@ export class FamilyMock extends Family {
         family.username = 'family_mock'
         family.password = 'password_mock'
         family.institution = this.generateInstitution()
-        family.children = [new ChildMock(), new ChildMock(), new ChildMock()]
+        family.children = [new ChildMock(), new ChildMock()]
 
         return family
     }

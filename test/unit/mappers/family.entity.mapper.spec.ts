@@ -171,7 +171,6 @@ describe('Mappers: FamilyEntity', () => {
                 assert.propertyVal(result, 'institution', family.institution!.id)
                 assert.equal(result.children[0], family.children![0].id)
                 assert.equal(result.children[1], family.children![1].id)
-                assert.equal(result.children[2], family.children![2].id)
             })
         })
 

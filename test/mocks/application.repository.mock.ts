@@ -4,30 +4,26 @@ import { ApplicationMock } from './application.mock'
 
 export class ApplicationRepositoryMock implements IApplicationRepository {
     public checkExist(application: Application): Promise<boolean> {
-        if (application.id === '507f1f77bcf86cd799439011')
-            return Promise.resolve(true)
-        return Promise.resolve(false)
+        return Promise.resolve(application.id === '507f1f77bcf86cd799439011')
     }
 
     public count(query: any): Promise<number> {
         return Promise.resolve(1)
     }
 
-    public create(item: Application): Promise<Application> {
-        return Promise.resolve(item)
+    public create(application: Application): Promise<Application> {
+        return Promise.resolve(application)
     }
 
     public delete(id: string): Promise<boolean> {
-        if (id === '507f1f77bcf86cd799439011')
-            return Promise.resolve(true)
-        return Promise.resolve(false)
+        return Promise.resolve(id === '507f1f77bcf86cd799439011')
     }
 
     public find(query: any): Promise<Array<Application>> {
-        const id: string = (query.filters).id
+        const id: string = (query.filters)._id
         const applicationArr: Array<Application> = new Array<ApplicationMock>()
         // Only for the test case that returns a filled array
-        if (!(id === '507f1f77bcf86cd799439011')) {
+        if (id === '507f1f77bcf86cd799439011') {
             for (let i = 0; i < 3; i++) {
                 applicationArr.push(new ApplicationMock())
             }
@@ -36,11 +32,17 @@ export class ApplicationRepositoryMock implements IApplicationRepository {
     }
 
     public findOne(query: any): Promise<Application> {
-        const application: Application = new ApplicationMock()
-        return Promise.resolve(application)
+        const id: string = query.filters._id
+        if (id === '507f1f77bcf86cd799439011') {
+            const application: Application = new ApplicationMock()
+            return Promise.resolve(application)
+        }
+        return Promise.resolve(undefined!)
     }
 
-    public update(item: Application): Promise<Application> {
-        return Promise.resolve(item)
+    public update(application: Application): Promise<Application> {
+        if (application.id === '507f1f77bcf86cd799439011')
+            return Promise.resolve(application)
+        return Promise.resolve(undefined!)
     }
 }

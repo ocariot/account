@@ -251,8 +251,8 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
             if (!healthProfessional) {
                 throw new ValidationException(
-                    Strings.EDUCATOR.NOT_FOUND,
-                    Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
+                    Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
+                    Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION
                 )
             }
 

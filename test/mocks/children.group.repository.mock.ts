@@ -21,7 +21,8 @@ export class ChildrenGroupRepositoryMock implements IChildrenGroupRepository {
     }
 
     public deleteAllChildrenGroupsFromUser(userId: string): Promise<boolean> {
-        if (userId === '507f1f77bcf86cd799439011') return Promise.resolve(true)
+        if (userId === '507f1f77bcf86cd799439011' || userId === '507f1f77bcf86cd799439013' ||
+            userId === '507f1f77bcf86cd799439015') return Promise.resolve(true)
         else throw new ValidationException('A error occur when try disassociate the child from user!')
     }
 

@@ -16,7 +16,7 @@ export class EducatorRepositoryMock implements IEducatorRepository {
     }
 
     public delete(id: string): Promise<boolean> {
-        return Promise.resolve(id === '507f1f77bcf86cd799439011')
+        return Promise.resolve(id === '507f1f77bcf86cd799439013')
     }
 
     public find(query: any): Promise<Array<Educator>> {

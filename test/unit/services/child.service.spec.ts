@@ -93,7 +93,7 @@ describe('Services: Child', () => {
 
         context('when the Child is correct but already exists in the repository', () => {
             it('should throw a ConflictException', () => {
-                child.id = '507f1f77bcf86cd799439011'        // Make mock throw a exception
+                child.id = '507f1f77bcf86cd799439011'        // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('create')
@@ -112,7 +112,7 @@ describe('Services: Child', () => {
             'registered', () => {
             it('should throw a ValidationException', () => {
                 child.id = '507f1f77bcf86cd799439012'
-                child.institution!.id = '507f1f77bcf86cd799439012'      // Make mock throw a exception
+                child.institution!.id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('create')
@@ -261,7 +261,7 @@ describe('Services: Child', () => {
 
         context('when the child id is invalid', () => {
             it('should throw a ValidationException', () => {
-                incorrectChild.id = '507f1f77bcf86cd7994390113'       // Make mock throw a exception
+                incorrectChild.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
                 const query: IQuery = new Query()
                 query.filters = { _id: incorrectChild.id, type: UserType.CHILD }
                 sinon
@@ -351,7 +351,7 @@ describe('Services: Child', () => {
 
         context('when the Child is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
-                incorrectChild.id = '507f1f77bcf86cd7994390113'       // Make mock throw a exception
+                incorrectChild.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('findOneAndUpdate')
@@ -372,7 +372,7 @@ describe('Services: Child', () => {
             it('should throw a ValidationException', () => {
                 incorrectChild.id = '507f1f77bcf86cd799439011'
                 incorrectChild.institution = new InstitutionMock()
-                incorrectChild.institution!.id = '507f1f77bcf86cd7994390113'       // Make mock throw a exception
+                incorrectChild.institution!.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('findOneAndUpdate')
@@ -471,7 +471,7 @@ describe('Services: Child', () => {
 
         context('when the Child is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
-                incorrectChild.id = '507f1f77bcf86cd7994390111'       // Make mock throw a exception
+                incorrectChild.id = '507f1f77bcf86cd7994390111'       // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('deleteOne')

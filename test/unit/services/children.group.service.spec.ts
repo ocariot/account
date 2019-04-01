@@ -69,7 +69,7 @@ describe('Services: ChildrenGroup', () => {
 
         context('when the ChildrenGroup is correct but already exists in the repository', () => {
             it('should throw a ConflictException', () => {
-                childrenGroup.id = '507f1f77bcf86cd799439011'        // Make mock throw a exception
+                childrenGroup.id = '507f1f77bcf86cd799439011'        // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('create')
@@ -88,7 +88,7 @@ describe('Services: ChildrenGroup', () => {
             'registered', () => {
             it('should throw a ValidationException', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'
-                childrenGroup.children![0].id = '507f1f77bcf86cd799439012'      // Make mock throw a exception
+                childrenGroup.children![0].id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('create')
@@ -108,7 +108,7 @@ describe('Services: ChildrenGroup', () => {
         context('when the ChildrenGroup is incorrect (the user id is invalid)', () => {
             it('should throw a ValidationException', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'
-                childrenGroup.user!.id = '507f1f77bcf86cd7994390111'      // Make mock throw a exception
+                childrenGroup.user!.id = '507f1f77bcf86cd7994390111'      // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('create')
@@ -146,7 +146,7 @@ describe('Services: ChildrenGroup', () => {
 
         context('when the ChildrenGroup is incorrect (missing ChildrenGroup (missing some child id) fields)', () => {
             it('should throw a ValidationException', () => {
-                incorrectChildrenGroup.children = [new Child()]         // Make mock throw a exception
+                incorrectChildrenGroup.children = [new Child()]         // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('create')
@@ -168,7 +168,7 @@ describe('Services: ChildrenGroup', () => {
         context('when the ChildrenGroup is incorrect (some child id is invalid)', () => {
             it('should throw a ValidationException', () => {
                 const childTest: Child = new Child()
-                childTest.id = '507f1f77bcf86cd7994390111'          // Make mock throw a exception
+                childTest.id = '507f1f77bcf86cd7994390111'          // Make mock throw an exception
                 incorrectChildrenGroup.children = [childTest]
                 sinon
                     .mock(modelFake)
@@ -325,8 +325,8 @@ describe('Services: ChildrenGroup', () => {
 
         context('when the ChildrenGroup exists in the database but the children are not registered', () => {
             it('should throw a ValidationException', () => {
-                childrenGroup.id = '507f1f77bcf86cd799439011'         // Make mock return an updated child
-                childrenGroup.children![0].id = '507f1f77bcf86cd799439012'
+                childrenGroup.id = '507f1f77bcf86cd799439011'
+                childrenGroup.children![0].id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('findOneAndUpdate')
@@ -345,7 +345,7 @@ describe('Services: ChildrenGroup', () => {
 
         context('when the ChildrenGroup is incorrect (missing ChildrenGroup (missing some child id) fields)', () => {
             it('should throw a ValidationException', () => {
-                incorrectChildrenGroup.children = [new Child()]         // Make mock throw a exception
+                incorrectChildrenGroup.children = [new Child()]         // Make mock throw an exception
                 sinon
                     .mock(modelFake)
                     .expects('findOneAndUpdate')
@@ -367,7 +367,7 @@ describe('Services: ChildrenGroup', () => {
         context('when the ChildrenGroup is incorrect (some child id is invalid)', () => {
             it('should throw a ValidationException', () => {
                 const childTest: Child = new Child()
-                childTest.id = '507f1f77bcf86cd7994390111'          // Make mock throw a exception
+                childTest.id = '507f1f77bcf86cd7994390111'          // Make mock throw an exception
                 incorrectChildrenGroup.children = [childTest]
                 sinon
                     .mock(modelFake)
