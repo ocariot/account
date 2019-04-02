@@ -264,7 +264,7 @@ describe('Services: Application', () => {
                     .withArgs(query)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return applicationService.getById(incorrectApplication.id, query)
                     .catch(err => {

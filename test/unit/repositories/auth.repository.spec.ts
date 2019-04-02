@@ -94,7 +94,7 @@ describe('Repositories: AuthRepository', () => {
                     .chain('exec')
                     .resolves(user)
 
-                return repo.authenticate('usertest', undefined!)
+                return repo.authenticate('usertest', '')
                     .then(result => {
                         assert.isUndefined(result)
                     })

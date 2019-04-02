@@ -38,7 +38,7 @@ describe('Services: Family', () => {
     const incorrectFamily: Family = new Family()
     incorrectFamily.type = ''
 
-    // Mock family array
+    // Mock families array
     const familiesArr: Array<Family> = new Array<FamilyMock>()
     for (let i = 0; i < 3; i++) {
         familiesArr.push(new FamilyMock())

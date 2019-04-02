@@ -17,7 +17,7 @@ describe('EVENT BUS', () => {
     before(() => eventBus.enableLogger(false))
 
     afterEach(async () => {
-        // await eventBus.dispose()
+        await eventBus.dispose()
     })
 
     after(async () => {
