@@ -17,11 +17,10 @@ describe('GENERATE JWT KEYS TASK', () => {
 
         // Changes permissions to allow read and write operations on path
         fs.chmodSync(jwt_private_key_path.substring(0, jwt_private_key_path.length - 7), 0o777)
-        fs.chmodSync(jwt_private_key_path.substring(0, jwt_private_key_path.length - 7), 0o777)
     })
 
     describe('GENERATE JWT KEY', () => {
-        context('when the keys path is writable', () => {
+        context('when the keys path have write permission', () => {
             it('should return true in the "existsSync" function call on keys paths', async () => {
                 try {
                     await generateJwtKeysTask.run()
@@ -36,12 +35,11 @@ describe('GENERATE JWT KEYS TASK', () => {
             })
         })
 
-        context('when the keys path is not writable', () => {
+        context('when the keys path does not have write permission', () => {
             it('should throw an exception', async () => {
                 try {
                     // Changes permissions for read-only
                     fs.chmodSync(jwt_private_key_path.substring(0, jwt_private_key_path.length - 7), 0o444)
-                    fs.chmodSync(jwt_public_key_path.substring(0, jwt_private_key_path.length - 7), 0o444)
 
                     await generateJwtKeysTask.run()
                 } catch (err) {
