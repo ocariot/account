@@ -2,7 +2,6 @@ import { expect } from 'chai'
 import { DI } from '../../../src/di/di'
 import { Identifier } from '../../../src/di/identifiers'
 import { Container } from 'inversify'
-import { EventBusTask } from '../../../src/background/task/eventbus.task'
 import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
 import { IntegrationEventRepoModel } from '../../../src/infrastructure/database/schema/integration.event.schema'
 import { Query } from '../../../src/infrastructure/repository/query/query'
@@ -20,9 +19,10 @@ import { HealthProfessional } from '../../../src/application/domain/model/health
 import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
 import { Application } from '../../../src/application/domain/model/application'
 import { ApplicationMock } from '../../mocks/application.mock'
+import { IBackgroundTask } from '../../../src/application/port/background.task.interface'
 
 const container: Container = DI.getInstance().getContainer()
-const eventBusTask: EventBusTask = container.get(Identifier.EVENT_BUS_TASK)
+const eventBusTask: IBackgroundTask = container.get(Identifier.EVENT_BUS_TASK)
 const integrationRepository: IIntegrationEventRepository = container.get(Identifier.INTEGRATION_EVENT_REPOSITORY)
 const mongoDBConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
 

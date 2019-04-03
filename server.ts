@@ -9,7 +9,6 @@ import { Default } from './src/utils/default'
 import { App } from './src/app'
 import fs, { readFileSync } from 'fs'
 
-
 /**
  *  Create the .env file in the root directory of your project
  *  and add your environment variables to new lines in the
@@ -65,6 +64,7 @@ https.createServer(https_options, app)
             })
             .catch(err => {
                 logger.error(err.message)
+                process.exit()
             })
     })
 
