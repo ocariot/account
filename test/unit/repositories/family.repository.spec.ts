@@ -328,7 +328,6 @@ describe('Repositories: Family', () => {
 
                 return familyRepo.findById(defaultFamily.id!)
                     .then(result => {
-                        console.log(result)
                         assert.propertyVal(result, 'id', defaultFamily.id)
                         assert.propertyVal(result, 'username', defaultFamily.username)
                         assert.propertyVal(result, 'type', defaultFamily.type)
