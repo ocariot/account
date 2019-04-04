@@ -76,7 +76,6 @@ describe('Repositories: Family', () => {
 
                 return familyRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -106,7 +105,6 @@ describe('Repositories: Family', () => {
 
                 return familyRepo.find(customQueryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -125,7 +123,6 @@ describe('Repositories: Family', () => {
 
                 return familyRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -418,16 +415,17 @@ describe('Repositories: Family', () => {
             it('should return true if exists in search by id', () => {
                 defaultFamily.id = '507f1f77bcf86cd799439011'
 
+                queryMock.filters = { _id: defaultFamily.id, type: UserType.FAMILY }
+
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(defaultFamily)
+                    .resolves(true)
 
                 return familyRepo.checkExist(defaultFamily)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isTrue(result)
                     })
             })
@@ -455,11 +453,10 @@ describe('Repositories: Family', () => {
                     .expects('findOne')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(defaultFamily)
+                    .resolves(true)
 
                 return familyRepo.checkExist(familyWithoutId)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isTrue(result)
                     })
             })
@@ -487,11 +484,10 @@ describe('Repositories: Family', () => {
                     .expects('findOne')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(undefined)
+                    .resolves(false)
 
                 return familyRepo.checkExist(customFamily)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isFalse(result)
                     })
             })

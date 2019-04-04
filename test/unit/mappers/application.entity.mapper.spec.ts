@@ -5,6 +5,7 @@ import { ApplicationEntityMapper } from '../../../src/infrastructure/entity/mapp
 
 describe('Mappers: ApplicationEntity', () => {
     const application: Application = new ApplicationMock()
+    application.password = 'application_password'
 
     // Create application JSON
     const applicationJSON: any = {
@@ -40,6 +41,7 @@ describe('Mappers: ApplicationEntity', () => {
             'gamificationprofile:delete'
         ],
         username: 'application_mock',
+        password: 'application_password',
         institution: {
             id: '603c062fda850512e4387e46',
             type: 'Institute of Scientific Research',
@@ -57,6 +59,7 @@ describe('Mappers: ApplicationEntity', () => {
                 const result = new ApplicationEntityMapper().transform(application)
                 assert.propertyVal(result, 'id', application.id)
                 assert.propertyVal(result, 'username', application.username)
+                assert.propertyVal(result, 'password', application.password)
                 assert.propertyVal(result, 'type', application.type)
                 assert.propertyVal(result, 'scopes', application.scopes)
                 assert.propertyVal(result, 'institution', application.institution!.id)
@@ -69,7 +72,9 @@ describe('Mappers: ApplicationEntity', () => {
                 const result = new ApplicationEntityMapper().transform(applicationJSON)
                 assert.propertyVal(result, 'id', applicationJSON.id)
                 assert.propertyVal(result, 'username', applicationJSON.username)
+                assert.propertyVal(result, 'password', applicationJSON.password)
                 assert.propertyVal(result, 'type', applicationJSON.type)
+                assert.deepPropertyVal(result, 'scopes', application.scopes)
                 assert.property(result, 'institution')
                 assert.propertyVal(result, 'application_name', applicationJSON.application_name)
             })
@@ -81,7 +86,9 @@ describe('Mappers: ApplicationEntity', () => {
                 const result = new ApplicationEntityMapper().transform(applicationJSON)
                 assert.propertyVal(result, 'id', applicationJSON.id)
                 assert.propertyVal(result, 'username', applicationJSON.username)
+                assert.propertyVal(result, 'password', applicationJSON.password)
                 assert.propertyVal(result, 'type', applicationJSON.type)
+                assert.deepPropertyVal(result, 'scopes', application.scopes)
                 assert.isUndefined(result.institution)
                 assert.propertyVal(result, 'application_name', applicationJSON.application_name)
             })
@@ -94,6 +101,7 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
+                assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'application_name', undefined)
             })

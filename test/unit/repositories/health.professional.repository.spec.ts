@@ -78,7 +78,6 @@ describe('Repositories: HealthProfessional', () => {
 
                 return healthProfessionalRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -108,7 +107,6 @@ describe('Repositories: HealthProfessional', () => {
 
                 return healthProfessionalRepo.find(customQueryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -127,7 +125,6 @@ describe('Repositories: HealthProfessional', () => {
 
                 return healthProfessionalRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -420,11 +417,10 @@ describe('Repositories: HealthProfessional', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(defaultHealthProfessional)
+                    .resolves(true)
 
                 return healthProfessionalRepo.checkExist(defaultHealthProfessional)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isTrue(result)
                     })
             })
@@ -452,11 +448,10 @@ describe('Repositories: HealthProfessional', () => {
                     .expects('findOne')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(defaultHealthProfessional)
+                    .resolves(true)
 
                 return healthProfessionalRepo.checkExist(healthProfessionalWithoutId)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isTrue(result)
                     })
             })
@@ -484,11 +479,10 @@ describe('Repositories: HealthProfessional', () => {
                     .expects('findOne')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(undefined)
+                    .resolves(false)
 
                 return healthProfessionalRepo.checkExist(customHealthProfessional)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isFalse(result)
                     })
             })

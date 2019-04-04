@@ -77,7 +77,6 @@ describe('Repositories: Educator', () => {
 
                 return educatorRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -107,7 +106,6 @@ describe('Repositories: Educator', () => {
 
                 return educatorRepo.find(customQueryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -126,7 +124,6 @@ describe('Repositories: Educator', () => {
 
                 return educatorRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -419,11 +416,10 @@ describe('Repositories: Educator', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(defaultEducator)
+                    .resolves(true)
 
                 return educatorRepo.checkExist(defaultEducator)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isTrue(result)
                     })
             })
@@ -451,11 +447,10 @@ describe('Repositories: Educator', () => {
                     .expects('findOne')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(defaultEducator)
+                    .resolves(true)
 
                 return educatorRepo.checkExist(educatorWithoutId)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isTrue(result)
                     })
             })
@@ -483,11 +478,10 @@ describe('Repositories: Educator', () => {
                     .expects('findOne')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(undefined)
+                    .resolves(false)
 
                 return educatorRepo.checkExist(customEducator)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isFalse(result)
                     })
             })

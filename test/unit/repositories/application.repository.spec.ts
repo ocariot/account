@@ -78,7 +78,6 @@ describe('Repositories: Application', () => {
 
                 return applicationRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -108,7 +107,6 @@ describe('Repositories: Application', () => {
 
                 return applicationRepo.find(customQueryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -128,7 +126,6 @@ describe('Repositories: Application', () => {
 
                 return applicationRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -353,7 +350,6 @@ describe('Repositories: Application', () => {
 
                 return applicationRepo.checkExist(defaultApplication)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isTrue(result)
                     })
             })
@@ -385,7 +381,6 @@ describe('Repositories: Application', () => {
 
                 return applicationRepo.checkExist(appWithoutId)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isTrue(result)
                     })
             })
@@ -417,7 +412,6 @@ describe('Repositories: Application', () => {
 
                 return applicationRepo.checkExist(customApp)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isFalse(result)
                     })
             })

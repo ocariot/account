@@ -118,7 +118,7 @@ describe('Services: Family', () => {
                     .withArgs(family)
                     .chain('exec')
                     .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                        description: Strings.CHILD.IDS_WITHOUT_REGISTER })
+                               description: Strings.CHILD.IDS_WITHOUT_REGISTER })
 
                 return familyService.add(family)
                     .catch(err => {
@@ -230,7 +230,6 @@ describe('Services: Family', () => {
 
                 return familyService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -251,7 +250,6 @@ describe('Services: Family', () => {
 
                 return familyService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -403,7 +401,7 @@ describe('Services: Family', () => {
                     .withArgs(incorrectFamily)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return familyService.update(incorrectFamily)
                     .catch(err => {
@@ -573,7 +571,6 @@ describe('Services: Family', () => {
 
                 return familyService.getAllChildren(family.id, query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -640,9 +637,9 @@ describe('Services: Family', () => {
                         assert.propertyVal(result, 'id', family.id)
                         assert.propertyVal(result, 'username', family.username)
                         assert.propertyVal(result, 'type', family.type)
-                        assert.property(result, 'scopes')
-                        assert.property(result, 'institution')
+                        assert.deepPropertyVal(result, 'scopes', family.scopes)
                         assert.property(result, 'children')
+                        assert.property(result, 'institution')
                     })
             })
         })

@@ -3,10 +3,12 @@ import { ChildrenGroup } from '../../../src/application/domain/model/children.gr
 import { ChildrenGroupMock } from '../../mocks/children.group.mock'
 import { ChildrenGroupEntityMapper } from '../../../src/infrastructure/entity/mapper/children.group.entity.mapper'
 import { ObjectId } from 'bson'
+import { UserMock } from '../../mocks/user.mock'
 
 describe('Mappers: ChildrenGroupEntity', () => {
     const children_group: ChildrenGroup = new ChildrenGroupMock()
     children_group.id = new ObjectId().toHexString()
+    children_group.user = new UserMock()
 
     // Create children_group JSON
     const childrenGroupJSON: any = {
@@ -89,6 +91,7 @@ describe('Mappers: ChildrenGroupEntity', () => {
                 assert.equal(result.children[0], children_group.children![0].id)
                 assert.equal(result.children[1], children_group.children![1].id)
                 assert.propertyVal(result, 'school_class', children_group.school_class)
+                assert.propertyVal(result, 'user_id', children_group.user!.id)
             })
         })
 

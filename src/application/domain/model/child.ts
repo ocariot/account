@@ -56,6 +56,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
 
         if (typeof json === 'string') {
             if (!JsonUtils.isJsonString(json)) {
+                console.log('entrou aqui')
                 super.id = json
                 return this
             } else {

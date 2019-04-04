@@ -73,8 +73,6 @@ describe('Repositories: Base', () => {
 
                 return repo.create(queryMock)
                     .catch(err => {
-                        assert.isNotNull(err)
-                        assert.property(err, 'message')
                         assert.propertyVal(err, 'message', 'Invalid query parameters!')
                     })
             })
@@ -94,10 +92,7 @@ describe('Repositories: Base', () => {
 
                 return repo.create(queryMock)
                     .catch(err => {
-                        assert.isNotNull(err)
-                        assert.property(err, 'message')
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
-                        assert.property(err, 'description')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })
             })
@@ -127,13 +122,9 @@ describe('Repositories: Base', () => {
                 .then((users: Array<Application>) => {
                     assert.isNotEmpty(users)
                     users[0] = users[0].toJSON()
-                    assert.property(users[0], 'id')
                     assert.propertyVal(users[0], 'id', defaultUser.id)
-                    assert.property(users[0], 'username')
                     assert.propertyVal(users[0], 'username', defaultUser.username)
-                    assert.property(users[0], 'type')
                     assert.propertyVal(users[0], 'type', defaultUser.type)
-                    assert.property(users[0], 'institution')
                     assert.deepPropertyVal(users[0], 'institution', institution.toJSON())
                 })
         })
@@ -156,8 +147,8 @@ describe('Repositories: Base', () => {
 
                 return repo.find(queryMock)
                     .then(users => {
+                        assert.isArray(users)
                         assert.isEmpty(users)
-                        assert.equal(users.length, 0)
                     })
             })
         })
@@ -183,10 +174,7 @@ describe('Repositories: Base', () => {
 
                 return repo.find(queryMock)
                     .catch (err => {
-                        assert.isNotNull(err)
-                        assert.property(err, 'message')
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
-                        assert.property(err, 'description')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })
             })
@@ -218,13 +206,9 @@ describe('Repositories: Base', () => {
             return repo.findOne(customQueryMock)
                 .then(user => {
                     user = user.toJSON()
-                    assert.property(user, 'id')
                     assert.propertyVal(user, 'id', user.id)
-                    assert.property(user, 'username')
                     assert.propertyVal(user, 'username', user.username)
-                    assert.property(user, 'type')
                     assert.propertyVal(user, 'type', user.type)
-                    assert.property(user, 'institution')
                     assert.deepPropertyVal(user, 'institution', institution.toJSON())
                 })
         })
@@ -263,10 +247,7 @@ describe('Repositories: Base', () => {
 
                 return repo.findOne(customQueryMock)
                     .catch (err => {
-                        assert.isNotNull(err)
-                        assert.property(err, 'message')
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
-                        assert.property(err, 'description')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })
             })
@@ -285,13 +266,9 @@ describe('Repositories: Base', () => {
             return repo.update(defaultUser)
                 .then(user => {
                     user = user.toJSON()
-                    assert.property(user, 'id')
                     assert.propertyVal(user, 'id', user.id)
-                    assert.property(user, 'username')
                     assert.propertyVal(user, 'username', user.username)
-                    assert.property(user, 'type')
                     assert.propertyVal(user, 'type', user.type)
-                    assert.property(user, 'institution')
                     assert.deepPropertyVal(user, 'institution', institution.toJSON())
                 })
         })
@@ -308,9 +285,7 @@ describe('Repositories: Base', () => {
 
                 return repo.update(defaultUser)
                     .then((result: any) => {
-                        assert.isNotNull(result)
                         assert.isUndefined(result)
-                        assert.isNotObject(result)
                     })
             })
         })
@@ -335,8 +310,7 @@ describe('Repositories: Base', () => {
 
                 return repo.update(invalidUser)
                     .catch((err: any) => {
-                        assert.isNotNull(err)
-                        assert.equal(err.message, 'The given ID is in invalid format.')
+                        assert.propertyVal(err, 'message', 'The given ID is in invalid format.')
                     })
             })
 
@@ -357,7 +331,6 @@ describe('Repositories: Base', () => {
 
             return repo.delete(userId)
                 .then((isDeleted: boolean) => {
-                    assert.isBoolean(isDeleted)
                     assert.isTrue(isDeleted)
                 })
         })
@@ -376,7 +349,6 @@ describe('Repositories: Base', () => {
 
                 return repo.delete(randomId)
                     .then((isDeleted: boolean) => {
-                        assert.isBoolean(isDeleted)
                         assert.isFalse(isDeleted)
                     })
             })
@@ -396,8 +368,7 @@ describe('Repositories: Base', () => {
 
                 return repo.delete(invalidId)
                     .catch((err: any) => {
-                        assert.isNotNull(err)
-                        assert.equal(err.message, 'The given ID is in invalid format.')
+                        assert.propertyVal(err, 'message', 'The given ID is in invalid format.')
                     })
             })
         })
@@ -486,10 +457,7 @@ describe('Repositories: Base', () => {
 
                 return repo.count(customQueryMock)
                     .catch (err => {
-                        assert.isNotNull(err)
-                        assert.property(err, 'message')
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
-                        assert.property(err, 'description')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })
             })

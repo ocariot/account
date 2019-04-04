@@ -182,7 +182,6 @@ describe('Services: Application', () => {
 
                 return applicationService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -203,7 +202,6 @@ describe('Services: Application', () => {
 
                 return applicationService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })

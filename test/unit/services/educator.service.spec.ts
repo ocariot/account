@@ -109,7 +109,7 @@ describe('Services: Educator', () => {
                         assert.propertyVal(result, 'type', educator.type)
                         assert.propertyVal(result, 'scopes', educator.scopes)
                         assert.propertyVal(result, 'institution', educator.institution)
-                        assert.property(result, 'children_groups')
+                        assert.propertyVal(result, 'children_groups', educator.children_groups)
                     })
             })
         })
@@ -210,7 +210,6 @@ describe('Services: Educator', () => {
 
                 return educatorService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -231,7 +230,6 @@ describe('Services: Educator', () => {
 
                 return educatorService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -325,7 +323,7 @@ describe('Services: Educator', () => {
                         assert.propertyVal(result, 'type', educator.type)
                         assert.propertyVal(result, 'scopes', educator.scopes)
                         assert.propertyVal(result, 'institution', educator.institution)
-                        assert.property(result, 'children_groups')
+                        assert.propertyVal(result, 'children_groups', educator.children_groups)
                     })
             })
         })
@@ -347,7 +345,7 @@ describe('Services: Educator', () => {
                         assert.propertyVal(result, 'type', educator.type)
                         assert.propertyVal(result, 'scopes', educator.scopes)
                         assert.propertyVal(result, 'institution', educator.institution)
-                        assert.property(result, 'children_groups')
+                        assert.propertyVal(result, 'children_groups', educator.children_groups)
                     })
             })
         })
@@ -399,7 +397,7 @@ describe('Services: Educator', () => {
                     .withArgs(incorrectEducator)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return educatorService.update(incorrectEducator)
                     .catch(err => {
@@ -418,8 +416,8 @@ describe('Services: Educator', () => {
                     .withArgs(educator)
                     .chain('exec')
                     .rejects({ message: 'This parameter could not be updated.',
-                        description: 'A specific route to update user password already exists.' +
-                            'Access: PATCH /users/507f1f77bcf86cd799439012/password to update your password.' })
+                               description: 'A specific route to update user password already exists.' +
+                                   'Access: PATCH /users/507f1f77bcf86cd799439012/password to update your password.' })
 
                 return educatorService.update(educator)
                     .catch(err => {
@@ -440,7 +438,7 @@ describe('Services: Educator', () => {
                     .withArgs(educator)
                     .chain('exec')
                     .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                        description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
+                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return educatorService.update(educator)
                     .catch(err => {
@@ -498,7 +496,7 @@ describe('Services: Educator', () => {
                     .withArgs(incorrectEducator.id)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return educatorService.remove(incorrectEducator.id)
                     .catch(err => {
@@ -582,7 +580,7 @@ describe('Services: Educator', () => {
                     .withArgs(childrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                        description: Strings.CHILD.IDS_WITHOUT_REGISTER })
+                               description: Strings.CHILD.IDS_WITHOUT_REGISTER })
 
                 return educatorService.saveChildrenGroup(educator.id!, childrenGroup)
                     .catch(err => {
@@ -602,7 +600,7 @@ describe('Services: Educator', () => {
                     .withArgs(childrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return educatorService.saveChildrenGroup(educator.id!, childrenGroup)
                     .catch(err => {
@@ -620,7 +618,7 @@ describe('Services: Educator', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: 'Required fields were not provided...',
-                        description: 'Children Group validation: name, user, Collection with children IDs is required!' })
+                               description: 'Children Group validation: name, user, Collection with children IDs is required!' })
 
                 return educatorService.saveChildrenGroup(educator.id!, incorrectChildrenGroup)
                     .catch(err => {
@@ -640,8 +638,8 @@ describe('Services: Educator', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: 'Required fields were not provided...',
-                        description: 'Children Group validation: name, user, Collection with children IDs (ID can not ' +
-                            'be empty) is required!' })
+                               description: 'Children Group validation: name, user, Collection with children IDs (ID can not ' +
+                                   'be empty) is required!' })
 
                 return educatorService.saveChildrenGroup(educator.id!, incorrectChildrenGroup)
                     .catch(err => {
@@ -663,7 +661,7 @@ describe('Services: Educator', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return educatorService.saveChildrenGroup(educator.id!, childrenGroup)
                     .catch(err => {
@@ -692,7 +690,6 @@ describe('Services: Educator', () => {
 
                 return educatorService.getAllChildrenGroups(educator.id, query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -713,7 +710,6 @@ describe('Services: Educator', () => {
 
                 return educatorService.getAllChildrenGroups(educator.id, query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -731,7 +727,7 @@ describe('Services: Educator', () => {
                     .withArgs(query)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return educatorService.getAllChildrenGroups(educator.id, query)
                     .catch(err => {
@@ -821,7 +817,7 @@ describe('Services: Educator', () => {
                     .withArgs(query)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return educatorService.getChildrenGroupById(educator.id, educator.children_groups![0].id, query)
                     .catch(err => {

@@ -63,7 +63,7 @@ describe('Repositories: AuthRepository', () => {
 
                 return repo.authenticate('usertest', 'userpass')
                     .then(result => {
-                        assert.equal(result, undefined)
+                        assert.isUndefined(result)
                     })
             })
         })

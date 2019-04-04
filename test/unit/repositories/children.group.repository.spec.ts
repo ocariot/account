@@ -105,7 +105,6 @@ describe('Repositories: ChildrenGroup', () => {
 
                 return childrenGroupRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -135,7 +134,6 @@ describe('Repositories: ChildrenGroup', () => {
 
                 return childrenGroupRepo.find(customQueryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -154,7 +152,6 @@ describe('Repositories: ChildrenGroup', () => {
 
                 return childrenGroupRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -371,11 +368,10 @@ describe('Repositories: ChildrenGroup', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(defaultChildrenGroup)
+                    .resolves(true)
 
                 return childrenGroupRepo.checkExist(defaultChildrenGroup)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isTrue(result)
                     })
             })
@@ -385,9 +381,17 @@ describe('Repositories: ChildrenGroup', () => {
             it('should return false', () => {
                 const childrenGroupIncomplete = new ChildrenGroup()
 
+                queryMock.filters = { _id: childrenGroupIncomplete.id }
+
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(queryMock.toJSON().filters)
+                    .chain('exec')
+                    .resolves(false)
+
                 return childrenGroupRepo.checkExist(childrenGroupIncomplete)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isFalse(result)
                     })
             })
@@ -402,11 +406,10 @@ describe('Repositories: ChildrenGroup', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves()
+                    .resolves(false)
 
                 return childrenGroupRepo.checkExist(defaultChildrenGroup)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isFalse(result)
                     })
             })

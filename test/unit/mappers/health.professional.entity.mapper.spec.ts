@@ -5,6 +5,7 @@ import { HealthProfessionalEntityMapper } from '../../../src/infrastructure/enti
 
 describe('Mappers: HealthProfessionalEntity', () => {
     const healthProfessional: HealthProfessional = new HealthProfessionalMock()
+    healthProfessional.password = 'health_professional_password'
 
     // Create healthProfessional JSON
     const healthProfessionalJSON: any = {
@@ -28,6 +29,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 'gamificationprofile:read'
             ],
         username: 'health_professional_mock',
+        password: 'health_professional_password',
         institution:
             {
                 id: '9e97b425c3e7db930e9dd04c',
@@ -119,6 +121,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 const result = new HealthProfessionalEntityMapper().transform(healthProfessional)
                 assert.propertyVal(result, 'id', healthProfessional.id)
                 assert.propertyVal(result, 'username', healthProfessional.username)
+                assert.propertyVal(result, 'password', healthProfessional.password)
                 assert.propertyVal(result, 'type', healthProfessional.type)
                 assert.propertyVal(result, 'scopes', healthProfessional.scopes)
                 assert.propertyVal(result, 'institution', healthProfessional.institution!.id)
@@ -132,6 +135,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 const result = new HealthProfessionalEntityMapper().transform(healthProfessionalJSON)
                 assert.propertyVal(result, 'id', healthProfessionalJSON.id)
                 assert.propertyVal(result, 'username', healthProfessionalJSON.username)
+                assert.propertyVal(result, 'password', healthProfessionalJSON.password)
                 assert.propertyVal(result, 'type', healthProfessionalJSON.type)
                 assert.propertyVal(result, 'scopes', healthProfessionalJSON.scopes)
                 assert.property(result, 'institution')
@@ -146,6 +150,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 const result = new HealthProfessionalEntityMapper().transform(healthProfessionalJSON)
                 assert.propertyVal(result, 'id', healthProfessionalJSON.id)
                 assert.propertyVal(result, 'username', healthProfessionalJSON.username)
+                assert.propertyVal(result, 'password', healthProfessionalJSON.password)
                 assert.propertyVal(result, 'type', healthProfessionalJSON.type)
                 assert.propertyVal(result, 'scopes', healthProfessionalJSON.scopes)
                 assert.isUndefined(result.institution)
@@ -161,6 +166,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
+                assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'children_groups', undefined)
             })

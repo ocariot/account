@@ -16,7 +16,7 @@ describe('IntegrationEvents: UserUpdate', () => {
             user.institution.id = `${new ObjectID()}`
 
             const result = new UserUpdateEvent('UserUpdate', new Date(), user).toJSON()
-            assert.property(result, 'event_name')
+            assert.propertyVal(result, 'event_name', 'UserUpdate')
             assert.property(result, 'timestamp')
             assert.property(result, 'admin')
         })

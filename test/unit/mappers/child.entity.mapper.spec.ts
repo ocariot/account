@@ -5,6 +5,7 @@ import { ChildEntityMapper } from '../../../src/infrastructure/entity/mapper/chi
 
 describe('Mappers: ChildEntity', () => {
     const child: Child = new ChildMock()
+    child.password = 'child_password'
 
     // Create child JSON
     const childJSON: any = {
@@ -27,6 +28,7 @@ describe('Mappers: ChildEntity', () => {
             'gamificationprofile:update'
         ],
         username: 'child_mock',
+        password: 'child_password',
         institution: {
             id: '273ab3632f16bbd9044753cb',
             type: 'Institute of Scientific Research',
@@ -45,6 +47,7 @@ describe('Mappers: ChildEntity', () => {
                 const result = new ChildEntityMapper().transform(child)
                 assert.propertyVal(result, 'id', child.id)
                 assert.propertyVal(result, 'username', child.username)
+                assert.propertyVal(result, 'password', child.password)
                 assert.propertyVal(result, 'type', child.type)
                 assert.propertyVal(result, 'scopes', child.scopes)
                 assert.propertyVal(result, 'institution', child.institution!.id)
@@ -58,6 +61,7 @@ describe('Mappers: ChildEntity', () => {
                 const result = new ChildEntityMapper().transform(childJSON)
                 assert.propertyVal(result, 'id', childJSON.id)
                 assert.propertyVal(result, 'username', childJSON.username)
+                assert.propertyVal(result, 'password', childJSON.password)
                 assert.propertyVal(result, 'type', childJSON.type)
                 assert.propertyVal(result, 'scopes', childJSON.scopes)
                 assert.property(result, 'institution')
@@ -72,6 +76,7 @@ describe('Mappers: ChildEntity', () => {
                 const result = new ChildEntityMapper().transform(childJSON)
                 assert.propertyVal(result, 'id', childJSON.id)
                 assert.propertyVal(result, 'username', childJSON.username)
+                assert.propertyVal(result, 'password', childJSON.password)
                 assert.propertyVal(result, 'type', childJSON.type)
                 assert.propertyVal(result, 'scopes', childJSON.scopes)
                 assert.isUndefined(result.institution)
@@ -87,6 +92,7 @@ describe('Mappers: ChildEntity', () => {
                 assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
+                assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'gender', undefined)
                 assert.propertyVal(result, 'age', undefined)

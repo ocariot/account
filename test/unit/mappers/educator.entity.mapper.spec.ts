@@ -5,6 +5,7 @@ import { Educator } from '../../../src/application/domain/model/educator'
 
 describe('Mappers: EducatorEntity', () => {
     const educator: Educator = new EducatorMock()
+    educator.password = 'educator_password'
 
     // Create educator JSON
     const educatorJSON: any = {
@@ -41,6 +42,7 @@ describe('Mappers: EducatorEntity', () => {
                 'gamificationprofile:read'
             ],
         username: 'educator_mock',
+        password: 'educator_password',
         institution:
             {
                 id: '9e97b425c3e7db930e9dd04c',
@@ -131,6 +133,7 @@ describe('Mappers: EducatorEntity', () => {
                 const result = new EducatorEntityMapper().transform(educator)
                 assert.propertyVal(result, 'id', educator.id)
                 assert.propertyVal(result, 'username', educator.username)
+                assert.propertyVal(result, 'password', educator.password)
                 assert.propertyVal(result, 'type', educator.type)
                 assert.propertyVal(result, 'scopes', educator.scopes)
                 assert.propertyVal(result, 'institution', educator.institution!.id)
@@ -143,6 +146,7 @@ describe('Mappers: EducatorEntity', () => {
                 const result = new EducatorEntityMapper().transform(educatorJSON)
                 assert.propertyVal(result, 'id', educatorJSON.id)
                 assert.propertyVal(result, 'username', educatorJSON.username)
+                assert.propertyVal(result, 'password', educatorJSON.password)
                 assert.propertyVal(result, 'type', educatorJSON.type)
                 assert.propertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.property(result, 'institution')
@@ -156,6 +160,7 @@ describe('Mappers: EducatorEntity', () => {
                 const result = new EducatorEntityMapper().transform(educatorJSON)
                 assert.propertyVal(result, 'id', educatorJSON.id)
                 assert.propertyVal(result, 'username', educatorJSON.username)
+                assert.propertyVal(result, 'password', educatorJSON.password)
                 assert.propertyVal(result, 'type', educatorJSON.type)
                 assert.propertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.isUndefined(result.institution)
@@ -170,6 +175,7 @@ describe('Mappers: EducatorEntity', () => {
                 assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
+                assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'children_groups', undefined)
             })

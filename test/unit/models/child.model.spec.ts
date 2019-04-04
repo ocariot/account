@@ -10,7 +10,23 @@ describe('Models: Child', () => {
         type: UserType.CHILD,
         gender: 'male',
         age: 10,
-        institution: new ObjectID()
+        institution: new ObjectID(),
+        scopes: [
+            'children:read',
+            'institutions:read',
+            'questionnaires:create',
+            'questionnaires:read',
+            'foodrecord:create',
+            'foodrecord:read',
+            'physicalactivities:create',
+            'physicalactivities:read',
+            'sleep:create',
+            'sleep:read',
+            'environment:read',
+            'missions:read',
+            'gamificationprofile:read',
+            'gamificationprofile:update'
+        ]
     }
 
     describe('fromJSON()', () => {
@@ -18,40 +34,57 @@ describe('Models: Child', () => {
             it('should return a child model', () => {
                 const result = new Child().fromJSON(childJSON)
 
-                assert.property(result, 'id')
-                assert.property(result, 'username')
+                assert.propertyVal(result, 'id', childJSON.id)
                 assert.propertyVal(result, 'username', childJSON.username)
-                assert.property(result, 'password')
                 assert.propertyVal(result, 'password', childJSON.password)
-                assert.property(result, 'type')
                 assert.propertyVal(result, 'type', childJSON.type)
-                assert.property(result, 'gender')
                 assert.propertyVal(result, 'gender', childJSON.gender)
-                assert.property(result, 'age')
                 assert.propertyVal(result, 'age', childJSON.age)
-                assert.property(result, 'institution')
-                assert.property(result, 'scopes')
-                assert.property(result, 'institution')
+                assert.deepPropertyVal(result, 'scopes', childJSON.scopes)
+                assert.deepEqual(new ObjectID(result.institution!.id), childJSON.institution)
             })
         })
 
         context('when the json is undefined', () => {
             it('should return a child model only with type and scope', () => {
                 const result = new Child().fromJSON(undefined)
-                assert.property(result, 'id')
                 assert.propertyVal(result, 'id', undefined)
-                assert.property(result, 'username')
                 assert.propertyVal(result, 'username', undefined)
-                assert.property(result, 'password')
                 assert.propertyVal(result, 'password', undefined)
-                assert.property(result, 'type')
                 assert.propertyVal(result, 'type', UserType.CHILD)
-                assert.property(result, 'gender')
                 assert.propertyVal(result, 'gender', undefined)
-                assert.property(result, 'age')
                 assert.propertyVal(result, 'age', undefined)
-                assert.property(result, 'scopes')
-                assert.property(result, 'institution')
+                assert.deepPropertyVal(result, 'scopes', childJSON.scopes)
+                assert.propertyVal(result, 'institution', undefined)
+            })
+        })
+
+        context('when the json is a string', () => {
+            it('should transform the string in json and return Child model', () => {
+                const result = new Child().fromJSON(JSON.stringify(childJSON))
+                assert.propertyVal(result, 'id', childJSON.id)
+                assert.propertyVal(result, 'username', childJSON.username)
+                assert.propertyVal(result, 'password', childJSON.password)
+                assert.propertyVal(result, 'type', childJSON.type)
+                assert.propertyVal(result, 'gender', childJSON.gender)
+                assert.propertyVal(result, 'age', childJSON.age)
+                assert.property(childJSON, 'institution')
+                assert.deepPropertyVal(result, 'scopes', childJSON.scopes)
+            })
+        })
+    })
+
+    describe('toJSON()', () => {
+        context('when the Child model is correct', () => {
+            it('should return a JSON from Child model', () => {
+                let result = new Child().fromJSON(childJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', childJSON.id)
+                assert.propertyVal(result, 'username', childJSON.username)
+                assert.propertyVal(result, 'type', childJSON.type)
+                assert.propertyVal(result, 'gender', childJSON.gender)
+                assert.propertyVal(result, 'age', childJSON.age)
+                assert.deepEqual(new ObjectID(result.institution!.id), childJSON.institution)
             })
         })
     })

@@ -74,7 +74,6 @@ describe('Repositories: Child', () => {
 
                 return childRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -95,7 +94,6 @@ describe('Repositories: Child', () => {
 
                 return childRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -115,7 +113,6 @@ describe('Repositories: Child', () => {
 
                 return childRepo.find(queryMock)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -356,7 +353,6 @@ describe('Repositories: Child', () => {
 
                 return childRepo.checkExist(childWithoutId)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isTrue(result)
                     })
             })
@@ -377,7 +373,6 @@ describe('Repositories: Child', () => {
 
                 return childRepo.checkExist(childrenWithoutId)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isFalse(result)
                     })
             })

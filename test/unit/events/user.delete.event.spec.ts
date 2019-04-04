@@ -16,7 +16,7 @@ describe('IntegrationEvents: UserDelete', () => {
             user.institution.id = `${new ObjectID()}`
 
             const result = new UserDeleteEvent('UserDelete', new Date(), user).toJSON()
-            assert.property(result, 'event_name')
+            assert.propertyVal(result, 'event_name', 'UserDelete')
             assert.property(result, 'timestamp')
             assert.property(result, 'user')
         })

@@ -5,6 +5,7 @@ import { FamilyEntityMapper } from '../../../src/infrastructure/entity/mapper/fa
 
 describe('Mappers: FamilyEntity', () => {
     const family: Family = new FamilyMock()
+    family.password = 'family_password'
 
     // Create educator JSON
     const familyJSON: any = {
@@ -34,6 +35,7 @@ describe('Mappers: FamilyEntity', () => {
             'gamificationprofile:read'
         ],
         username: 'family_mock',
+        password: 'family_password',
         institution: {
             id: '08acd7b4216880c5c576e805',
             type: 'Institute of Scientific Research',
@@ -166,6 +168,7 @@ describe('Mappers: FamilyEntity', () => {
                 const result = new FamilyEntityMapper().transform(family)
                 assert.propertyVal(result, 'id', family.id)
                 assert.propertyVal(result, 'username', family.username)
+                assert.propertyVal(result, 'password', family.password)
                 assert.propertyVal(result, 'type', family.type)
                 assert.propertyVal(result, 'scopes', family.scopes)
                 assert.propertyVal(result, 'institution', family.institution!.id)
@@ -179,6 +182,7 @@ describe('Mappers: FamilyEntity', () => {
                 const result = new FamilyEntityMapper().transform(familyJSON)
                 assert.propertyVal(result, 'id', familyJSON.id)
                 assert.propertyVal(result, 'username', familyJSON.username)
+                assert.propertyVal(result, 'password', familyJSON.password)
                 assert.propertyVal(result, 'type', familyJSON.type)
                 assert.propertyVal(result, 'scopes', familyJSON.scopes)
                 assert.property(result, 'institution')
@@ -192,6 +196,7 @@ describe('Mappers: FamilyEntity', () => {
                 const result = new FamilyEntityMapper().transform(familyJSON)
                 assert.propertyVal(result, 'id', familyJSON.id)
                 assert.propertyVal(result, 'username', familyJSON.username)
+                assert.propertyVal(result, 'password', familyJSON.password)
                 assert.propertyVal(result, 'type', familyJSON.type)
                 assert.propertyVal(result, 'scopes', familyJSON.scopes)
                 assert.isUndefined(result.institution)
@@ -206,6 +211,7 @@ describe('Mappers: FamilyEntity', () => {
                 assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
+                assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'children', undefined)
             })

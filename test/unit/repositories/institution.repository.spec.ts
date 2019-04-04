@@ -44,11 +44,10 @@ describe('Repositories: Institution', () => {
                 .expects('findOne')
                 .withArgs(customQueryMock.toJSON().filters)
                 .chain('exec')
-                .resolves(defaultInstitution)
+                .resolves(true)
 
             return repo.checkExist(defaultInstitution)
                 .then(result => {
-                    assert.isBoolean(result)
                     assert.isTrue(result)
                 })
         })
@@ -73,11 +72,10 @@ describe('Repositories: Institution', () => {
                 .expects('findOne')
                 .withArgs(customQueryMock.toJSON().filters)
                 .chain('exec')
-                .resolves(defaultInstitution)
+                .resolves(true)
 
             return repo.checkExist(institutionWithoutId)
                 .then(result => {
-                    assert.isBoolean(result)
                     assert.isTrue(result)
                 })
         })
@@ -104,11 +102,10 @@ describe('Repositories: Institution', () => {
                     .expects('findOne')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(undefined)
+                    .resolves(false)
 
                 return repo.checkExist(customInstitution)
                     .then(result => {
-                        assert.isBoolean(result)
                         assert.isFalse(result)
                     })
             })
