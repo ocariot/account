@@ -37,10 +37,15 @@ describe('EVENT BUS TASK', () => {
         await eventBusTask.stop()
     })
 
+    after(async () => {
+        await mongoDBConnection.dispose()
+    })
+
     describe('PUBLISH SAVED EVENTS', () => {
         context('when all events are valid and there is a connection with RabbitMQ', () => {
             it('should return an empty array', async () => {
                 try {
+                    // Create some events
                     await createUserIntegrationEvent()
                     await createChildIntegrationEvent()
                     await createFamilyIntegrationEvent()
@@ -48,6 +53,7 @@ describe('EVENT BUS TASK', () => {
                     await createHealthProfessionalIntegrationEvent()
                     await createApplicationIntegrationEvent()
 
+                    // Run the task for publishing saved events
                     eventBusTask.run()
 
                     // Wait for 1000 milliseconds for the task to be executed
@@ -57,7 +63,8 @@ describe('EVENT BUS TASK', () => {
 
                     await sleep(1000)
 
-                    const result: Array<any> = await integrationRepository.find(new Query())    // Search in repository
+                    // Search in repository
+                    const result: Array<any> = await integrationRepository.find(new Query())
                     expect(result.length).to.eql(0)
                 } catch (err) {
                     console.log(err)
@@ -73,8 +80,10 @@ describe('EVENT BUS TASK', () => {
                 saveEvent.__routing_key = 'users.delete'
 
                 try {
+                    // Creates the wrong event
                     await integrationRepository.create(JSON.parse(JSON.stringify(saveEvent)))
 
+                    // Run the task
                     eventBusTask.run()
 
                     // Wait for 1000 milliseconds for the task to be executed
@@ -83,6 +92,7 @@ describe('EVENT BUS TASK', () => {
                     }
                     await sleep(1000)
 
+                    // Search in repository
                     const result: Array<any> = await integrationRepository.find(new Query())
                     expect(result.length).to.eql(1)
                 } catch (err) {
@@ -102,6 +112,7 @@ describe('EVENT BUS TASK', () => {
                     // Mock throw an exception (not parse the JSON)
                     await integrationRepository.create(JSON.stringify(saveEvent))
 
+                    // Run the task
                     eventBusTask.run()
 
                     // Wait for 1000 milliseconds for the task to be executed
@@ -110,6 +121,7 @@ describe('EVENT BUS TASK', () => {
                     }
                     await sleep(1000)
 
+                    // Search in repository
                     const result: Array<any> = await integrationRepository.find(new Query())
                     expect(result.length).to.eql(1)
                 } catch (err) {
