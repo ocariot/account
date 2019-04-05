@@ -156,7 +156,6 @@ describe('Services: User', () => {
 
                 return userService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -177,7 +176,6 @@ describe('Services: User', () => {
 
                 return userService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -238,7 +236,7 @@ describe('Services: User', () => {
                     .withArgs(query)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return userService.getById(incorrectUser.id, query)
                     .catch(err => {
@@ -356,6 +354,23 @@ describe('Services: User', () => {
             })
         })
 
+        context('when there is no User with the received parameter', () => {
+            it('should return false', () => {
+                user.id = '507f1f77bcf86cd799439016'         // Make mock return false
+                sinon
+                    .mock(modelFake)
+                    .expects('deleteOne')
+                    .withArgs(user.id)
+                    .chain('exec')
+                    .resolves(false)
+
+                return userService.remove(user.id!)
+                    .then(result => {
+                        assert.equal(result, false)
+                    })
+            })
+        })
+
         context('when the user id is invalid', () => {
             it('should throw a ValidationException', () => {
                 incorrectUser.id = '507f1f77bcf86cd7994390111'       // Make mock throw an exception
@@ -365,7 +380,7 @@ describe('Services: User', () => {
                     .withArgs(incorrectUser.id)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return userService.remove(incorrectUser.id)
                     .catch(err => {

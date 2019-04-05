@@ -32,7 +32,7 @@ require('sinon-mongoose')
 
 describe('Services: Family', () => {
     const family: Family = new FamilyMock()
-    family.password = 'password_mock'
+    family.password = 'family_password'
     family.institution!.id = '507f1f77bcf86cd799439011'
 
     const incorrectFamily: Family = new Family()
@@ -80,12 +80,11 @@ describe('Services: Family', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', family.id)
                         assert.propertyVal(result, 'username', family.username)
+                        assert.propertyVal(result, 'password', family.password)
                         assert.propertyVal(result, 'type', family.type)
                         assert.propertyVal(result, 'scopes', family.scopes)
                         assert.propertyVal(result, 'institution', family.institution)
-                        assert.equal(result.children![0], family.children![0])
-                        assert.equal(result.children![1], family.children![1])
-                        assert.equal(result.children![2], family.children![2])
+                        assert.propertyVal(result, 'children', family.children)
                     })
             })
         })
@@ -342,12 +341,11 @@ describe('Services: Family', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', family.id)
                         assert.propertyVal(result, 'username', family.username)
+                        assert.propertyVal(result, 'password', family.password)
                         assert.propertyVal(result, 'type', family.type)
                         assert.propertyVal(result, 'scopes', family.scopes)
                         assert.propertyVal(result, 'institution', family.institution)
-                        assert.equal(result.children![0], family.children![0])
-                        assert.equal(result.children![1], family.children![1])
-                        assert.equal(result.children![2], family.children![2])
+                        assert.propertyVal(result, 'children', family.children)
                     })
             })
         })
@@ -366,12 +364,11 @@ describe('Services: Family', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', family.id)
                         assert.propertyVal(result, 'username', family.username)
+                        assert.propertyVal(result, 'password', family.password)
                         assert.propertyVal(result, 'type', family.type)
                         assert.propertyVal(result, 'scopes', family.scopes)
                         assert.propertyVal(result, 'institution', family.institution)
-                        assert.equal(result.children![0], family.children![0])
-                        assert.equal(result.children![1], family.children![1])
-                        assert.equal(result.children![2], family.children![2])
+                        assert.propertyVal(result, 'children', family.children)
                     })
             })
         })
@@ -636,6 +633,7 @@ describe('Services: Family', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', family.id)
                         assert.propertyVal(result, 'username', family.username)
+                        assert.property(result, 'password')
                         assert.propertyVal(result, 'type', family.type)
                         assert.deepPropertyVal(result, 'scopes', family.scopes)
                         assert.property(result, 'children')
@@ -711,7 +709,7 @@ describe('Services: Family', () => {
                     .withArgs(family)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return familyService.associateChild(family.id, family.children![0].id!)
                     .catch(err => {
@@ -771,7 +769,7 @@ describe('Services: Family', () => {
                     .withArgs(family)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return familyService.disassociateChild(family.id, family.children![0].id!)
                     .catch(err => {
@@ -791,7 +789,7 @@ describe('Services: Family', () => {
                     .withArgs(family)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return familyService.disassociateChild(family.id, family.children![0].id!)
                     .catch(err => {

@@ -60,9 +60,9 @@ describe('Services: ChildrenGroup', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', childrenGroup.id)
                         assert.propertyVal(result, 'name', childrenGroup.name)
-                        assert.equal(result.children![0], childrenGroup.children![0])
-                        assert.equal(result.children![1], childrenGroup.children![1])
+                        assert.propertyVal(result, 'children', childrenGroup.children)
                         assert.propertyVal(result, 'school_class', childrenGroup.school_class)
+                        assert.propertyVal(result, 'user', childrenGroup.user)
                     })
             })
         })
@@ -250,10 +250,7 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.getById(childrenGroup.id, query)
                     .then(result => {
-                        assert.propertyVal(result, 'id', childrenGroup.id)
-                        assert.propertyVal(result, 'name', childrenGroup.name)
-                        assert.property(result, 'children')
-                        assert.propertyVal(result, 'school_class', childrenGroup.school_class)
+                        assert(result, 'result must not be undefined')
                     })
             })
         })
@@ -297,9 +294,9 @@ describe('Services: ChildrenGroup', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', childrenGroup.id)
                         assert.propertyVal(result, 'name', childrenGroup.name)
-                        assert.equal(result.children![0], childrenGroup.children![0])
-                        assert.equal(result.children![1], childrenGroup.children![1])
+                        assert.propertyVal(result, 'children', childrenGroup.children)
                         assert.propertyVal(result, 'school_class', childrenGroup.school_class)
+                        assert.propertyVal(result, 'user', childrenGroup.user)
                     })
             })
         })

@@ -13,7 +13,7 @@ export class FamilyMock extends Family {
         const family: Family = new Family()
         family.id = this.generateObjectId()
         family.username = 'family_mock'
-        family.password = 'password_mock'
+        family.password = 'family_password'
         family.institution = this.generateInstitution()
         family.children = [new ChildMock(), new ChildMock()]
 

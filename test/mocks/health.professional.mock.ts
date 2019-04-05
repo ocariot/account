@@ -15,7 +15,7 @@ export class HealthProfessionalMock extends HealthProfessional {
         const health_professional: HealthProfessional = new HealthProfessional()
         health_professional.id = this.generateObjectId()
         health_professional.username = 'health_professional_mock'
-        health_professional.password = 'password_mock'
+        health_professional.password = 'health_professional_password'
         health_professional.institution = this.generateInstitution()
 
         const children_group: ChildrenGroup = new ChildrenGroup()

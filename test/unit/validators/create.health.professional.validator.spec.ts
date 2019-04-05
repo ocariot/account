@@ -1,119 +1,90 @@
 import { Institution } from '../../../src/application/domain/model/institution'
 import { assert } from 'chai'
-import { ObjectID } from 'bson'
 import { HealthProfessional } from '../../../src/application/domain/model/health.professional'
 import { CreateHealthProfessionalValidator } from '../../../src/application/domain/validator/create.health.professional.validator'
+import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
+import { UserTypeMock } from '../../mocks/user.mock'
 
 describe('Validators: HealthProfessional', () => {
-    const institution = new Institution()
-    institution.id = `${new ObjectID()}`
+    const healthProfessional: HealthProfessional = new HealthProfessionalMock()
+    healthProfessional.password = 'health_professional_password'
 
-    it('should return undefined when the validation was successful', () => {
-        const healthProfessional: HealthProfessional = new HealthProfessional()
-        healthProfessional.username = 'healthProfessional'
-        healthProfessional.password = 'mysecretkey'
-        healthProfessional.children_groups = []
-        healthProfessional.institution = institution
-
-        const result = CreateHealthProfessionalValidator.validate(healthProfessional)
-        assert.equal(result, undefined)
+    context('when the validation was successful', () => {
+        it('should return undefined', () => {
+            const result = CreateHealthProfessionalValidator.validate(healthProfessional)
+            assert.equal(result, undefined)
+        })
     })
 
     context('when the health professional was incomplete', () => {
         it('should throw an error for does not pass username', () => {
-            const healthProfessional: HealthProfessional = new HealthProfessional()
-            healthProfessional.password = 'mysecretkey'
-            healthProfessional.children_groups = []
-            healthProfessional.institution = institution
+            healthProfessional.username = ''
 
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Health Professional validation: username is required!')
             }
         })
 
         it('should throw an error for does not pass password', () => {
-            const healthProfessional: HealthProfessional = new HealthProfessional()
             healthProfessional.username = 'healthprofessional'
-            healthProfessional.children_groups = []
-            healthProfessional.institution = institution
+            healthProfessional.password = ''
 
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Health Professional validation: password is required!')
             }
         })
 
         it('should throw an error for does not pass type', () => {
-            const healthProfessional: HealthProfessional = new HealthProfessional()
-            healthProfessional.username = 'healthProfessional'
-            healthProfessional.password = 'mysecretkey'
-            healthProfessional.children_groups = []
-            healthProfessional.institution = institution
-            healthProfessional.type = undefined
+            healthProfessional.password = 'health_professional_password'
+            healthProfessional.type = ''
 
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Health Professional validation: type is required!')
             }
         })
 
         it('should throw an error for does not pass institution', () => {
-            const healthProfessional: HealthProfessional = new HealthProfessional()
-            healthProfessional.username = 'healthprofessional'
-            healthProfessional.password = 'mysecretkey'
-            healthProfessional.children_groups = []
+            healthProfessional.type = UserTypeMock.HEALTH_PROFESSIONAL
+            healthProfessional.institution = undefined
 
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Health Professional validation: institution is required!')
             }
         })
 
         it('should throw an error for pass institution without id', () => {
-            const healthProfessional: HealthProfessional = new HealthProfessional()
-            healthProfessional.username = 'healthprofessional'
-            healthProfessional.password = 'mysecretkey'
-            healthProfessional.children_groups = []
             healthProfessional.institution = new Institution()
 
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Health Professional validation: institution is required!')
             }
         })
 
         it('should trow an error for does not pass any of required parameters', () => {
-            const healthProfessional: HealthProfessional = new HealthProfessional()
+            const emptyHealthProfessional: HealthProfessional = new HealthProfessional()
+            emptyHealthProfessional.type = ''
 
             try {
-                CreateHealthProfessionalValidator.validate(healthProfessional)
+                CreateHealthProfessionalValidator.validate(emptyHealthProfessional)
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Health Professional validation: username, ' +
-                    'password, institution is required!')
+                    'password, type, institution is required!')
             }
         })
     })

@@ -106,10 +106,11 @@ describe('Services: HealthProfessional', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', healthProfessional.id)
                         assert.propertyVal(result, 'username', healthProfessional.username)
+                        assert.propertyVal(result, 'password', healthProfessional.password)
                         assert.propertyVal(result, 'type', healthProfessional.type)
                         assert.propertyVal(result, 'scopes', healthProfessional.scopes)
                         assert.propertyVal(result, 'institution', healthProfessional.institution)
-                        assert.property(result, 'children_groups')
+                        assert.propertyVal(result, 'children_groups', healthProfessional.children_groups)
                     })
             })
         })
@@ -142,7 +143,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(healthProfessional)
                     .chain('exec')
                     .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                        description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
+                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return healthProfessionalService.add(healthProfessional)
                     .catch(err => {
@@ -160,7 +161,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(incorrectHealthProfessional)
                     .chain('exec')
                     .rejects({ message: 'Required fields were not provided...',
-                        description: 'HealthProfessional validation: username, password, type, institution is required!' })
+                               description: 'HealthProfessional validation: username, password, type, institution is required!' })
 
                 return healthProfessionalService.add(incorrectHealthProfessional)
                     .catch(err => {
@@ -180,7 +181,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(healthProfessional)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.add(healthProfessional)
                     .catch(err => {
@@ -210,7 +211,6 @@ describe('Services: HealthProfessional', () => {
 
                 return healthProfessionalService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -231,7 +231,6 @@ describe('Services: HealthProfessional', () => {
 
                 return healthProfessionalService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -292,7 +291,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(query)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.getById(incorrectHealthProfessional.id, query)
                     .catch(err => {
@@ -322,10 +321,11 @@ describe('Services: HealthProfessional', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', healthProfessional.id)
                         assert.propertyVal(result, 'username', healthProfessional.username)
+                        assert.propertyVal(result, 'password', healthProfessional.password)
                         assert.propertyVal(result, 'type', healthProfessional.type)
                         assert.propertyVal(result, 'scopes', healthProfessional.scopes)
                         assert.propertyVal(result, 'institution', healthProfessional.institution)
-                        assert.property(result, 'children_groups')
+                        assert.propertyVal(result, 'children_groups', healthProfessional.children_groups)
                     })
             })
         })
@@ -344,10 +344,11 @@ describe('Services: HealthProfessional', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', healthProfessional.id)
                         assert.propertyVal(result, 'username', healthProfessional.username)
+                        assert.propertyVal(result, 'password', healthProfessional.password)
                         assert.propertyVal(result, 'type', healthProfessional.type)
                         assert.propertyVal(result, 'scopes', healthProfessional.scopes)
                         assert.propertyVal(result, 'institution', healthProfessional.institution)
-                        assert.property(result, 'children_groups')
+                        assert.propertyVal(result, 'children_groups', healthProfessional.children_groups)
                     })
             })
         })
@@ -378,7 +379,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(incorrectHealthProfessional)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.update(incorrectHealthProfessional)
                     .catch(err => {
@@ -399,7 +400,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(incorrectHealthProfessional)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.update(incorrectHealthProfessional)
                     .catch(err => {
@@ -418,8 +419,8 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(healthProfessional)
                     .chain('exec')
                     .rejects({ message: 'This parameter could not be updated.',
-                        description: 'A specific route to update user password already exists.' +
-                            'Access: PATCH /users/507f1f77bcf86cd799439012/password to update your password.' })
+                               description: 'A specific route to update user password already exists.' +
+                                   'Access: PATCH /users/507f1f77bcf86cd799439012/password to update your password.' })
 
                 return healthProfessionalService.update(healthProfessional)
                     .catch(err => {
@@ -440,7 +441,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(healthProfessional)
                     .chain('exec')
                     .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                        description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
+                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return healthProfessionalService.update(healthProfessional)
                     .catch(err => {
@@ -498,7 +499,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(incorrectHealthProfessional.id)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.remove(incorrectHealthProfessional.id)
                     .catch(err => {
@@ -527,9 +528,9 @@ describe('Services: HealthProfessional', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', childrenGroup.id)
                         assert.propertyVal(result, 'name', childrenGroup.name)
-                        assert.equal(result.children![0], childrenGroup.children![0])
-                        assert.equal(result.children![1], childrenGroup.children![1])
+                        assert.propertyVal(result, 'children', childrenGroup.children)
                         assert.propertyVal(result, 'school_class', childrenGroup.school_class)
+                        assert.propertyVal(result, 'user', childrenGroup.user)
                     })
             })
         })
@@ -543,7 +544,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(childrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
-                        description: Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION })
+                               description: Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id, childrenGroup)
                     .catch(err => {
@@ -582,7 +583,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(childrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                        description: Strings.CHILD.IDS_WITHOUT_REGISTER })
+                               description: Strings.CHILD.IDS_WITHOUT_REGISTER })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, childrenGroup)
                     .catch(err => {
@@ -602,7 +603,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(childrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, childrenGroup)
                     .catch(err => {
@@ -620,7 +621,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: 'Required fields were not provided...',
-                        description: 'Children Group validation: name, user, Collection with children IDs is required!' })
+                               description: 'Children Group validation: name, user, Collection with children IDs is required!' })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
@@ -640,8 +641,8 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: 'Required fields were not provided...',
-                        description: 'Children Group validation: name, user, Collection with children IDs (ID can not ' +
-                            'be empty) is required!' })
+                               description: 'Children Group validation: name, user, Collection with children IDs (ID can not ' +
+                                   'be empty) is required!' })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
@@ -663,7 +664,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, childrenGroup)
                     .catch(err => {
@@ -692,7 +693,6 @@ describe('Services: HealthProfessional', () => {
 
                 return healthProfessionalService.getAllChildrenGroups(healthProfessional.id, query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -713,7 +713,6 @@ describe('Services: HealthProfessional', () => {
 
                 return healthProfessionalService.getAllChildrenGroups(healthProfessional.id, query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -731,7 +730,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(query)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.getAllChildrenGroups(healthProfessional.id, query)
                     .catch(err => {
@@ -762,10 +761,7 @@ describe('Services: HealthProfessional', () => {
                 return healthProfessionalService.getChildrenGroupById(healthProfessional.id,
                     healthProfessional.children_groups![0].id, query)
                     .then(result => {
-                        assert.propertyVal(result, 'id', healthProfessional.children_groups![0].id)
-                        assert.propertyVal(result, 'name', healthProfessional.children_groups![0].name)
-                        assert.property(result, 'children')
-                        assert.propertyVal(result, 'school_class', healthProfessional.children_groups![0].school_class)
+                        assert(result, 'result must not be undefined')
                     })
             })
         })
@@ -823,7 +819,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(query)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.getChildrenGroupById(healthProfessional.id,
                     healthProfessional.children_groups![0].id, query)
@@ -846,7 +842,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(query)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.getChildrenGroupById(healthProfessional.id,
                     healthProfessional.children_groups![0].id, query)
@@ -877,9 +873,9 @@ describe('Services: HealthProfessional', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', healthProfessional.children_groups![0].id)
                         assert.propertyVal(result, 'name', healthProfessional.children_groups![0].name)
-                        assert.equal(result.children![0], healthProfessional.children_groups![0].children![0])
-                        assert.equal(result.children![1], healthProfessional.children_groups![0].children![1])
+                        assert.propertyVal(result, 'children', healthProfessional.children_groups![0].children)
                         assert.propertyVal(result, 'school_class', healthProfessional.children_groups![0].school_class)
+                        assert.propertyVal(result, 'user', healthProfessional.children_groups![0].user)
                     })
             })
         })
@@ -893,7 +889,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(healthProfessional.children_groups![0])
                     .chain('exec')
                     .rejects({ message: Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
-                        description: Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION })
+                               description: Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id,
                     healthProfessional.children_groups![0])
@@ -913,7 +909,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(healthProfessional.children_groups![0])
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id,
                     healthProfessional.children_groups![0])
@@ -934,7 +930,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(healthProfessional.children_groups![0])
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id,
                     healthProfessional.children_groups![0])
@@ -955,7 +951,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(childrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                        description: Strings.CHILD.IDS_WITHOUT_REGISTER })
+                               description: Strings.CHILD.IDS_WITHOUT_REGISTER })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id!, childrenGroup)
                     .catch(err => {
@@ -974,8 +970,8 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: 'Required fields were not provided...',
-                        description: 'Children Group validation: Collection with children IDs (ID can not be empty) ' +
-                            'is required!' })
+                               description: 'Children Group validation: Collection with children IDs (ID can not be empty) ' +
+                                   'is required!' })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
@@ -997,7 +993,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(incorrectChildrenGroup)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
@@ -1055,7 +1051,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(childrenGroup.id)
                     .chain('exec')
                     .rejects({ message: Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
-                        description: Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION })
+                               description: Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION })
 
                 return healthProfessionalService.deleteChildrenGroup(healthProfessional.id, childrenGroup.id!)
                     .catch(err => {
@@ -1074,7 +1070,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(childrenGroup.id)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id,
                     healthProfessional.children_groups![0])
@@ -1095,7 +1091,7 @@ describe('Services: HealthProfessional', () => {
                     .withArgs(healthProfessional.children_groups![0])
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id,
                     healthProfessional.children_groups![0])

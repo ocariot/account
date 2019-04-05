@@ -2,9 +2,11 @@ import { AuthValidator } from '../../../src/application/domain/validator/auth.va
 import { assert } from 'chai'
 
 describe('Validators: Auth', () => {
-    it('should return undefined when the validation was successful', () => {
-        const result = AuthValidator.validate('username', 'password')
-        assert.equal(result, undefined)
+    context('when the validation was successful', () => {
+        it('should return undefined', () => {
+            const result = AuthValidator.validate('username', 'password')
+            assert.equal(result, undefined)
+        })
     })
 
     context('when doest not pass username or password', () => {
@@ -12,8 +14,6 @@ describe('Validators: Auth', () => {
             try {
                 AuthValidator.validate('', 'password')
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Authentication validation: username is required!')
             }
@@ -23,8 +23,6 @@ describe('Validators: Auth', () => {
             try {
                 AuthValidator.validate('username', '')
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Authentication validation: password is required!')
             }
@@ -34,8 +32,6 @@ describe('Validators: Auth', () => {
             try {
                 AuthValidator.validate('', '')
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Authentication validation: username, password is required!')
             }

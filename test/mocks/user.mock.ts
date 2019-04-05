@@ -14,7 +14,7 @@ export class UserMock extends User {
         const user: User = new User()
         user.id = this.generateObjectId()
         user.username = 'user_mock'
-        user.password = 'password_mock'
+        user.password = 'user_password'
         user.type = type
         user.institution = this.generateInstitution()
         user.scopes = new Array<string>('readonly')

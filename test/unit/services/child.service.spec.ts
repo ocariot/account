@@ -82,6 +82,7 @@ describe('Services: Child', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', child.id)
                         assert.propertyVal(result, 'username', child.username)
+                        assert.propertyVal(result, 'password', child.password)
                         assert.propertyVal(result, 'type', child.type)
                         assert.propertyVal(result, 'scopes', child.scopes)
                         assert.propertyVal(result, 'institution', child.institution)
@@ -268,7 +269,7 @@ describe('Services: Child', () => {
                     .withArgs(query)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childService.getById(incorrectChild.id, query)
                     .catch(err => {
@@ -298,6 +299,7 @@ describe('Services: Child', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', child.id)
                         assert.propertyVal(result, 'username', child.username)
+                        assert.propertyVal(result, 'password', child.password)
                         assert.propertyVal(result, 'type', child.type)
                         assert.propertyVal(result, 'scopes', child.scopes)
                         assert.propertyVal(result, 'institution', child.institution)
@@ -321,6 +323,7 @@ describe('Services: Child', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', child.id)
                         assert.propertyVal(result, 'username', child.username)
+                        assert.propertyVal(result, 'password', child.password)
                         assert.propertyVal(result, 'type', child.type)
                         assert.propertyVal(result, 'scopes', child.scopes)
                         assert.propertyVal(result, 'institution', child.institution)
@@ -356,7 +359,7 @@ describe('Services: Child', () => {
                     .withArgs(incorrectChild)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childService.update(incorrectChild)
                     .catch(err => {
@@ -418,7 +421,7 @@ describe('Services: Child', () => {
                     .withArgs(child)
                     .chain('exec')
                     .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                        description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
+                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return childService.update(child)
                     .catch(err => {

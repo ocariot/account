@@ -49,25 +49,6 @@ describe('Services: Auth', () => {
             })
         })
 
-        context('when the parameters are invalid (the username is invalid)', () => {
-            it('should return undefined', async () => {
-                username = 'invalid_username'
-                const query: IQuery = new Query()
-                query.filters = { _username: username }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(undefined)
-
-                return authService.authenticate(username, password)
-                    .then(result => {
-                        assert.isUndefined(result)
-                    })
-            })
-        })
-
         context('when the parameters are invalid (missing fields)', () => {
             it('should throw a ValidationException', async () => {
                 username = ''

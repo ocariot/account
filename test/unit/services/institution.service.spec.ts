@@ -120,7 +120,6 @@ describe('Services: Institution', () => {
 
                 return institutionService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isNotEmpty(result)
                     })
@@ -141,7 +140,6 @@ describe('Services: Institution', () => {
 
                 return institutionService.getAll(query)
                     .then(result => {
-                        assert(result, 'result must not be undefined')
                         assert.isArray(result)
                         assert.isEmpty(result)
                     })
@@ -323,7 +321,7 @@ describe('Services: Institution', () => {
                     .withArgs(incorrectInstitution.id)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return institutionService.remove(incorrectInstitution.id)
                     .catch(err => {

@@ -13,7 +13,7 @@ export class EducatorMock extends Educator {
         const educator: Educator = new Educator()
         educator.id = this.generateObjectId()
         educator.username = 'educator_mock'
-        educator.password = 'password_mock'
+        educator.password = 'educator_password'
         educator.institution = this.generateInstitution()
 
         educator.children_groups = [new ChildrenGroupMock(), new ChildrenGroupMock()]

@@ -29,7 +29,7 @@ require('sinon-mongoose')
 
 describe('Services: Application', () => {
     const application: Application = new ApplicationMock()
-    application.password = 'password_mock'
+    application.password = 'application_password'
     application.institution = new InstitutionMock()
     application.institution.id = '507f1f77bcf86cd799439011'
 
@@ -78,6 +78,7 @@ describe('Services: Application', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', application.id)
                         assert.propertyVal(result, 'username', application.username)
+                        assert.propertyVal(result, 'password', application.password)
                         assert.propertyVal(result, 'type', application.type)
                         assert.propertyVal(result, 'scopes', application.scopes)
                         assert.propertyVal(result, 'institution', application.institution)
@@ -292,6 +293,7 @@ describe('Services: Application', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', application.id)
                         assert.propertyVal(result, 'username', application.username)
+                        assert.propertyVal(result, 'password', application.password)
                         assert.propertyVal(result, 'type', application.type)
                         assert.propertyVal(result, 'scopes', application.scopes)
                         assert.propertyVal(result, 'institution', application.institution)
@@ -314,6 +316,7 @@ describe('Services: Application', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', application.id)
                         assert.propertyVal(result, 'username', application.username)
+                        assert.propertyVal(result, 'password', application.password)
                         assert.propertyVal(result, 'type', application.type)
                         assert.propertyVal(result, 'scopes', application.scopes)
                         assert.propertyVal(result, 'institution', application.institution)

@@ -12,7 +12,7 @@ export class ChildMock extends Child {
         const child: Child = new Child()
         child.id = this.generateObjectId()
         child.username = 'child_mock'
-        child.password = 'password_mock'
+        child.password = 'child_password'
         child.institution = this.generateInstitution()
         child.age = Math.floor(Math.random() * 5) + 5
         child.gender = this.generateGender()

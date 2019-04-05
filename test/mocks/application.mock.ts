@@ -12,7 +12,7 @@ export class ApplicationMock extends Application {
         const application: Application = new Application()
         application.id = this.generateObjectId()
         application.username = 'application_mock'
-        application.password = 'password_mock'
+        application.password = 'application_password'
         application.institution = this.generateInstitution()
         application.application_name = 'application test'
 

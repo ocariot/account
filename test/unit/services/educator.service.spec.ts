@@ -106,6 +106,7 @@ describe('Services: Educator', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', educator.id)
                         assert.propertyVal(result, 'username', educator.username)
+                        assert.propertyVal(result, 'password', educator.password)
                         assert.propertyVal(result, 'type', educator.type)
                         assert.propertyVal(result, 'scopes', educator.scopes)
                         assert.propertyVal(result, 'institution', educator.institution)
@@ -142,7 +143,7 @@ describe('Services: Educator', () => {
                     .withArgs(educator)
                     .chain('exec')
                     .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                        description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
+                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return educatorService.add(educator)
                     .catch(err => {
@@ -160,7 +161,7 @@ describe('Services: Educator', () => {
                     .withArgs(incorrectEducator)
                     .chain('exec')
                     .rejects({ message: 'Required fields were not provided...',
-                        description: 'Educator validation: username, password, type, institution is required!' })
+                               description: 'Educator validation: username, password, type, institution is required!' })
 
                 return educatorService.add(incorrectEducator)
                     .catch(err => {
@@ -180,7 +181,7 @@ describe('Services: Educator', () => {
                     .withArgs(educator)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return educatorService.add(educator)
                     .catch(err => {
@@ -290,7 +291,7 @@ describe('Services: Educator', () => {
                     .withArgs(query)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return educatorService.getById(incorrectEducator.id, query)
                     .catch(err => {
@@ -320,6 +321,7 @@ describe('Services: Educator', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', educator.id)
                         assert.propertyVal(result, 'username', educator.username)
+                        assert.propertyVal(result, 'password', educator.password)
                         assert.propertyVal(result, 'type', educator.type)
                         assert.propertyVal(result, 'scopes', educator.scopes)
                         assert.propertyVal(result, 'institution', educator.institution)
@@ -342,6 +344,7 @@ describe('Services: Educator', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', educator.id)
                         assert.propertyVal(result, 'username', educator.username)
+                        assert.propertyVal(result, 'password', educator.password)
                         assert.propertyVal(result, 'type', educator.type)
                         assert.propertyVal(result, 'scopes', educator.scopes)
                         assert.propertyVal(result, 'institution', educator.institution)
@@ -376,7 +379,7 @@ describe('Services: Educator', () => {
                     .withArgs(incorrectEducator)
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                        description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
+                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return educatorService.update(incorrectEducator)
                     .catch(err => {
@@ -525,9 +528,9 @@ describe('Services: Educator', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', childrenGroup.id)
                         assert.propertyVal(result, 'name', childrenGroup.name)
-                        assert.equal(result.children![0], childrenGroup.children![0])
-                        assert.equal(result.children![1], childrenGroup.children![1])
+                        assert.propertyVal(result, 'children', childrenGroup.children)
                         assert.propertyVal(result, 'school_class', childrenGroup.school_class)
+                        assert.propertyVal(result, 'user', childrenGroup.user)
                     })
             })
         })
@@ -757,10 +760,7 @@ describe('Services: Educator', () => {
 
                 return educatorService.getChildrenGroupById(educator.id, educator.children_groups![0].id, query)
                     .then(result => {
-                        assert.propertyVal(result, 'id', educator.children_groups![0].id)
-                        assert.propertyVal(result, 'name', educator.children_groups![0].name)
-                        assert.property(result, 'children')
-                        assert.propertyVal(result, 'school_class', educator.children_groups![0].school_class)
+                        assert(result, 'result must not be undefined')
                     })
             })
         })
@@ -868,9 +868,9 @@ describe('Services: Educator', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', educator.children_groups![0].id)
                         assert.propertyVal(result, 'name', educator.children_groups![0].name)
-                        assert.equal(result.children![0], educator.children_groups![0].children![0])
-                        assert.equal(result.children![1], educator.children_groups![0].children![1])
+                        assert.propertyVal(result, 'children', educator.children_groups![0].children)
                         assert.propertyVal(result, 'school_class', educator.children_groups![0].school_class)
+                        assert.propertyVal(result, 'user', educator.children_groups![0].user)
                     })
             })
         })

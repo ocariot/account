@@ -2,9 +2,11 @@ import { UpdatePasswordValidator } from '../../../src/application/domain/validat
 import { assert } from 'chai'
 
 describe('Validators: UpdatePassword', () => {
-    it('should return undefined when the validation was successful', () => {
-        const result = UpdatePasswordValidator.validate('oldpass', 'newpass')
-        assert.equal(result, undefined)
+    context('when the validation was successful', () => {
+        it('should return undefined', () => {
+            const result = UpdatePasswordValidator.validate('oldpass', 'newpass')
+            assert.equal(result, undefined)
+        })
     })
 
     context('when does not pass old password or new password', () => {
@@ -12,8 +14,6 @@ describe('Validators: UpdatePassword', () => {
             try {
                 UpdatePasswordValidator.validate('', 'newpass')
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Change password validation failed: old_password is required!')
             }
@@ -23,8 +23,6 @@ describe('Validators: UpdatePassword', () => {
             try {
                 UpdatePasswordValidator.validate('oldpass', '')
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Change password validation failed: new_password is required!')
             }
@@ -34,8 +32,6 @@ describe('Validators: UpdatePassword', () => {
             try {
                 UpdatePasswordValidator.validate('', '')
             } catch (err) {
-                assert.property(err, 'message')
-                assert.property(err, 'description')
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Change password validation failed: old_password, ' +
                     'new_password is required!')
