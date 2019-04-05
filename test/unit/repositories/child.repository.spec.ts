@@ -14,7 +14,7 @@ require('sinon-mongoose')
 describe('Repositories: Child', () => {
     const defaultChild: Child = new ChildMock()
     defaultChild.id = '507f1f77bcf86cd799439011'
-    defaultChild.password = 'userpass'
+    defaultChild.password = 'child_password'
 
     // Mock children array
     const childrenArr: Array<Child> = new Array<ChildMock>()
@@ -156,6 +156,7 @@ describe('Repositories: Child', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultChild.id)
                         assert.propertyVal(result, 'username', defaultChild.username)
+                        assert.propertyVal(result, 'password', defaultChild.password)
                         assert.propertyVal(result, 'type', defaultChild.type)
                         assert.propertyVal(result, 'scopes', defaultChild.scopes)
                         assert.propertyVal(result, 'institution', defaultChild.institution)
@@ -190,6 +191,7 @@ describe('Repositories: Child', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultChild.id)
                         assert.propertyVal(result, 'username', defaultChild.username)
+                        assert.propertyVal(result, 'password', defaultChild.password)
                         assert.propertyVal(result, 'type', defaultChild.type)
                         assert.propertyVal(result, 'scopes', defaultChild.scopes)
                         assert.propertyVal(result, 'institution', defaultChild.institution)
@@ -216,6 +218,7 @@ describe('Repositories: Child', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultChild.id)
                         assert.propertyVal(result, 'username', defaultChild.username)
+                        assert.propertyVal(result, 'password', defaultChild.password)
                         assert.propertyVal(result, 'type', defaultChild.type)
                         assert.propertyVal(result, 'scopes', defaultChild.scopes)
                         assert.propertyVal(result, 'institution', defaultChild.institution)
@@ -278,6 +281,7 @@ describe('Repositories: Child', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultChild.id)
                         assert.propertyVal(result, 'username', defaultChild.username)
+                        assert.propertyVal(result, 'password', defaultChild.password)
                         assert.propertyVal(result, 'type', defaultChild.type)
                         assert.propertyVal(result, 'scopes', defaultChild.scopes)
                         assert.propertyVal(result, 'institution', defaultChild.institution)

@@ -13,10 +13,9 @@ import { HealthProfessionalRepository } from '../../../src/infrastructure/reposi
 require('sinon-mongoose')
 
 describe('Repositories: HealthProfessional', () => {
-
     const defaultHealthProfessional: HealthProfessional = new HealthProfessionalMock()
     defaultHealthProfessional.id = '507f1f77bcf86cd799439011'
-    defaultHealthProfessional.password = 'userpass'
+    defaultHealthProfessional.password = 'health_professional_password'
 
     // Mock health professionals array
     const healthProfessionalsArr: Array<HealthProfessional> = new Array<HealthProfessionalMock>()
@@ -168,6 +167,7 @@ describe('Repositories: HealthProfessional', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultHealthProfessional.id)
                         assert.propertyVal(result, 'username', defaultHealthProfessional.username)
+                        assert.propertyVal(result, 'password', defaultHealthProfessional.password)
                         assert.propertyVal(result, 'type', defaultHealthProfessional.type)
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
@@ -201,6 +201,7 @@ describe('Repositories: HealthProfessional', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultHealthProfessional.id)
                         assert.propertyVal(result, 'username', defaultHealthProfessional.username)
+                        assert.propertyVal(result, 'password', defaultHealthProfessional.password)
                         assert.propertyVal(result, 'type', defaultHealthProfessional.type)
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
@@ -262,6 +263,7 @@ describe('Repositories: HealthProfessional', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultHealthProfessional.id)
                         assert.propertyVal(result, 'username', defaultHealthProfessional.username)
+                        assert.propertyVal(result, 'password', defaultHealthProfessional.password)
                         assert.propertyVal(result, 'type', defaultHealthProfessional.type)
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
@@ -326,6 +328,7 @@ describe('Repositories: HealthProfessional', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultHealthProfessional.id)
                         assert.propertyVal(result, 'username', defaultHealthProfessional.username)
+                        assert.propertyVal(result, 'password', defaultHealthProfessional.password)
                         assert.propertyVal(result, 'type', defaultHealthProfessional.type)
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
@@ -359,6 +362,7 @@ describe('Repositories: HealthProfessional', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultHealthProfessional.id)
                         assert.propertyVal(result, 'username', defaultHealthProfessional.username)
+                        assert.propertyVal(result, 'password', defaultHealthProfessional.password)
                         assert.propertyVal(result, 'type', defaultHealthProfessional.type)
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)

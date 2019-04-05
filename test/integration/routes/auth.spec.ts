@@ -34,7 +34,7 @@ describe('Routes: Auth', () => {
 
     after(async () => {
         try {
-            await deleteAllUsers({})
+            await deleteAllUsers()
             await dbConnection.dispose()
         } catch (err) {
             throw new Error('Failure on Child test: ' + err.message)
@@ -63,7 +63,7 @@ describe('Routes: Auth', () => {
                     .set('Content-Type', 'application/json')
                     .expect(401)
                     .then(res => {
-                        expect(res.body).to.have.property('message')
+                        expect(res.body.message).to.eql('Invalid username or password!')
                     })
             })
         })
@@ -76,14 +76,14 @@ describe('Routes: Auth', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(res => {
-                        expect(res.body).to.have.property('message')
-                        expect(res.body).to.have.property('description')
+                        expect(res.body.message).to.eql('Required fields were not provided...')
+                        expect(res.body.description).to.eql('Authentication validation: username, password is required!')
                     })
             })
         })
     })
 })
 
-async function deleteAllUsers(doc) {
-    return await UserRepoModel.deleteMany(doc)
+async function deleteAllUsers() {
+    return await UserRepoModel.deleteMany({})
 }

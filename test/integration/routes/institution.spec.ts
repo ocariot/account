@@ -9,6 +9,7 @@ import { Institution } from '../../../src/application/domain/model/institution'
 import { ObjectID } from 'bson'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { UserType } from '../../../src/application/domain/model/user'
+import { Strings } from '../../../src/utils/strings'
 
 const container: Container = DI.getInstance().getContainer()
 const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
@@ -29,7 +30,7 @@ describe('Routes: Institution', () => {
     before(async () => {
             try {
                 await dbConnection.tryConnect(0, 500)
-                await deleteAllInstitutions({})
+                await deleteAllInstitutions()
             } catch (err) {
                 throw new Error('Failure on Child test: ' + err.message)
             }
@@ -38,8 +39,8 @@ describe('Routes: Institution', () => {
 
     after(async () => {
         try {
-            await deleteAllInstitutions({})
-            await deleteAllUsers({})
+            await deleteAllInstitutions()
+            await deleteAllUsers()
             await dbConnection.dispose()
         } catch (err) {
             throw new Error('Failure on Child test: ' + err.message)
@@ -64,15 +65,10 @@ describe('Routes: Institution', () => {
                     .expect(201)
                     .then(res => {
                         expect(res.body).to.have.property('id')
-                        expect(res.body).to.have.property('type')
                         expect(res.body.type).to.eql(defaultInstitution.type)
-                        expect(res.body).to.have.property('name')
                         expect(res.body.name).to.eql(defaultInstitution.name)
-                        expect(res.body).to.have.property('address')
                         expect(res.body.address).to.eql(defaultInstitution.address)
-                        expect(res.body).to.have.property('latitude')
                         expect(res.body.latitude).to.eql(defaultInstitution.latitude)
-                        expect(res.body).to.have.property('longitude')
                         expect(res.body.longitude).to.eql(defaultInstitution.longitude)
                         defaultInstitution.id = res.body.id
                     })
@@ -95,7 +91,7 @@ describe('Routes: Institution', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.ALREADY_REGISTERED)
                     })
             })
         })
@@ -103,7 +99,6 @@ describe('Routes: Institution', () => {
         context('when a validation error occurs', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 const body = {
-                    type: 'Another Type'
                 }
 
                 return request
@@ -112,8 +107,8 @@ describe('Routes: Institution', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql('Required fields were not provided...')
+                        expect(err.body.description).to.eql('Institution validation: name, type is required!')
                     })
             })
         })
@@ -126,17 +121,11 @@ describe('Routes: Institution', () => {
                     .get(`/institutions/${defaultInstitution.id}`)
                     .set('Content-Type', 'application/json')
                     .then(res => {
-                        expect(res.body).to.have.property('id')
                         expect(res.body.id).to.eql(defaultInstitution.id)
-                        expect(res.body).to.have.property('type')
                         expect(res.body.type).to.eql(defaultInstitution.type)
-                        expect(res.body).to.have.property('name')
                         expect(res.body.name).to.eql(defaultInstitution.name)
-                        expect(res.body).to.have.property('address')
                         expect(res.body.address).to.eql(defaultInstitution.address)
-                        expect(res.body).to.have.property('latitude')
                         expect(res.body.latitude).to.eql(defaultInstitution.latitude)
-                        expect(res.body).to.have.property('longitude')
                         expect(res.body.longitude).to.eql(defaultInstitution.longitude)
                     })
             })
@@ -148,8 +137,8 @@ describe('Routes: Institution', () => {
                     .get(`/institutions/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.INSTITUTION.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -160,8 +149,8 @@ describe('Routes: Institution', () => {
                     .get('/institutions/123')
                     .set('Content-Type', 'application/json')
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -178,17 +167,11 @@ describe('Routes: Institution', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).to.have.property('id')
                         expect(res.body.id).to.eql(defaultInstitution.id)
-                        expect(res.body).to.have.property('type')
                         expect(res.body.type).to.eql(defaultInstitution.type)
-                        expect(res.body).to.have.property('name')
                         expect(res.body.name).to.eql(defaultInstitution.name)
-                        expect(res.body).to.have.property('address')
                         expect(res.body.address).to.eql(defaultInstitution.address)
-                        expect(res.body).to.have.property('latitude')
                         expect(res.body.latitude).to.eql(defaultInstitution.latitude)
-                        expect(res.body).to.have.property('longitude')
                         expect(res.body.longitude).to.eql(defaultInstitution.longitude)
                     })
             })
@@ -213,7 +196,7 @@ describe('Routes: Institution', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
                     })
             })
         })
@@ -226,8 +209,8 @@ describe('Routes: Institution', () => {
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.INSTITUTION.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -240,8 +223,8 @@ describe('Routes: Institution', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -277,7 +260,7 @@ describe('Routes: Institution', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.HAS_ASSOCIATION)
                     })
             })
         })
@@ -301,8 +284,8 @@ describe('Routes: Institution', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -317,17 +300,11 @@ describe('Routes: Institution', () => {
                     .then(res => {
                         expect(res.body).is.instanceof(Array)
                         expect(res.body.length).is.eql(1)
-                        expect(res.body[0]).to.have.property('id')
                         expect(res.body[0].id).to.eql(defaultInstitution.id)
-                        expect(res.body[0]).to.have.property('type')
                         expect(res.body[0].type).to.eql(defaultInstitution.type)
-                        expect(res.body[0]).to.have.property('name')
                         expect(res.body[0].name).to.eql(defaultInstitution.name)
-                        expect(res.body[0]).to.have.property('address')
                         expect(res.body[0].address).to.eql(defaultInstitution.address)
-                        expect(res.body[0]).to.have.property('latitude')
                         expect(res.body[0].latitude).to.eql(defaultInstitution.latitude)
-                        expect(res.body[0]).to.have.property('longitude')
                         expect(res.body[0].longitude).to.eql(defaultInstitution.longitude)
                     })
             })
@@ -335,7 +312,7 @@ describe('Routes: Institution', () => {
 
         context('when does not have users in database', () => {
             it('should return status code 200 and a empty array', async () => {
-                await deleteAllInstitutions({}).then()
+                await deleteAllInstitutions().then()
 
                 return request
                     .get('/institutions')
@@ -353,14 +330,14 @@ async function createUser(item) {
     return await UserRepoModel.create(item)
 }
 
-async function deleteAllUsers(doc) {
-    return await UserRepoModel.deleteMany(doc)
+async function deleteAllUsers() {
+    return await UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
     return await InstitutionRepoModel.create(item)
 }
 
-async function deleteAllInstitutions(doc) {
-    return await InstitutionRepoModel.deleteMany(doc)
+async function deleteAllInstitutions() {
+    return await InstitutionRepoModel.deleteMany({})
 }

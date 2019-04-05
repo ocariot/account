@@ -15,7 +15,7 @@ require('sinon-mongoose')
 describe('Repositories: Family', () => {
     const defaultFamily: Family = new FamilyMock()
     defaultFamily.id = '507f1f77bcf86cd799439011'
-    defaultFamily.password = 'userpass'
+    defaultFamily.password = 'family_password'
 
     const modelFake: any = UserRepoModel
     const userRepo = new UserRepository(modelFake, new EntityMapperMock(), new CustomLoggerMock())
@@ -166,11 +166,11 @@ describe('Repositories: Family', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultFamily.id)
                         assert.propertyVal(result, 'username', defaultFamily.username)
+                        assert.propertyVal(result, 'password', defaultFamily.password)
                         assert.propertyVal(result, 'type', defaultFamily.type)
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
-                        assert.equal(result.children![0], defaultFamily.children![0])
-                        assert.equal(result.children![1], defaultFamily.children![1])
+                        assert.propertyVal(result, 'children', defaultFamily.children)
                     })
             })
         })
@@ -200,11 +200,11 @@ describe('Repositories: Family', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultFamily.id)
                         assert.propertyVal(result, 'username', defaultFamily.username)
+                        assert.propertyVal(result, 'password', defaultFamily.password)
                         assert.propertyVal(result, 'type', defaultFamily.type)
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
-                        assert.equal(result.children![0], defaultFamily.children![0])
-                        assert.equal(result.children![1], defaultFamily.children![1])
+                        assert.propertyVal(result, 'children', defaultFamily.children)
                     })
             })
         })
@@ -262,11 +262,11 @@ describe('Repositories: Family', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultFamily.id)
                         assert.propertyVal(result, 'username', defaultFamily.username)
+                        assert.propertyVal(result, 'password', defaultFamily.password)
                         assert.propertyVal(result, 'type', defaultFamily.type)
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
-                        assert.equal(result.children![0], defaultFamily.children![0])
-                        assert.equal(result.children![1], defaultFamily.children![1])
+                        assert.propertyVal(result, 'children', defaultFamily.children)
                     })
             })
         })
@@ -327,11 +327,11 @@ describe('Repositories: Family', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultFamily.id)
                         assert.propertyVal(result, 'username', defaultFamily.username)
+                        assert.propertyVal(result, 'password', defaultFamily.password)
                         assert.propertyVal(result, 'type', defaultFamily.type)
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
-                        assert.equal(result.children![0], defaultFamily.children![0])
-                        assert.equal(result.children![1], defaultFamily.children![1])
+                        assert.propertyVal(result, 'children', defaultFamily.children)
                     })
             })
         })
@@ -361,11 +361,11 @@ describe('Repositories: Family', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultFamily.id)
                         assert.propertyVal(result, 'username', defaultFamily.username)
+                        assert.propertyVal(result, 'password', defaultFamily.password)
                         assert.propertyVal(result, 'type', defaultFamily.type)
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
-                        assert.equal(result.children![0], defaultFamily.children![0])
-                        assert.equal(result.children![1], defaultFamily.children![1])
+                        assert.propertyVal(result, 'children', defaultFamily.children)
                     })
             })
         })

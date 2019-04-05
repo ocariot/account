@@ -11,8 +11,6 @@ require('sinon-mongoose')
 
 describe('Repositories: User', () => {
     const defaultUser: User = new UserMock()
-    defaultUser.id = '507f1f77bcf86cd799439011'
-    defaultUser.username = 'username'
     defaultUser.password = 'user_password'
     defaultUser.type = UserType.ADMIN
     defaultUser.scopes = new Array<string>('i-can-everything')

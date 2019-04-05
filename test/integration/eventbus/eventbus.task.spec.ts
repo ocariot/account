@@ -37,10 +37,6 @@ describe('EVENT BUS TASK', () => {
         await eventBusTask.stop()
     })
 
-    after(() => {
-        deleteAllIntegrationEvents()
-    })
-
     describe('PUBLISH SAVED EVENTS', () => {
         context('when all events are valid and there is a connection with RabbitMQ', () => {
             it('should return an empty array', async () => {
@@ -54,7 +50,7 @@ describe('EVENT BUS TASK', () => {
 
                     eventBusTask.run()
 
-                    // Wait for 1000 milliseconds
+                    // Wait for 1000 milliseconds for the task to be executed
                     const sleep = (milliseconds) => {
                         return new Promise(resolve => setTimeout(resolve, milliseconds))
                     }
@@ -77,12 +73,11 @@ describe('EVENT BUS TASK', () => {
                 saveEvent.__routing_key = 'users.delete'
 
                 try {
-                    await integrationRepository
-                        .create(JSON.parse(JSON.stringify(saveEvent)))
+                    await integrationRepository.create(JSON.parse(JSON.stringify(saveEvent)))
 
                     eventBusTask.run()
 
-                    // Wait for 1000 milliseconds
+                    // Wait for 1000 milliseconds for the task to be executed
                     const sleep = (milliseconds) => {
                         return new Promise(resolve => setTimeout(resolve, milliseconds))
                     }
@@ -104,12 +99,12 @@ describe('EVENT BUS TASK', () => {
                 saveEvent.__routing_key = 'users.delete'
 
                 try {
-                    await integrationRepository
-                        .create(JSON.stringify(saveEvent))          // Mock throw an exception (not parse the JSON)
+                    // Mock throw an exception (not parse the JSON)
+                    await integrationRepository.create(JSON.stringify(saveEvent))
 
                     eventBusTask.run()
 
-                    // Wait for 1000 milliseconds
+                    // Wait for 1000 milliseconds for the task to be executed
                     const sleep = (milliseconds) => {
                         return new Promise(resolve => setTimeout(resolve, milliseconds))
                     }
@@ -136,7 +131,7 @@ describe('EVENT BUS TASK', () => {
         //
         //             eventBusTask.run()
         //
-        //             // Wait for 1000 milliseconds
+        //             // Wait for 1000 milliseconds for the task to be executed
         //             const sleep = (milliseconds) => {
         //                 return new Promise(resolve => setTimeout(resolve, milliseconds))
         //             }

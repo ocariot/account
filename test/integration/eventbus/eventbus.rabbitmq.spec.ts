@@ -20,10 +20,6 @@ describe('EVENT BUS', () => {
         await eventBus.dispose()
     })
 
-    after(async () => {
-        await eventBus.dispose()
-    })
-
     describe('CONNECTION', () => {
         it('should return EventBusException with message without connection when publishing.', () => {
             return eventBus

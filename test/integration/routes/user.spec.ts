@@ -11,6 +11,7 @@ import { IUserRepository } from '../../../src/application/port/user.repository.i
 import { ObjectID } from 'bson'
 import { Institution } from '../../../src/application/domain/model/institution'
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
+import { Strings } from '../../../src/utils/strings'
 
 const container: Container = DI.getInstance().getContainer()
 const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
@@ -31,8 +32,8 @@ describe('Routes: User', () => {
     before(async () => {
             try {
                 await dbConnection.tryConnect(0, 500)
-                await deleteAllUsers({})
-                await deleteAllInstitutions({})
+                await deleteAllUsers()
+                await deleteAllInstitutions()
                 const item = await createInstitution({
                     type: 'Any Type',
                     name: 'Name Example',
@@ -53,8 +54,8 @@ describe('Routes: User', () => {
 
     after(async () => {
         try {
-            await deleteAllUsers({})
-            await deleteAllInstitutions({})
+            await deleteAllUsers()
+            await deleteAllInstitutions()
             await dbConnection.dispose()
         } catch (err) {
             throw new Error('Failure on Child test: ' + err.message)
@@ -79,12 +80,13 @@ describe('Routes: User', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
                     .patch(`/users/${defaultUser.id}/password`)
-                    .send({ new_password: 'mynewsecretkey' })
+                    .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql('Required fields were not provided...')
+                        expect(err.body.description).to.eql('Change password validation failed: old_password, ' +
+                            'new_password is required!')
                     })
             })
         })
@@ -97,8 +99,8 @@ describe('Routes: User', () => {
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.USER.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.USER.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -111,8 +113,8 @@ describe('Routes: User', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.USER.PASSWORD_NOT_MATCH)
+                        expect(err.body.description).to.eql(Strings.USER.PASSWORD_NOT_MATCH_DESCRIPTION)
                     })
             })
         })
@@ -263,14 +265,14 @@ async function createUser(item) {
     return await UserRepoModel.create(item)
 }
 
-async function deleteAllUsers(doc) {
-    return await UserRepoModel.deleteMany(doc)
+async function deleteAllUsers() {
+    return await UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
     return await InstitutionRepoModel.create(item)
 }
 
-async function deleteAllInstitutions(doc) {
-    return await InstitutionRepoModel.deleteMany(doc)
+async function deleteAllInstitutions() {
+    return await InstitutionRepoModel.deleteMany({})
 }

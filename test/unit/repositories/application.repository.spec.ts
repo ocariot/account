@@ -16,7 +16,7 @@ require('sinon-mongoose')
 describe('Repositories: Application', () => {
     const defaultApplication: Application = new ApplicationMock()
     defaultApplication.id = '507f1f77bcf86cd799439011'
-    defaultApplication.password = 'mysecretkey'
+    defaultApplication.password = 'application_password'
 
     // Mock application array
     const applicationsArr: Array<Application> = new Array<ApplicationMock>()
@@ -169,6 +169,7 @@ describe('Repositories: Application', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultApplication.id)
                         assert.propertyVal(result, 'username', defaultApplication.username)
+                        assert.propertyVal(result, 'password', defaultApplication.password)
                         assert.propertyVal(result, 'type', defaultApplication.type)
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
@@ -202,6 +203,7 @@ describe('Repositories: Application', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultApplication.id)
                         assert.propertyVal(result, 'username', defaultApplication.username)
+                        assert.propertyVal(result, 'password', defaultApplication.password)
                         assert.propertyVal(result, 'type', defaultApplication.type)
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
@@ -227,6 +229,7 @@ describe('Repositories: Application', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultApplication.id)
                         assert.propertyVal(result, 'username', defaultApplication.username)
+                        assert.propertyVal(result, 'password', defaultApplication.password)
                         assert.propertyVal(result, 'type', defaultApplication.type)
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
@@ -288,6 +291,7 @@ describe('Repositories: Application', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultApplication.id)
                         assert.propertyVal(result, 'username', defaultApplication.username)
+                        assert.propertyVal(result, 'password', defaultApplication.password)
                         assert.propertyVal(result, 'type', defaultApplication.type)
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)

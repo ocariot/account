@@ -12,6 +12,10 @@ import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
 import { Child } from '../../../src/application/domain/model/child'
 import { IChildService } from '../../../src/application/port/child.service.interface'
+import { FamilyMock } from '../../mocks/family.mock'
+import { InstitutionMock } from '../../mocks/institution.mock'
+import { ChildMock } from '../../mocks/child.mock'
+import { Strings } from '../../../src/utils/strings'
 
 const container: Container = DI.getInstance().getContainer()
 const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
@@ -20,17 +24,15 @@ const app: App = container.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Family', () => {
-    const institution: Institution = new Institution()
+    const institution: Institution = new InstitutionMock()
 
-    const defaultFamily: Family = new Family()
-    defaultFamily.username = 'family'
-    defaultFamily.password = 'mysecretkey'
+    const defaultFamily: Family = new FamilyMock()
+    defaultFamily.password = 'family_password'
     defaultFamily.institution = institution
-    defaultFamily.type = UserType.FAMILY
 
-    const child = new Child()
+    const child = new ChildMock()
     child.username = 'anothercoolusername'
-    child.password = 'mysecretkey'
+    child.password = 'child_password'
     child.gender = 'male'
     child.age = 11
     child.type = UserType.CHILD
@@ -41,8 +43,8 @@ describe('Routes: Family', () => {
     before(async () => {
             try {
                 await dbConnection.tryConnect(0, 500)
-                await deleteAllUsers({})
-                await deleteAllInstitutions({})
+                await deleteAllUsers()
+                await deleteAllInstitutions()
 
                 const item = await createInstitution({
                     type: 'Any Type',
@@ -64,8 +66,8 @@ describe('Routes: Family', () => {
 
     after(async () => {
         try {
-            await deleteAllUsers({})
-            await deleteAllInstitutions({})
+            await deleteAllUsers()
+            await deleteAllInstitutions()
             await dbConnection.dispose()
         } catch (err) {
             throw new Error('Failure on Child test: ' + err.message)
@@ -89,21 +91,13 @@ describe('Routes: Family', () => {
                     .expect(201)
                     .then(res => {
                         expect(res.body).to.have.property('id')
-                        expect(res.body).to.have.property('username')
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body).to.have.property('institution')
                         expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution).to.have.property('type')
                         expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution).to.have.property('name')
                         expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution).to.have.property('address')
                         expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution).to.have.property('latitude')
                         expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution).to.have.property('longitude')
                         expect(res.body.institution.longitude).to.eql(0)
-                        expect(res.body).to.have.property('children')
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(1)
                         defaultFamily.id = res.body.id
@@ -126,7 +120,7 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql(Strings.FAMILY.ALREADY_REGISTERED)
                     })
             })
         })
@@ -134,7 +128,6 @@ describe('Routes: Family', () => {
         context('when a validation error occurs', () => {
             it('should return status code 400 and message info about missing or invalid parameters', () => {
                 const body = {
-                    password: defaultFamily.password
                 }
 
                 return request
@@ -143,7 +136,9 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql('Required fields were not provided...')
+                        expect(err.body.description).to.eql('Family validation: username, password, institution, ' +
+                            'Collection with children IDs is required!')
                     })
             })
         })
@@ -163,7 +158,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.REGISTER_REQUIRED)
+                        expect(err.body.description).to.eql(Strings.INSTITUTION.ALERT_REGISTER_REQUIRED)
                     })
             })
         })
@@ -183,8 +179,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -198,23 +194,14 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).to.have.property('id')
                         expect(res.body.id).to.eql(defaultFamily.id)
-                        expect(res.body).to.have.property('username')
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body).to.have.property('institution')
                         expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution).to.have.property('type')
                         expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution).to.have.property('name')
                         expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution).to.have.property('address')
                         expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution).to.have.property('latitude')
                         expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution).to.have.property('longitude')
                         expect(res.body.institution.longitude).to.eql(0)
-                        expect(res.body).to.have.property('children')
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(1)
                     })
@@ -228,8 +215,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.FAMILY.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.FAMILY.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -241,8 +228,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -259,23 +246,14 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).to.have.property('id')
                         expect(res.body.id).to.eql(defaultFamily.id)
-                        expect(res.body).to.have.property('username')
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body).to.have.property('institution')
                         expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution).to.have.property('type')
                         expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution).to.have.property('name')
                         expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution).to.have.property('address')
                         expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution).to.have.property('latitude')
                         expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution).to.have.property('longitude')
                         expect(res.body.institution.longitude).to.eql(0)
-                        expect(res.body).to.have.property('children')
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(1)
                     })
@@ -298,7 +276,7 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
                     })
             })
         })
@@ -311,8 +289,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.REGISTER_REQUIRED)
+                        expect(err.body.description).to.eql(Strings.INSTITUTION.ALERT_REGISTER_REQUIRED)
                     })
             })
         })
@@ -325,8 +303,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -339,8 +317,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.FAMILY.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.FAMILY.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -353,8 +331,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -379,23 +357,14 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).to.have.property('id')
                         expect(res.body.id).to.eql(defaultFamily.id)
-                        expect(res.body).to.have.property('username')
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body).to.have.property('institution')
                         expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution).to.have.property('type')
                         expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution).to.have.property('name')
                         expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution).to.have.property('address')
                         expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution).to.have.property('latitude')
                         expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution).to.have.property('longitude')
                         expect(res.body.institution.longitude).to.eql(0)
-                        expect(res.body).to.have.property('children')
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(2)
                     })
@@ -409,7 +378,7 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql(Strings.CHILD.ASSOCIATION_FAILURE)
                     })
             })
         })
@@ -421,8 +390,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -460,8 +429,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -478,23 +447,14 @@ describe('Routes: Family', () => {
                         expect(res.body).is.an.instanceof(Array)
                         expect(res.body.length).is.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0]).to.have.property('username')
                         expect(res.body[0].username).to.eql('anothercoolusername')
-                        expect(res.body[0]).to.have.property('institution')
                         expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('type')
                         expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution).to.have.property('name')
                         expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution).to.have.property('address')
                         expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution).to.have.property('latitude')
                         expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution).to.have.property('longitude')
                         expect(res.body[0].institution.longitude).to.eql(0)
-                        expect(res.body[0]).to.have.property('age')
                         expect(res.body[0].age).to.eql(11)
-                        expect(res.body[0]).to.have.property('gender')
                         expect(res.body[0].gender).to.eql('male')
                     })
             })
@@ -523,8 +483,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.FAMILY.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.FAMILY.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -536,8 +496,8 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -555,31 +515,20 @@ describe('Routes: Family', () => {
                         expect(res.body.length).to.eql(2)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution')
                         expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('type')
                         expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution).to.have.property('name')
                         expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution).to.have.property('address')
                         expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution).to.have.property('latitude')
                         expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution).to.have.property('longitude')
                         expect(res.body[0].institution.longitude).to.eql(0)
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
                         expect(res.body[1]).to.have.property('institution')
                         expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution).to.have.property('type')
                         expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution).to.have.property('name')
                         expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution).to.have.property('address')
                         expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution).to.have.property('latitude')
                         expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution).to.have.property('longitude')
                         expect(res.body[1].institution.longitude).to.eql(0)
                     })
             })
@@ -615,14 +564,12 @@ describe('Routes: Family', () => {
                         expect(res.body.length).to.eql(2)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution')
                         expect(res.body[0].institution).to.have.property('id')
                         expect(res.body[0].institution).to.have.property('name')
                         expect(res.body[0].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
                         expect(res.body[0]).to.have.property('children')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution')
                         expect(res.body[1].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
                         expect(res.body[1].institution).to.have.property('id')
                         expect(res.body[1].institution).to.have.property('name')
@@ -633,7 +580,7 @@ describe('Routes: Family', () => {
 
         context('when there are no institutions in database', () => {
             it('should return status code 200 and a empty array', async () => {
-                await deleteAllUsers({}).then()
+                await deleteAllUsers().then()
 
                 return request
                     .get('/users/families')
@@ -652,16 +599,16 @@ async function createUser(item) {
     return await UserRepoModel.create(item)
 }
 
-async function deleteAllUsers(doc) {
-    return await UserRepoModel.deleteMany(doc)
+async function deleteAllUsers() {
+    return await UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
     return await InstitutionRepoModel.create(item)
 }
 
-async function deleteAllInstitutions(doc) {
-    return await InstitutionRepoModel.deleteMany(doc)
+async function deleteAllInstitutions() {
+    return await InstitutionRepoModel.deleteMany({})
 }
 
 async function deleteAllChildrenFromFamily(id) {

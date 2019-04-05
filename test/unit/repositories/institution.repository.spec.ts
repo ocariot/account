@@ -7,17 +7,12 @@ import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
 import { UserType } from '../../../src/application/domain/model/user'
 import { assert } from 'chai'
 import { ObjectID } from 'bson'
+import { InstitutionMock } from '../../mocks/institution.mock'
 
 require('sinon-mongoose')
 
 describe('Repositories: Institution', () => {
-    const defaultInstitution: Institution = new Institution()
-    defaultInstitution.id = '5b13826de00324086854584b'
-    defaultInstitution.type = 'Any Type'
-    defaultInstitution.name = 'Name Example'
-    defaultInstitution.address = '221B Baker Street, St.'
-    defaultInstitution.latitude = 0
-    defaultInstitution.longitude = 0
+    const defaultInstitution: Institution = new InstitutionMock()
 
     const modelFake = InstitutionRepoModel
     const repo = new InstitutionRepository(modelFake, new EntityMapperMock(), new CustomLoggerMock())

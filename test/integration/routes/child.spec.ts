@@ -10,6 +10,8 @@ import { App } from '../../../src/app'
 import { Child } from '../../../src/application/domain/model/child'
 import { expect } from 'chai'
 import { ObjectID } from 'bson'
+import { ChildMock } from '../../mocks/child.mock'
+import { Strings } from '../../../src/utils/strings'
 
 const container: Container = DI.getInstance().getContainer()
 const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
@@ -17,22 +19,16 @@ const app: App = container.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Child', () => {
-
     const institution: Institution = new Institution()
 
-    const defaultChild: Child = new Child()
-    defaultChild.username = 'child'
-    defaultChild.password = 'mysecretkey'
-    defaultChild.institution = institution
-    defaultChild.type = UserType.CHILD
-    defaultChild.age = 13
-    defaultChild.gender = 'male'
+    const defaultChild: Child = new ChildMock()
+    defaultChild.password = 'child_password'
 
     before(async () => {
             try {
                 await dbConnection.tryConnect(0, 500)
-                await deleteAllUsers({})
-                await deleteAllInstitutions({})
+                await deleteAllUsers()
+                await deleteAllInstitutions()
 
                 const item = await createInstitution({
                     type: 'Any Type',
@@ -51,8 +47,8 @@ describe('Routes: Child', () => {
 
     after(async () => {
         try {
-            await deleteAllUsers({})
-            await deleteAllInstitutions({})
+            await deleteAllUsers()
+            await deleteAllInstitutions()
             await dbConnection.dispose()
         } catch (err) {
             throw new Error('Failure on Child test: ' + err.message)
@@ -77,23 +73,14 @@ describe('Routes: Child', () => {
                     .expect(201)
                     .then(res => {
                         expect(res.body).to.have.property('id')
-                        expect(res.body).to.have.property('username')
                         expect(res.body.username).to.eql(defaultChild.username)
-                        expect(res.body).to.have.property('gender')
                         expect(res.body.gender).to.eql(defaultChild.gender)
-                        expect(res.body).to.have.property('age')
                         expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body).to.have.property('institution')
                         expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution).to.have.property('type')
                         expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution).to.have.property('name')
                         expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution).to.have.property('address')
                         expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution).to.have.property('latitude')
                         expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution).to.have.property('longitude')
                         expect(res.body.institution.longitude).to.eql(0)
                         defaultChild.id = res.body.id
                     })
@@ -116,17 +103,14 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql(Strings.CHILD.ALREADY_REGISTERED)
                     })
             })
         })
 
         context('when a validation error occurs', () => {
             it('should return status code 400 and message info about missing or invalid parameters', () => {
-                const body = {
-                    username: defaultChild.username,
-                    age: defaultChild.age
-                }
+                const body = {}
 
                 return request
                     .post('/users/children')
@@ -134,7 +118,9 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql('Required fields were not provided...')
+                        expect(err.body.description).to.eql('Child validation: username, password, institution, gender, ' +
+                            'age is required!')
                     })
             })
         })
@@ -155,7 +141,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.REGISTER_REQUIRED)
+                        expect(err.body.description).to.eql(Strings.INSTITUTION.ALERT_REGISTER_REQUIRED)
                     })
             })
         })
@@ -177,8 +164,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -192,25 +179,15 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).to.have.property('id')
                         expect(res.body.id).to.eql(defaultChild.id)
-                        expect(res.body).to.have.property('username')
                         expect(res.body.username).to.eql(defaultChild.username)
-                        expect(res.body).to.have.property('gender')
                         expect(res.body.gender).to.eql(defaultChild.gender)
-                        expect(res.body).to.have.property('age')
                         expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body).to.have.property('institution')
                         expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution).to.have.property('type')
                         expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution).to.have.property('name')
                         expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution).to.have.property('address')
                         expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution).to.have.property('latitude')
                         expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution).to.have.property('longitude')
                         expect(res.body.institution.longitude).to.eql(0)
                     })
             })
@@ -223,8 +200,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.CHILD.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.CHILD.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -236,8 +213,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -254,25 +231,15 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).to.have.property('id')
                         expect(res.body.id).to.eql(defaultChild.id)
-                        expect(res.body).to.have.property('username')
                         expect(res.body.username).to.eql(defaultChild.username)
-                        expect(res.body).to.have.property('gender')
                         expect(res.body.gender).to.eql(defaultChild.gender)
-                        expect(res.body).to.have.property('age')
                         expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body).to.have.property('institution')
                         expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution).to.have.property('type')
                         expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution).to.have.property('name')
                         expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution).to.have.property('address')
                         expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution).to.have.property('latitude')
                         expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution).to.have.property('longitude')
                         expect(res.body.institution.longitude).to.eql(0)
                     })
             })
@@ -296,7 +263,7 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
                     })
             })
         })
@@ -309,8 +276,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.REGISTER_REQUIRED)
+                        expect(err.body.description).to.eql(Strings.INSTITUTION.ALERT_REGISTER_REQUIRED)
                     })
             })
         })
@@ -323,8 +290,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -337,8 +304,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.CHILD.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.CHILD.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -351,8 +318,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -372,15 +339,10 @@ describe('Routes: Child', () => {
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0]).to.have.property('institution')
                         expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('type')
                         expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution).to.have.property('name')
                         expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution).to.have.property('address')
                         expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution).to.have.property('latitude')
                         expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution).to.have.property('longitude')
                         expect(res.body[0].institution.longitude).to.eql(0)
                         expect(res.body[0]).to.have.property('age')
                         expect(res.body[0]).to.have.property('gender')
@@ -388,15 +350,10 @@ describe('Routes: Child', () => {
                         expect(res.body[1]).to.have.property('username')
                         expect(res.body[1]).to.have.property('institution')
                         expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution).to.have.property('type')
                         expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution).to.have.property('name')
                         expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution).to.have.property('address')
                         expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution).to.have.property('latitude')
                         expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution).to.have.property('longitude')
                         expect(res.body[1].institution.longitude).to.eql(0)
                         expect(res.body[1]).to.have.property('age')
                         expect(res.body[1]).to.have.property('gender')
@@ -436,7 +393,6 @@ describe('Routes: Child', () => {
                         expect(res.body[0]).to.not.have.any.keys('gender')
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution')
                         expect(res.body[0].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
                         expect(res.body[0].institution).to.have.property('id')
                         expect(res.body[0].institution).to.have.property('name')
@@ -444,7 +400,6 @@ describe('Routes: Child', () => {
                         expect(res.body[1]).to.not.have.any.keys('gender')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution')
                         expect(res.body[1].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
                         expect(res.body[1].institution).to.have.property('id')
                         expect(res.body[1].institution).to.have.property('name')
@@ -452,7 +407,6 @@ describe('Routes: Child', () => {
                         expect(res.body[2]).to.not.have.any.keys('gender')
                         expect(res.body[2]).to.have.property('id')
                         expect(res.body[2]).to.have.property('username')
-                        expect(res.body[2]).to.have.property('institution')
                         expect(res.body[2].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
                         expect(res.body[2].institution).to.have.property('id')
                         expect(res.body[2].institution).to.have.property('name')
@@ -463,7 +417,7 @@ describe('Routes: Child', () => {
         })
         context('when there are no children in database', () => {
             it('should return status code 200 and a empty array', async () => {
-                await deleteAllUsers({}).then()
+                await deleteAllUsers().then()
 
                 return request
                     .get('/users/children')
@@ -482,14 +436,14 @@ async function createUser(item) {
     return await UserRepoModel.create(item)
 }
 
-async function deleteAllUsers(doc) {
-    return await UserRepoModel.deleteMany(doc)
+async function deleteAllUsers() {
+    return await UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
     return await InstitutionRepoModel.create(item)
 }
 
-async function deleteAllInstitutions(doc) {
-    return await InstitutionRepoModel.deleteMany(doc)
+async function deleteAllInstitutions() {
+    return await InstitutionRepoModel.deleteMany({})
 }

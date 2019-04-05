@@ -11,7 +11,6 @@ import { UserMock } from '../../mocks/user.mock'
 require('sinon-mongoose')
 
 describe('Repositories: ChildrenGroup', () => {
-
     const defaultChildrenGroup: ChildrenGroup = new ChildrenGroupMock()
     defaultChildrenGroup.id = '507f1f77bcf86cd799439011'
     defaultChildrenGroup.user = new UserMock()
@@ -42,38 +41,6 @@ describe('Repositories: ChildrenGroup', () => {
     })
 
     describe('create(item: ChildrenGroup)', () => {
-
-        // context('when a database error occurs', () => {
-        //     it('should throw a RepositoryException', () => {
-        //         const customQueryMock: any = {
-        //             toJSON: () => {
-        //                 return {
-        //                     fields: { 'institution.id': defaultChildrenGroup.user!.institution!.id },
-        //                     ordination: {},
-        //                     pagination: { page: 1, limit: 100, skip: 0 },
-        //                     filters: { _id: defaultChildrenGroup.id }
-        //                 }
-        //             }
-        //         }
-        //         sinon
-        //             .mock(modelFake)
-        //             .expects('create')
-        //             .withArgs(defaultChildrenGroup)
-        //             .chain('findOne')
-        //             .withArgs(customQueryMock.toJSON().filters)
-        //             .chain('select')
-        //             .withArgs(customQueryMock.toJSON().fields)
-        //             .chain('populate')
-        //             .withArgs('institution')
-        //             .chain('exec')
-        //
-        //         return childrenGroupRepo.create(defaultChildrenGroup)
-        //             .then(result => {
-        //                 console.log(result)
-        //             })
-        //     })
-        // })
-
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
                 sinon
@@ -195,9 +162,9 @@ describe('Repositories: ChildrenGroup', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultChildrenGroup.id)
                         assert.propertyVal(result, 'name', defaultChildrenGroup.name)
-                        assert.equal(result.children![0], defaultChildrenGroup.children![0])
-                        assert.equal(result.children![1], defaultChildrenGroup.children![1])
+                        assert.propertyVal(result, 'children', defaultChildrenGroup.children)
                         assert.propertyVal(result, 'school_class', defaultChildrenGroup.school_class)
+                        assert.propertyVal(result, 'user', defaultChildrenGroup.user)
                     })
             })
         })
@@ -227,9 +194,9 @@ describe('Repositories: ChildrenGroup', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultChildrenGroup.id)
                         assert.propertyVal(result, 'name', defaultChildrenGroup.name)
-                        assert.equal(result.children![0], defaultChildrenGroup.children![0])
-                        assert.equal(result.children![1], defaultChildrenGroup.children![1])
+                        assert.propertyVal(result, 'children', defaultChildrenGroup.children)
                         assert.propertyVal(result, 'school_class', defaultChildrenGroup.school_class)
+                        assert.propertyVal(result, 'user', defaultChildrenGroup.user)
                     })
             })
         })
@@ -251,9 +218,9 @@ describe('Repositories: ChildrenGroup', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultChildrenGroup.id)
                         assert.propertyVal(result, 'name', defaultChildrenGroup.name)
-                        assert.equal(result.children![0], defaultChildrenGroup.children![0])
-                        assert.equal(result.children![1], defaultChildrenGroup.children![1])
+                        assert.propertyVal(result, 'children', defaultChildrenGroup.children)
                         assert.propertyVal(result, 'school_class', defaultChildrenGroup.school_class)
+                        assert.propertyVal(result, 'user', defaultChildrenGroup.user)
                     })
             })
         })
@@ -311,9 +278,9 @@ describe('Repositories: ChildrenGroup', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultChildrenGroup.id)
                         assert.propertyVal(result, 'name', defaultChildrenGroup.name)
-                        assert.equal(result.children![0], defaultChildrenGroup.children![0])
-                        assert.equal(result.children![1], defaultChildrenGroup.children![1])
+                        assert.propertyVal(result, 'children', defaultChildrenGroup.children)
                         assert.propertyVal(result, 'school_class', defaultChildrenGroup.school_class)
+                        assert.propertyVal(result, 'user', defaultChildrenGroup.user)
                     })
             })
         })

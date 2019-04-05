@@ -10,6 +10,8 @@ import { InstitutionRepoModel } from '../../../src/infrastructure/database/schem
 import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
 import { Container } from 'inversify'
 import { ObjectID } from 'bson'
+import { ApplicationMock } from '../../mocks/application.mock'
+import { Strings } from '../../../src/utils/strings'
 
 const container: Container = DI.getInstance().getContainer()
 const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
@@ -20,18 +22,14 @@ describe('Routes: Application', () => {
 
     const institution: Institution = new Institution()
 
-    const defaultApplication: Application = new Application()
-    defaultApplication.username = 'application'
-    defaultApplication.password = 'mysecretkey'
-    defaultApplication.application_name = 'application test'
-    defaultApplication.institution = institution
-    defaultApplication.type = UserType.APPLICATION
+    const defaultApplication: Application = new ApplicationMock()
+    defaultApplication.password = 'application_password'
 
     before(async () => {
             try {
                 await dbConnection.tryConnect(0, 500)
-                await deleteAllUsers({})
-                await deleteAllInstitutions({})
+                await deleteAllUsers()
+                await deleteAllInstitutions()
 
                 const item = await createInstitution({
                     type: 'Any Type',
@@ -50,8 +48,8 @@ describe('Routes: Application', () => {
 
     after(async () => {
         try {
-            await deleteAllUsers({})
-            await deleteAllInstitutions({})
+            await deleteAllUsers()
+            await deleteAllInstitutions()
             await dbConnection.dispose()
         } catch (err) {
             throw new Error('Failure on Child test: ' + err.message)
@@ -76,21 +74,13 @@ describe('Routes: Application', () => {
                     .expect(201)
                     .then(res => {
                         expect(res.body).to.have.property('id')
-                        expect(res.body).to.have.property('username')
                         expect(res.body.username).to.eql(defaultApplication.username)
-                        expect(res.body).to.have.property('institution')
                         expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution).to.have.property('type')
                         expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution).to.have.property('name')
                         expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution).to.have.property('address')
                         expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution).to.have.property('latitude')
                         expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution).to.have.property('longitude')
                         expect(res.body.institution.longitude).to.eql(0)
-                        expect(res.body).to.have.property('application_name')
                         expect(res.body.application_name).to.eql(defaultApplication.application_name)
                         defaultApplication.id = res.body.id
                     })
@@ -112,8 +102,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body.message).to.eql('Application is already registered!')
+                        expect(err.body.message).to.eql(Strings.APPLICATION.ALREADY_REGISTERED)
                     })
             })
         })
@@ -131,8 +120,8 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql('Required fields were not provided...')
+                        expect(err.body.description).to.eql('Application validation: username is required!')
                     })
             })
         })
@@ -152,8 +141,8 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.REGISTER_REQUIRED)
+                        expect(err.body.description).to.eql(Strings.INSTITUTION.ALERT_REGISTER_REQUIRED)
                     })
             })
         })
@@ -173,8 +162,8 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -188,23 +177,14 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).to.have.property('id')
                         expect(res.body.id).to.eql(defaultApplication.id)
-                        expect(res.body).to.have.property('username')
                         expect(res.body.username).to.eql(defaultApplication.username)
-                        expect(res.body).to.have.property('institution')
                         expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution).to.have.property('type')
                         expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution).to.have.property('name')
                         expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution).to.have.property('address')
                         expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution).to.have.property('latitude')
                         expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution).to.have.property('longitude')
                         expect(res.body.institution.longitude).to.eql(0)
-                        expect(res.body).to.have.property('application_name')
                         expect(res.body.application_name).to.eql(defaultApplication.application_name)
                     })
             })
@@ -217,8 +197,8 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.APPLICATION.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.APPLICATION.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -230,8 +210,8 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -248,23 +228,14 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).to.have.property('id')
                         expect(res.body.id).to.eql(defaultApplication.id)
-                        expect(res.body).to.have.property('username')
                         expect(res.body.username).to.eql(defaultApplication.username)
-                        expect(res.body).to.have.property('institution')
                         expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution).to.have.property('type')
                         expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution).to.have.property('name')
                         expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution).to.have.property('address')
                         expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution).to.have.property('latitude')
                         expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution).to.have.property('longitude')
                         expect(res.body.institution.longitude).to.eql(0)
-                        expect(res.body).to.have.property('application_name')
                         expect(res.body.application_name).to.eql(defaultApplication.application_name)
                     })
             })
@@ -287,7 +258,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
+                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
                     })
             })
         })
@@ -304,8 +275,9 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql('This parameter could not be updated.')
+                        expect(err.body.description).to.eql('A specific route to update user password already exists.' +
+                            `Access: PATCH /users/${defaultApplication.id}/password to update your password.`)
                     })
             })
         })
@@ -318,8 +290,8 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.REGISTER_REQUIRED)
+                        expect(err.body.description).to.eql(Strings.INSTITUTION.ALERT_REGISTER_REQUIRED)
                     })
             })
         })
@@ -332,8 +304,8 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -346,8 +318,8 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.APPLICATION.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.APPLICATION.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -360,8 +332,8 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body).to.have.property('message')
-                        expect(err.body).to.have.property('description')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
@@ -381,30 +353,20 @@ describe('Routes: Application', () => {
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0]).to.have.property('institution')
                         expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('type')
                         expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution).to.have.property('name')
                         expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution).to.have.property('address')
                         expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution).to.have.property('latitude')
                         expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution).to.have.property('longitude')
                         expect(res.body[0].institution.longitude).to.eql(0)
                         expect(res.body[0]).to.have.property('application_name')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
                         expect(res.body[1]).to.have.property('institution')
                         expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution).to.have.property('type')
                         expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution).to.have.property('name')
                         expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution).to.have.property('address')
                         expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution).to.have.property('latitude')
                         expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution).to.have.property('longitude')
                         expect(res.body[1].institution.longitude).to.eql(0)
                         expect(res.body[1]).to.have.property('application_name')
                     })
@@ -443,12 +405,9 @@ describe('Routes: Application', () => {
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0].username).to.eql('ihaveaunknowusername')
-                        expect(res.body[0]).to.have.property('institution')
                         expect(res.body[0].institution).to.not.have.any.keys('type', 'latitude', 'longitude')
                         expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('name')
                         expect(res.body[0].institution.name).to.eql('Sherlock Neighbor')
-                        expect(res.body[0].institution).to.have.property('address')
                         expect(res.body[0].institution.address).to.eql('221A Baker Street, St.')
                     })
             })
@@ -456,7 +415,7 @@ describe('Routes: Application', () => {
 
         context('when there are no applications in database', () => {
             it('should return status code 200 and a empty array', async () => {
-                await deleteAllUsers({}).then()
+                await deleteAllUsers().then()
 
                 return request
                     .get('/users/applications')
@@ -475,14 +434,14 @@ async function createUser(item) {
     return await UserRepoModel.create(item)
 }
 
-async function deleteAllUsers(doc) {
-    return await UserRepoModel.deleteMany(doc)
+async function deleteAllUsers() {
+    return await UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
     return await InstitutionRepoModel.create(item)
 }
 
-async function deleteAllInstitutions(doc) {
-    return await InstitutionRepoModel.deleteMany(doc)
+async function deleteAllInstitutions() {
+    return await InstitutionRepoModel.deleteMany({})
 }

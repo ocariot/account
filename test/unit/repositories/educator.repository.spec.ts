@@ -13,10 +13,9 @@ import { EducatorMock } from '../../mocks/educator.mock'
 require('sinon-mongoose')
 
 describe('Repositories: Educator', () => {
-
     const defaultEducator: Educator = new EducatorMock()
     defaultEducator.id = '507f1f77bcf86cd799439011'
-    defaultEducator.password = 'userpass'
+    defaultEducator.password = 'educator_password'
 
     // Mock educator array
     const educatorsArr: Array<Educator> = new Array<EducatorMock>()
@@ -167,6 +166,7 @@ describe('Repositories: Educator', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultEducator.id)
                         assert.propertyVal(result, 'username', defaultEducator.username)
+                        assert.propertyVal(result, 'password', defaultEducator.password)
                         assert.propertyVal(result, 'type', defaultEducator.type)
                         assert.propertyVal(result, 'scopes', defaultEducator.scopes)
                         assert.propertyVal(result, 'institution', defaultEducator.institution)
@@ -200,6 +200,7 @@ describe('Repositories: Educator', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultEducator.id)
                         assert.propertyVal(result, 'username', defaultEducator.username)
+                        assert.propertyVal(result, 'password', defaultEducator.password)
                         assert.propertyVal(result, 'type', defaultEducator.type)
                         assert.propertyVal(result, 'scopes', defaultEducator.scopes)
                         assert.propertyVal(result, 'institution', defaultEducator.institution)
@@ -261,6 +262,7 @@ describe('Repositories: Educator', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultEducator.id)
                         assert.propertyVal(result, 'username', defaultEducator.username)
+                        assert.propertyVal(result, 'password', defaultEducator.password)
                         assert.propertyVal(result, 'type', defaultEducator.type)
                         assert.propertyVal(result, 'scopes', defaultEducator.scopes)
                         assert.propertyVal(result, 'institution', defaultEducator.institution)
@@ -325,6 +327,7 @@ describe('Repositories: Educator', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultEducator.id)
                         assert.propertyVal(result, 'username', defaultEducator.username)
+                        assert.propertyVal(result, 'password', defaultEducator.password)
                         assert.propertyVal(result, 'type', defaultEducator.type)
                         assert.propertyVal(result, 'scopes', defaultEducator.scopes)
                         assert.propertyVal(result, 'institution', defaultEducator.institution)
@@ -358,6 +361,7 @@ describe('Repositories: Educator', () => {
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultEducator.id)
                         assert.propertyVal(result, 'username', defaultEducator.username)
+                        assert.propertyVal(result, 'password', defaultEducator.password)
                         assert.propertyVal(result, 'type', defaultEducator.type)
                         assert.propertyVal(result, 'scopes', defaultEducator.scopes)
                         assert.propertyVal(result, 'institution', defaultEducator.institution)
