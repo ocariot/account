@@ -62,7 +62,7 @@ describe('Routes: HealthProfessional', () => {
                 defaultChild.id = child.id
 
             } catch (err) {
-                throw new Error('Failure on Child test: ' + err.message)
+                throw new Error('Failure on HealthProfessional test: ' + err.message)
             }
         }
     )
@@ -74,7 +74,7 @@ describe('Routes: HealthProfessional', () => {
             await deleteAllChildrenGroups()
             await dbConnection.dispose()
         } catch (err) {
-            throw new Error('Failure on Child test: ' + err.message)
+            throw new Error('Failure on HealthProfessional test: ' + err.message)
         }
     })
 
@@ -256,13 +256,17 @@ describe('Routes: HealthProfessional', () => {
 
         context('when a duplication error occurs', () => {
             it('should return status code 409 and info message from duplicate value', async () => {
-                await createUser({
-                    username: 'anothercoolusername',
-                    password: defaultHealthProfessional.password,
-                    type: UserType.HEALTH_PROFESSIONAL,
-                    institution: institution.id,
-                    scopes: new Array('users:read')
-                }).then()
+                try {
+                    await createUser({
+                        username: 'anothercoolusername',
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: institution.id,
+                        scopes: new Array('users:read')
+                    }).then()
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
 
                 return request
                     .patch(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
@@ -526,14 +530,18 @@ describe('Routes: HealthProfessional', () => {
 
         context('when a duplicate error occurs', () => {
             it('should return status code 409 and info message from duplicate items', async () => {
-                await createChildrenGroup({
-                    name: 'anothercoolname',
-                    children: new Array<string | undefined>(defaultChild.id),
-                    school_class: defaultChildrenGroup.school_class,
-                    user_id: defaultHealthProfessional.id
-                }).then(item => {
-                    anotherChildrenGroup.id = item._id
-                })
+                try {
+                    await createChildrenGroup({
+                        name: 'anothercoolname',
+                        children: new Array<string | undefined>(defaultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: defaultHealthProfessional.id
+                    }).then(item => {
+                        anotherChildrenGroup.id = item._id
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
 
                 const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
@@ -663,7 +671,11 @@ describe('Routes: HealthProfessional', () => {
 
         context('when there no are children groups associated witn an user', () => {
             it('should return status code 200 and a empty array', async () => {
-                await deleteAllChildrenGroups().then()
+                try {
+                    await deleteAllChildrenGroups().then()
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
 
                 return request
                     .get(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
@@ -710,21 +722,25 @@ describe('Routes: HealthProfessional', () => {
 
         context('when use query strings', () => {
             it('should return the result as required in query', async () => {
-                await createInstitution({
-                    type: 'University',
-                    name: 'UEPB',
-                    address: '221B Baker Street, St.',
-                    latitude: 0,
-                    longitude: 0
-                }).then(result => {
-                    createUser({
-                        username: 'ihaveauniqueusername',
-                        password: defaultHealthProfessional.password,
-                        type: UserType.HEALTH_PROFESSIONAL,
-                        institution: result._id,
-                        scopes: new Array('users:read')
-                    }).then()
-                })
+                try {
+                    await createInstitution({
+                        type: 'University',
+                        name: 'UEPB',
+                        address: '221B Baker Street, St.',
+                        latitude: 0,
+                        longitude: 0
+                    }).then(result => {
+                        createUser({
+                            username: 'ihaveauniqueusername',
+                            password: defaultHealthProfessional.password,
+                            type: UserType.HEALTH_PROFESSIONAL,
+                            institution: result._id,
+                            scopes: new Array('users:read')
+                        }).then()
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
 
                 const url: string = '/users/healthprofessionals/?sort=username&fields=username,institution.name&' +
                     'institution.type=Any Type&page=1&limit=3'
@@ -754,7 +770,11 @@ describe('Routes: HealthProfessional', () => {
 
         context('when there are no institutions in database', () => {
             it('should return status code 200 and a empty array', async () => {
-                await deleteAllUsers().then()
+                try {
+                    await deleteAllUsers().then()
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
 
                 return request
                     .get('/users/healthprofessionals')

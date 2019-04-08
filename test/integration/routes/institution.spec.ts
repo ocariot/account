@@ -32,7 +32,7 @@ describe('Routes: Institution', () => {
                 await dbConnection.tryConnect(0, 500)
                 await deleteAllInstitutions()
             } catch (err) {
-                throw new Error('Failure on Child test: ' + err.message)
+                throw new Error('Failure on Institution test: ' + err.message)
             }
         }
     )
@@ -43,7 +43,7 @@ describe('Routes: Institution', () => {
             await deleteAllUsers()
             await dbConnection.dispose()
         } catch (err) {
-            throw new Error('Failure on Child test: ' + err.message)
+            throw new Error('Failure on Institution test: ' + err.message)
         }
     })
 
@@ -179,16 +179,20 @@ describe('Routes: Institution', () => {
 
         context('when a duplication error occurs', () => {
             it('should return status code 409 and info message from duplicate items', async () => {
-                await createInstitution({
-                        type: 'Any Type',
-                        name: 'Other Name',
-                        address: '221A Baker Street, St.',
-                        latitude: 0,
-                        longitude: 0
-                    }
-                ).then(item => {
-                    anotherInstitution.id = item._id
-                })
+                try {
+                    await createInstitution({
+                            type: 'Any Type',
+                            name: 'Other Name',
+                            address: '221A Baker Street, St.',
+                            latitude: 0,
+                            longitude: 0
+                        }
+                    ).then(item => {
+                        anotherInstitution.id = item._id
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
 
                 return request
                     .patch(`/institutions/${defaultInstitution.id}`)
@@ -245,15 +249,19 @@ describe('Routes: Institution', () => {
 
         context('when the institution was asscociated with an user', () => {
             it('should return status code 400 and info message from existent association', async () => {
-                await createUser({
-                    username: 'anothercoolusername',
-                    password: 'mysecretkey',
-                    type: UserType.CHILD,
-                    gender: 'male',
-                    age: 11,
-                    institution: defaultInstitution.id,
-                    scopes: new Array('users:read')
-                }).then()
+                try {
+                    await createUser({
+                        username: 'anothercoolusername',
+                        password: 'mysecretkey',
+                        type: UserType.CHILD,
+                        gender: 'male',
+                        age: 11,
+                        institution: defaultInstitution.id,
+                        scopes: new Array('users:read')
+                    }).then()
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
 
                 return request
                     .delete(`/institutions/${defaultInstitution.id}`)
@@ -312,7 +320,11 @@ describe('Routes: Institution', () => {
 
         context('when does not have users in database', () => {
             it('should return status code 200 and a empty array', async () => {
-                await deleteAllInstitutions().then()
+                try {
+                    await deleteAllInstitutions().then()
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
 
                 return request
                     .get('/institutions')

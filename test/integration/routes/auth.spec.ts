@@ -27,7 +27,7 @@ describe('Routes: Auth', () => {
 
                 await userService.create(item)
             } catch (err) {
-                throw new Error('Failure on Application test: ' + err.message)
+                throw new Error('Failure on Auth test: ' + err.message)
             }
         }
     )
@@ -37,7 +37,7 @@ describe('Routes: Auth', () => {
             await deleteAllUsers()
             await dbConnection.dispose()
         } catch (err) {
-            throw new Error('Failure on Child test: ' + err.message)
+            throw new Error('Failure on Auth test: ' + err.message)
         }
     })
 

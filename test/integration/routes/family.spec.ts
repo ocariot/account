@@ -59,7 +59,7 @@ describe('Routes: Family', () => {
                 child.id = savedChild.id
                 defaultFamily.children = new Array<Child>(savedChild)
             } catch (err) {
-                throw new Error('Failure on health professional test: ' + err.message)
+                throw new Error('Failure on Family test: ' + err.message)
             }
         }
     )
@@ -70,7 +70,7 @@ describe('Routes: Family', () => {
             await deleteAllInstitutions()
             await dbConnection.dispose()
         } catch (err) {
-            throw new Error('Failure on Child test: ' + err.message)
+            throw new Error('Failure on Family test: ' + err.message)
         }
     })
 
@@ -262,13 +262,17 @@ describe('Routes: Family', () => {
 
         context('when a duplication error occurs', () => {
             it('should return status code 409 and info message from duplicate value', async () => {
-                await createUser({
-                    username: 'acoolusername',
-                    password: defaultFamily.password,
-                    type: UserType.FAMILY,
-                    institution: institution.id,
-                    scopes: new Array('users:read')
-                }).then()
+                try {
+                    await createUser({
+                        username: 'acoolusername',
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: institution.id,
+                        scopes: new Array('users:read')
+                    }).then()
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
 
                 return request
                     .patch(`/users/families/${defaultFamily.id}`)
@@ -462,7 +466,11 @@ describe('Routes: Family', () => {
 
         context('when there no are children groups associated with an user', () => {
             it('should return status code 200 and empty array', async () => {
-                await deleteAllChildrenFromFamily(defaultFamily.id)
+                try {
+                    await deleteAllChildrenFromFamily(defaultFamily.id)
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
 
                 request
                     .get(`/users/families/${defaultFamily.id}/children`)
@@ -536,21 +544,25 @@ describe('Routes: Family', () => {
 
         context('when use query strings', () => {
             it('should return the result as required in query', async () => {
-                await createInstitution({
-                    type: 'University',
-                    name: 'UEPB',
-                    address: '221B Baker Street, St.',
-                    latitude: 0,
-                    longitude: 0
-                }).then(result => {
-                    createUser({
-                        username: 'myusernameisunique',
-                        password: defaultFamily.password,
-                        type: UserType.FAMILY,
-                        institution: result._id,
-                        scopes: new Array('users:read')
-                    }).then()
-                })
+                try {
+                    await createInstitution({
+                        type: 'University',
+                        name: 'UEPB',
+                        address: '221B Baker Street, St.',
+                        latitude: 0,
+                        longitude: 0
+                    }).then(result => {
+                        createUser({
+                            username: 'myusernameisunique',
+                            password: defaultFamily.password,
+                            type: UserType.FAMILY,
+                            institution: result._id,
+                            scopes: new Array('users:read')
+                        }).then()
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
 
                 const url: string = '/users/families/?sort=username&fields=username,institution.name&' +
                     'institution.type=Any Type&page=1&limit=3'
@@ -580,7 +592,11 @@ describe('Routes: Family', () => {
 
         context('when there are no institutions in database', () => {
             it('should return status code 200 and a empty array', async () => {
-                await deleteAllUsers().then()
+                try {
+                    await deleteAllUsers().then()
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
 
                 return request
                     .get('/users/families')

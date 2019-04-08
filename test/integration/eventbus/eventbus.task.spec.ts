@@ -28,17 +28,29 @@ const mongoDBConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNEC
 
 describe('EVENT BUS TASK', () => {
     before(async () => {
-        await mongoDBConnection.tryConnect(0, 500)
-        deleteAllIntegrationEvents()
+        try {
+            await mongoDBConnection.tryConnect(0, 500)
+            deleteAllIntegrationEvents()
+        } catch (err) {
+            throw new Error('Failure on EventBusTask test: ' + err.message)
+        }
     })
 
     afterEach(async () => {
-        deleteAllIntegrationEvents()
-        await eventBusTask.stop()
+        try {
+            deleteAllIntegrationEvents()
+            await eventBusTask.stop()
+        } catch (err) {
+            throw new Error('Failure on EventBusTask test: ' + err.message)
+        }
     })
 
     after(async () => {
-        await mongoDBConnection.dispose()
+        try {
+            await mongoDBConnection.dispose()
+        } catch (err) {
+            throw new Error('Failure on EventBusTask test: ' + err.message)
+        }
     })
 
     describe('PUBLISH SAVED EVENTS', () => {
@@ -67,7 +79,7 @@ describe('EVENT BUS TASK', () => {
                     const result: Array<any> = await integrationRepository.find(new Query())
                     expect(result.length).to.eql(0)
                 } catch (err) {
-                    console.log(err)
+                    throw new Error('Failure on EventBusTask test: ' + err.message)
                 }
             })
         })
@@ -96,7 +108,7 @@ describe('EVENT BUS TASK', () => {
                     const result: Array<any> = await integrationRepository.find(new Query())
                     expect(result.length).to.eql(1)
                 } catch (err) {
-                    console.log(err)
+                    throw new Error('Failure on EventBusTask test: ' + err.message)
                 }
             })
         })
@@ -153,7 +165,7 @@ describe('EVENT BUS TASK', () => {
         //             const result: Array<any> = await integrationRepository.find(new Query())
         //             expect(result.length).to.eql(6)
         //         } catch (err) {
-        //             console.log(err)
+        //             throw new Error('Failure on EventBusTask test: ' + err.message)
         //         }
         //     })
         // })

@@ -17,7 +17,11 @@ describe('EVENT BUS', () => {
     before(() => eventBus.enableLogger(false))
 
     afterEach(async () => {
-        await eventBus.dispose()
+        try {
+            await eventBus.dispose()
+        } catch (err) {
+            throw new Error('Failure on EventBus test: ' + err.message)
+        }
     })
 
     describe('CONNECTION', () => {
@@ -34,13 +38,21 @@ describe('EVENT BUS', () => {
         })
 
         it('should connect successfully to publish.', async () => {
-            await eventBus.connectionPub.tryConnect(1, 500)
-            expect(eventBus.connectionPub.isConnected).to.eql(true)
+            try {
+                await eventBus.connectionPub.tryConnect(1, 500)
+                expect(eventBus.connectionPub.isConnected).to.eql(true)
+            } catch (err) {
+                throw new Error('Failure on EventBus test: ' + err.message)
+            }
         })
 
         it('should connect successfully to subscribe.', async () => {
-            await eventBus.connectionSub.tryConnect(1, 500)
-            expect(eventBus.connectionSub.isConnected).to.eql(true)
+            try {
+                await eventBus.connectionSub.tryConnect(1, 500)
+                expect(eventBus.connectionSub.isConnected).to.eql(true)
+            } catch (err) {
+                throw new Error('Failure on EventBus test: ' + err.message)
+            }
         })
     })
 
@@ -51,74 +63,104 @@ describe('EVENT BUS', () => {
     describe('PUBLISH', () => {
         context('User type CHILD', () => {
             it('should return true for updated user type CHILD.', async () => {
-                await eventBus.connectionPub.tryConnect(1, 500)
-                return eventBus.publish(
-                    new UserUpdateEvent('ChildUpdateEvent', new Date(), new ChildMock()),
-                    'children.update')
-                    .then((result: boolean) => {
-                        expect(result).to.equal(true)
-                    })
+                try {
+                    await eventBus.connectionPub.tryConnect(1, 500)
+
+                    return eventBus.publish(
+                        new UserUpdateEvent('ChildUpdateEvent', new Date(), new ChildMock()),
+                        'children.update')
+                        .then((result: boolean) => {
+                            expect(result).to.equal(true)
+                        })
+                } catch (err) {
+                    throw new Error('Failure on EventBus test: ' + err.message)
+                }
             })
         })
 
         context('User type FAMILY', () => {
             it('should return true for updated user type FAMILY.', async () => {
-                await eventBus.connectionPub.tryConnect(1, 500)
-                return eventBus.publish(
-                    new UserUpdateEvent('FamilyUpdateEvent', new Date(), new FamilyMock()),
-                    'families.update')
-                    .then((result: boolean) => {
-                        expect(result).to.equal(true)
-                    })
+                try {
+                    await eventBus.connectionPub.tryConnect(1, 500)
+
+                    return eventBus.publish(
+                        new UserUpdateEvent('FamilyUpdateEvent', new Date(), new FamilyMock()),
+                        'families.update')
+                        .then((result: boolean) => {
+                            expect(result).to.equal(true)
+                        })
+                } catch (err) {
+                    throw new Error('Failure on EventBus test: ' + err.message)
+                }
             })
         })
 
         context('User type EDUCATOR', () => {
             it('should return true for updated user type EDUCATOR.', async () => {
-                await eventBus.connectionPub.tryConnect(1, 500)
-                return eventBus.publish(
-                    new UserUpdateEvent('EducatorUpdateEvent', new Date(), new UserMock(UserTypeMock.EDUCATOR)),
-                    'educators.update')
-                    .then((result: boolean) => {
-                        expect(result).to.equal(true)
-                    })
+                try {
+                    await eventBus.connectionPub.tryConnect(1, 500)
+
+                    return eventBus.publish(
+                        new UserUpdateEvent('EducatorUpdateEvent', new Date(), new UserMock(UserTypeMock.EDUCATOR)),
+                        'educators.update')
+                        .then((result: boolean) => {
+                            expect(result).to.equal(true)
+                        })
+                } catch (err) {
+                    throw new Error('Failure on EventBus test: ' + err.message)
+                }
             })
         })
 
         context('User type HEALTH PROFESSIONAL', () => {
             it('should return true for updated user type HEALTH PROFESSIONAL.', async () => {
-                await eventBus.connectionPub.tryConnect(1, 500)
-                return eventBus.publish(
-                    new UserUpdateEvent('HealthProfessionalUpdateEvent', new Date(),
-                        new UserMock(UserTypeMock.HEALTH_PROFESSIONAL)),
-                    'healthprofessionals.update')
-                    .then((result: boolean) => {
-                        expect(result).to.equal(true)
-                    })
+                try {
+                    await eventBus.connectionPub.tryConnect(1, 500)
+
+                    return eventBus.publish(
+                        new UserUpdateEvent('HealthProfessionalUpdateEvent', new Date(),
+                            new UserMock(UserTypeMock.HEALTH_PROFESSIONAL)),
+                        'healthprofessionals.update')
+                        .then((result: boolean) => {
+                            expect(result).to.equal(true)
+                        })
+                } catch (err) {
+                    throw new Error('Failure on EventBus test: ' + err.message)
+                }
             })
         })
 
         context('User type APPLICATION', () => {
             it('should return true for updated user type APPLICATION.', async () => {
-                await eventBus.connectionPub.tryConnect(1, 500)
-                return eventBus.publish(
-                    new UserUpdateEvent('ApplicationUpdateEvent', new Date(), new UserMock(UserTypeMock.APPLICATION)),
-                    'applications.update')
-                    .then((result: boolean) => {
-                        expect(result).to.equal(true)
-                    })
+                try {
+                    await eventBus.connectionPub.tryConnect(1, 500)
+
+                    return eventBus.publish(
+                        new UserUpdateEvent('ApplicationUpdateEvent', new Date(), new UserMock(UserTypeMock.APPLICATION)),
+                        'applications.update')
+                        .then((result: boolean) => {
+                            expect(result).to.equal(true)
+                        })
+                } catch (err) {
+                    throw new Error('Failure on EventBus test: ' + err.message)
+                }
             })
         })
 
         context('User', () => {
             it('should return true for deleted user.', async () => {
-                await eventBus.connectionPub.tryConnect(1, 500)
-                return eventBus.publish(
-                    new UserUpdateEvent('UserDeleteEvent', new Date(), new UserMock()),
-                    'users.delete')
-                    .then((result: boolean) => {
-                        expect(result).to.equal(true)
-                    })
+                try {
+                    await eventBus.connectionPub.tryConnect(1, 500)
+
+                    return eventBus.publish(
+                        new UserUpdateEvent('UserDeleteEvent', new Date(), new UserMock()),
+                        'users.delete')
+                        .then((result: boolean) => {
+                            expect(result).to.equal(true)
+                        })
+                } catch (err) {
+                    throw new Error('Failure on EventBus test: ' + err.message)
+                }
             })
         })
     })

@@ -247,15 +247,19 @@ describe('Routes: Child', () => {
 
         context('when a duplication error occurs', () => {
             it('should return status code 409 and info message from duplicate value', async () => {
-                await createUser({
-                    username: 'anothercoolusername',
-                    password: defaultChild.password,
-                    type: UserType.CHILD,
-                    gender: defaultChild.gender,
-                    age: defaultChild.age,
-                    institution: institution.id,
-                    scopes: new Array('users:read')
-                }).then()
+                try {
+                    await createUser({
+                        username: 'anothercoolusername',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: institution.id,
+                        scopes: new Array('users:read')
+                    }).then()
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
 
                 return request
                     .patch(`/users/children/${defaultChild.id}`)
@@ -363,23 +367,27 @@ describe('Routes: Child', () => {
 
         context(' when use query strings', () => {
             it('should return the result as required in query', async () => {
-                await createInstitution({
-                    type: 'School',
-                    name: 'UEPB Kids',
-                    address: '221A Baker Street, St.',
-                    latitude: 1,
-                    longitude: 1
-                }).then(result => {
-                    createUser({
-                        username: 'ihaveauniqueusername',
-                        password: defaultChild.password,
-                        type: UserType.CHILD,
-                        gender: defaultChild.gender,
-                        age: 10,
-                        institution: result._id,
-                        scopes: new Array('users:read')
-                    }).then()
-                })
+                try {
+                    await createInstitution({
+                        type: 'School',
+                        name: 'UEPB Kids',
+                        address: '221A Baker Street, St.',
+                        latitude: 1,
+                        longitude: 1
+                    }).then(result => {
+                        createUser({
+                            username: 'ihaveauniqueusername',
+                            password: defaultChild.password,
+                            type: UserType.CHILD,
+                            gender: defaultChild.gender,
+                            age: 10,
+                            institution: result._id,
+                            scopes: new Array('users:read')
+                        }).then()
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
 
                 const url = '/users/children/?age=lte:11&fields=username,age,institution.name&sort=age,username' +
                     '&page=1&limit=3'
@@ -417,7 +425,11 @@ describe('Routes: Child', () => {
         })
         context('when there are no children in database', () => {
             it('should return status code 200 and a empty array', async () => {
-                await deleteAllUsers().then()
+                try {
+                    await deleteAllUsers().then()
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
 
                 return request
                     .get('/users/children')

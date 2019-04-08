@@ -52,7 +52,7 @@ describe('Routes: Application', () => {
             await deleteAllInstitutions()
             await dbConnection.dispose()
         } catch (err) {
-            throw new Error('Failure on Child test: ' + err.message)
+            throw new Error('Failure on Application test: ' + err.message)
         }
     })
 
@@ -243,14 +243,17 @@ describe('Routes: Application', () => {
 
         context('when a duplication error occurs', () => {
             it('should return status code 409 and info message from duplicate value', async () => {
-
-                await createUser({
-                    username: 'acoolusername',
-                    password: 'mysecretkey',
-                    application_name: defaultApplication.application_name,
-                    institution: new ObjectID(institution.id),
-                    type: UserType.APPLICATION
-                }).then()
+                try {
+                    await createUser({
+                        username: 'acoolusername',
+                        password: 'mysecretkey',
+                        application_name: defaultApplication.application_name,
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    }).then()
+                } catch (err) {
+                    throw new Error('Failure on Application test: ' + err.message)
+                }
 
                 return request
                     .patch(`/users/applications/${defaultApplication.id}`)
@@ -375,21 +378,25 @@ describe('Routes: Application', () => {
 
         context('when use query strings', () => {
             it('should return the result as required in query', async () => {
-                await createInstitution({
-                    type: 'Home',
-                    name: 'Sherlock Neighbor',
-                    address: '221A Baker Street, St.',
-                    latitude: 1,
-                    longitude: 1
-                }).then(result => {
-                    createUser({
-                        username: 'ihaveaunknowusername',
-                        password: 'mysecretkey',
-                        application_name: defaultApplication.application_name,
-                        institution: new ObjectID(result._id),
-                        type: UserType.APPLICATION
-                    }).then()
-                })
+                try {
+                    await createInstitution({
+                        type: 'Home',
+                        name: 'Sherlock Neighbor',
+                        address: '221A Baker Street, St.',
+                        latitude: 1,
+                        longitude: 1
+                    }).then(result => {
+                        createUser({
+                            username: 'ihaveaunknowusername',
+                            password: 'mysecretkey',
+                            application_name: defaultApplication.application_name,
+                            institution: new ObjectID(result._id),
+                            type: UserType.APPLICATION
+                        }).then()
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Application test: ' + err.message)
+                }
 
                 const url: string = '/users/applications?fields=username,institution.name,institution.address&' +
                     '?institution.type=Home&sort=username&page=1&limit=3'
@@ -415,7 +422,11 @@ describe('Routes: Application', () => {
 
         context('when there are no applications in database', () => {
             it('should return status code 200 and a empty array', async () => {
-                await deleteAllUsers().then()
+                try {
+                    await deleteAllUsers().then()
+                } catch (err) {
+                    throw new Error('Failure on Application test: ' + err.message)
+                }
 
                 return request
                     .get('/users/applications')

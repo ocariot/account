@@ -47,7 +47,7 @@ describe('Routes: User', () => {
                 const user = await userRepository.create(defaultUser)
                 defaultUser.id = user.id
             } catch (err) {
-                throw new Error('Failure on Application test: ' + err.message)
+                throw new Error('Failure on User test: ' + err.message)
             }
         }
     )
@@ -58,7 +58,7 @@ describe('Routes: User', () => {
             await deleteAllInstitutions()
             await dbConnection.dispose()
         } catch (err) {
-            throw new Error('Failure on Child test: ' + err.message)
+            throw new Error('Failure on User test: ' + err.message)
         }
     })
 
@@ -133,21 +133,25 @@ describe('Routes: User', () => {
             })
 
             it('should return status code 204 and no content for application user', async () => {
-                await createUser({
-                    username: 'acoolusername',
-                    password: 'mysecretkey',
-                    application_name: 'Any Name',
-                    institution: institution.id,
-                    type: UserType.APPLICATION
-                }).then(user => {
-                    return request
-                        .delete(`/users/${user._id}`)
-                        .set('Content-Type', 'application/json')
-                        .expect(204)
-                        .then(res => {
-                            expect(res.body).to.eql({})
-                        })
-                })
+                try {
+                    await createUser({
+                        username: 'acoolusername',
+                        password: 'mysecretkey',
+                        application_name: 'Any Name',
+                        institution: institution.id,
+                        type: UserType.APPLICATION
+                    }).then(user => {
+                        return request
+                            .delete(`/users/${user._id}`)
+                            .set('Content-Type', 'application/json')
+                            .expect(204)
+                            .then(res => {
+                                expect(res.body).to.eql({})
+                            })
+                    })
+                } catch (err) {
+                    throw new Error('Failure on User test: ' + err.message)
+                }
             })
 
             it('should return status code 204 and no content for admin user', async () => {
@@ -157,8 +161,33 @@ describe('Routes: User', () => {
                 admin.institution = institution.id
                 admin.scopes = ['users:read']
 
-                await createUser(admin)
-                    .then(user => {
+                try {
+                    await createUser(admin)
+                        .then(user => {
+                            return request
+                                .delete(`/users/${user._id}`)
+                                .set('Content-Type', 'application/json')
+                                .expect(204)
+                                .then(res => {
+                                    expect(res.body).to.eql({})
+                                })
+                        })
+                } catch (err) {
+                    throw new Error('Failure on User test: ' + err.message)
+                }
+            })
+
+            it('should return status code 204 and no content for child user', async () => {
+                try {
+                    await createUser({
+                        username: 'anotherusername',
+                        password: 'mysecretkey',
+                        type: UserType.CHILD,
+                        gender: 'male',
+                        age: 11,
+                        institution: institution.id,
+                        scopes: new Array('users:read')
+                    }).then(user => {
                         return request
                             .delete(`/users/${user._id}`)
                             .set('Content-Type', 'application/json')
@@ -167,83 +196,78 @@ describe('Routes: User', () => {
                                 expect(res.body).to.eql({})
                             })
                     })
-            })
-
-            it('should return status code 204 and no content for child user', async () => {
-                await createUser({
-                    username: 'anotherusername',
-                    password: 'mysecretkey',
-                    type: UserType.CHILD,
-                    gender: 'male',
-                    age: 11,
-                    institution: institution.id,
-                    scopes: new Array('users:read')
-                }).then(user => {
-                    return request
-                        .delete(`/users/${user._id}`)
-                        .set('Content-Type', 'application/json')
-                        .expect(204)
-                        .then(res => {
-                            expect(res.body).to.eql({})
-                        })
-                })
+                } catch (err) {
+                    throw new Error('Failure on User test: ' + err.message)
+                }
             })
 
             it('should return status code 204 and no content for educator user', async () => {
-                await createUser({
-                    username: 'acoolusername',
-                    password: 'mysecretkey',
-                    type: UserType.EDUCATOR,
-                    institution: institution.id,
-                    scopes: new Array('users:read'),
-                    children_groups: []
-                }).then(user => {
-                    return request
-                        .delete(`/users/${user._id}`)
-                        .set('Content-Type', 'application/json')
-                        .expect(204)
-                        .then(res => {
-                            expect(res.body).to.eql({})
-                        })
-                })
+                try {
+                    await createUser({
+                        username: 'acoolusername',
+                        password: 'mysecretkey',
+                        type: UserType.EDUCATOR,
+                        institution: institution.id,
+                        scopes: new Array('users:read'),
+                        children_groups: []
+                    }).then(user => {
+                        return request
+                            .delete(`/users/${user._id}`)
+                            .set('Content-Type', 'application/json')
+                            .expect(204)
+                            .then(res => {
+                                expect(res.body).to.eql({})
+                            })
+                    })
+                } catch (err) {
+                    throw new Error('Failure on User test: ' + err.message)
+                }
             })
 
             it('should return status code 204 and no content for health professional user', async () => {
-                await createUser({
-                    username: 'mydefaultusername',
-                    password: 'mysecretkey',
-                    type: UserType.HEALTH_PROFESSIONAL,
-                    institution: institution.id,
-                    scopes: new Array('users:read'),
-                    children_groups: []
-                }).then(user => {
-                    return request
-                        .delete(`/users/${user._id}`)
-                        .set('Content-Type', 'application/json')
-                        .expect(204)
-                        .then(res => {
-                            expect(res.body).to.eql({})
-                        })
-                })
+                try {
+                    await createUser({
+                        username: 'mydefaultusername',
+                        password: 'mysecretkey',
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: institution.id,
+                        scopes: new Array('users:read'),
+                        children_groups: []
+                    }).then(user => {
+                        return request
+                            .delete(`/users/${user._id}`)
+                            .set('Content-Type', 'application/json')
+                            .expect(204)
+                            .then(res => {
+                                expect(res.body).to.eql({})
+                            })
+                    })
+                } catch (err) {
+                    throw new Error('Failure on User test: ' + err.message)
+                }
             })
 
             it('should return status code 204 and no content for family user', async () => {
-                await createUser({
-                    username: 'mydefaultusername',
-                    password: 'mysecretkey',
-                    type: UserType.FAMILY,
-                    institution: institution.id,
-                    scopes: new Array('users:read'),
-                    children: []
-                }).then(user => {
-                    return request
-                        .delete(`/users/${user._id}`)
-                        .set('Content-Type', 'application/json')
-                        .expect(204)
-                        .then(res => {
-                            expect(res.body).to.eql({})
-                        })
-                })
+                try {
+                    await createUser({
+                        username: 'mydefaultusername',
+                        password: 'mysecretkey',
+                        type: UserType.FAMILY,
+                        institution: institution.id,
+                        scopes: new Array('users:read'),
+                        children: []
+                    }).then(user => {
+                        return request
+                            .delete(`/users/${user._id}`)
+                            .set('Content-Type', 'application/json')
+                            .expect(204)
+                            .then(res => {
+                                expect(res.body).to.eql({})
+                            })
+                    })
+                } catch (err) {
+                    throw new Error('Failure on User test: ' + err.message)
+                }
             })
         })
 

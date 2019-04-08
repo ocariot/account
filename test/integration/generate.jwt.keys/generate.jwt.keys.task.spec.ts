@@ -13,10 +13,14 @@ const jwt_public_key_path = process.env.JWT_PUBLIC_KEY_PATH || Default.JWT_PUBLI
 
 describe('GENERATE JWT KEYS TASK', () => {
     afterEach(async () => {
-        await generateJwtKeysTask.stop()
+        try {
+            await generateJwtKeysTask.stop()
 
-        // Changes permissions to allow read and write operations on path
-        fs.chmodSync(jwt_private_key_path.substring(0, jwt_private_key_path.length - 7), 0o777)
+            // Changes permissions to allow read and write operations on path
+            fs.chmodSync(jwt_private_key_path.substring(0, jwt_private_key_path.length - 7), 0o777)
+        } catch (err) {
+            throw new Error('Failure on GenerateJwtKeysTask test: ' + err.message)
+        }
     })
 
     describe('GENERATE JWT KEY', () => {
@@ -30,7 +34,7 @@ describe('GENERATE JWT KEYS TASK', () => {
                     expect(privateKeyPathExists).to.eql(true)
                     expect(publicKeyPathExists).to.eql(true)
                 } catch (err) {
-                    console.log(err)
+                    throw new Error('Failure on GenerateJwtKeysTask test: ' + err.message)
                 }
             })
         })
