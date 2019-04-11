@@ -4,7 +4,6 @@ import { Default } from './default'
 import { createLogger, format, Logger, transports } from 'winston'
 import DailyRotateFile from 'winston-daily-rotate-file'
 
-
 @injectable()
 export class CustomLogger implements ILogger {
     private readonly _logger: Logger
