@@ -8,15 +8,14 @@ export class HealthProfessionalMock extends HealthProfessional {
 
     constructor() {
         super()
-        super.fromJSON(JSON.stringify(this.generateHealthProfessional()))
+        this.generateHealthProfessional()
     }
 
-    private generateHealthProfessional(): HealthProfessional {
-        const health_professional: HealthProfessional = new HealthProfessional()
-        health_professional.id = this.generateObjectId()
-        health_professional.username = 'health_professional_mock'
-        health_professional.password = 'health_professional_password'
-        health_professional.institution = this.generateInstitution()
+    private generateHealthProfessional(): void {
+        super.id = this.generateObjectId()
+        super.username = 'health_professional_mock'
+        super.password = 'health_professional_password'
+        super.institution = this.generateInstitution()
 
         const children_group: ChildrenGroup = new ChildrenGroup()
         children_group.name = 'children group 1'
@@ -24,9 +23,7 @@ export class HealthProfessionalMock extends HealthProfessional {
         children_group.school_class = 'Room 01'
         children_group.user = new UserMock()
 
-        health_professional.children_groups = [children_group]
-
-        return health_professional
+        super.children_groups = [children_group]
     }
 
     private generateObjectId(): string {

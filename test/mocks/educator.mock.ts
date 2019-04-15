@@ -6,19 +6,15 @@ export class EducatorMock extends Educator {
 
     constructor() {
         super()
-        super.fromJSON(JSON.stringify(this.generateEducator()))
+        this.generateEducator()
     }
 
-    private generateEducator(): Educator {
-        const educator: Educator = new Educator()
-        educator.id = this.generateObjectId()
-        educator.username = 'educator_mock'
-        educator.password = 'educator_password'
-        educator.institution = this.generateInstitution()
-
-        educator.children_groups = [new ChildrenGroupMock(), new ChildrenGroupMock()]
-
-        return educator
+    private generateEducator(): void {
+        super.id = this.generateObjectId()
+        super.username = 'educator_mock'
+        super.password = 'educator_password'
+        super.institution = this.generateInstitution()
+        super.children_groups = [new ChildrenGroupMock(), new ChildrenGroupMock()]
     }
 
     private generateObjectId(): string {

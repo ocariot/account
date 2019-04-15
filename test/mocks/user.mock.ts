@@ -5,21 +5,18 @@ export class UserMock extends User {
 
     constructor(type?: UserTypeMock) {
         super()
-        super.fromJSON(JSON.stringify(this.generateUser(type)))
+        this.generateUser(type)
     }
 
-    private generateUser(type?: UserTypeMock): User {
+    private generateUser(type?: UserTypeMock): void {
         if (!type) type = this.chooseType()
 
-        const user: User = new User()
-        user.id = this.generateObjectId()
-        user.username = 'user_mock'
-        user.password = 'user_password'
-        user.type = type
-        user.institution = this.generateInstitution()
-        user.scopes = new Array<string>('readonly')
-
-        return user
+        super.id = this.generateObjectId()
+        super.username = 'user_mock'
+        super.password = 'user_password'
+        super.type = type
+        super.institution = this.generateInstitution()
+        super.scopes = new Array<string>('readonly')
     }
 
     private generateObjectId(): string {
