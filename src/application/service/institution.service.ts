@@ -117,7 +117,7 @@ export class InstitutionService implements IInstitutionService {
     private saveEvent(event: IntegrationEvent<Institution>): void {
         const saveEvent: any = event.toJSON()
         saveEvent.__operation = 'publish'
-        if (event.event_name === 'InstitutionEvent') saveEvent.__routing_key = 'institutions.delete'
+        if (event.event_name === 'InstitutionDeleteEvent') saveEvent.__routing_key = 'institutions.delete'
         this._integrationEventRepository
             .create(JSON.parse(JSON.stringify(saveEvent)))
             .then(() => {
