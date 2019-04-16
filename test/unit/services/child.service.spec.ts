@@ -61,6 +61,15 @@ describe('Services: Child', () => {
     const childService: IChildService = new ChildService(childRepo, institutionRepo, childrenGroupRepo, familyRepo,
         integrationRepo, eventBusRabbitmq, customLogger)
 
+    before(async () => {
+        try {
+            await connectionRabbitmqPub.tryConnect(0, 500)
+            await connectionRabbitmqSub.tryConnect(0, 500)
+        } catch (err) {
+            throw new Error('Failure on ChildService unit test: ' + err.message)
+        }
+    })
+
     afterEach(() => {
         sinon.restore()
     })
@@ -335,6 +344,7 @@ describe('Services: Child', () => {
 
         context('when the Child does not exist in the database', () => {
             it('should return undefined', () => {
+                connectionRabbitmqPub.isConnected = true
                 child.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
                 sinon
                     .mock(modelFake)

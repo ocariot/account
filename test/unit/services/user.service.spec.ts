@@ -98,6 +98,15 @@ describe('Services: User', () => {
     const userService: IUserService = new UserService(userRepo, educatorService, childService, healthProfessionalService,
         familyService, applicationService, integrationRepo, eventBusRabbitmq, customLogger)
 
+    before(async () => {
+        try {
+            await connectionRabbitmqPub.tryConnect(0, 500)
+            await connectionRabbitmqSub.tryConnect(0, 500)
+        } catch (err) {
+            throw new Error('Failure on UserService unit test: ' + err.message)
+        }
+    })
+
     afterEach(() => {
         sinon.restore()
     })
@@ -356,6 +365,7 @@ describe('Services: User', () => {
 
         context('when there is no User with the received parameter', () => {
             it('should return false', () => {
+                connectionRabbitmqPub.isConnected = true
                 user.id = '507f1f77bcf86cd799439016'         // Make mock return false
                 sinon
                     .mock(modelFake)

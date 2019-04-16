@@ -9,6 +9,8 @@ import { UserUpdateEvent } from '../../../src/application/integration-event/even
 import { UserMock, UserTypeMock } from '../../mocks/user.mock'
 import { ChildMock } from '../../mocks/child.mock'
 import { FamilyMock } from '../../mocks/family.mock'
+import { InstitutionDeleteEvent } from '../../../src/application/integration-event/event/institution.delete.event'
+import { InstitutionMock } from '../../mocks/institution.mock'
 
 const container: Container = DI.getInstance().getContainer()
 const eventBus: IEventBus = container.get(Identifier.RABBITMQ_EVENT_BUS)
@@ -155,6 +157,23 @@ describe('EVENT BUS', () => {
                     return eventBus.publish(
                         new UserUpdateEvent('UserDeleteEvent', new Date(), new UserMock()),
                         'users.delete')
+                        .then((result: boolean) => {
+                            expect(result).to.equal(true)
+                        })
+                } catch (err) {
+                    throw new Error('Failure on EventBus test: ' + err.message)
+                }
+            })
+        })
+
+        context('Institution', () => {
+            it('should return true for deleted institution.', async () => {
+                try {
+                    await eventBus.connectionPub.tryConnect(1, 500)
+
+                    return eventBus.publish(
+                        new InstitutionDeleteEvent('InstitutionDeleteEvent', new Date(), new InstitutionMock()),
+                        'institutions.delete')
                         .then((result: boolean) => {
                             expect(result).to.equal(true)
                         })

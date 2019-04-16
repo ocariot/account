@@ -20,6 +20,8 @@ import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
 import { Application } from '../../../src/application/domain/model/application'
 import { ApplicationMock } from '../../mocks/application.mock'
 import { IBackgroundTask } from '../../../src/application/port/background.task.interface'
+import { InstitutionDeleteEvent } from '../../../src/application/integration-event/event/institution.delete.event'
+import { InstitutionMock } from '../../mocks/institution.mock'
 
 const container: Container = DI.getInstance().getContainer()
 const eventBusTask: IBackgroundTask = container.get(Identifier.EVENT_BUS_TASK)
@@ -64,6 +66,7 @@ describe('EVENT BUS TASK', () => {
                     await createEducatorIntegrationEvent()
                     await createHealthProfessionalIntegrationEvent()
                     await createApplicationIntegrationEvent()
+                    await createInstitutionIntegrationEvent()
 
                     // Run the task for publishing saved events
                     eventBusTask.run()
@@ -152,6 +155,7 @@ describe('EVENT BUS TASK', () => {
         //             await createEducatorIntegrationEvent()
         //             await createHealthProfessionalIntegrationEvent()
         //             await createApplicationIntegrationEvent()
+        //             await createInstitutionIntegrationEvent()
         //
         //             eventBusTask.run()
         //
@@ -235,6 +239,18 @@ async function createApplicationIntegrationEvent(): Promise<any> {
     const saveEvent: any = event.toJSON()
     saveEvent.__operation = 'publish'
     saveEvent.__routing_key = 'healthprofessionals.update'
+    await integrationRepository.create(JSON.parse(JSON.stringify(saveEvent)))
+
+    return Promise.resolve()
+}
+
+async function createInstitutionIntegrationEvent(): Promise<any> {
+    // Delete
+    const event: InstitutionDeleteEvent = new InstitutionDeleteEvent('InstitutionDeleteEvent',
+        new Date(), new InstitutionMock())
+    const saveEvent: any = event.toJSON()
+    saveEvent.__operation = 'publish'
+    saveEvent.__routing_key = 'institutions.delete'
     await integrationRepository.create(JSON.parse(JSON.stringify(saveEvent)))
 
     return Promise.resolve()

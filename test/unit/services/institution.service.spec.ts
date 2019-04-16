@@ -14,6 +14,14 @@ import { InstitutionRepoModel } from '../../../src/infrastructure/database/schem
 import { Strings } from '../../../src/utils/strings'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
+import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
+import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
+import { IConnectionFactory } from '../../../src/infrastructure/port/connection.factory.interface'
+import { ConnectionFactoryRabbitmqMock } from '../../mocks/connection.factory.rabbitmq.mock'
+import { IConnectionEventBus } from '../../../src/infrastructure/port/connection.event.bus.interface'
+import { ConnectionRabbitmqMock } from '../../mocks/connection.rabbitmq.mock'
+import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
+import { EventBusRabbitmqMock } from '../../mocks/event.bus.rabbitmq.mock'
 
 require('sinon-mongoose')
 
@@ -30,10 +38,25 @@ describe('Services: Institution', () => {
     const modelFake: any = InstitutionRepoModel
     const userRepo: IUserRepository = new UserRepositoryMock()
     const institutionRepo: IInstitutionRepository = new InstitutionRepositoryMock()
+    const integrationRepo: IIntegrationEventRepository = new IntegrationEventRepositoryMock()
 
+    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitmqMock()
+    const connectionRabbitmqPub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
+    const connectionRabbitmqSub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
+    const eventBusRabbitmq: IEventBus = new EventBusRabbitmqMock(connectionRabbitmqPub, connectionRabbitmqSub)
     const customLogger: ILogger = new CustomLoggerMock()
 
-    const institutionService: IInstitutionService = new InstitutionService(institutionRepo, userRepo, customLogger)
+    const institutionService: IInstitutionService = new InstitutionService(institutionRepo, userRepo, integrationRepo,
+        eventBusRabbitmq, customLogger)
+
+    before(async () => {
+        try {
+            await connectionRabbitmqPub.tryConnect(0, 500)
+            await connectionRabbitmqSub.tryConnect(0, 500)
+        } catch (err) {
+            throw new Error('Failure on InstitutionService unit test: ' + err.message)
+        }
+    })
 
     afterEach(() => {
         sinon.restore()
@@ -295,8 +318,26 @@ describe('Services: Institution', () => {
             })
         })
 
+        context('when there is Institution with the received parameter but there is no connection to the RabbitMQ', () => {
+            it('should save the event that informs about the exclusion of institution and return true', () => {
+                connectionRabbitmqPub.isConnected = false
+                sinon
+                    .mock(modelFake)
+                    .expects('deleteOne')
+                    .withArgs(institution.id)
+                    .chain('exec')
+                    .resolves(true)
+
+                return institutionService.remove(institution.id!)
+                    .then(result => {
+                        assert.equal(result, true)
+                    })
+            })
+        })
+
         context('when there is no Institution with the received parameter', () => {
             it('should return false', () => {
+                connectionRabbitmqPub.isConnected = true
                 institution.id = '507f1f77bcf86cd799439013'         // Make mock return false
                 sinon
                     .mock(modelFake)

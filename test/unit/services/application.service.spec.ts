@@ -56,6 +56,15 @@ describe('Services: Application', () => {
     const applicationService: IApplicationService = new ApplicationService(applicationRepo, institutionRepo,
         integrationRepo, customLogger, eventBusRabbitmq)
 
+    before(async () => {
+        try {
+            await connectionRabbitmqPub.tryConnect(0, 500)
+            await connectionRabbitmqSub.tryConnect(0, 500)
+        } catch (err) {
+            throw new Error('Failure on ApplicationService unit test: ' + err.message)
+        }
+    })
+
     afterEach(() => {
         sinon.restore()
     })
@@ -327,6 +336,7 @@ describe('Services: Application', () => {
 
         context('when the Application does not exist in the database', () => {
             it('should return undefined', () => {
+                connectionRabbitmqPub.isConnected = true
                 application.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
                 sinon
                     .mock(modelFake)

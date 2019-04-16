@@ -59,6 +59,15 @@ describe('Services: Family', () => {
     const familyService: IFamilyService = new FamilyService(familyRepo, childRepo, institutionRepo, integrationRepo,
         eventBusRabbitmq, customLogger)
 
+    before(async () => {
+        try {
+            await connectionRabbitmqPub.tryConnect(0, 500)
+            await connectionRabbitmqSub.tryConnect(0, 500)
+        } catch (err) {
+            throw new Error('Failure on FamilyService unit test: ' + err.message)
+        }
+    })
+
     afterEach(() => {
         sinon.restore()
     })
@@ -375,6 +384,7 @@ describe('Services: Family', () => {
 
         context('when the Family does not exist in the database', () => {
             it('should return undefined', () => {
+                connectionRabbitmqPub.isConnected = true
                 family.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
                 sinon
                     .mock(modelFake)

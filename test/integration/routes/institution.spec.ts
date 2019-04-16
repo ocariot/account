@@ -247,7 +247,7 @@ describe('Routes: Institution', () => {
             })
         })
 
-        context('when the institution was asscociated with an user', () => {
+        context('when the institution was associated with an user', () => {
             it('should return status code 400 and info message from existent association', async () => {
                 try {
                     await createUser({

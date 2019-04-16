@@ -1,30 +1,25 @@
 import { UserDeleteEvent } from '../../../src/application/integration-event/event/user.delete.event'
-import { User, UserType } from '../../../src/application/domain/model/user'
-import { ObjectID } from 'bson'
-import { Institution } from '../../../src/application/domain/model/institution'
+import { User } from '../../../src/application/domain/model/user'
 import { assert } from 'chai'
+import { UserMock } from '../../mocks/user.mock'
 
 describe('IntegrationEvents: UserDelete', () => {
     describe('toJSON()', () => {
         it('should return the user delete event', () => {
-            const user: User = new User()
-            user.id = `${new ObjectID()}`
-            user.username = 'test'
-            user.password = 'pass'
-            user.type = UserType.ADMIN
-            user.institution = new Institution()
-            user.institution.id = `${new ObjectID()}`
+            const user: User = new UserMock()
 
             const result = new UserDeleteEvent('UserDelete', new Date(), user).toJSON()
             assert.propertyVal(result, 'event_name', 'UserDelete')
             assert.property(result, 'timestamp')
-            assert.property(result, 'user')
+            assert.propertyVal(result.user, 'id', user.id)
+            assert.propertyVal(result.user, 'username', user.username)
+            assert.propertyVal(result.user, 'type', user.type)
+            assert.property(result.user, 'institution')
         })
 
         context('when the user is undefined', () => {
             it('should return empty object', () => {
                 const result = new UserDeleteEvent('UserDelete', new Date(), undefined).toJSON()
-                assert.isObject(result)
                 assert.isEmpty(result)
             })
         })
