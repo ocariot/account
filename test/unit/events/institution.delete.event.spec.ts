@@ -1,14 +1,14 @@
 import { assert } from 'chai'
 import { Institution } from '../../../src/application/domain/model/institution'
 import { InstitutionMock } from '../../mocks/institution.mock'
-import { InstitutionDeleteEvent } from '../../../src/application/integration-event/event/institution.delete.event'
+import { InstitutionEvent } from '../../../src/application/integration-event/event/institution.event'
 
-describe('IntegrationEvents: InstitutionDelete', () => {
+describe('IntegrationEvents: InstitutionEvent', () => {
     describe('toJSON()', () => {
-        it('should return the institution delete event', () => {
+        it('should return the institution event', () => {
             const institution: Institution = new InstitutionMock()
 
-            const result = new InstitutionDeleteEvent('InstitutionDeleteEvent', new Date(), institution).toJSON()
+            const result = new InstitutionEvent('InstitutionDeleteEvent', new Date(), institution).toJSON()
             assert.propertyVal(result, 'event_name', 'InstitutionDeleteEvent')
             assert.property(result, 'timestamp')
             assert.propertyVal(result.institution, 'id', institution.id)
@@ -21,7 +21,7 @@ describe('IntegrationEvents: InstitutionDelete', () => {
 
         context('when the institution is undefined', () => {
             it('should return empty object', () => {
-                const result = new InstitutionDeleteEvent('InstitutionDeleteEvent', new Date(), undefined).toJSON()
+                const result = new InstitutionEvent('InstitutionDeleteEvent', new Date(), undefined).toJSON()
                 assert.isEmpty(result)
             })
         })

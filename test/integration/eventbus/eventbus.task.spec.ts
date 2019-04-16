@@ -20,7 +20,7 @@ import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
 import { Application } from '../../../src/application/domain/model/application'
 import { ApplicationMock } from '../../mocks/application.mock'
 import { IBackgroundTask } from '../../../src/application/port/background.task.interface'
-import { InstitutionDeleteEvent } from '../../../src/application/integration-event/event/institution.delete.event'
+import { InstitutionEvent } from '../../../src/application/integration-event/event/institution.event'
 import { InstitutionMock } from '../../mocks/institution.mock'
 
 const container: Container = DI.getInstance().getContainer()
@@ -246,7 +246,7 @@ async function createApplicationIntegrationEvent(): Promise<any> {
 
 async function createInstitutionIntegrationEvent(): Promise<any> {
     // Delete
-    const event: InstitutionDeleteEvent = new InstitutionDeleteEvent('InstitutionDeleteEvent',
+    const event: InstitutionEvent = new InstitutionEvent('InstitutionDeleteEvent',
         new Date(), new InstitutionMock())
     const saveEvent: any = event.toJSON()
     saveEvent.__operation = 'publish'

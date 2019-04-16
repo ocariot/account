@@ -14,7 +14,7 @@ import { HealthProfessional } from '../../application/domain/model/health.profes
 import { Educator } from '../../application/domain/model/educator'
 import { Application } from '../../application/domain/model/application'
 import { IBackgroundTask } from '../../application/port/background.task.interface'
-import { InstitutionDeleteEvent } from '../../application/integration-event/event/institution.delete.event'
+import { InstitutionEvent } from '../../application/integration-event/event/institution.event'
 import { Institution } from '../../application/domain/model/institution'
 
 @injectable()
@@ -152,7 +152,7 @@ export class EventBusTask implements IBackgroundTask {
             )
             return eventBus.publish(userApplicationUpdateEvent, event.__routing_key)
         } else if (event.event_name === 'InstitutionDeleteEvent') {
-            const institutionDeleteEvent: InstitutionDeleteEvent = new InstitutionDeleteEvent(
+            const institutionDeleteEvent: InstitutionEvent = new InstitutionEvent(
                 event.event_name,
                 event.timestamp,
                 new Institution().fromJSON(event.institution)

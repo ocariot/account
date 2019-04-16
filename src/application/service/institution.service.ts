@@ -11,7 +11,7 @@ import { Strings } from '../../utils/strings'
 import { IUserRepository } from '../port/user.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
-import { InstitutionDeleteEvent } from '../integration-event/event/institution.delete.event'
+import { InstitutionEvent } from '../integration-event/event/institution.event'
 import { IEventBus } from '../../infrastructure/port/event.bus.interface'
 import { IntegrationEvent } from '../integration-event/event/integration.event'
 import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
@@ -88,7 +88,7 @@ export class InstitutionService implements IInstitutionService {
 
             // 5. If deleted successfully, the object is published on the message bus.
             if (wasDeleted) {
-                const event: InstitutionDeleteEvent = new InstitutionDeleteEvent('InstitutionDeleteEvent',
+                const event: InstitutionEvent = new InstitutionEvent('InstitutionDeleteEvent',
                     new Date(), institutionToBeDeleted)
                 if (!(await this._eventBus.publish(event, 'institutions.delete'))) {
                     // 6. Save Event for submission attempt later when there is connection to message channel.
@@ -117,7 +117,7 @@ export class InstitutionService implements IInstitutionService {
     private saveEvent(event: IntegrationEvent<Institution>): void {
         const saveEvent: any = event.toJSON()
         saveEvent.__operation = 'publish'
-        if (event.event_name === 'InstitutionDeleteEvent') saveEvent.__routing_key = 'institutions.delete'
+        if (event.event_name === 'InstitutionEvent') saveEvent.__routing_key = 'institutions.delete'
         this._integrationEventRepository
             .create(JSON.parse(JSON.stringify(saveEvent)))
             .then(() => {

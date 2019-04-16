@@ -9,7 +9,7 @@ import { UserUpdateEvent } from '../../../src/application/integration-event/even
 import { UserMock, UserTypeMock } from '../../mocks/user.mock'
 import { ChildMock } from '../../mocks/child.mock'
 import { FamilyMock } from '../../mocks/family.mock'
-import { InstitutionDeleteEvent } from '../../../src/application/integration-event/event/institution.delete.event'
+import { InstitutionEvent } from '../../../src/application/integration-event/event/institution.event'
 import { InstitutionMock } from '../../mocks/institution.mock'
 
 const container: Container = DI.getInstance().getContainer()
@@ -172,7 +172,7 @@ describe('EVENT BUS', () => {
                     await eventBus.connectionPub.tryConnect(1, 500)
 
                     return eventBus.publish(
-                        new InstitutionDeleteEvent('InstitutionDeleteEvent', new Date(), new InstitutionMock()),
+                        new InstitutionEvent('InstitutionDeleteEvent', new Date(), new InstitutionMock()),
                         'institutions.delete')
                         .then((result: boolean) => {
                             expect(result).to.equal(true)

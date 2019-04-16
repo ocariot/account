@@ -1,7 +1,7 @@
 import { EventType, IntegrationEvent } from './integration.event'
 import { Institution } from '../../domain/model/institution'
 
-export class InstitutionDeleteEvent extends IntegrationEvent<Institution> {
+export class InstitutionEvent extends IntegrationEvent<Institution> {
     constructor(public event_name: string, public timestamp?: Date, public institution?: Institution) {
         super(event_name, EventType.INSTITUTIONS, timestamp)
     }
