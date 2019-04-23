@@ -30,6 +30,9 @@ describe('EVENT BUS', () => {
         it('should return EventBusException with message without connection when publishing.', () => {
             return eventBus
                 .publish(new UserDeleteEvent(''), '')
+                .then((result: boolean) => {
+                    expect(result).to.eql(false)
+                })
                 .catch((err: EventBusException) => {
                     expect(err).instanceOf(EventBusException)
                 })
