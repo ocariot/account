@@ -18,6 +18,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         super.type = UserType.CHILD
         super.scopes = [
             'children:read',
+            'children:update',
             'institutions:read',
             'questionnaires:create',
             'questionnaires:read',
