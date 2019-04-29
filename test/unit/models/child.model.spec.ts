@@ -13,6 +13,7 @@ describe('Models: Child', () => {
         institution: new ObjectID(),
         scopes: [
             'children:read',
+            'children:update',
             'institutions:read',
             'questionnaires:create',
             'questionnaires:read',
