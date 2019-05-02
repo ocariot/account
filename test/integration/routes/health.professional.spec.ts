@@ -641,7 +641,7 @@ describe('Routes: HealthProfessional', () => {
     })
 
     describe('GET /users/healthprofessionals/:healthprofessional_id/children/groups', () => {
-        context('when want all children groups from educator', () => {
+        context('when want all children groups from healthprofessional', () => {
             it('should return status code 200 and a list of children groups', () => {
                 return request
                     .get(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)

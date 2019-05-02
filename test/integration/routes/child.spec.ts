@@ -330,7 +330,7 @@ describe('Routes: Child', () => {
     })
 
     describe('GET /users/children', () => {
-        context('when want get all applications in database', () => {
+        context('when want get all children in database', () => {
             it('should return status code 200 and a list of children', () => {
                 return request
                     .get('/users/children')
