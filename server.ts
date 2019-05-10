@@ -1,3 +1,4 @@
+import fs from 'fs-extra'
 import http from 'http'
 import https from 'https'
 import { Application } from 'express'
@@ -7,7 +8,6 @@ import { ILogger } from './src/utils/custom.logger'
 import { BackgroundService } from './src/background/background.service'
 import { Default } from './src/utils/default'
 import { App } from './src/app'
-import fs, { readFileSync } from 'fs'
 
 /**
  *  Create the .env file in the root directory of your project
@@ -27,15 +27,8 @@ const backgroundServices: BackgroundService = DI.getInstance().getContainer().ge
 const port_http = process.env.PORT_HTTP || Default.PORT_HTTP
 const port_https = process.env.PORT_HTTPS || Default.PORT_HTTPS
 const https_options = {
-    key: readFileSync(process.env.PRIVATE_KEY_CERT_PATH || Default.PRIVATE_KEY_CERT_PATH),
-    cert: readFileSync(process.env.CERT_PATH || Default.CERT_PATH)
-}
-/* Create certificates (JWT public key) directory if it doesn't exists */
-const cert_dir_path = process.env.CERT_DIR_PATH || Default.CERT_DIR_PATH
-
-/*Create the certificates dir if it doesn't exist */
-if (!fs.existsSync(cert_dir_path)) {
-    fs.mkdirSync(cert_dir_path)
+    key: fs.readFileSync(process.env.SSL_KEY_PATH || Default.SSL_KEY_PATH),
+    cert: fs.readFileSync(process.env.SSL_CERT_PATH || Default.SSL_CERT_PATH)
 }
 
 /**

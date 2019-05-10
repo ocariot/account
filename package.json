@@ -46,12 +46,13 @@
     "all": true
   },
   "dependencies": {
-    "amqp-ts": "github:nutes-uepb/amqp-ts",
+    "amqp-ts": "git+https://github.com/nutes-uepb/amqp-ts",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.3",
     "dotenv": "^6.2.0",
     "express": "^4.16.4",
     "express-ip-access-control": "^1.0.5",
+    "fs-extra": "^7.0.1",
     "helmet": "^3.15.1",
     "inversify": "^5.0.1",
     "inversify-express-utils": "^6.3.2",
@@ -87,6 +88,6 @@
     "ts-node": "^8.0.2",
     "tslint": "^5.13.0",
     "typedoc": "^0.14.2",
-    "typescript": "^3.4.1"
+    "typescript": "^3.4.5"
   }
 }

@@ -10,8 +10,8 @@
 export abstract class Default {
     public static readonly APP_ID: string = 'account_service'
     public static readonly NODE_ENV: string = 'development' // development, test, production
-    public static readonly PORT_HTTP: number = 5000
-    public static readonly PORT_HTTPS: number = 5001
+    public static readonly PORT_HTTP: number = 3000
+    public static readonly PORT_HTTPS: number = 3001
     public static readonly SWAGGER_URI: string = 'https://api.swaggerhub.com/apis/nutes.ocariot/account-service/v1/swagger.json'
     public static readonly LOGO_URI: string = 'http://www.ocariot.com.br/wp-content/uploads/2018/08/cropped-512-32x32.png'
 
@@ -36,14 +36,13 @@ export abstract class Default {
     public static readonly ADMIN_PASSWORD: string = 'admin*159'
 
     // Certificate Path
-    public static readonly CERT_DIR_PATH: string = '.certs'
     public static readonly JWT_PRIVATE_KEY_PATH: string = '.certs/jwt.key'
     public static readonly JWT_PUBLIC_KEY_PATH: string = '.certs/jwt.pem'
 
     // Certificate
     // To generate self-signed certificates, see: https://devcenter.heroku.com/articles/ssl-certificate-self
-    public static readonly PRIVATE_KEY_CERT_PATH: string = '.certs/server.key'
-    public static readonly CERT_PATH: string = '.certs/server.crt'
+    public static readonly SSL_KEY_PATH: string = '.certs/server.key'
+    public static readonly SSL_CERT_PATH: string = '.certs/server.crt'
 
     public static readonly IP_WHITELIST: Array<string> = ['*']
 }

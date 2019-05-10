@@ -1,5 +1,5 @@
 import pem from 'pem'
-import fs from 'fs'
+import fs from 'fs-extra'
 import { injectable } from 'inversify'
 import { Default } from '../../utils/default'
 import { IBackgroundTask } from '../../application/port/background.task.interface'
@@ -19,8 +19,8 @@ export class GenerateJwtKeysTask implements IBackgroundTask {
             try {
                 const privateKey = await this.generateJWTPrivateKey()
                 const publicKey = await this.getJWTPublicKey(privateKey)
-                fs.writeFileSync(jwt_private_key_path, privateKey, 'ascii')
-                fs.writeFileSync(jwt_public_key_path, publicKey, 'ascii')
+                fs.outputFileSync(jwt_private_key_path, privateKey, 'ascii')
+                fs.outputFileSync(jwt_public_key_path, publicKey, 'ascii')
             } catch (err) {
                 throw new Error(err)
             }
