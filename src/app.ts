@@ -1,8 +1,7 @@
 import 'reflect-metadata'
 import morgan from 'morgan'
-import accessControl from 'express-ip-access-control'
+import whitelist from '@nutes-uepb/express-ip-whitelist'
 import helmet from 'helmet'
-import dns from 'dns'
 import bodyParser from 'body-parser'
 import HttpStatus from 'http-status-codes'
 import swaggerUi from 'swagger-ui-express'
@@ -80,32 +79,13 @@ export class App {
      * @return Promise<void>
      */
     private async setupHostWhitelist(): Promise<void> {
-        let whitelist = Default.IP_WHITELIST
-
-        if (process.env.HOST_WHITELIST) {
-            whitelist = process.env.HOST_WHITELIST
-                .replace(/[\[\]]/g, '')
-                .split(',')
-                .map(item => item.trim())
-        }
-
-        // Accept requests from any origin.
-        if (whitelist.includes('*') ||
-            whitelist.includes('')) return Promise.resolve()
-
-        const promises = whitelist.map(this.getIPFromHost)
-        whitelist = await Promise.all(promises)
-
-        this.express.use(accessControl({
-            mode: 'allow',
-            allows: whitelist,
-            log: (clientIp, access) => {
-                if (!access) this._logger.warn(`Access denied for IP ${clientIp}`)
-            },
-            statusCode: 401,
-            message: new ApiException(401, 'UNAUTHORIZED',
-                'Client is not allowed to access the service...').toJson()
-        }))
+        this.express.use(whitelist(process.env.HOST_WHITELIST || Default.IP_WHITELIST,
+            {
+                log: (clientIp, accessDenied) => {
+                    if (accessDenied) this._logger.warn(`Access denied for IP ${clientIp}`)
+                }
+            })
+        )
     }
 
     /**
@@ -151,22 +131,6 @@ export class App {
     }
 
     /**
-     *  Get DNS from a host name.
-     *
-     * @private
-     * @param host
-     * @return Promise<void>
-     */
-    private async getIPFromHost(host: string): Promise<any> {
-        return new Promise((resolve, reject) => {
-            dns.lookup(host, async (err, ip) => {
-                if (err) return reject(err)
-                return resolve(ip)
-            })
-        })
-    }
-
-    /**
      * Setup swagger ui.
      *
      * @private
@@ -201,7 +165,6 @@ export class App {
 
         // Handle 500
         this.express.use((err: any, req: Request, res: Response) => {
-            res.locals
             const errorMessage: ApiException = new ApiException(err.code, err.message, err.description)
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).send(errorMessage.toJson())
         })
