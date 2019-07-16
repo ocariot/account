@@ -28,6 +28,8 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
             'physicalactivities:read',
             'sleep:create',
             'sleep:read',
+            'measurements:create',
+            'measurements:read',
             'environment:read',
             'missions:read',
             'gamificationprofile:read',

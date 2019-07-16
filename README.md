@@ -10,7 +10,7 @@ Microservice responsible for user management and authentication on the OCARIoT p
 - Registration and management of institution;
 - Creation of groups of children.
  
- See the [documentation](https://github.com/ocariot/account-service/wiki) for more information.
+ See the [documentation](https://github.com/ocariot/account/wiki) for more information.
 
 ## Prerequisites
 - [Node 8.0.0+](https://nodejs.org/en/download/)
@@ -21,23 +21,23 @@ Microservice responsible for user management and authentication on the OCARIoT p
 
 ## Set the environment variables
 Application settings are defined by environment variables.. To define the settings, make a copy of the `.env.example` file, naming for `.env`. After that, open and edit the settings as needed. The following environments variables are available:
-- `NODE_ENV` - Defines the environment in which the application runs. You can set:
-  - `development` - execute the application in the development environment. In this environment, all log levels are enabled. **_it is default value_**;
-  - `test` - execute the application in the test environment. In this environment, the database defined in `MONGODB_URI_TEST` is used and the logs are disabled for better visualization of the test output;
-  - `production` - execute the application in production environment. In this environment, only the warning and error logs are enabled.
-- `PORT_HTTP` - Port used to listen for HTTP requests. Any request received on this port is redirected to the HTTPS port. _**The default value is `3000`**._
-- `PORT_HTTPS` - Port used to listen for HTTPS requests. _**The default value is `3001`**_. Do not forget to provide the private key and the SSL/TLS certificate. See the topic [generate certificates](#generate-certificates).
-- `HOST_WHITELIST` - Access control based on IP addresses. Only allow IP requests in the unlock list. You can define IP or host, for example: `[127.0.0.1, api.ocariot.com]`. To accept requests from any customer, use the character `*`. _**The default value is `[*]`**_.
-- `SSL_KEY_PATH` - SSL/TLS certificate private key. _**The default value is `.certs/server.key`**_.
-- `SSL_CERT_PATH` - SSL/TLS certificate. _**The default value is `.certs/server.crt`**_.
-- `JWT_PRIVATE_KEY_PATH` - Private key used to generate and validate JSON Web Token (JWT). _**The default value is `.certs/jwt.key`**_.
-- `JWT_PUBLIC_KEY_PATH` - Public key used to generate and validate JSON Web Token (JWT). _**The default value is `.certs/jwt.key.pub`**_.
-- `ISSUER` - Used to generate the JWT token. Usually it is the name of the platform. _**The default value is `ocariot`**_.
-- `ADMIN_USERNAME` - The default user name of type administrator created automatically when the application is initialized. _**The default value is `admin`**_.
-- `ADMIN_PASSWORD` - The default user password of the administrator type created automatically when the application is initialized. _**The default value is `admin`**_.
-- `RABBITMQ_URI` - URI containing the parameters for connection to the message channel RabbitMQ. The [URI specifications ](https://www.rabbitmq.com/uri-spec.html) defined by RabbitMQ are accepted. For example: `amqp://user:pass@host:port/vhost`. _**The default value is `amqp://guest:guest@127.0.0.1:5672/ocariot`**_.
-- `MONGODB_URI` - Database connection URI used if the application is running in development or production environment. The [URI specifications ](https://docs.mongodb.com/manual/reference/connection-string) defined by MongoDB are accepted. For example: `mongodb://user:pass@host:port/database?options`. _**The default value is `mongodb://127.0.0.1:27017/ocariot-account`**_.
-- `MONGODB_URI_TEST` - Database connection URI used if the application is running in test environment. The [URI specifications ](https://docs.mongodb.com/manual/reference/connection-string) defined by MongoDB are accepted. For example: `mongodb://user:pass@host:port/database?options`. _**The default value is `mongodb://127.0.0.1:27017/ocariot-account-test`**_.
+| VARIABLE | DESCRIPTION  | DEFAULT |
+|-----|-----|-----|
+| `NODE_ENV` | Defines the environment in which the application runs. You can set: `test` _(in this environment, the database defined in `MONGODB_URI_TEST` is used and the logs are disabled for better visualization of the test output)_, `development` _(in this environment, all log levels are enabled)_ and `production` _(in this environment, only the warning and error logs are enabled)_. | `development` |
+| `PORT_HTTP` | Port used to listen for HTTP requests. Any request received on this port is redirected to the HTTPS port. | `3000` |
+| `PORT_HTTPS` | Port used to listen for HTTPS requests. Do not forget to provide the private key and the SSL/TLS certificate. See the topic [generate certificates](#generate-certificates). | `3001` |
+| `HOST_WHITELIST` | Access control based on IP addresses. Only allow IP requests in the unlock list. You can define IP or host, for example: `[127.0.0.1, api.ocariot.com]`. To accept requests from any customer, use the character `*`. | `[*]` |
+| `SSL_KEY_PATH` | SSL/TLS certificate private key. | `.certs/server.key` |
+| `SSL_CERT_PATH` | SSL/TLS certificate. | `.certs/server.crt` |
+| `JWT_PRIVATE_KEY_PATH` | Private key used to generate and validate JSON Web Token (JWT). | `.certs/jwt.key` |
+| `JWT_PUBLIC_KEY_PATH` | Public key used to generate and validate JSON Web Token (JWT). | `.certs/jwt.key.pub` |
+| `ISSUER` | Used to generate the JWT token. Usually it is the name of the platform.  | `ocariot` |
+| `ADMIN_USERNAME` | The default user name of type administrator created automatically when the application is initialized and the database has no administrator user.| `admin` |
+| `ADMIN_PASSWORD` | The default user password of the administrator type created automatically when the application is initialized and the database has no administrator user.  | `admin` |
+| `RABBITMQ_URI` | URI containing the parameters for connection to the message channel RabbitMQ. The [URI specifications ](https://www.rabbitmq.com/uri-spec.html) defined by RabbitMQ are accepted. For example: `amqp://user:pass@host:port/vhost`. | `amqp://guest:guest`<br/>`@127.0.0.1:5672/ocariot` |
+| `MONGODB_URI` | Database connection URI used if the application is running in development or production environment. The [URI specifications ](https://docs.mongodb.com/manual/reference/connection-string) defined by MongoDB are accepted. For example: `mongodb://user:pass@host:port/database?options`. | `mongodb://127.0.0.1:27017`<br/>`/ocariot-account` |
+| `MONGODB_URI_TEST` | Database connection URI used if the application is running in test environment. The [URI specifications ](https://docs.mongodb.com/manual/reference/connection-string) defined by MongoDB are accepted. For example: `mongodb://user:pass@host:port/database?options`. | `mongodb://127.0.0.1:27017`<br/>`/ocariot-account-test` |
+
 
 ## Generate Certificates
 For development and testing environments the easiest and fastest way is to generate your own self-signed certificates. These certificates can be used to encrypt data as well as certificates signed by a CA, but users will receive a warning that the certificate is not trusted for their computer or browser. Therefore, self-signed certificates should only be used in non-production environments, that is, development and testing environments. To do this, run the `create-self-signed-certs.sh` script in the root of the repository.
@@ -102,7 +102,7 @@ The html documentation will be generated in the /docs directory by [typedoc](htt
 ## Using Docker  
 In the Docker Hub, you can find the image of the most recent version of this repository. With this image it is easy to create your own containers.
 ```sh
-docker run ocariot/account-service
+docker run ocariot/account
 ```
 This command will download the latest image and create a container with the default settings.
 
@@ -121,7 +121,7 @@ docker run --rm \
   -e ADMIN_PASSWORD=admin \
   -e RABBITMQ_URI="amqp://guest:guest@192.168.0.1:5672/ocariot" \
   -e MONGODB_URI="mongodb://192.168.0.2:27017/ocariot-account" \
-  ocariot/account-service
+  ocariot/account
 ```
 If the MongoDB or RabbitMQ instance is in the host local, add the `--net=host` statement when creating the container, this will cause the docker container to communicate with its local host.
 ```sh
@@ -129,7 +129,7 @@ docker run --rm \
   --net=host \
   -e RABBITMQ_URI="amqp://guest:guest@localhost:5672/ocariot" \
   -e MONGODB_URI="mongodb://localhost:27017/ocariot-account" \
-  ocariot/account-service
+  ocariot/account
 ```
 To generate your own docker image, run the following command:
 ```sh
@@ -138,24 +138,24 @@ docker build -t image_name:tag .
 
 [//]: # (These are reference links used in the body of this note.)
 [license-image]: https://img.shields.io/badge/license-Apache%202-blue.svg
-[license-url]: https://github.com/ocariot/account-service/blob/master/LICENSE 
+[license-url]: https://github.com/ocariot/account/blob/master/LICENSE 
 [node-image]: https://img.shields.io/badge/node-%3E%3D%208.0.0-brightgreen.svg
 [node-url]: https://nodejs.org
-[travis-image]: https://travis-ci.org/ocariot/account-service.svg?branch=master
-[travis-url]: https://travis-ci.org/ocariot/account-service
-[coverage-image]: https://coveralls.io/repos/github/ocariot/account-service/badge.svg
-[coverage-url]: https://coveralls.io/github/ocariot/account-service?branch=master
-[known-vulnerabilities-image]: https://snyk.io/test/github/ocariot/account-service/badge.svg
-[known-vulnerabilities-url]: https://snyk.io/test/github/ocariot/account-service
-[dependencies-image]: https://david-dm.org/ocariot/account-service.svg
-[dependencies-url]: https://david-dm.org/ocariot/account-service
-[dependencies-dev-image]: https://david-dm.org/ocariot/account-service/dev-status.svg
-[dependencies-dev-url]: https://david-dm.org/ocariot/account-service?type=dev
+[travis-image]: https://travis-ci.org/ocariot/account.svg?branch=master
+[travis-url]: https://travis-ci.org/ocariot/account
+[coverage-image]: https://coveralls.io/repos/github/ocariot/account/badge.svg
+[coverage-url]: https://coveralls.io/github/ocariot/account?branch=master
+[known-vulnerabilities-image]: https://snyk.io/test/github/ocariot/account/badge.svg
+[known-vulnerabilities-url]: https://snyk.io/test/github/ocariot/account
+[dependencies-image]: https://david-dm.org/ocariot/account.svg
+[dependencies-url]: https://david-dm.org/ocariot/account
+[dependencies-dev-image]: https://david-dm.org/ocariot/account/dev-status.svg
+[dependencies-dev-url]: https://david-dm.org/ocariot/account?type=dev
 [swagger-image]: https://img.shields.io/badge/swagger-v1-brightgreen.svg
-[swagger-url]: https://app.swaggerhub.com/apis-docs/nutes.ocariot/account-service/v1
-[last-commit-image]: https://img.shields.io/github/last-commit/ocariot/account-service.svg
-[last-commit-url]: https://github.com/ocariot/account-service/commits
-[releases-image]: https://img.shields.io/github/release-date/ocariot/account-service.svg
-[releases-url]: https://github.com/ocariot/account-service/releases
-[contributors-image]: https://img.shields.io/github/contributors/ocariot/account-service.svg
-[contributors-url]: https://github.com/ocariot/account-service/graphs/contributors
+[swagger-url]: https://app.swaggerhub.com/apis-docs/nutes.ocariot/account/v1
+[last-commit-image]: https://img.shields.io/github/last-commit/ocariot/account.svg
+[last-commit-url]: https://github.com/ocariot/account/commits
+[releases-image]: https://img.shields.io/github/release-date/ocariot/account.svg
+[releases-url]: https://github.com/ocariot/account/releases
+[contributors-image]: https://img.shields.io/github/contributors/ocariot/account.svg
+[contributors-url]: https://github.com/ocariot/account/graphs/contributors

@@ -1,5 +1,5 @@
 {
-  "name": "account-service",
+  "name": "account",
   "version": "1.0.2",
   "description": "Microservice responsible for user management and authentication on the OCARIoT platform.",
   "main": "dist/server.js",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ocariot/account-service.git"
+    "url": "git+https://github.com/ocariot/account.git"
   },
   "keywords": [
     "microservice",
@@ -28,9 +28,9 @@
   "author": "NUTES/UEPB",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/ocariot/account-service/issues"
+    "url": "https://github.com/ocariot/account/issues"
   },
-  "homepage": "https://github.com/ocariot/account-service#readme",
+  "homepage": "https://github.com/ocariot/account#readme",
   "nyc": {
     "include": [
       "**/*.tsx",

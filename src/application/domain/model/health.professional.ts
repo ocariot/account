@@ -23,6 +23,7 @@ export class HealthProfessional extends Educator {
             'foodrecord:read',
             'physicalactivities:read',
             'sleep:read',
+            'measurements:read',
             'environment:read',
             'missions:read',
             'gamificationprofile:read'
