@@ -78,7 +78,7 @@ describe('Routes: HealthProfessional', () => {
         }
     })
 
-    describe('POST /users/healthprofessionals', () => {
+    describe('POST /v1/users/healthprofessionals', () => {
         context('when posting a new health professional user', () => {
             it('should return status code 201 and the saved health professional', () => {
                 const body = {
@@ -88,7 +88,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/users/healthprofessionals')
+                    .post('/v1/users/healthprofessionals')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
@@ -115,7 +115,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/users/healthprofessionals')
+                    .post('/v1/users/healthprofessionals')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -131,7 +131,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/users/healthprofessionals')
+                    .post('/v1/users/healthprofessionals')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -152,7 +152,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/users/healthprofessionals')
+                    .post('/v1/users/healthprofessionals')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -172,7 +172,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/users/children')
+                    .post('/v1/users/children')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -184,11 +184,11 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('GET /users/healthprofessionals/:healthprofessional_id', () => {
+    describe('GET /v1/users/healthprofessionals/:healthprofessional_id', () => {
         context('when get a unique health professional in database', () => {
             it('should return status code 200 and a health professional', () => {
                 return request
-                    .get(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .get(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -207,7 +207,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the health professional is not found', () => {
             it('should return status code 404 and info message from health professional not found', () => {
                 return request
-                    .get(`/users/healthprofessionals/${new ObjectID()}`)
+                    .get(`/v1/users/healthprofessionals/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -220,7 +220,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the healthprofessional_id is invalid', () => {
             it('should return status code 400 and message info about invalid id', () => {
                 return request
-                    .get('/users/healthprofessionals/123')
+                    .get('/v1/users/healthprofessionals/123')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -231,13 +231,13 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('PATCH /users/healthprofessionals/:healthprofessional_id', () => {
+    describe('PATCH /v1/users/healthprofessionals/:healthprofessional_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated health professional', () => {
                 defaultHealthProfessional.username = 'newcoolusername'
 
                 return request
-                    .patch(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}`)
                     .send({ username: 'newcoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(200)
@@ -269,7 +269,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .patch(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}`)
                     .send({ username: 'anothercoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -282,7 +282,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the institution provided does not exists', () => {
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -296,7 +296,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the institution id provided was invalid', () => {
             it(' should return status code 400 and message for invalid institution id', () => {
                 return request
-                    .patch(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}`)
                     .send({ institution_id: '123' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -310,7 +310,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the health professional is not found', () => {
             it('should return status code 404 and info message from health professional not found', () => {
                 return request
-                    .patch(`/users/healthprofessionals/${new ObjectID()}`)
+                    .patch(`/v1/users/healthprofessionals/${new ObjectID()}`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -324,7 +324,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the healthprofessional_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch('/users/healthprofessionals/123')
+                    .patch('/v1/users/healthprofessionals/123')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -336,7 +336,7 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('POST /users/healthprofessionals/:healthprofessional_id/children/groups', () => {
+    describe('POST /v1/users/healthprofessionals/:healthprofessional_id/children/groups', () => {
         context('when posting a new children group', () => {
             it('should return status code 201 and a children group', () => {
                 defaultChildrenGroup.name = 'Children Group One'
@@ -349,7 +349,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
@@ -378,7 +378,7 @@ describe('Routes: HealthProfessional', () => {
         context('when there are validation errors', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
-                    .post(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -399,7 +399,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -420,7 +420,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -434,10 +434,10 @@ describe('Routes: HealthProfessional', () => {
 
     })
 
-    describe('GET /users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
+    describe('GET /v1/users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when want get a unique children group', () => {
             it('should return status code 200 and a children group', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/users/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
 
                 return request
@@ -467,7 +467,7 @@ describe('Routes: HealthProfessional', () => {
 
         context('when the children group is not found', () => {
             it('should return status code 404 and info message from children group not found', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/users/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${new ObjectID()}`)
                 return request
                     .get(url)
@@ -483,7 +483,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message from invalid ID', () => {
                 return request
-                    .get(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups/123`)
+                    .get(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -494,12 +494,12 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('PATCH /users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
+    describe('PATCH /v1/users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and a updated children group', () => {
                 defaultChildrenGroup.school_class = '5th Grade'
 
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/users/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
 
                 return request
@@ -543,7 +543,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
 
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/users/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
 
                 return request
@@ -559,7 +559,7 @@ describe('Routes: HealthProfessional', () => {
 
         context('when the children group was updated with a not existent child id', () => {
             it('should return status code 400 and info message for invalid child id', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/users/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
 
                 return request
@@ -577,7 +577,7 @@ describe('Routes: HealthProfessional', () => {
 
         context('when the children group was updated with a invalid child id', () => {
             it('should return status code 400 and info message from invalid ID.', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/users/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
 
                 return request
@@ -594,10 +594,10 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('DELETE /users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
+    describe('DELETE /v1/users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when the delete was successful', () => {
             it('should return status code 204 and no content', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/users/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${anotherChildrenGroup.id}`)
 
                 return request
@@ -612,7 +612,7 @@ describe('Routes: HealthProfessional', () => {
 
         context('when the children group is not founded', () => {
             it('should return status code 404 and info message for children group not found', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/users/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${new ObjectID()}`)
 
                 return request
@@ -629,7 +629,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message for invalid children group ID', () => {
                 return request
-                    .delete(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups/123`)
+                    .delete(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -640,11 +640,11 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('GET /users/healthprofessionals/:healthprofessional_id/children/groups', () => {
+    describe('GET /v1/users/healthprofessionals/:healthprofessional_id/children/groups', () => {
         context('when want all children groups from healthprofessional', () => {
             it('should return status code 200 and a list of children groups', () => {
                 return request
-                    .get(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .get(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -678,7 +678,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .get(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .get(`/v1/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -690,11 +690,11 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('GET /users/healthprofessionals', () => {
+    describe('GET /v1/users/healthprofessionals', () => {
         context('when want get all health professionals in database', () => {
             it('should return status code 200 and a list of health professionals', () => {
                 return request
-                    .get('/users/healthprofessionals')
+                    .get('/v1/users/healthprofessionals')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -742,7 +742,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
 
-                const url: string = '/users/healthprofessionals/?sort=username&fields=username,institution.name&' +
+                const url: string = '/v1/users/healthprofessionals/?sort=username&fields=username,institution.name&' +
                     'institution.type=Any Type&page=1&limit=3'
 
                 return request
@@ -777,7 +777,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .get('/users/healthprofessionals')
+                    .get('/v1/users/healthprofessionals')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {

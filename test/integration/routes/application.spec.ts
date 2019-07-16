@@ -56,7 +56,7 @@ describe('Routes: Application', () => {
         }
     })
 
-    describe('POST /users/applications', () => {
+    describe('POST /v1/users/applications', () => {
         context('when posting a new application user', () => {
             it('should return status code 201 and the saved application', () => {
 
@@ -68,7 +68,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .post('/users/applications')
+                    .post('/v1/users/applications')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
@@ -97,7 +97,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .post('/users/applications')
+                    .post('/v1/users/applications')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -115,7 +115,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .post('/users/applications')
+                    .post('/v1/users/applications')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -136,7 +136,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .post('/users/applications')
+                    .post('/v1/users/applications')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -157,7 +157,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .post('/users/applications')
+                    .post('/v1/users/applications')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -173,7 +173,7 @@ describe('Routes: Application', () => {
         context('when get a unique application in database', () => {
             it('should return status code 200 and a application', () => {
                 return request
-                    .get(`/users/applications/${defaultApplication.id}`)
+                    .get(`/v1/users/applications/${defaultApplication.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -193,7 +193,7 @@ describe('Routes: Application', () => {
         context('when the application is not found', () => {
             it('should return status code 404 and info message from application not found', () => {
                 return request
-                    .get(`/users/applications/${new ObjectID()}`)
+                    .get(`/v1/users/applications/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -206,7 +206,7 @@ describe('Routes: Application', () => {
         context('when the application_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .get('/users/applications/123')
+                    .get('/v1/users/applications/123')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -223,7 +223,7 @@ describe('Routes: Application', () => {
                 defaultApplication.application_name = 'newnameforapplication'
 
                 return request
-                    .patch(`/users/applications/${defaultApplication.id}`)
+                    .patch(`/v1/users/applications/${defaultApplication.id}`)
                     .send({ application_name: defaultApplication.application_name })
                     .set('Content-Type', 'application/json')
                     .expect(200)
@@ -256,7 +256,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .patch(`/users/applications/${defaultApplication.id}`)
+                    .patch(`/v1/users/applications/${defaultApplication.id}`)
                     .send({ username: 'acoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -273,7 +273,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .patch(`/users/applications/${defaultApplication.id}`)
+                    .patch(`/v1/users/applications/${defaultApplication.id}`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -288,7 +288,7 @@ describe('Routes: Application', () => {
         context('when the institution provided does not exists', () => {
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/users/applications/${defaultApplication.id}`)
+                    .patch(`/v1/users/applications/${defaultApplication.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -302,7 +302,7 @@ describe('Routes: Application', () => {
         context('when the institution id provided was invalid', () => {
             it('should return status code 400 and message for invalid institution id', () => {
                 return request
-                    .post('/users/applications')
+                    .post('/v1/users/applications')
                     .send({ institution_id: '123' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -316,7 +316,7 @@ describe('Routes: Application', () => {
         context('when the application is not found', () => {
             it('should return status code 404 and info message from application not found', () => {
                 return request
-                    .patch(`/users/applications/${new ObjectID()}`)
+                    .patch(`/v1/users/applications/${new ObjectID()}`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -330,7 +330,7 @@ describe('Routes: Application', () => {
         context('when the application_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch('/users/applications/123')
+                    .patch('/v1/users/applications/123')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -342,11 +342,11 @@ describe('Routes: Application', () => {
         })
     })
 
-    describe('GET /users/applications/', () => {
+    describe('GET /v1/users/applications/', () => {
         context('when want get all applications in database', () => {
             it('should return status code 200 and a list of applications', () => {
                 return request
-                    .get('/users/applications')
+                    .get('/v1/users/applications')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -398,7 +398,7 @@ describe('Routes: Application', () => {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
 
-                const url: string = '/users/applications?fields=username,institution.name,institution.address&' +
+                const url: string = '/v1/users/applications?fields=username,institution.name,institution.address&' +
                     '?institution.type=Home&sort=username&page=1&limit=3'
 
                 return request
@@ -429,7 +429,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .get('/users/applications')
+                    .get('/v1/users/applications')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
