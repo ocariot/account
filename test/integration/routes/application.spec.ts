@@ -398,8 +398,7 @@ describe('Routes: Application', () => {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
 
-                const url: string = '/v1/users/applications?fields=username,institution.name,institution.address&' +
-                    '?institution.type=Home&sort=username&page=1&limit=3'
+                const url: string = '/v1/users/applications?institution.type=Home&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -408,11 +407,9 @@ describe('Routes: Application', () => {
                     .then(res => {
                         expect(res.body).is.an.instanceOf(Array)
                         expect(res.body.length).to.eql(1)
-                        expect(res.body[0]).to.not.have.any.keys('application_name')
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0].username).to.eql('ihaveaunknowusername')
-                        expect(res.body[0].institution).to.not.have.any.keys('type', 'latitude', 'longitude')
                         expect(res.body[0].institution).to.have.property('id')
                         expect(res.body[0].institution.name).to.eql('Sherlock Neighbor')
                         expect(res.body[0].institution.address).to.eql('221A Baker Street, St.')

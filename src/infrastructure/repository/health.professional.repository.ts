@@ -69,7 +69,6 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
 
         return new Promise<Array<HealthProfessional>>((resolve, reject) => {
             this.Model.find(q.filters)
-                .select(q.fields)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -99,7 +98,6 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
 
         return new Promise<HealthProfessional>((resolve, reject) => {
             this.Model.findOne(q.filters)
-                .select(q.fields)
                 .populate(populate)
                 .exec()
                 .then((result: HealthProfessional) => {

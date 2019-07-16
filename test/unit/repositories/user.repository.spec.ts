@@ -127,8 +127,6 @@ describe('Repositories: User', () => {
                     .mock(userModelFake)
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
-                    .chain('select')
-                    .withArgs(queryMock.toJSON().fields)
                     .chain('exec')
                     .resolves(defaultUser)
 

@@ -389,7 +389,7 @@ describe('Routes: Child', () => {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
 
-                const url = '/v1/users/children/?age=lte:11&fields=username,age,institution.name&sort=age,username' +
+                const url = '/v1/users/children?age=lte:11&sort=age,username' +
                     '&page=1&limit=3'
                 return request
                     .get(url)
@@ -398,24 +398,18 @@ describe('Routes: Child', () => {
                     .then(res => {
                         expect(res.body).is.an.instanceOf(Array)
                         expect(res.body.length).to.eql(3)
-                        expect(res.body[0]).to.not.have.any.keys('gender')
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
                         expect(res.body[0].institution).to.have.property('id')
                         expect(res.body[0].institution).to.have.property('name')
                         expect(res.body[0]).to.have.property('age')
-                        expect(res.body[1]).to.not.have.any.keys('gender')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
                         expect(res.body[1].institution).to.have.property('id')
                         expect(res.body[1].institution).to.have.property('name')
                         expect(res.body[1]).to.have.property('age')
-                        expect(res.body[2]).to.not.have.any.keys('gender')
                         expect(res.body[2]).to.have.property('id')
                         expect(res.body[2]).to.have.property('username')
-                        expect(res.body[2].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
                         expect(res.body[2].institution).to.have.property('id')
                         expect(res.body[2].institution).to.have.property('name')
                         expect(res.body[2]).to.have.property('age')

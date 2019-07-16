@@ -719,8 +719,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
 
-                const url: string = '/v1/users/educators/?sort=username&fields=username,institution.name&' +
-                    'institution.type=Any Type&page=1&limit=3'
+                const url: string = '/v1/users/educators?sort=username&institution.type=Any Type&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -733,11 +732,9 @@ describe('Routes: Educator', () => {
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0].institution).to.have.property('id')
                         expect(res.body[0].institution).to.have.property('name')
-                        expect(res.body[0].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
                         expect(res.body[0]).to.have.property('children_groups')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
                         expect(res.body[1].institution).to.have.property('id')
                         expect(res.body[1].institution).to.have.property('name')
                         expect(res.body[1]).to.have.property('children_groups')
