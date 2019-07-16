@@ -39,6 +39,9 @@ describe('Models: Educator', () => {
             'sleep:read',
             'sleep:update',
             'sleep:delete',
+            'measurements:create',
+            'measurements:read',
+            'measurements:delete',
             'environment:read',
             'missions:read',
             'gamificationprofile:read'
