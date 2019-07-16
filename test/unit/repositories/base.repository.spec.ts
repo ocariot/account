@@ -107,8 +107,6 @@ describe('Repositories: Base', () => {
             sinon
                 .mock(modelFake)
                 .expects('find')
-                .chain('select')
-                .withArgs(queryMock.toJSON().fields)
                 .chain('sort')
                 .withArgs(queryMock.toJSON().ordination)
                 .chain('skip')
@@ -134,8 +132,6 @@ describe('Repositories: Base', () => {
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .chain('select')
-                    .withArgs(queryMock.toJSON().fields)
                     .chain('sort')
                     .withArgs(queryMock.toJSON().ordination)
                     .chain('skip')
@@ -158,8 +154,6 @@ describe('Repositories: Base', () => {
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .chain('select')
-                    .withArgs(queryMock.toJSON().fields)
                     .chain('sort')
                     .withArgs(queryMock.toJSON().ordination)
                     .chain('skip')
@@ -198,8 +192,6 @@ describe('Repositories: Base', () => {
                 .mock(modelFake)
                 .expects('findOne')
                 .withArgs(customQueryMock.toJSON().filters)
-                .chain('select')
-                .withArgs(customQueryMock.toJSON().fields)
                 .chain('exec')
                 .resolves(defaultUser)
 
@@ -219,8 +211,6 @@ describe('Repositories: Base', () => {
                     .mock(modelFake)
                     .expects('findOne')
                     .withArgs(customQueryMock.toJSON().filters)
-                    .chain('select')
-                    .withArgs(customQueryMock.toJSON().fields)
                     .chain('exec')
                     .resolves()
 
@@ -237,8 +227,6 @@ describe('Repositories: Base', () => {
                     .mock(modelFake)
                     .expects('findOne')
                     .withArgs(customQueryMock.toJSON().filters)
-                    .chain('select')
-                    .withArgs(customQueryMock.toJSON().fields)
                     .chain('exec')
                     .rejects({
                         message: 'An internal error has occurred in the database!',

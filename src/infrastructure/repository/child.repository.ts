@@ -67,7 +67,6 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
 
         return new Promise<Array<Child>>((resolve, reject) => {
             this.Model.find(q.filters)
-                .select(q.fields)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -95,7 +94,6 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
 
         return new Promise<Child>((resolve, reject) => {
             this.Model.findOne(q.filters)
-                .select(q.fields)
                 .populate(populate)
                 .exec()
                 .then((result: Child) => {

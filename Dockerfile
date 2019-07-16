@@ -1,4 +1,4 @@
-FROM node:10.15.3
+FROM node
 
 # Create app directory
 RUN mkdir -p /usr/src/ac
@@ -8,8 +8,14 @@ WORKDIR /usr/src/ac
 COPY package.json /usr/src/ac/
 RUN npm install
 
-# Bundle app source
+# Copy app source
 COPY . /usr/src/ac
+
+# Create self-signed certificates
+RUN chmod +x ./create-self-signed-certs.sh
+RUN ./create-self-signed-certs.sh
+
+# Build app
 RUN npm run build
 
 EXPOSE 3000

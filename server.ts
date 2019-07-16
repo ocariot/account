@@ -49,7 +49,7 @@ http.createServer((req, res) => {
 https.createServer(https_options, app)
     .listen(port_https, () => {
         logger.debug(`Server HTTPS running on port ${port_https}`)
-
+        console.log(`ops`)
         initListener()
         backgroundServices.startServices()
             .then(() => {

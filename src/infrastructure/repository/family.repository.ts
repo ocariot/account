@@ -66,7 +66,6 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
 
         return new Promise<Array<Family>>((resolve, reject) => {
             this.Model.find(q.filters)
-                .select(q.fields)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -96,7 +95,6 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
 
         return new Promise<Family>((resolve, reject) => {
             this.Model.findOne(q.filters)
-                .select(q.fields)
                 .populate(populate)
                 .exec()
                 .then((result: Family) => {

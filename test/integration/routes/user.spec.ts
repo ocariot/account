@@ -62,11 +62,11 @@ describe('Routes: User', () => {
         }
     })
 
-    describe('PATCH /users/:user_id/password', () => {
+    describe('PATCH /v1/users/:user_id/password', () => {
         context('when the password update was successful', () => {
             it('should return status code 204 and no content', () => {
                 return request
-                    .patch(`/users/${defaultUser.id}/password`)
+                    .patch(`/v1/users/${defaultUser.id}/password`)
                     .send({ old_password: 'mysecretkey', new_password: 'mynewsecretkey' })
                     .set('Content-Type', 'application/json')
                     .expect(204)
@@ -79,7 +79,7 @@ describe('Routes: User', () => {
         context('when there are validation errors', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
-                    .patch(`/users/${defaultUser.id}/password`)
+                    .patch(`/v1/users/${defaultUser.id}/password`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -94,7 +94,7 @@ describe('Routes: User', () => {
         context('when user is not found', () => {
             it('should return status code 404 and info message from user not found', () => {
                 return request
-                    .patch(`/users/${new ObjectID()}/password`)
+                    .patch(`/v1/users/${new ObjectID()}/password`)
                     .send({ old_password: 'mysecretkey', new_password: 'mynewsecretkey' })
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -108,7 +108,7 @@ describe('Routes: User', () => {
         context('when the old password does not match', () => {
             it('should return status code 400 and info message from old password does not match', () => {
                 return request
-                    .patch(`/users/${defaultUser.id}/password`)
+                    .patch(`/v1/users/${defaultUser.id}/password`)
                     .send({ old_password: 'anothersecretkey', new_password: 'mynewsecretkey' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -120,11 +120,11 @@ describe('Routes: User', () => {
         })
     })
 
-    describe('DELETE /users/:user_id', () => {
+    describe('DELETE /v1/users/:user_id', () => {
         context('when the user was successful deleted', () => {
             it('should return status code 204 and no content for admin user', () => {
                 return request
-                    .delete(`/users/${defaultUser.id}`)
+                    .delete(`/v1/users/${defaultUser.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -142,7 +142,7 @@ describe('Routes: User', () => {
                         type: UserType.APPLICATION
                     }).then(user => {
                         return request
-                            .delete(`/users/${user._id}`)
+                            .delete(`/v1/users/${user._id}`)
                             .set('Content-Type', 'application/json')
                             .expect(204)
                             .then(res => {
@@ -165,7 +165,7 @@ describe('Routes: User', () => {
                     await createUser(admin)
                         .then(user => {
                             return request
-                                .delete(`/users/${user._id}`)
+                                .delete(`/v1/users/${user._id}`)
                                 .set('Content-Type', 'application/json')
                                 .expect(204)
                                 .then(res => {
@@ -189,7 +189,7 @@ describe('Routes: User', () => {
                         scopes: new Array('users:read')
                     }).then(user => {
                         return request
-                            .delete(`/users/${user._id}`)
+                            .delete(`/v1/users/${user._id}`)
                             .set('Content-Type', 'application/json')
                             .expect(204)
                             .then(res => {
@@ -212,7 +212,7 @@ describe('Routes: User', () => {
                         children_groups: []
                     }).then(user => {
                         return request
-                            .delete(`/users/${user._id}`)
+                            .delete(`/v1/users/${user._id}`)
                             .set('Content-Type', 'application/json')
                             .expect(204)
                             .then(res => {
@@ -235,7 +235,7 @@ describe('Routes: User', () => {
                         children_groups: []
                     }).then(user => {
                         return request
-                            .delete(`/users/${user._id}`)
+                            .delete(`/v1/users/${user._id}`)
                             .set('Content-Type', 'application/json')
                             .expect(204)
                             .then(res => {
@@ -258,7 +258,7 @@ describe('Routes: User', () => {
                         children: []
                     }).then(user => {
                         return request
-                            .delete(`/users/${user._id}`)
+                            .delete(`/v1/users/${user._id}`)
                             .set('Content-Type', 'application/json')
                             .expect(204)
                             .then(res => {
@@ -274,7 +274,7 @@ describe('Routes: User', () => {
         context('when user is not founded', () => {
             it('should return status code 204 and no content, even user does not exists', () => {
                 return request
-                    .delete(`/users/${new ObjectID()}`)
+                    .delete(`/v1/users/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {

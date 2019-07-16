@@ -53,6 +53,7 @@ export class AuthRepository implements IAuthRepository {
         const private_key = readFileSync(process.env.JWT_PRIVATE_KEY_PATH || Default.JWT_PRIVATE_KEY_PATH)
         const payload: object = {
             sub: user.id,
+            sub_type: user.type,
             iss: process.env.ISSUER || Default.JWT_ISSUER,
             iat: Math.floor(Date.now() / 1000),
             scope: user.scopes.join(' ')

@@ -50,6 +50,7 @@ export class Admin extends User implements IJSONSerializable, IJSONDeserializabl
             'foodrecord:read',
             'physicalactivities:read',
             'sleep:read',
+            'measurements:read',
             'environment:read',
             'missions:read',
             'gamificationprofile:read'

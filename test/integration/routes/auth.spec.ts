@@ -41,11 +41,11 @@ describe('Routes: Auth', () => {
         }
     })
 
-    describe('POST /auth', () => {
+    describe('POST /v1/auth', () => {
         context('when the authentication was successful', () => {
             it('should return the access token', () => {
                 request
-                    .post('/auth')
+                    .post('/v1/auth')
                     .send({ username: 'admin', password: 'mysecretkey' })
                     .set('Content-Type', 'application/json')
                     .expect(200)
@@ -58,7 +58,7 @@ describe('Routes: Auth', () => {
         context('when the username or password does not exists', () => {
             it('should return status code 401 and info message about unauthorized', () => {
                 request
-                    .post('/auth')
+                    .post('/v1/auth')
                     .send({ username: 'any', password: 'any' })
                     .set('Content-Type', 'application/json')
                     .expect(401)
@@ -71,7 +71,7 @@ describe('Routes: Auth', () => {
         context('when there are validation errors in authentication', () => {
             it('should return status code 400 and info message about validation errors', () => {
                 request
-                    .post('/auth')
+                    .post('/v1/auth')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)

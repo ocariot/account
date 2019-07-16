@@ -23,6 +23,8 @@ describe('Models: Child', () => {
             'physicalactivities:read',
             'sleep:create',
             'sleep:read',
+            'measurements:create',
+            'measurements:read',
             'environment:read',
             'missions:read',
             'gamificationprofile:read',

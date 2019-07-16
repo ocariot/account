@@ -78,7 +78,7 @@ describe('Routes: Educator', () => {
         }
     })
 
-    describe('POST /users/educators', () => {
+    describe('POST /v1/users/educators', () => {
         context('when posting a new educator user', () => {
             it('should return status code 201 and the saved educator', () => {
                 const body = {
@@ -88,7 +88,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post('/users/educators')
+                    .post('/v1/users/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
@@ -115,7 +115,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post('/users/educators')
+                    .post('/v1/users/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -131,7 +131,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post('/users/educators')
+                    .post('/v1/users/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -151,7 +151,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post('/users/educators')
+                    .post('/v1/users/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -171,7 +171,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post('/users/educators')
+                    .post('/v1/users/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -183,11 +183,11 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('GET /users/educators/:educator_id', () => {
+    describe('GET /v1/users/educators/:educator_id', () => {
         context('when get a unique educator in database', () => {
             it('should return status code 200 and a educator', () => {
                 return request
-                    .get(`/users/educators/${defaultEducator.id}`)
+                    .get(`/v1/users/educators/${defaultEducator.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -206,7 +206,7 @@ describe('Routes: Educator', () => {
         context('when the educator is not found', () => {
             it('should return status code 404 and info message from educator not found', () => {
                 return request
-                    .get(`/users/educators/${new ObjectID()}`)
+                    .get(`/v1/users/educators/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -219,7 +219,7 @@ describe('Routes: Educator', () => {
         context('when the educator_id is invalid', () => {
             it('should return status code 400 and message info about invalid id', () => {
                 return request
-                    .get('/users/educators/123')
+                    .get('/v1/users/educators/123')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -230,13 +230,13 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('PATCH /users/educators/:educator_id', () => {
+    describe('PATCH /v1/users/educators/:educator_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated educator', () => {
                 defaultEducator.username = 'newcoolusername'
 
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}`)
+                    .patch(`/v1/users/educators/${defaultEducator.id}`)
                     .send({ username: 'newcoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(200)
@@ -268,7 +268,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}`)
+                    .patch(`/v1/users/educators/${defaultEducator.id}`)
                     .send({ username: 'anothercoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -281,7 +281,7 @@ describe('Routes: Educator', () => {
         context('when the institution provided does not exists', () => {
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}`)
+                    .patch(`/v1/users/educators/${defaultEducator.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -295,7 +295,7 @@ describe('Routes: Educator', () => {
         context('when the institution id provided was invalid', () => {
             it(' should return status code 400 and message for invalid institution id', () => {
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}`)
+                    .patch(`/v1/users/educators/${defaultEducator.id}`)
                     .send({ institution_id: '123' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -309,7 +309,7 @@ describe('Routes: Educator', () => {
         context('when the educator is not found', () => {
             it('should return status code 404 and info message from educator not found', () => {
                 return request
-                    .patch(`/users/educators/${new ObjectID()}`)
+                    .patch(`/v1/users/educators/${new ObjectID()}`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -323,7 +323,7 @@ describe('Routes: Educator', () => {
         context('when the educator_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch('/users/educators/123')
+                    .patch('/v1/users/educators/123')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -335,7 +335,7 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('POST /users/educators/:educator_id/children/groups', () => {
+    describe('POST /v1/users/educators/:educator_id/children/groups', () => {
         context('when posting a new children group', () => {
             it('should return status code 201 and a children group', () => {
                 defaultChildrenGroup.name = 'Children Group One'
@@ -348,7 +348,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .post(`/v1/users/educators/${defaultEducator.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
@@ -377,7 +377,7 @@ describe('Routes: Educator', () => {
         context('when there are validation errors', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
-                    .post(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .post(`/v1/users/educators/${defaultEducator.id}/children/groups`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -398,7 +398,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .post(`/v1/users/educators/${defaultEducator.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -419,7 +419,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .post(`/v1/users/educators/${defaultEducator.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -432,11 +432,11 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('GET /users/educators/:educator_id/children/groups/:group_id', () => {
+    describe('GET /v1/users/educators/:educator_id/children/groups/:group_id', () => {
         context('when want get a unique children group', () => {
             it('should return status code 200 and a children group', () => {
                 return request
-                    .get(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
+                    .get(`/v1/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -463,7 +463,7 @@ describe('Routes: Educator', () => {
         context('when the children group is not found', () => {
             it('should return status code 404 and info message from children group not found', () => {
                 return request
-                    .get(`/users/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
+                    .get(`/v1/users/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -476,7 +476,7 @@ describe('Routes: Educator', () => {
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .get(`/users/educators/${defaultEducator.id}/children/groups/123`)
+                    .get(`/v1/users/educators/${defaultEducator.id}/children/groups/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -487,13 +487,13 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('PATCH /users/educators/:educator_id/children/groups/:group_id', () => {
+    describe('PATCH /v1/users/educators/:educator_id/children/groups/:group_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and a updated children group', () => {
                 defaultChildrenGroup.school_class = '5th Grade'
 
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
+                    .patch(`/v1/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ school_class: defaultChildrenGroup.school_class })
                     .set('Content-Type', 'application/json')
                     .expect(200)
@@ -534,7 +534,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
+                    .patch(`/v1/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ name: 'anothercoolname' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -547,7 +547,7 @@ describe('Routes: Educator', () => {
         context('when the children group was updated with a not existent child id', () => {
             it('should return status code 400 and info message for invalid child id', () => {
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
+                    .patch(`/v1/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ children: new Array<string>('507f1f77bcf86cd799439011') })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -562,7 +562,7 @@ describe('Routes: Educator', () => {
         context('when the children group was updated with a invalid child id', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
+                    .patch(`/v1/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ children: new Array<string>('123') })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -575,11 +575,11 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('DELETE /users/educators/:educator_id/children/groups/:group_id', () => {
+    describe('DELETE /v1/users/educators/:educator_id/children/groups/:group_id', () => {
         context('when the delete was successful', () => {
             it('should return status code 204 and no content', () => {
                 return request
-                    .delete(`/users/educators/${defaultEducator.id}/children/groups/${anotherChildrenGroup.id}`)
+                    .delete(`/v1/users/educators/${defaultEducator.id}/children/groups/${anotherChildrenGroup.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -591,7 +591,7 @@ describe('Routes: Educator', () => {
         context('when the children group is not founded', () => {
             it('should return status code 404 and info message for children group not found', () => {
                 return request
-                    .delete(`/users/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
+                    .delete(`/v1/users/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -604,7 +604,7 @@ describe('Routes: Educator', () => {
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message for invalid children group ID', () => {
                 return request
-                    .delete(`/users/educators/${defaultEducator.id}/children/groups/123}`)
+                    .delete(`/v1/users/educators/${defaultEducator.id}/children/groups/123}`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -615,11 +615,11 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('GET  /users/educators/:educator_id/children/groups', () => {
+    describe('GET  /v1/users/educators/:educator_id/children/groups', () => {
         context('when want all children groups from educator', () => {
             it('should return status code 200 and a list of children groups', () => {
                 return request
-                    .get(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .get(`/v1/users/educators/${defaultEducator.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -653,7 +653,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .get(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .get(`/v1/users/educators/${defaultEducator.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -665,11 +665,11 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('GET /users/educators', () => {
+    describe('GET /v1/users/educators', () => {
         context('when want get all educators in database', () => {
             it('should return status code 200 and a list of educators', () => {
                 return request
-                    .get('/users/educators')
+                    .get('/v1/users/educators')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -719,8 +719,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
 
-                const url: string = '/users/educators/?sort=username&fields=username,institution.name&' +
-                    'institution.type=Any Type&page=1&limit=3'
+                const url: string = '/v1/users/educators?sort=username&institution.type=Any Type&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -733,11 +732,9 @@ describe('Routes: Educator', () => {
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0].institution).to.have.property('id')
                         expect(res.body[0].institution).to.have.property('name')
-                        expect(res.body[0].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
                         expect(res.body[0]).to.have.property('children_groups')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
                         expect(res.body[1].institution).to.have.property('id')
                         expect(res.body[1].institution).to.have.property('name')
                         expect(res.body[1]).to.have.property('children_groups')
@@ -754,7 +751,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .get('/users/educators')
+                    .get('/v1/users/educators')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
