@@ -154,7 +154,7 @@ docker build -t image_name:tag .
 [dependencies-dev-image]: https://david-dm.org/ocariot/account/dev-status.svg
 [dependencies-dev-url]: https://david-dm.org/ocariot/account?type=dev
 [swagger-image]: https://img.shields.io/badge/swagger-v1-brightgreen.svg
-[swagger-url]: https://app.swaggerhub.com/apis-docs/nutes.ocariot/account/v1
+[swagger-url]: https://app.swaggerhub.com/apis-docs/nutes.ocariot/account-service/v1
 [last-commit-image]: https://img.shields.io/github/last-commit/ocariot/account.svg
 [last-commit-url]: https://github.com/ocariot/account/commits
 [releases-image]: https://img.shields.io/github/release-date/ocariot/account.svg
