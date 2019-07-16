@@ -26,7 +26,7 @@ Application settings are defined by environment variables.. To define the settin
   - `test` - execute the application in the test environment. In this environment, the database defined in `MONGODB_URI_TEST` is used and the logs are disabled for better visualization of the test output;
   - `production` - execute the application in production environment. In this environment, only the warning and error logs are enabled.
 - `PORT_HTTP` - Port used to listen for HTTP requests. Any request received on this port is redirected to the HTTPS port. _**The default value is `3000`**._
-- `PORT_HTTPS` - Port used to listen for HTTPS requests. _**The default value is `3001`**_. Do not forget to provide the private key and the SSL/TLS certificate. See the topic [generate certificates](https://github.com/ocariot/account-service#generate-certificates).
+- `PORT_HTTPS` - Port used to listen for HTTPS requests. _**The default value is `3001`**_. Do not forget to provide the private key and the SSL/TLS certificate. See the topic [generate certificates](#generate-certificates).
 - `HOST_WHITELIST` - Access control based on IP addresses. Only allow IP requests in the unlock list. You can define IP or host, for example: `[127.0.0.1, api.ocariot.com]`. To accept requests from any customer, use the character `*`. _**The default value is `[*]`**_.
 - `SSL_KEY_PATH` - SSL/TLS certificate private key. _**The default value is `.certs/server.key`**_.
 - `SSL_CERT_PATH` - SSL/TLS certificate. _**The default value is `.certs/server.crt`**_.
@@ -40,7 +40,7 @@ Application settings are defined by environment variables.. To define the settin
 - `MONGODB_URI_TEST` - Database connection URI used if the application is running in test environment. The [URI specifications ](https://docs.mongodb.com/manual/reference/connection-string) defined by MongoDB are accepted. For example: `mongodb://user:pass@host:port/database?options`. _**The default value is `mongodb://127.0.0.1:27017/ocariot-account-test`**_.
 
 ## Generate Certificates
-For development and testing environments the easiest and fastest way is to generate your own self-signed certificates. These certificates can be used to encrypt data as well as certificates signed by a CA, but users will receive a warning that the certificate is not trusted for their computer or browser. Therefore, self-signed certificates should only be used in non-production environments, that is, development and testing environments. To do this, run the create-self-signed-certs.sh script in the root of the repository.
+For development and testing environments the easiest and fastest way is to generate your own self-signed certificates. These certificates can be used to encrypt data as well as certificates signed by a CA, but users will receive a warning that the certificate is not trusted for their computer or browser. Therefore, self-signed certificates should only be used in non-production environments, that is, development and testing environments. To do this, run the `create-self-signed-certs.sh` script in the root of the repository.
 ```sh
 ./create-self-signed-certs.sh
 ```
@@ -99,7 +99,7 @@ npm run build:doc
 ```
 The html documentation will be generated in the /docs directory by [typedoc](https://typedoc.org/).
 
-### Using Docker  
+## Using Docker  
 In the Docker Hub, you can find the image of the most recent version of this repository. With this image it is easy to create your own containers.
 ```sh
 docker run ocariot/account-service
