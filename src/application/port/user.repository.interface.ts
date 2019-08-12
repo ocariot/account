@@ -31,6 +31,22 @@ export interface IUserRepository extends IRepository<User> {
     changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean>
 
     /**
+     * Encrypt the username
+     *
+     * @param username
+     * @return {string} Encrypted username if the encrypt was successfully.
+     */
+    encryptUsername(username: string): string
+
+    /**
+     * Decrypt the username
+     *
+     * @param encryptedUsername
+     * @return {string} Decrypted username if the decrypt was successfully.
+     */
+    decryptUsername(encryptedUsername: string): string
+
+    /**
      * Encrypt the user password
      *
      * @param password

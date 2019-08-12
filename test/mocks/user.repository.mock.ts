@@ -13,6 +13,14 @@ export class UserRepositoryMock implements IUserRepository {
         return passwordHash === passwordPlain
     }
 
+    public encryptUsername(username: string): string {
+        return username
+    }
+
+    public decryptUsername(encryptedUsername: string): string {
+        return encryptedUsername
+    }
+
     public encryptPassword(password: string): string {
         return password
     }

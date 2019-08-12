@@ -31,6 +31,8 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
     }
 
     public create(item: Child): Promise<Child> {
+        // Encrypt username
+        if (item.username) item.username = this._userRepository.encryptUsername(item.username)
         // Encrypt password
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         const itemNew: Child = this.mapper.transform(item)
@@ -72,11 +74,17 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<Child>) => resolve(
-                    result
+                .then((result: Array<Child>) => {
+                    result.map(item => {
+                        if (item.username) item.username = this._userRepository.decryptUsername(item.username)
+                    })
+
+                    return resolve(
+                        result
                         .filter(item => item.institution)
                         .map(item => this.mapper.transform(item))
-                ))
+                    )
+                })
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
@@ -98,6 +106,9 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                 .exec()
                 .then((result: Child) => {
                     if (!result) return resolve(undefined)
+
+                    // Decrypt each username to compare with the username received
+                    if (result.username) result.username = this._userRepository.decryptUsername(result.username)
                     return resolve(this.mapper.transform(result))
                 })
                 .catch(err => reject(this.mongoDBErrorListener(err)))

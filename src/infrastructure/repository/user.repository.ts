@@ -1,4 +1,6 @@
 import bcrypt from 'bcryptjs'
+import { AES } from 'crypto-js'
+import { enc } from 'crypto-js'
 import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
 import { User } from '../../application/domain/model/user'
@@ -29,6 +31,8 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
     }
 
     public create(item: User): Promise<User> {
+        // Encrypt username
+        if (item.username) item.username = this.encryptUsername(item.username)
         // Encrypt password
         if (item.password) item.password = this.encryptPassword(item.password)
         return super.create(item)
@@ -57,6 +61,15 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
+    }
+
+    public encryptUsername(username: string): string {
+        return (AES.encrypt(username, 'accountSecretkey')).toString()
+    }
+
+    public decryptUsername(encryptedUsername: string): string {
+        const bytes = AES.decrypt(encryptedUsername, 'accountSecretkey')
+        return bytes.toString(enc.Utf8)
     }
 
     public encryptPassword(password: string): string {
