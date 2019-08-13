@@ -30,25 +30,18 @@ export class AuthRepository implements IAuthRepository {
 
     public authenticate(_username: string, password: string): Promise<object> {
         return new Promise<object>((resolve, reject) => {
-            this.userModel.find()
+            this.userModel.find({})
                 .then(result => {
-                    if (result) {
-                        let user: User = new User()
+                    for (const item of result) {
+                        if (item.username === _username) {
+                            const user: User = this.userMapper.transform(item)
 
-                        for (const elem of result) {
-                            // Decrypt each username to compare with the username received
-                            const decryptedUsername = this._userRepository.decryptUsername(elem.username)
-                            // Check the username
-                            if (_username === decryptedUsername) {
-                                elem.username = decryptedUsername   // Update username of item to pass to mapper
-                                user = this.userMapper.transform(elem)
+                            // Validate password and generate access token.
+                            if (!user.password) return resolve(undefined)
+                            if (this._userRepository.comparePasswords(password, user.password)) {
+                                return resolve({ access_token: this.generateAccessToken(user) })
                             }
-                        }
-
-                        // Validate password and generate access token.
-                        if (!user.password) return resolve(undefined)
-                        if (this._userRepository.comparePasswords(password, user.password)) {
-                            return resolve({ access_token: this.generateAccessToken(user) })
+                            return resolve(undefined)
                         }
                     }
                     resolve(undefined)

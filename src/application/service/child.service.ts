@@ -109,7 +109,7 @@ export class ChildService implements IChildService {
                 this.saveEvent(event)
             } else {
                 this._logger.info(`User of type Child with ID: ${childUp.id} has been updated`
-                    .concat('and published on event bus...'))
+                    .concat(' and published on event bus...'))
             }
         }
         // 6. Returns the created object.

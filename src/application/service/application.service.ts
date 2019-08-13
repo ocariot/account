@@ -106,7 +106,7 @@ export class ApplicationService implements IApplicationService {
                 this.saveEvent(event)
             } else {
                 this._logger.info(`User of type Application with ID: ${applicationUp.id} has been updated`
-                    .concat('and published on event bus...'))
+                    .concat(' and published on event bus...'))
             }
         }
         // 6. Returns the created object.

@@ -124,13 +124,18 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
     public checkExist(application: Application): Promise<boolean> {
         const query: Query = new Query()
         if (application.id) query.filters = { _id: application.id }
-        else query.filters = { username: application.username }
 
         query.addFilter({ type: UserType.APPLICATION })
         return new Promise<boolean>((resolve, reject) => {
-            super.findOne(query)
-                .then((result: Application) => {
-                    if (result) return resolve(true)
+            super.find(query)
+                .then((result: Array<Application>) => {
+                    if (application.id) {
+                        if (result.length > 0) return resolve(true)
+                        return resolve(false)
+                    }
+                    for (const app of result) {
+                        if (app.username === application.username) return resolve(true)
+                    }
                     return resolve(false)
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))

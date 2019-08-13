@@ -110,7 +110,7 @@ export class EducatorService implements IEducatorService {
                 this.saveEvent(event)
             } else {
                 this._logger.info(`User of type Educator with ID: ${educatorUp.id} has been updated`
-                    .concat('and published on event bus...'))
+                    .concat(' and published on event bus...'))
             }
         }
         // 6. Returns the created object.
