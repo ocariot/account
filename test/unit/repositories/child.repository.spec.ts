@@ -8,6 +8,7 @@ import { UserRepository } from '../../../src/infrastructure/repository/user.repo
 import { ChildMock } from '../../mocks/child.mock'
 import { assert } from 'chai'
 import { UserType } from '../../../src/application/domain/model/user'
+import { ObjectID } from 'bson'
 
 require('sinon-mongoose')
 
@@ -331,6 +332,25 @@ describe('Repositories: Child', () => {
     })
 
     describe('checkExists()', () => {
+        context('when there is a child with the search filters used', () => {
+            it('should return true if exists in search by id', () => {
+                defaultChild.id = '507f1f77bcf86cd799439011'
+                queryMock.filters = { _id: defaultChild.id, type: UserType.CHILD }
+
+                sinon
+                    .mock(modelFake)
+                    .expects('find')
+                    .withArgs(queryMock.toJSON().filters)
+                    .chain('exec')
+                    .resolves([ defaultChild ])
+
+                return childRepo.checkExist(defaultChild)
+                    .then(result => {
+                        assert.isTrue(result)
+                    })
+            })
+        })
+
         context('when the username is used as the search filter', () => {
             it('should return true if exists in search by username', () => {
                 const customQueryMock: any = {
@@ -339,7 +359,7 @@ describe('Repositories: Child', () => {
                             fields: {},
                             ordination: {},
                             pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { username: defaultChild.username, type: UserType.CHILD }
+                            filters: { type: UserType.CHILD }
                         }
                     }
                 }
@@ -350,10 +370,10 @@ describe('Repositories: Child', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ childWithoutId ])
 
                 return childRepo.checkExist(childWithoutId)
                     .then(result => {
@@ -362,20 +382,31 @@ describe('Repositories: Child', () => {
             })
         })
 
-        context('when the parameter is an empty array', () => {
+        context('when child is not found', () => {
             it('should return false', () => {
-                queryMock.filters = { username: defaultChild.username, type: UserType.CHILD }
+                const customChild = new Child()
+                customChild.id = `${new ObjectID()}`
+                customChild.type = UserType.CHILD
 
-                const childrenWithoutId: Array<Child> = new Array<Child>()
+                const customQueryMock: any = {
+                    toJSON: () => {
+                        return {
+                            fields: {},
+                            ordination: {},
+                            pagination: { page: 1, limit: 100, skip: 0 },
+                            filters: { _id: customChild.id, type: UserType.CHILD }
+                        }
+                    }
+                }
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(queryMock.toJSON().filters)
+                    .expects('find')
+                    .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(false)
+                    .resolves([])
 
-                return childRepo.checkExist(childrenWithoutId)
+                return childRepo.checkExist(customChild)
                     .then(result => {
                         assert.isFalse(result)
                     })
@@ -389,7 +420,7 @@ describe('Repositories: Child', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',

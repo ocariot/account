@@ -33,7 +33,7 @@ export abstract class Default {
     public static readonly ADMIN_PASSWORD: string = 'admin*159'
 
     // Secret Key of the Username Anonymization
-    public static readonly ENCRYPT_SECRET_KEY: string = 'cGhU2UJWK4kVBEGLTLaWm2ae5zCi67RJofKjtPJlZ5JyVfKHa4vu553DfdHsfixToTgos8K9'
+    public static readonly ENCRYPT_SECRET_KEY: string = 'cGhU2UJWK4kVBEGLTLaWm2ae5zCi67RJofKjtPJlZ5Jy'
 
     // Certificate Path
     public static readonly JWT_PRIVATE_KEY_PATH: string = '.certs/jwt.key'

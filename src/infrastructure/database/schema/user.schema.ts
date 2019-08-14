@@ -1,6 +1,6 @@
 import Mongoose, { Schema } from 'mongoose'
 import { Default } from '../../../utils/default'
-import test from 'mongoose-field-encryption'
+import MongooseFieldEncryption from 'mongoose-field-encryption'
 require('dotenv').config()
 
 interface IUserModel extends Mongoose.Document {
@@ -47,6 +47,6 @@ const userSchema = new Mongoose.Schema({
 )
 
 const secretKey = process.env.ENCRYPT_SECRET_KEY || Default.ENCRYPT_SECRET_KEY
-userSchema.plugin(test.fieldEncryption, { fields: ['username'], secret: secretKey })
+userSchema.plugin(MongooseFieldEncryption.fieldEncryption, { secret: secretKey, fields: ['username'] })
 
 export const UserRepoModel = Mongoose.model<IUserModel>('User', userSchema)

@@ -40,14 +40,13 @@ describe('Repositories: AuthRepository', () => {
         it('should return the access token', () => {
             sinon
                 .mock(modelFake)
-                .expects('findOne')
-                .withArgs({ username: user.username })
+                .expects('find')
+                .withArgs({})
                 .chain('exec')
-                .resolves(user)
+                .resolves([ user ])
 
             return repo.authenticate('usertest', 'userpass')
                 .then(result => {
-                    assert.isNotNull(result)
                     assert.property(result, 'access_token')
                 })
         })
@@ -56,10 +55,10 @@ describe('Repositories: AuthRepository', () => {
             it('should return undefined', () => {
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs({ username: user.username })
+                    .expects('find')
+                    .withArgs({})
                     .chain('exec')
-                    .resolves(undefined)
+                    .resolves([])
 
                 return repo.authenticate('usertest', 'userpass')
                     .then(result => {
@@ -68,31 +67,14 @@ describe('Repositories: AuthRepository', () => {
             })
         })
 
-        context('when the user is not found', () => {
-            it('should return the access token', () => {
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs({ username: user.username })
-                    .chain('exec')
-                    .resolves(user)
-
-                return repo.authenticate('usertest', 'userpass')
-                    .then(result => {
-                        assert.isNotNull(result)
-                        assert.property(result, 'access_token')
-                    })
-            })
-        })
-
         context('when the user password is empty', () => {
-            it('should return the access token', () => {
+            it('should return undefined', () => {
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs({ username: user.username })
+                    .expects('find')
+                    .withArgs({})
                     .chain('exec')
-                    .resolves(user)
+                    .resolves([])
 
                 return repo.authenticate('usertest', '')
                     .then(result => {
@@ -102,11 +84,11 @@ describe('Repositories: AuthRepository', () => {
         })
 
         context('when a database error occurs', () => {
-            it('should return the access token', () => {
+            it('should throw a RepositoryException', () => {
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs({ username: user.username })
+                    .expects('find')
+                    .withArgs({})
                     .chain('exec')
                     .rejects({ message: Strings.ERROR_MESSAGE.UNEXPECTED })
 

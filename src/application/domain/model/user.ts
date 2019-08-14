@@ -96,7 +96,7 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
             id: super.id,
             username: this.username,
             type: this.type,
-            institution: this.institution ? this.institution.toJSON() : this.institution
+            institution_id: this.institution ? this.institution.id : undefined
         }
     }
 }

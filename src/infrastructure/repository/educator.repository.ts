@@ -142,8 +142,8 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                         if (result.length > 0) return resolve(true)
                         return resolve(false)
                     }
-                    for (const edu of result) {
-                        if (edu.username === educator.username) return resolve(true)
+                    for (const educatorItem of result) {
+                        if (educatorItem.username === educator.username) return resolve(true)
                     }
                     return resolve(false)
                 })

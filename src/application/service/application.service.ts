@@ -79,7 +79,16 @@ export class ApplicationService implements IApplicationService {
             // 1. Validate Application parameters.
             UpdateUserValidator.validate(application)
 
-            // 2. Checks if the institution exists.
+            // 2. Checks if Application already exists.
+            const id: string = application.id!
+            application.id = undefined
+
+            const applicationExist = await this._applicationRepository.checkExist(application)
+            if (applicationExist) throw new ConflictException(Strings.APPLICATION.ALREADY_REGISTERED)
+
+            application.id = id
+
+            // 3. Checks if the institution exists.
             if (application.institution && application.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(application.institution)
                 if (!institutionExist) {
@@ -93,10 +102,10 @@ export class ApplicationService implements IApplicationService {
             return Promise.reject(err)
         }
 
-        // 3. Update Application data.
+        // 4. Update Application data.
         const applicationUp = await this._applicationRepository.update(application)
 
-        // 4. If updated successfully, the object is published on the message bus.
+        // 5. If updated successfully, the object is published on the message bus.
         if (applicationUp) {
             const event = new UserUpdateEvent<Application>(
                 'ApplicationUpdateEvent', new Date(), applicationUp)

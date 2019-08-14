@@ -123,7 +123,7 @@ describe('Repositories: Base', () => {
                     assert.propertyVal(users[0], 'id', defaultUser.id)
                     assert.propertyVal(users[0], 'username', defaultUser.username)
                     assert.propertyVal(users[0], 'type', defaultUser.type)
-                    assert.deepPropertyVal(users[0], 'institution', institution.toJSON())
+                    assert.deepPropertyVal(users[0], 'institution_id', institution.id)
                 })
         })
 
@@ -201,7 +201,7 @@ describe('Repositories: Base', () => {
                     assert.propertyVal(user, 'id', user.id)
                     assert.propertyVal(user, 'username', user.username)
                     assert.propertyVal(user, 'type', user.type)
-                    assert.deepPropertyVal(user, 'institution', institution.toJSON())
+                    assert.deepPropertyVal(user, 'institution_id', institution.id)
                 })
         })
 
@@ -257,7 +257,7 @@ describe('Repositories: Base', () => {
                     assert.propertyVal(user, 'id', user.id)
                     assert.propertyVal(user, 'username', user.username)
                     assert.propertyVal(user, 'type', user.type)
-                    assert.deepPropertyVal(user, 'institution', institution.toJSON())
+                    assert.deepPropertyVal(user, 'institution_id', institution.id)
                 })
         })
 

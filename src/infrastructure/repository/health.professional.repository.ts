@@ -35,7 +35,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         const itemNew: HealthProfessional = this.mapper.transform(item)
         return new Promise<HealthProfessional>((resolve, reject) => {
-            this.Model.create(itemNew)
+            this.healthProfessionalModel.create(itemNew)
                 .then((result) => {
                     // Required due to 'populate ()' routine.
                     // If there is no need for 'populate ()', the return will suffice.
@@ -68,7 +68,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
         }
 
         return new Promise<Array<HealthProfessional>>((resolve, reject) => {
-            this.Model.find(q.filters)
+            this.healthProfessionalModel.find(q.filters)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -97,7 +97,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
         }
 
         return new Promise<HealthProfessional>((resolve, reject) => {
-            this.Model.findOne(q.filters)
+            this.healthProfessionalModel.findOne(q.filters)
                 .populate(populate)
                 .exec()
                 .then((result: HealthProfessional) => {
@@ -115,7 +115,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
             { path: 'children_groups', populate: { path: 'children', populate: { path: 'institution' } } }]
 
         return new Promise<HealthProfessional>((resolve, reject) => {
-            this.Model.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
+            this.healthProfessionalModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
                 .populate(populate)
                 .exec()
                 .then((result: HealthProfessional) => {
@@ -135,13 +135,18 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
     public checkExist(healthProfessional: HealthProfessional): Promise<boolean> {
         const query: Query = new Query()
         if (healthProfessional.id) query.filters = { _id: healthProfessional.id }
-        else query.filters = { username: healthProfessional.username }
 
         query.addFilter({ type: UserType.HEALTH_PROFESSIONAL })
         return new Promise<boolean>((resolve, reject) => {
-            this.findOne(query)
-                .then((result: HealthProfessional) => {
-                    if (result) return resolve(true)
+            super.find(query)
+                .then((result: Array<HealthProfessional>) => {
+                    if (healthProfessional.id) {
+                        if (result.length > 0) return resolve(true)
+                        return resolve(false)
+                    }
+                    for (const healthProfItem of result) {
+                        if (healthProfItem.username === healthProfessional.username) return resolve(true)
+                    }
                     return resolve(false)
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))

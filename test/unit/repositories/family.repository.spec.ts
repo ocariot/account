@@ -419,10 +419,10 @@ describe('Repositories: Family', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ defaultFamily ])
 
                 return familyRepo.checkExist(defaultFamily)
                     .then(result => {
@@ -439,7 +439,7 @@ describe('Repositories: Family', () => {
                             fields: {},
                             ordination: {},
                             pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { username: defaultFamily.username, type: UserType.FAMILY }
+                            filters: { type: UserType.FAMILY }
                         }
                     }
                 }
@@ -450,10 +450,10 @@ describe('Repositories: Family', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ familyWithoutId ])
 
                 return familyRepo.checkExist(familyWithoutId)
                     .then(result => {
@@ -481,10 +481,10 @@ describe('Repositories: Family', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(false)
+                    .resolves([])
 
                 return familyRepo.checkExist(customFamily)
                     .then(result => {
@@ -500,7 +500,7 @@ describe('Repositories: Family', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
                     .rejects({

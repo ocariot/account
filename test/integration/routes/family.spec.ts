@@ -280,7 +280,7 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Family is already registered!')
                     })
             })
         })

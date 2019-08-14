@@ -30,7 +30,7 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
     public create(item: ChildrenGroup): Promise<ChildrenGroup> {
         const itemNew: ChildrenGroup = this.mapper.transform(item)
         return new Promise<ChildrenGroup>((resolve, reject) => {
-            this.Model.create(itemNew)
+            this.childrenGroupModel.create(itemNew)
                 .then((result) => {
                     // Required due to 'populate ()' routine.
                     // If there is no need for 'populate ()', the return will suffice.
@@ -54,7 +54,7 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
         }
 
         return new Promise<Array<ChildrenGroup>>((resolve, reject) => {
-            this.Model.find(q.filters)
+            this.childrenGroupModel.find(q.filters)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -77,7 +77,7 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
         }
 
         return new Promise<ChildrenGroup>((resolve, reject) => {
-            this.Model.findOne(q.filters)
+            this.childrenGroupModel.findOne(q.filters)
                 .populate(populate)
                 .exec()
                 .then((result: ChildrenGroup) => {
@@ -93,7 +93,7 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
         const populate: any = { path: 'children', populate: { path: 'institution' } }
 
         return new Promise<ChildrenGroup>((resolve, reject) => {
-            this.Model.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
+            this.childrenGroupModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
                 .populate(populate)
                 .exec()
                 .then((result: ChildrenGroup) => {

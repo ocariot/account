@@ -67,7 +67,10 @@ export class EducatorEntityMapper implements IEntityMapper<Educator, EducatorEnt
         if (json.type !== undefined) result.type = json.type
         if (json.institution !== undefined) {
             if (json.institution === null) result.institution = undefined
-            else result.institution = new Institution().fromJSON(json.institution)
+            else {
+                result.institution = new Institution()
+                result.institution.id = json.institution
+            }
         }
         if (json.children_groups !== undefined) {
             result.children_groups = json.children_groups.map(item => new ChildrenGroup().fromJSON(item))

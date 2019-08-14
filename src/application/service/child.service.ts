@@ -83,7 +83,16 @@ export class ChildService implements IChildService {
             // 1. Validate Child parameters.
             UpdateUserValidator.validate(child)
 
-            // 2. Checks if the institution exists.
+            // 2. Checks if child already exists.
+            const id: string = child.id!
+            child.id = undefined
+
+            const childExist = await this._childRepository.checkExist(child)
+            if (childExist) throw new ConflictException(Strings.CHILD.ALREADY_REGISTERED)
+
+            child.id = id
+
+            // 3. Checks if the institution exists.
             if (child.institution && child.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(child.institution)
                 if (!institutionExist) {
@@ -97,10 +106,10 @@ export class ChildService implements IChildService {
             return Promise.reject(err)
         }
 
-        // 3. Update child data.
+        // 4. Update child data.
         const childUp = await this._childRepository.update(child)
 
-        // 4. If updated successfully, the object is published on the message bus.
+        // 5. If updated successfully, the object is published on the message bus.
         if (childUp) {
             const event = new UserUpdateEvent<Child>('ChildUpdateEvent', new Date(), childUp)
 

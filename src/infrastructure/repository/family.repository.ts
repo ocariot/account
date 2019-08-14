@@ -32,7 +32,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         const itemNew: Family = this.mapper.transform(item)
         return new Promise<Family>((resolve, reject) => {
-            this.Model.create(itemNew)
+            this.familyModel.create(itemNew)
                 .then((result) => {
                     // Required due to 'populate ()' routine.
                     // If there is no need for 'populate ()', the return will suffice.
@@ -65,7 +65,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
         }
 
         return new Promise<Array<Family>>((resolve, reject) => {
-            this.Model.find(q.filters)
+            this.familyModel.find(q.filters)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -94,7 +94,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
         }
 
         return new Promise<Family>((resolve, reject) => {
-            this.Model.findOne(q.filters)
+            this.familyModel.findOne(q.filters)
                 .populate(populate)
                 .exec()
                 .then((result: Family) => {
@@ -112,7 +112,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
             { path: 'children', populate: { path: 'institution' } }]
 
         return new Promise<Family>((resolve, reject) => {
-            this.Model.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
+            this.familyModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
                 .populate(populate)
                 .exec()
                 .then((result: Family) => {
@@ -132,13 +132,18 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
     public checkExist(family: Family): Promise<boolean> {
         const query: Query = new Query()
         if (family.id) query.filters = { _id: family.id }
-        else query.filters = { username: family.username }
 
         query.addFilter({ type: UserType.FAMILY })
         return new Promise<boolean>((resolve, reject) => {
-            this.findOne(query)
-                .then((result: Family) => {
-                    if (result) return resolve(true)
+            super.find(query)
+                .then((result: Array<Family>) => {
+                    if (family.id) {
+                        if (result.length > 0) return resolve(true)
+                        return resolve(false)
+                    }
+                    for (const familyItem of result) {
+                        if (familyItem.username === family.username) return resolve(true)
+                    }
                     return resolve(false)
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))

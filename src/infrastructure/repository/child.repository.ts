@@ -35,10 +35,8 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         const itemNew: Child = this.mapper.transform(item)
         return new Promise<Child>((resolve, reject) => {
-            this.Model.create(itemNew)
+            this.childModel.create(itemNew)
                 .then((result) => {
-                    // Required due to 'populate ()' routine.
-                    // If there is no need for 'populate ()', the return will suffice.
                     const query = new Query()
                     query.filters = result._id
                     return resolve(this.findOne(query))
@@ -49,28 +47,12 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
 
     public find(query: IQuery): Promise<Array<Child>> {
         const q: any = query.toJSON()
-        const populate: any = { path: 'institution', select: {}, match: {} }
-
-        for (const key in q.filters) {
-            if (key.startsWith('institution.')) {
-                populate.match[key.split('.')[1]] = q.filters[key]
-                delete q.filters[key]
-            }
-        }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate.select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
 
         return new Promise<Array<Child>>((resolve, reject) => {
-            this.Model.find(q.filters)
+            this.childModel.find(q.filters)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
-                .populate(populate)
                 .exec()
                 .then((result: Array<Child>) => resolve(
                     result
@@ -83,18 +65,9 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
 
     public findOne(query: IQuery): Promise<Child> {
         const q: any = query.toJSON()
-        const populate: any = { path: 'institution', select: {} }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate.select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
 
         return new Promise<Child>((resolve, reject) => {
-            this.Model.findOne(q.filters)
-                .populate(populate)
+            this.childModel.findOne(q.filters)
                 .exec()
                 .then((result: Child) => {
                     if (!result) return resolve(undefined)
@@ -107,8 +80,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
     public update(item: Child): Promise<Child> {
         const itemUp: any = this.mapper.transform(item)
         return new Promise<Child>((resolve, reject) => {
-            this.Model.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
-                .populate('institution')
+            this.childModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
                 .exec()
                 .then((result: Child) => {
                     if (!result) return resolve(undefined)
@@ -128,10 +100,9 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                 let count = 0
                 const resultChildrenIDs: Array<string> = []
                 children.forEach((child: Child) => {
-                    if (child.id) query.filters = { _id: child.id }
-                    else query.filters = { username: child.username }
+                    query.filters = { type: UserType.CHILD }
+                    if (child.id) query.addFilter({ _id: new ObjectId(child.id) })
 
-                    query.addFilter({ type: UserType.CHILD })
                     this.findOne(query)
                         .then(result => {
                             count++
@@ -146,13 +117,18 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                         .catch(err => reject(super.mongoDBErrorListener(err)))
                 })
             } else {
-                if (children.id) query.filters = { _id: new ObjectId(children.id) }
-                else query.filters = { username: children.username }
+                query.filters = { type: UserType.CHILD }
+                if (children.id) query.addFilter( { _id: new ObjectId(children.id) })
 
-                query.addFilter({ type: UserType.CHILD })
-                this.findOne(query)
-                    .then((result: Child) => {
-                        if (result) return resolve(true)
+                this.find(query)
+                    .then((result: Array<Child>) => {
+                        if (children.id) {
+                            if (result.length) return resolve(true)
+                            return resolve(false)
+                        }
+                        for (const child of result) {
+                            if (child.username === children.username) return resolve(true)
+                        }
                         return resolve(false)
                     })
                     .catch(err => reject(super.mongoDBErrorListener(err)))

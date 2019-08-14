@@ -33,7 +33,7 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         const itemNew: Application = this.mapper.transform(item)
         return new Promise<Application>((resolve, reject) => {
-            this.Model.create(itemNew)
+            this.applicationModel.create(itemNew)
                 .then((result) => {
                     // Required due to 'populate ()' routine.
                     // If there is no need for 'populate ()', the return will suffice.
@@ -64,7 +64,7 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
         }
 
         return new Promise<Array<Application>>((resolve, reject) => {
-            this.Model.find(q.filters)
+            this.applicationModel.find(q.filters)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -96,7 +96,7 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
         }
 
         return new Promise<Application>((resolve, reject) => {
-            this.Model.findOne(q.filters)
+            this.applicationModel.findOne(q.filters)
                 .populate(populate)
                 .exec()
                 .then((result: Application) => {
@@ -110,7 +110,7 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
     public update(item: Application): Promise<Application> {
         const itemUp: any = this.mapper.transform(item)
         return new Promise<Application>((resolve, reject) => {
-            this.Model.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
+            this.applicationModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
                 .populate('institution')
                 .exec()
                 .then((result: Application) => {
@@ -133,8 +133,8 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
                         if (result.length > 0) return resolve(true)
                         return resolve(false)
                     }
-                    for (const app of result) {
-                        if (app.username === application.username) return resolve(true)
+                    for (const appItem of result) {
+                        if (appItem.username === application.username) return resolve(true)
                     }
                     return resolve(false)
                 })

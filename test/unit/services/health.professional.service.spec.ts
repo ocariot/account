@@ -526,6 +526,11 @@ describe('Services: HealthProfessional', () => {
     describe('saveChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup)', () => {
         context('when there is HealthProfessional with the received parameter', () => {
             it('should return a ChildrenGroup that was added', () => {
+                if (childrenGroup.children) {
+                    childrenGroup.children.forEach(childItem => {
+                        childItem.id = '507f1f77bcf86cd799439011'
+                    })
+                }
                 healthProfessional.id = '507f1f77bcf86cd799439011'
                 sinon
                     .mock(modelChildrenGroupFake)
@@ -870,6 +875,15 @@ describe('Services: HealthProfessional', () => {
     describe('updateChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup)', () => {
         context('when there is HealthProfessional with the received parameter', () => {
             it('should return the ChildrenGroup that was updated', () => {
+                if (healthProfessional.children_groups) {
+                    healthProfessional.children_groups.forEach(childrenGroupItem => {
+                        if (childrenGroupItem.children) {
+                            childrenGroupItem.children.forEach(childItem => {
+                                childItem.id = '507f1f77bcf86cd799439011'
+                            })
+                        }
+                    })
+                }
                 healthProfessional.children_groups![0].id = '507f1f77bcf86cd799439011'        // Make id valid again
                 sinon
                     .mock(modelChildrenGroupFake)

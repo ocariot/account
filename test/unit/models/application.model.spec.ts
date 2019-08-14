@@ -91,6 +91,7 @@ describe('Models: Application', () => {
             it('should return a JSON from Application model', () => {
                 let result = new Application().fromJSON(appJSON)
                 result = result.toJSON()
+
                 assert.propertyVal(result, 'id', appJSON.id)
                 assert.propertyVal(result, 'username', appJSON.username)
                 assert.propertyVal(result, 'type', appJSON.type)

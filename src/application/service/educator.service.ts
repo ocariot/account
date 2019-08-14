@@ -83,7 +83,16 @@ export class EducatorService implements IEducatorService {
             // 1. Validate Educator parameters.
             UpdateUserValidator.validate(educator)
 
-            // 2. Checks if the institution exists.
+            // 2. Checks if Educator already exists.
+            const id: string = educator.id!
+            educator.id = undefined
+
+            const educatorExist = await this._educatorRepository.checkExist(educator)
+            if (educatorExist) throw new ConflictException(Strings.EDUCATOR.ALREADY_REGISTERED)
+
+            educator.id = id
+
+            // 3. Checks if the institution exists.
             if (educator.institution && educator.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(educator.institution)
                 if (!institutionExist) {
@@ -97,10 +106,10 @@ export class EducatorService implements IEducatorService {
             return Promise.reject(err)
         }
 
-        // 3. Update Educator data.
+        // 4. Update Educator data.
         const educatorUp = await this._educatorRepository.update(educator)
 
-        // 4. If updated successfully, the object is published on the message bus.
+        // 5. If updated successfully, the object is published on the message bus.
         if (educatorUp) {
             const event = new UserUpdateEvent<Educator>(
                 'EducatorUpdateEvent', new Date(), educatorUp)

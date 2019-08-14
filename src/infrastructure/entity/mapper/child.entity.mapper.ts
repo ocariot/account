@@ -61,7 +61,10 @@ export class ChildEntityMapper implements IEntityMapper<Child, ChildEntity> {
         if (json.type !== undefined) result.type = json.type
         if (json.institution !== undefined) {
             if (json.institution === null) result.institution = undefined
-            else result.institution = new Institution().fromJSON(json.institution)
+            else {
+                result.institution = new Institution()
+                result.institution.id = json.institution
+            }
         }
         if (json.gender !== undefined) result.gender = json.gender
         if (json.age !== undefined) result.age = json.age

@@ -86,7 +86,16 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             // 1. Validate Health Professional parameters.
             UpdateUserValidator.validate(healthProfessional)
 
-            // 2. Checks if the institution exists.
+            // 2. Checks if Health Professional already exists.
+            const id: string = healthProfessional.id!
+            healthProfessional.id = undefined
+
+            const healthProfessionalExist = await this._healthProfessionalRepository.checkExist(healthProfessional)
+            if (healthProfessionalExist) throw new ConflictException(Strings.HEALTH_PROFESSIONAL.ALREADY_REGISTERED)
+
+            healthProfessional.id = id
+
+            // 3. Checks if the institution exists.
             if (healthProfessional.institution && healthProfessional.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(healthProfessional.institution)
                 if (!institutionExist) {
@@ -100,10 +109,10 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             return Promise.reject(err)
         }
 
-        // 3. Update Health Professional data.
+        // 4. Update Health Professional data.
         const healthProfessionalUp = await this._healthProfessionalRepository.update(healthProfessional)
 
-        // 4. If updated successfully, the object is published on the message bus.
+        // 5. If updated successfully, the object is published on the message bus.
         if (healthProfessionalUp) {
             const event = new UserUpdateEvent<HealthProfessional>(
                 'HealthProfessionalUpdateEvent', new Date(), healthProfessionalUp)
