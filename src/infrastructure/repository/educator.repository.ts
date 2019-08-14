@@ -47,23 +47,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
     public find(query: IQuery): Promise<Array<Educator>> {
         const q: any = query.toJSON()
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children_groups', populate: { path: 'children', populate: { path: 'institution' } } }]
-
-        for (const key in q.filters) {
-            if (key.startsWith('institution.')) {
-                populate[0].match[key.split('.')[1]] = q.filters[key]
-                delete q.filters[key]
-            }
-        }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate[0].select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<Array<Educator>>((resolve, reject) => {
             this.educatorModel.find(q.filters)
@@ -83,16 +67,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
     public findOne(query: IQuery): Promise<Educator> {
         const q: any = query.toJSON()
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children_groups', populate: { path: 'children', populate: { path: 'institution' } } }]
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate[0].select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<Educator>((resolve, reject) => {
             this.educatorModel.findOne(q.filters)
@@ -108,9 +83,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
     public update(item: Educator): Promise<Educator> {
         const itemUp: any = this.mapper.transform(item)
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children_groups', populate: { path: 'children', populate: { path: 'institution' } } }]
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<Educator>((resolve, reject) => {
             this.educatorModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })

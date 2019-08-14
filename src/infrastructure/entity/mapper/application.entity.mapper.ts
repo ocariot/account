@@ -60,7 +60,10 @@ export class ApplicationEntityMapper implements IEntityMapper<Application, Appli
         if (json.type !== undefined) result.type = json.type
         if (json.institution !== undefined) {
             if (json.institution === null) result.institution = undefined
-            else result.institution = new Institution().fromJSON(json.institution)
+            else {
+                result.institution = new Institution()
+                result.institution.id = json.institution
+            }
         }
         if (json.application_name !== undefined) result.application_name = json.application_name
         if (json.scopes !== undefined) result.scopes = json.scopes

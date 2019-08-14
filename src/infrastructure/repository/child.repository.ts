@@ -37,6 +37,8 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
         return new Promise<Child>((resolve, reject) => {
             this.childModel.create(itemNew)
                 .then((result) => {
+                    // Required due to 'populate ()' routine.
+                    // If there is no need for 'populate ()', the return will suffice.
                     const query = new Query()
                     query.filters = result._id
                     return resolve(this.findOne(query))

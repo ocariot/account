@@ -47,34 +47,14 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
 
     public find(query: IQuery): Promise<Array<Application>> {
         const q: any = query.toJSON()
-        const populate: any = { path: 'institution', select: {}, match: {} }
-
-        for (const key in q.filters) {
-            if (key.startsWith('institution.')) {
-                populate.match[key.split('.')[1]] = q.filters[key]
-                delete q.filters[key]
-            }
-        }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate.select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
 
         return new Promise<Array<Application>>((resolve, reject) => {
             this.applicationModel.find(q.filters)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
-                .populate(populate)
                 .exec()
                 .then((result: Array<Application>) => {
-                    if (!(Object.keys(populate.match).length)) {
-                        return resolve(result.map(item => this.mapper.transform(item)))
-                    }
-
                     return resolve(result
                         .filter(item => item.institution)
                         .map(item => this.mapper.transform(item))
@@ -86,18 +66,9 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
 
     public findOne(query: IQuery): Promise<Application> {
         const q: any = query.toJSON()
-        const populate: any = { path: 'institution', select: {}, match: {} }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate.select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
 
         return new Promise<Application>((resolve, reject) => {
             this.applicationModel.findOne(q.filters)
-                .populate(populate)
                 .exec()
                 .then((result: Application) => {
                     if (!result) return resolve(undefined)
@@ -111,7 +82,6 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
         const itemUp: any = this.mapper.transform(item)
         return new Promise<Application>((resolve, reject) => {
             this.applicationModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
-                .populate('institution')
                 .exec()
                 .then((result: Application) => {
                     if (!result) return resolve(undefined)

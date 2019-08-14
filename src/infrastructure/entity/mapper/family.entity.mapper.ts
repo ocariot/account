@@ -67,7 +67,10 @@ export class FamilyEntityMapper implements IEntityMapper<Family, FamilyEntity> {
         if (json.type !== undefined) result.type = json.type
         if (json.institution !== undefined) {
             if (json.institution === null) result.institution = undefined
-            else result.institution = new Institution().fromJSON(json.institution)
+            else {
+                result.institution = new Institution()
+                result.institution.id = json.institution
+            }
         }
         if (json.children !== undefined) {
             result.children = json.children.map(item => new Child().fromJSON(item))

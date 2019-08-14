@@ -97,7 +97,14 @@ export class Educator extends User implements IJSONSerializable, IJSONDeserializ
             ...super.toJSON(),
             ...{
                 children_groups: this.children_groups ?
-                    this.children_groups.map(item => item.toJSON()) :
+                    this.children_groups.map(item => {
+                        item.children = item.children!.map(child => {
+                            child.gender = undefined
+                            child.age = undefined
+                            return child
+                        })
+                        return item.toJSON()
+                    }) :
                     this.children_groups
             }
         }

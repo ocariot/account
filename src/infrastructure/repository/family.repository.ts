@@ -46,23 +46,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
 
     public find(query: IQuery): Promise<Array<Family>> {
         const q: any = query.toJSON()
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children', populate: { path: 'institution' } }]
-
-        for (const key in q.filters) {
-            if (key.startsWith('institution.')) {
-                populate[0].match[key.split('.')[1]] = q.filters[key]
-                delete q.filters[key]
-            }
-        }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate[0].select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children' }
 
         return new Promise<Array<Family>>((resolve, reject) => {
             this.familyModel.find(q.filters)
@@ -82,16 +66,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
 
     public findOne(query: IQuery): Promise<Family> {
         const q: any = query.toJSON()
-        const populate: any = [
-            { path: 'institution', select: {} },
-            { path: 'children', populate: { path: 'institution' } }]
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate[0].select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children' }
 
         return new Promise<Family>((resolve, reject) => {
             this.familyModel.findOne(q.filters)
@@ -107,9 +82,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
 
     public update(item: Family): Promise<Family> {
         const itemUp: any = this.mapper.transform(item)
-        const populate: any = [
-            { path: 'institution', select: {} },
-            { path: 'children', populate: { path: 'institution' } }]
+        const populate: any = { path: 'children' }
 
         return new Promise<Family>((resolve, reject) => {
             this.familyModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
