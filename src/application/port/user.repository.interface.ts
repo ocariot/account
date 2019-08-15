@@ -54,4 +54,11 @@ export interface IUserRepository extends IRepository<User> {
      * @return True if the institution is associated with one or more users, false otherwise.
      */
     hasInstitution(institutionId: string): Promise<boolean>
+
+    /**
+     *  Update last login.
+     *
+     * @param userId
+     */
+    updateLastLogin(userId: string): Promise<boolean>
 }

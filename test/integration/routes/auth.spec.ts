@@ -1,18 +1,16 @@
 import { expect } from 'chai'
 import { App } from '../../../src/app'
 import { Identifier } from '../../../src/di/identifiers'
-import { DI } from '../../../src/di/di'
+import { DIContainer } from '../../../src/di/di'
 import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
-import { Container } from 'inversify'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { UserType } from '../../../src/application/domain/model/user'
 import { Admin } from '../../../src/application/domain/model/admin'
 import { IUserRepository } from '../../../src/application/port/user.repository.interface'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const userService: IUserRepository = container.get(Identifier.USER_REPOSITORY)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IConnectionDB = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const userService: IUserRepository = DIContainer.get(Identifier.USER_REPOSITORY)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Auth', () => {

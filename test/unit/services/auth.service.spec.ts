@@ -7,6 +7,7 @@ import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.
 import { AuthRepositoryMock } from '../../mocks/auth.repository.mock'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
+import { UserRepositoryMock } from '../../mocks/user.repository.mock'
 
 require('sinon-mongoose')
 
@@ -21,7 +22,7 @@ describe('Services: Auth', () => {
     const modelFake: any = UserRepoModel
     const authRepo: IAuthRepository = new AuthRepositoryMock()
 
-    const authService: IAuthService = new AuthService(authRepo)
+    const authService: IAuthService = new AuthService(authRepo, new UserRepositoryMock())
 
     afterEach(() => {
         sinon.restore()

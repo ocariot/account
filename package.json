@@ -1,6 +1,6 @@
 {
   "name": "account",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "Microservice responsible for user management and authentication on the OCARIoT platform.",
   "main": "dist/server.js",
   "scripts": {
@@ -9,12 +9,11 @@
     "start": "node dist/server.js",
     "start:dev": "gulp dev",
     "tslint": "tslint -c tslint.json -p tsconfig.json",
-    "test": "nyc --clean --all --reporter=text mocha --opts test/mocha.opts test/**/*.spec.ts",
-    "test:integration": "mocha --opts test/mocha.opts test/integration/**/*.spec.ts",
-    "test:unit": "mocha --opts test/mocha.opts test/unit/**/*.spec.ts",
+    "test": "nyc --clean --reporter=text-summary mocha --opts test/mocha.opts test/**/*.spec.ts",
+    "test:unit": "nyc --clean --all --reporter=text-summary mocha --opts test/mocha.opts test/unit/**/*.spec.ts",
+    "test:integration": "nyc --clean --all --reporter=text-summary mocha --opts test/mocha.opts test/integration/**/*.spec.ts",
     "test:single": "mocha --opts test/mocha.opts",
-    "test:cov": "nyc --clean --all --reporter=html --reporter=text mocha --opts test/mocha.opts test/**/*.spec.ts",
-    "test:travis": "nyc mocha --opts test/mocha.opts test/**/*.spec.ts && nyc report --reporter=text-lcov | coveralls"
+    "test:cov": "nyc --clean --all --reporter=html --reporter=text mocha --opts test/mocha.opts test/**/*.spec.ts"
   },
   "repository": {
     "type": "git",

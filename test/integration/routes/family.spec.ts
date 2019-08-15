@@ -1,5 +1,4 @@
-import { Container } from 'inversify'
-import { DI } from '../../../src/di/di'
+import { DIContainer } from '../../../src/di/di'
 import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
@@ -17,10 +16,9 @@ import { InstitutionMock } from '../../mocks/institution.mock'
 import { ChildMock } from '../../mocks/child.mock'
 import { Strings } from '../../../src/utils/strings'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const childService: IChildService = container.get(Identifier.CHILD_SERVICE)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IConnectionDB = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const childService: IChildService = DIContainer.get(Identifier.CHILD_SERVICE)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Family', () => {

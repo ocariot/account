@@ -84,7 +84,11 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     public toJSON(): any {
         return {
             ...super.toJSON(),
-            ...{ gender: this.gender, age: this.age, last_sync: this.last_sync ? this.last_sync.toISOString() : this.last_sync }
+            ...{
+                gender: this.gender,
+                age: this.age,
+                last_sync: this.last_sync ? this.last_sync.toISOString() : this.last_sync
+            }
         }
     }
 }

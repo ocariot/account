@@ -1,7 +1,6 @@
 import { expect } from 'chai'
-import { DI } from '../../../src/di/di'
+import { DIContainer } from '../../../src/di/di'
 import { Identifier } from '../../../src/di/identifiers'
-import { Container } from 'inversify'
 import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
 import { IntegrationEventRepoModel } from '../../../src/infrastructure/database/schema/integration.event.schema'
 import { Query } from '../../../src/infrastructure/repository/query/query'
@@ -23,10 +22,9 @@ import { IBackgroundTask } from '../../../src/application/port/background.task.i
 import { InstitutionEvent } from '../../../src/application/integration-event/event/institution.event'
 import { InstitutionMock } from '../../mocks/institution.mock'
 
-const container: Container = DI.getInstance().getContainer()
-const eventBusTask: IBackgroundTask = container.get(Identifier.EVENT_BUS_TASK)
-const integrationRepository: IIntegrationEventRepository = container.get(Identifier.INTEGRATION_EVENT_REPOSITORY)
-const mongoDBConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
+const eventBusTask: IBackgroundTask = DIContainer.get(Identifier.EVENT_BUS_TASK)
+const integrationRepository: IIntegrationEventRepository = DIContainer.get(Identifier.INTEGRATION_EVENT_REPOSITORY)
+const mongoDBConnection: IConnectionDB = DIContainer.get(Identifier.MONGODB_CONNECTION)
 
 describe('EVENT BUS TASK', () => {
     before(async () => {
