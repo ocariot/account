@@ -31,6 +31,8 @@ const userSchema = new Mongoose.Schema({
             ref: 'ChildrenGroup'
         }], // User type Educator and HealthProfessional
         application_name: { type: String }, // User type Application
+        last_login: { type: Date },
+        last_sync: { type: Date },
         scopes: [{ type: String }] // Scope that signal the types of access the user has.
     },
     {

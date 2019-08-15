@@ -45,6 +45,9 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             // 1. Validate Health Professional parameters.
             CreateHealthProfessionalValidator.validate(healthProfessional)
 
+            // 1.5 Ignore last_login attribute if exists.
+            if (healthProfessional.last_login) healthProfessional.last_login = undefined
+
             // 2. Checks if Health Professional already exists.
             const healthProfessionalExist = await this._healthProfessionalRepository.checkExist(healthProfessional)
             if (healthProfessionalExist) throw new ConflictException(Strings.HEALTH_PROFESSIONAL.ALREADY_REGISTERED)

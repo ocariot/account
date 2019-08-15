@@ -34,6 +34,7 @@ export class FamilyEntityMapper implements IEntityMapper<Family, FamilyEntity> {
             })
             result.children = childrenTemp
         }
+        if (item.last_login) result.last_login = item.last_login
         if (item.scopes) result.scopes = item.scopes
 
         return result
@@ -75,6 +76,7 @@ export class FamilyEntityMapper implements IEntityMapper<Family, FamilyEntity> {
         if (json.children !== undefined) {
             result.children = json.children.map(item => new Child().fromJSON(item))
         }
+        if (json.last_login !== undefined) result.last_login = json.last_login
         if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result

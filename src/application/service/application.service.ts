@@ -38,6 +38,9 @@ export class ApplicationService implements IApplicationService {
             // 1. Validate Application parameters.
             CreateApplicationValidator.validate(application)
 
+            // 1.5 Ignore last_login attribute if exists.
+            if (application.last_login) application.last_login = undefined
+
             // 2. Checks if Application already exists.
             const applicationExist = await this._applicationRepository.checkExist(application)
             if (applicationExist) throw new ConflictException(Strings.APPLICATION.ALREADY_REGISTERED)

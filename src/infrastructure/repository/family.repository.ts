@@ -55,7 +55,9 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<Family>) => resolve(result.map(item => this.mapper.transform(item))))
+                .then((result: Array<Family>) => {
+                    resolve(result.map(item => this.mapper.transform(item)))
+                })
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }

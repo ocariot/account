@@ -43,6 +43,9 @@ export class EducatorService implements IEducatorService {
             // 1. Validate Educator parameters.
             CreateEducatorValidator.validate(educator)
 
+            // 1.5 Ignore last_login attribute if exists.
+            if (educator.last_login) educator.last_login = undefined
+
             // 2. Checks if Educator already exists.
             const educatorExist = await this._educatorRepository.checkExist(educator)
             if (educatorExist) throw new ConflictException(Strings.EDUCATOR.ALREADY_REGISTERED)

@@ -41,6 +41,9 @@ export class FamilyService implements IFamilyService {
             // 1. Validate Family parameters.
             CreateFamilyValidator.validate(family)
 
+            // 1.5 Ignore last_login attribute if exists.
+            if (family.last_login) family.last_login = undefined
+
             // 2. Checks if family already exists.
             const familyExist = await this._familyRepository.checkExist(family)
             if (familyExist) throw new ConflictException(Strings.FAMILY.ALREADY_REGISTERED)
