@@ -55,11 +55,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<Family>) => resolve(
-                    result
-                        .filter(item => item.institution)
-                        .map(item => this.mapper.transform(item))
-                ))
+                .then((result: Array<Family>) => resolve(result.map(item => this.mapper.transform(item))))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
@@ -108,7 +104,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
 
         query.addFilter({ type: UserType.FAMILY })
         return new Promise<boolean>((resolve, reject) => {
-            super.find(query)
+            this.find(query)
                 .then((result: Array<Family>) => {
                     if (family.id) {
                         if (result.length > 0) return resolve(true)

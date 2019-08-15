@@ -9,7 +9,7 @@ import { IApplicationRepository } from '../../application/port/application.repos
 import { Application } from '../../application/domain/model/application'
 import { ApplicationEntity } from '../entity/application.entity'
 import { IUserRepository } from '../../application/port/user.repository.interface'
-import { IQuery } from '../../application/port/query.interface'
+// import { IQuery } from '../../application/port/query.interface'
 
 /**
  * Implementation of the repository for user of type Application.
@@ -39,53 +39,7 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
                     // If there is no need for 'populate ()', the return will suffice.
                     const query = new Query()
                     query.filters = result._id
-                    return resolve(this.findOne(query))
-                })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
-        })
-    }
-
-    public find(query: IQuery): Promise<Array<Application>> {
-        const q: any = query.toJSON()
-
-        return new Promise<Array<Application>>((resolve, reject) => {
-            this.applicationModel.find(q.filters)
-                .sort(q.ordination)
-                .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
-                .limit(Number(q.pagination.limit))
-                .exec()
-                .then((result: Array<Application>) => {
-                    return resolve(result
-                        .filter(item => item.institution)
-                        .map(item => this.mapper.transform(item))
-                    )
-                })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
-        })
-    }
-
-    public findOne(query: IQuery): Promise<Application> {
-        const q: any = query.toJSON()
-
-        return new Promise<Application>((resolve, reject) => {
-            this.applicationModel.findOne(q.filters)
-                .exec()
-                .then((result: Application) => {
-                    if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
-                })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
-        })
-    }
-
-    public update(item: Application): Promise<Application> {
-        const itemUp: any = this.mapper.transform(item)
-        return new Promise<Application>((resolve, reject) => {
-            this.applicationModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
-                .exec()
-                .then((result: Application) => {
-                    if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
+                    return resolve(super.findOne(query))
                 })
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })

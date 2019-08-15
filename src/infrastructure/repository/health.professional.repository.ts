@@ -58,11 +58,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<HealthProfessional>) => resolve(
-                    result
-                        .filter(item => item.institution)
-                        .map(item => this.mapper.transform(item))
-                ))
+                .then((result: Array<HealthProfessional>) => resolve(result.map(item => this.mapper.transform(item))))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
@@ -111,7 +107,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
 
         query.addFilter({ type: UserType.HEALTH_PROFESSIONAL })
         return new Promise<boolean>((resolve, reject) => {
-            super.find(query)
+            this.find(query)
                 .then((result: Array<HealthProfessional>) => {
                     if (healthProfessional.id) {
                         if (result.length > 0) return resolve(true)

@@ -98,7 +98,7 @@ describe('Models: Educator', () => {
             assert.propertyVal(result, 'username', educatorJSON.username)
             assert.propertyVal(result, 'type', educatorJSON.type)
             assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
-            assert.deepEqual(new ObjectID(result.institution!.id), educatorJSON.institution)
+            assert.propertyVal(result, 'institution_id', educatorJSON.institution)
         })
     })
 

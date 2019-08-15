@@ -345,21 +345,23 @@ describe('Repositories: ChildrenGroup', () => {
         })
 
         context('when the children group does not have id', () => {
-            it('should return false', () => {
-                const childrenGroupIncomplete = new ChildrenGroup()
+            it('should return true if exists in search by name and user_id', () => {
+                const childrenGroupIncomplete = new ChildrenGroupMock()
+                childrenGroupIncomplete.id = undefined
+                childrenGroupIncomplete.user!.id = '507f1f77bcf86cd799439011'
 
-                queryMock.filters = { _id: childrenGroupIncomplete.id }
+                queryMock.filters = { name: childrenGroupIncomplete.name, user_id: '507f1f77bcf86cd799439011' }
 
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(false)
+                    .resolves(true)
 
-                return childrenGroupRepo.checkExist(childrenGroupIncomplete)
+                return childrenGroupRepo.checkExist(defaultChildrenGroup)
                     .then(result => {
-                        assert.isFalse(result)
+                        assert.isTrue(result)
                     })
             })
         })

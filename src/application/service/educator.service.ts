@@ -253,10 +253,7 @@ export class EducatorService implements IEducatorService {
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
             if (!educator) {
-                throw new ValidationException(
-                    Strings.EDUCATOR.NOT_FOUND,
-                    Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
-                )
+                return Promise.resolve(true)
             }
 
             // 3. Remove the children group

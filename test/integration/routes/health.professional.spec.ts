@@ -95,12 +95,7 @@ describe('Routes: HealthProfessional', () => {
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultHealthProfessional.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         defaultHealthProfessional.id = res.body.id
                     })
             })
@@ -194,12 +189,7 @@ describe('Routes: HealthProfessional', () => {
                     .then(res => {
                         expect(res.body.id).to.eql(defaultHealthProfessional.id)
                         expect(res.body.username).to.eql(defaultHealthProfessional.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                     })
             })
         })
@@ -244,12 +234,7 @@ describe('Routes: HealthProfessional', () => {
                     .then(res => {
                         expect(res.body.id).to.eql(defaultHealthProfessional.id)
                         expect(res.body.username).to.eql(defaultHealthProfessional.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                     })
             })
         })
@@ -360,14 +345,7 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.children.length).to.eql(1)
                         expect(res.body.children[0]).to.have.property('id')
                         expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution).to.have.property('id')
-                        expect(res.body.children[0].institution.type).to.eql('Any Type')
-                        expect(res.body.children[0].institution.name).to.eql('Name Example')
-                        expect(res.body.children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.children[0].institution.latitude).to.eql(0)
-                        expect(res.body.children[0].institution.longitude).to.eql(0)
-                        expect(res.body.children[0].age).to.eql(11)
-                        expect(res.body.children[0].gender).to.eql('male')
+                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body.school_class).to.eql(body.school_class)
                         defaultChildrenGroup.id = res.body.id
                         defaultChildrenGroup.children = res.body.children
@@ -414,7 +392,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the children id(ids) does not exists in database', () => {
             it('should return status code 400 and info message from invalid ID', () => {
                 const body = {
-                    name: 'Children Group One',
+                    name: 'Children Group Two',
                     children: new Array<string | undefined>('507f1f77bcf86cd799439011'),
                     school_class: '3th Grade'
                 }
@@ -451,14 +429,7 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.children.length).to.eql(1)
                         expect(res.body.children[0]).to.have.property('id')
                         expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution).to.have.property('id')
-                        expect(res.body.children[0].institution.type).to.eql('Any Type')
-                        expect(res.body.children[0].institution.name).to.eql('Name Example')
-                        expect(res.body.children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.children[0].institution.latitude).to.eql(0)
-                        expect(res.body.children[0].institution.longitude).to.eql(0)
-                        expect(res.body.children[0].age).to.eql(11)
-                        expect(res.body.children[0].gender).to.eql('male')
+                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                         defaultChildrenGroup.id = res.body.id
                     })
@@ -514,14 +485,7 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.children.length).to.eql(1)
                         expect(res.body.children[0]).to.have.property('id')
                         expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution).to.have.property('id')
-                        expect(res.body.children[0].institution.type).to.eql('Any Type')
-                        expect(res.body.children[0].institution.name).to.eql('Name Example')
-                        expect(res.body.children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.children[0].institution.latitude).to.eql(0)
-                        expect(res.body.children[0].institution.longitude).to.eql(0)
-                        expect(res.body.children[0].age).to.eql(11)
-                        expect(res.body.children[0].gender).to.eql('male')
+                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                         defaultChildrenGroup.id = res.body.id
                     })
@@ -552,7 +516,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Children Group is already registered!')
                     })
             })
         })
@@ -618,10 +582,9 @@ describe('Routes: HealthProfessional', () => {
                 return request
                     .delete(url)
                     .set('Content-Type', 'application/json')
-                    .expect(404)
-                    .then(err => {
-                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.NOT_FOUND)
-                        expect(err.body.description).to.eql(Strings.CHILDREN_GROUP.NOT_FOUND_DESCRIPTION)
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
                     })
             })
         })
@@ -656,14 +619,7 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body[0].children.length).to.eql(1)
                         expect(res.body[0].children[0]).to.have.property('id')
                         expect(res.body[0].children[0].username).to.eql('anotherusername')
-                        expect(res.body[0].children[0].institution).to.have.property('id')
-                        expect(res.body[0].children[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].children[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].children[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].children[0].institution.longitude).to.eql(0)
-                        expect(res.body[0].children[0].age).to.eql(11)
-                        expect(res.body[0].children[0].gender).to.eql('male')
+                        expect(res.body[0].children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body[0].school_class).to.eql(defaultChildrenGroup.school_class)
                     })
             })
@@ -702,20 +658,10 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.length).to.eql(2)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution.longitude).to.eql(0)
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution.longitude).to.eql(0)
+                        expect(res.body[1]).to.have.property('institution_id')
                     })
             })
         })
@@ -742,7 +688,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
 
-                const url: string = '/v1/users/healthprofessionals?sort=username&institution.type=Any Type&page=1&limit=3'
+                const url: string = '/v1/users/healthprofessionals?sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -750,16 +696,14 @@ describe('Routes: HealthProfessional', () => {
                     .expect(200)
                     .then(res => {
                         expect(res.body).is.an.instanceOf(Array)
-                        expect(res.body.length).to.eql(2)
+                        expect(res.body.length).to.eql(3)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('name')
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[0]).to.have.property('children_groups')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution).to.have.property('name')
+                        expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('children_groups')
                     })
             })

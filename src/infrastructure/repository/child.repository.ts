@@ -8,10 +8,9 @@ import { IEntityMapper } from '../port/entity.mapper.interface'
 import { ILogger } from '../../utils/custom.logger'
 import { Identifier } from '../../di/identifiers'
 import { Query } from './query/query'
-import { ObjectId } from 'bson'
 import { ValidationException } from '../../application/domain/exception/validation.exception'
 import { IUserRepository } from '../../application/port/user.repository.interface'
-import { IQuery } from '../../application/port/query.interface'
+// import { IQuery } from '../../application/port/query.interface'
 
 /**
  * Implementation of the child repository.
@@ -41,52 +40,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                     // If there is no need for 'populate ()', the return will suffice.
                     const query = new Query()
                     query.filters = result._id
-                    return resolve(this.findOne(query))
-                })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
-        })
-    }
-
-    public find(query: IQuery): Promise<Array<Child>> {
-        const q: any = query.toJSON()
-
-        return new Promise<Array<Child>>((resolve, reject) => {
-            this.childModel.find(q.filters)
-                .sort(q.ordination)
-                .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
-                .limit(Number(q.pagination.limit))
-                .exec()
-                .then((result: Array<Child>) => resolve(
-                    result
-                        .filter(item => item.institution)
-                        .map(item => this.mapper.transform(item))
-                ))
-                .catch(err => reject(this.mongoDBErrorListener(err)))
-        })
-    }
-
-    public findOne(query: IQuery): Promise<Child> {
-        const q: any = query.toJSON()
-
-        return new Promise<Child>((resolve, reject) => {
-            this.childModel.findOne(q.filters)
-                .exec()
-                .then((result: Child) => {
-                    if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
-                })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
-        })
-    }
-
-    public update(item: Child): Promise<Child> {
-        const itemUp: any = this.mapper.transform(item)
-        return new Promise<Child>((resolve, reject) => {
-            this.childModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
-                .exec()
-                .then((result: Child) => {
-                    if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
+                    return resolve(super.findOne(query))
                 })
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
@@ -103,9 +57,9 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                 const resultChildrenIDs: Array<string> = []
                 children.forEach((child: Child) => {
                     query.filters = { type: UserType.CHILD }
-                    if (child.id) query.addFilter({ _id: new ObjectId(child.id) })
+                    if (child.id) query.addFilter({ _id: child.id })
 
-                    this.findOne(query)
+                    super.findOne(query)
                         .then(result => {
                             count++
                             if (!result && child.id) resultChildrenIDs.push(child.id)
@@ -120,9 +74,9 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                 })
             } else {
                 query.filters = { type: UserType.CHILD }
-                if (children.id) query.addFilter( { _id: new ObjectId(children.id) })
+                if (children.id) query.addFilter( { _id: children.id })
 
-                this.find(query)
+                super.find(query)
                     .then((result: Array<Child>) => {
                         if (children.id) {
                             if (result.length) return resolve(true)

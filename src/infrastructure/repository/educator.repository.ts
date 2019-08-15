@@ -56,11 +56,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<Educator>) => resolve(
-                    result
-                        .filter(item => item.institution)
-                        .map(item => this.mapper.transform(item))
-                ))
+                .then((result: Array<Educator>) => resolve(result.map(item => this.mapper.transform(item))))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
@@ -109,7 +105,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
         query.addFilter({ type: UserType.EDUCATOR })
         return new Promise<boolean>((resolve, reject) => {
-            super.find(query)
+            this.find(query)
                 .then((result: Array<Educator>) => {
                     if (educator.id) {
                         if (result.length > 0) return resolve(true)

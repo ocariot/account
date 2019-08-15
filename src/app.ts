@@ -1,6 +1,6 @@
 import 'reflect-metadata'
 import morgan from 'morgan'
-import whitelist from '@nutes-uepb/express-ip-whitelist'
+import whitelist from 'ip-allowed'
 import helmet from 'helmet'
 import bodyParser from 'body-parser'
 import HttpStatus from 'http-status-codes'
