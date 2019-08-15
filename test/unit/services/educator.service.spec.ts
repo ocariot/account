@@ -526,6 +526,11 @@ describe('Services: Educator', () => {
     describe('saveChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup)', () => {
         context('when there is Educator with the received parameter', () => {
             it('should return a ChildrenGroup that was added', () => {
+                if (childrenGroup.children) {
+                    childrenGroup.children.forEach(childItem => {
+                        childItem.id = '507f1f77bcf86cd799439011'
+                    })
+                }
                 educator.id = '507f1f77bcf86cd799439011'
                 sinon
                     .mock(modelChildrenGroupFake)
@@ -866,6 +871,15 @@ describe('Services: Educator', () => {
     describe('updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup)', () => {
         context('when there is Educator with the received parameter', () => {
             it('should return the ChildrenGroup that was updated', () => {
+                if (educator.children_groups) {
+                    educator.children_groups.forEach(childrenGroupItem => {
+                        if (childrenGroupItem.children) {
+                            childrenGroupItem.children.forEach(childItem => {
+                                childItem.id = '507f1f77bcf86cd799439011'
+                            })
+                        }
+                    })
+                }
                 educator.children_groups![0].id = '507f1f77bcf86cd799439011'        // Make id valid again
                 sinon
                     .mock(modelChildrenGroupFake)

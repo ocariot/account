@@ -24,5 +24,5 @@ const childrenGroupSchema = new Mongoose.Schema({
         }
     }
 )
-childrenGroupSchema.index({ user_id: 1, children: 1, name: 1 }, { unique: true })
+childrenGroupSchema.index({ user_id: 1, name: 1 }, { unique: true })
 export const ChildrenGroupRepoModel = Mongoose.model<IChildrenGroupModel>('ChildrenGroup', childrenGroupSchema)

@@ -49,6 +49,9 @@ describe('Services: ChildrenGroup', () => {
     describe('add(childrenGroup: ChildrenGroup)', () => {
         context('when the ChildrenGroup is correct and it still does not exist in the repository', () => {
             it('should return the ChildrenGroup that was added', () => {
+                if (childrenGroup.children) childrenGroup.children.forEach(childItem => {
+                    childItem.id = '507f1f77bcf86cd799439011'
+                })
                 sinon
                     .mock(modelFake)
                     .expects('create')

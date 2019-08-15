@@ -78,6 +78,9 @@ describe('Services: Family', () => {
     describe('add(family: Family)', () => {
         context('when the Family is correct and it still does not exist in the repository', () => {
             it('should return the Family that was added', () => {
+                if (family.children) family.children.forEach(childItem => {
+                    childItem.id = '507f1f77bcf86cd799439011'
+                })
                 sinon
                     .mock(modelFake)
                     .expects('create')

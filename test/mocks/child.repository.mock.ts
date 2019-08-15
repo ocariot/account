@@ -5,7 +5,7 @@ import { ChildMock } from './child.mock'
 import { Strings } from '../../src/utils/strings'
 
 export class ChildRepositoryMock implements IChildRepository {
-    public checkExist(child: Child | Array<Child>): Promise<boolean | ValidationException> {
+    public checkExist(child: Child): Promise<boolean> {
         if (child instanceof Array) {
             if (child[0].id === '507f1f77bcf86cd799439012') throw new ValidationException(
                 Strings.CHILD.CHILDREN_REGISTER_REQUIRED, Strings.CHILD.IDS_WITHOUT_REGISTER)

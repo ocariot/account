@@ -28,6 +28,8 @@ export class ChildEntityMapper implements IEntityMapper<Child, ChildEntity> {
         if (item.institution !== undefined) result.institution = item.institution.id
         if (item.gender) result.gender = item.gender
         if (item.age) result.age = item.age
+        if (item.last_login) result.last_login = item.last_login
+        if (item.last_sync) result.last_sync = item.last_sync
         if (item.scopes) result.scopes = item.scopes
 
         return result
@@ -61,10 +63,15 @@ export class ChildEntityMapper implements IEntityMapper<Child, ChildEntity> {
         if (json.type !== undefined) result.type = json.type
         if (json.institution !== undefined) {
             if (json.institution === null) result.institution = undefined
-            else result.institution = new Institution().fromJSON(json.institution)
+            else {
+                result.institution = new Institution()
+                result.institution.id = json.institution
+            }
         }
         if (json.gender !== undefined) result.gender = json.gender
         if (json.age !== undefined) result.age = json.age
+        if (json.last_login !== undefined) result.last_login = json.last_login
+        if (json.last_sync !== undefined) result.last_sync = json.last_sync
         if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result

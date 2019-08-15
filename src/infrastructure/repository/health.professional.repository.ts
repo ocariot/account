@@ -35,7 +35,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         const itemNew: HealthProfessional = this.mapper.transform(item)
         return new Promise<HealthProfessional>((resolve, reject) => {
-            this.Model.create(itemNew)
+            this.healthProfessionalModel.create(itemNew)
                 .then((result) => {
                     // Required due to 'populate ()' routine.
                     // If there is no need for 'populate ()', the return will suffice.
@@ -49,55 +49,26 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
 
     public find(query: IQuery): Promise<Array<HealthProfessional>> {
         const q: any = query.toJSON()
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children_groups', populate: { path: 'children', populate: { path: 'institution' } } }]
-
-        for (const key in q.filters) {
-            if (key.startsWith('institution.')) {
-                populate[0].match[key.split('.')[1]] = q.filters[key]
-                delete q.filters[key]
-            }
-        }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate[0].select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<Array<HealthProfessional>>((resolve, reject) => {
-            this.Model.find(q.filters)
+            this.healthProfessionalModel.find(q.filters)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<HealthProfessional>) => resolve(
-                    result
-                        .filter(item => item.institution)
-                        .map(item => this.mapper.transform(item))
-                ))
+                .then((result: Array<HealthProfessional>) => resolve(result.map(item => this.mapper.transform(item))))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
 
     public findOne(query: IQuery): Promise<HealthProfessional> {
         const q: any = query.toJSON()
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children_groups', populate: { path: 'children', populate: { path: 'institution' } } }]
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate[0].select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<HealthProfessional>((resolve, reject) => {
-            this.Model.findOne(q.filters)
+            this.healthProfessionalModel.findOne(q.filters)
                 .populate(populate)
                 .exec()
                 .then((result: HealthProfessional) => {
@@ -110,12 +81,10 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
 
     public update(item: HealthProfessional): Promise<HealthProfessional> {
         const itemUp: any = this.mapper.transform(item)
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children_groups', populate: { path: 'children', populate: { path: 'institution' } } }]
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<HealthProfessional>((resolve, reject) => {
-            this.Model.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
+            this.healthProfessionalModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
                 .populate(populate)
                 .exec()
                 .then((result: HealthProfessional) => {
@@ -135,13 +104,18 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
     public checkExist(healthProfessional: HealthProfessional): Promise<boolean> {
         const query: Query = new Query()
         if (healthProfessional.id) query.filters = { _id: healthProfessional.id }
-        else query.filters = { username: healthProfessional.username }
 
         query.addFilter({ type: UserType.HEALTH_PROFESSIONAL })
         return new Promise<boolean>((resolve, reject) => {
-            this.findOne(query)
-                .then((result: HealthProfessional) => {
-                    if (result) return resolve(true)
+            this.find(query)
+                .then((result: Array<HealthProfessional>) => {
+                    if (healthProfessional.id) {
+                        if (result.length > 0) return resolve(true)
+                        return resolve(false)
+                    }
+                    for (const healthProfItem of result) {
+                        if (healthProfItem.username === healthProfessional.username) return resolve(true)
+                    }
                     return resolve(false)
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))

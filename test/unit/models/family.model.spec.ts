@@ -91,7 +91,7 @@ describe('Models: Family', () => {
             assert.propertyVal(result, 'username', familyJSON.username)
             assert.propertyVal(result, 'type', familyJSON.type)
             assert.deepPropertyVal(result, 'children', familyJSON.children)
-            assert.deepEqual(new ObjectID(result.institution!.id), familyJSON.institution)
+            assert.propertyVal(result, 'institution_id', familyJSON.institution)
         })
     })
 

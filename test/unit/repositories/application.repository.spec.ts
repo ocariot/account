@@ -347,10 +347,10 @@ describe('Repositories: Application', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ defaultApplication ])
 
                 return applicationRepo.checkExist(defaultApplication)
                     .then(result => {
@@ -367,7 +367,7 @@ describe('Repositories: Application', () => {
                             fields: {},
                             ordination: {},
                             pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { username: defaultApplication.username, type: UserType.APPLICATION }
+                            filters: { type: UserType.APPLICATION }
                         }
                     }
                 }
@@ -378,10 +378,10 @@ describe('Repositories: Application', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ appWithoutId ])
 
                 return applicationRepo.checkExist(appWithoutId)
                     .then(result => {
@@ -409,10 +409,10 @@ describe('Repositories: Application', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(false)
+                    .resolves([])
 
                 return applicationRepo.checkExist(customApp)
                     .then(result => {
@@ -428,7 +428,7 @@ describe('Repositories: Application', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',

@@ -87,6 +87,8 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
                     this.children.map(child => {
                         child.toJSON()
                         child.type = undefined
+                        child.gender = undefined
+                        child.age = undefined
                         return child
                     }) :
                     this.children

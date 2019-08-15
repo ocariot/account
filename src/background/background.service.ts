@@ -1,21 +1,18 @@
-import { Container, inject, injectable } from 'inversify'
+import { inject, injectable } from 'inversify'
 import { Identifier } from '../di/identifiers'
 import { IConnectionDB } from '../infrastructure/port/connection.db.interface'
 import { IBackgroundTask } from '../application/port/background.task.interface'
-import { DI } from '../di/di'
 import { RegisterDefaultAdminTask } from './task/register.default.admin.task'
+import { DIContainer } from '../di/di'
 
 @injectable()
 export class BackgroundService {
-
-    private container: Container
 
     constructor(
         @inject(Identifier.MONGODB_CONNECTION) private readonly _mongodb: IConnectionDB,
         @inject(Identifier.EVENT_BUS_TASK) private readonly _eventBusTask: IBackgroundTask,
         @inject(Identifier.GENERATE_JWT_KEYS_TASK) private readonly _generateJwtKeysTask: IBackgroundTask
     ) {
-        this.container = DI.getInstance().getContainer()
     }
 
     public async startServices(): Promise<void> {
@@ -26,8 +23,8 @@ export class BackgroundService {
              * if there are registered admin users.
              */
             await new RegisterDefaultAdminTask(this._mongodb,
-                this.container.get(Identifier.USER_REPOSITORY),
-                this.container.get(Identifier.LOGGER)
+                DIContainer.get(Identifier.USER_REPOSITORY),
+                DIContainer.get(Identifier.LOGGER)
             ).run()
 
             /**

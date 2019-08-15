@@ -33,7 +33,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
         const itemNew: Educator = this.mapper.transform(item)
         return new Promise<Educator>((resolve, reject) => {
-            this.Model.create(itemNew)
+            this.educatorModel.create(itemNew)
                 .then((result) => {
                     // Required due to 'populate ()' routine.
                     // If there is no need for 'populate ()', the return will suffice.
@@ -47,55 +47,26 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
     public find(query: IQuery): Promise<Array<Educator>> {
         const q: any = query.toJSON()
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children_groups', populate: { path: 'children', populate: { path: 'institution' } } }]
-
-        for (const key in q.filters) {
-            if (key.startsWith('institution.')) {
-                populate[0].match[key.split('.')[1]] = q.filters[key]
-                delete q.filters[key]
-            }
-        }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate[0].select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<Array<Educator>>((resolve, reject) => {
-            this.Model.find(q.filters)
+            this.educatorModel.find(q.filters)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<Educator>) => resolve(
-                    result
-                        .filter(item => item.institution)
-                        .map(item => this.mapper.transform(item))
-                ))
+                .then((result: Array<Educator>) => resolve(result.map(item => this.mapper.transform(item))))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
 
     public findOne(query: IQuery): Promise<Educator> {
         const q: any = query.toJSON()
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children_groups', populate: { path: 'children', populate: { path: 'institution' } } }]
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate[0].select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<Educator>((resolve, reject) => {
-            this.Model.findOne(q.filters)
+            this.educatorModel.findOne(q.filters)
                 .populate(populate)
                 .exec()
                 .then((result: Educator) => {
@@ -108,12 +79,10 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
     public update(item: Educator): Promise<Educator> {
         const itemUp: any = this.mapper.transform(item)
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children_groups', populate: { path: 'children', populate: { path: 'institution' } } }]
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<Educator>((resolve, reject) => {
-            this.Model.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
+            this.educatorModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
                 .populate(populate)
                 .exec()
                 .then((result: Educator) => {
@@ -133,13 +102,18 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
     public checkExist(educator: Educator): Promise<boolean> {
         const query: Query = new Query()
         if (educator.id) query.filters = { _id: educator.id }
-        else query.filters = { username: educator.username }
 
         query.addFilter({ type: UserType.EDUCATOR })
         return new Promise<boolean>((resolve, reject) => {
-            this.findOne(query)
-                .then((result: Educator) => {
-                    if (result) return resolve(true)
+            this.find(query)
+                .then((result: Array<Educator>) => {
+                    if (educator.id) {
+                        if (result.length > 0) return resolve(true)
+                        return resolve(false)
+                    }
+                    for (const educatorItem of result) {
+                        if (educatorItem.username === educator.username) return resolve(true)
+                    }
                     return resolve(false)
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))

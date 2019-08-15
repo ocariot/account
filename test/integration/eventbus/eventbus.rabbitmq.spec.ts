@@ -1,6 +1,5 @@
 import { expect } from 'chai'
-import { Container } from 'inversify'
-import { DI } from '../../../src/di/di'
+import { DIContainer } from '../../../src/di/di'
 import { Identifier } from '../../../src/di/identifiers'
 import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
 import { UserDeleteEvent } from '../../../src/application/integration-event/event/user.delete.event'
@@ -12,8 +11,7 @@ import { FamilyMock } from '../../mocks/family.mock'
 import { InstitutionEvent } from '../../../src/application/integration-event/event/institution.event'
 import { InstitutionMock } from '../../mocks/institution.mock'
 
-const container: Container = DI.getInstance().getContainer()
-const eventBus: IEventBus = container.get(Identifier.RABBITMQ_EVENT_BUS)
+const eventBus: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
 
 describe('EVENT BUS', () => {
     before(() => eventBus.enableLogger(false))

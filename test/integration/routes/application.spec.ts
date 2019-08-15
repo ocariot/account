@@ -1,21 +1,19 @@
 import { expect } from 'chai'
 import { App } from '../../../src/app'
 import { Identifier } from '../../../src/di/identifiers'
-import { DI } from '../../../src/di/di'
+import { DIContainer } from '../../../src/di/di'
 import { Institution } from '../../../src/application/domain/model/institution'
 import { Application } from '../../../src/application/domain/model/application'
 import { UserType } from '../../../src/application/domain/model/user'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
 import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
-import { Container } from 'inversify'
 import { ObjectID } from 'bson'
 import { ApplicationMock } from '../../mocks/application.mock'
 import { Strings } from '../../../src/utils/strings'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IConnectionDB = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Application', () => {
@@ -75,12 +73,7 @@ describe('Routes: Application', () => {
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultApplication.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.application_name).to.eql(defaultApplication.application_name)
                         defaultApplication.id = res.body.id
                     })
@@ -179,12 +172,7 @@ describe('Routes: Application', () => {
                     .then(res => {
                         expect(res.body.id).to.eql(defaultApplication.id)
                         expect(res.body.username).to.eql(defaultApplication.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.application_name).to.eql(defaultApplication.application_name)
                     })
             })
@@ -230,12 +218,7 @@ describe('Routes: Application', () => {
                     .then(res => {
                         expect(res.body.id).to.eql(defaultApplication.id)
                         expect(res.body.username).to.eql(defaultApplication.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.application_name).to.eql(defaultApplication.application_name)
                     })
             })
@@ -261,7 +244,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Application is already registered!')
                     })
             })
         })
@@ -354,23 +337,11 @@ describe('Routes: Application', () => {
                         expect(res.body.length).to.eql(2)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution.longitude).to.eql(0)
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[0]).to.have.property('application_name')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution.longitude).to.eql(0)
+                        expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('application_name')
                     })
             })
@@ -389,7 +360,7 @@ describe('Routes: Application', () => {
                         createUser({
                             username: 'ihaveaunknowusername',
                             password: 'mysecretkey',
-                            application_name: defaultApplication.application_name,
+                            application_name: 'app01',
                             institution: new ObjectID(result._id),
                             type: UserType.APPLICATION
                         }).then()
@@ -398,7 +369,7 @@ describe('Routes: Application', () => {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
 
-                const url: string = '/v1/users/applications?institution.type=Home&sort=username&page=1&limit=3'
+                const url: string = '/v1/users/applications?application_name=app01&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -410,9 +381,7 @@ describe('Routes: Application', () => {
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0].username).to.eql('ihaveaunknowusername')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.name).to.eql('Sherlock Neighbor')
-                        expect(res.body[0].institution.address).to.eql('221A Baker Street, St.')
+                        expect(res.body[0]).to.have.property('institution_id')
                     })
             })
         })

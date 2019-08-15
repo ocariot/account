@@ -27,34 +27,12 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
         super(childrenGroupModel, childrenGroupMapper, logger)
     }
 
-    public create(item: ChildrenGroup): Promise<ChildrenGroup> {
-        const itemNew: ChildrenGroup = this.mapper.transform(item)
-        return new Promise<ChildrenGroup>((resolve, reject) => {
-            this.Model.create(itemNew)
-                .then((result) => {
-                    // Required due to 'populate ()' routine.
-                    // If there is no need for 'populate ()', the return will suffice.
-                    const query = new Query()
-                    query.filters = result._id
-                    return resolve(this.findOne(query))
-                })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
-        })
-    }
-
     public find(query: IQuery): Promise<Array<ChildrenGroup>> {
         const q: any = query.toJSON()
-        const populate: any = { path: 'children', select: {}, populate: { path: 'institution' } }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate.select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children', select: {} }
 
         return new Promise<Array<ChildrenGroup>>((resolve, reject) => {
-            this.Model.find(q.filters)
+            this.childrenGroupModel.find(q.filters)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -67,17 +45,10 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
 
     public findOne(query: IQuery): Promise<ChildrenGroup> {
         const q: any = query.toJSON()
-        const populate: any = { path: 'children', select: {}, populate: { path: 'institution' } }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate.select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children', select: {} }
 
         return new Promise<ChildrenGroup>((resolve, reject) => {
-            this.Model.findOne(q.filters)
+            this.childrenGroupModel.findOne(q.filters)
                 .populate(populate)
                 .exec()
                 .then((result: ChildrenGroup) => {
@@ -90,10 +61,10 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
 
     public update(item: ChildrenGroup): Promise<ChildrenGroup> {
         const itemUp: any = this.mapper.transform(item)
-        const populate: any = { path: 'children', populate: { path: 'institution' } }
+        const populate: any = { path: 'children' }
 
         return new Promise<ChildrenGroup>((resolve, reject) => {
-            this.Model.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
+            this.childrenGroupModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
                 .populate(populate)
                 .exec()
                 .then((result: ChildrenGroup) => {
@@ -107,10 +78,10 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
     public checkExist(childrenGroup: ChildrenGroup): Promise<boolean> {
         const query: Query = new Query()
         if (childrenGroup.id) query.filters = { _id: childrenGroup.id }
-        else return Promise.resolve(false)
+        else query.filters = { name: childrenGroup.name, user_id: childrenGroup.user!.id }
 
         return new Promise<boolean>((resolve, reject) => {
-            super.findOne(query)
+            this.findOne(query)
                 .then((result: ChildrenGroup) => {
                     if (result) return resolve(true)
                     return resolve(false)

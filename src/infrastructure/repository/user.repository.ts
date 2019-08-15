@@ -84,4 +84,26 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
         query.addFilter({ _id: userId })
         return super.findOne(query)
     }
+
+    public updateLastLogin(username: string): Promise<boolean> {
+        return new Promise<boolean>(async (resolve, reject) => {
+            const users: any = await this.find(new Query())
+            let userId
+            for (const user of users) {
+                if (user.username === username) {
+                    userId = user.id
+                    break
+                }
+            }
+            if (!userId) return resolve(false)
+
+            this.userModel
+                .findOneAndUpdate(
+                    { _id: userId },
+                    { last_login: new Date() }
+                )
+                .then(result => resolve(!!result))
+                .catch(err => reject(this.mongoDBErrorListener(err)))
+        })
+    }
 }

@@ -1,5 +1,4 @@
-import { Container } from 'inversify'
-import { DI } from '../../../src/di/di'
+import { DIContainer } from '../../../src/di/di'
 import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
@@ -17,10 +16,9 @@ import { InstitutionMock } from '../../mocks/institution.mock'
 import { ChildMock } from '../../mocks/child.mock'
 import { Strings } from '../../../src/utils/strings'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const childService: IChildService = container.get(Identifier.CHILD_SERVICE)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IConnectionDB = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const childService: IChildService = DIContainer.get(Identifier.CHILD_SERVICE)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Family', () => {
@@ -92,12 +90,7 @@ describe('Routes: Family', () => {
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(1)
                         defaultFamily.id = res.body.id
@@ -196,12 +189,7 @@ describe('Routes: Family', () => {
                     .then(res => {
                         expect(res.body.id).to.eql(defaultFamily.id)
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(1)
                     })
@@ -248,12 +236,7 @@ describe('Routes: Family', () => {
                     .then(res => {
                         expect(res.body.id).to.eql(defaultFamily.id)
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(1)
                     })
@@ -280,7 +263,7 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Family is already registered!')
                     })
             })
         })
@@ -363,12 +346,7 @@ describe('Routes: Family', () => {
                     .then(res => {
                         expect(res.body.id).to.eql(defaultFamily.id)
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(2)
                     })
@@ -452,12 +430,7 @@ describe('Routes: Family', () => {
                         expect(res.body.length).is.eql(1)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0].username).to.eql('anothercoolusername')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution.longitude).to.eql(0)
+                        expect(res.body[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body[0].age).to.eql(11)
                         expect(res.body[0].gender).to.eql('male')
                     })
@@ -523,21 +496,10 @@ describe('Routes: Family', () => {
                         expect(res.body.length).to.eql(2)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution.longitude).to.eql(0)
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution.longitude).to.eql(0)
+                        expect(res.body[1]).to.have.property('institution_id')
                     })
             })
         })
@@ -564,7 +526,7 @@ describe('Routes: Family', () => {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
 
-                const url: string = '/v1/users/families?sort=username&institution.type=Any Type&page=1&limit=3'
+                const url: string = '/v1/users/families?sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -572,16 +534,14 @@ describe('Routes: Family', () => {
                     .expect(200)
                     .then(res => {
                         expect(res.body).is.an.instanceOf(Array)
-                        expect(res.body.length).to.eql(2)
+                        expect(res.body.length).to.eql(3)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('name')
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[0]).to.have.property('children')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution).to.have.property('name')
+                        expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('children')
                     })
             })

@@ -418,10 +418,10 @@ describe('Repositories: HealthProfessional', () => {
                 queryMock.filters = { _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ defaultHealthProfessional ])
 
                 return healthProfessionalRepo.checkExist(defaultHealthProfessional)
                     .then(result => {
@@ -438,7 +438,7 @@ describe('Repositories: HealthProfessional', () => {
                             fields: {},
                             ordination: {},
                             pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { username: defaultHealthProfessional.username, type: UserType.HEALTH_PROFESSIONAL }
+                            filters: { type: UserType.HEALTH_PROFESSIONAL }
                         }
                     }
                 }
@@ -449,10 +449,10 @@ describe('Repositories: HealthProfessional', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ healthProfessionalWithoutId ])
 
                 return healthProfessionalRepo.checkExist(healthProfessionalWithoutId)
                     .then(result => {
@@ -480,10 +480,10 @@ describe('Repositories: HealthProfessional', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(false)
+                    .resolves([])
 
                 return healthProfessionalRepo.checkExist(customHealthProfessional)
                     .then(result => {
@@ -499,7 +499,7 @@ describe('Repositories: HealthProfessional', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
                     .rejects({

@@ -42,6 +42,10 @@ export class ChildService implements IChildService {
             // 1. Validate Child parameters.
             CreateChildValidator.validate(child)
 
+            // 1.5 Ignore last_login and last_sync attributes if exists.
+            if (child.last_login) child.last_login = undefined
+            if (child.last_sync) child.last_sync = undefined
+
             // 2. Checks if child already exists.
             const childExist = await this._childRepository.checkExist(child)
             if (childExist) throw new ConflictException(Strings.CHILD.ALREADY_REGISTERED)
@@ -83,7 +87,16 @@ export class ChildService implements IChildService {
             // 1. Validate Child parameters.
             UpdateUserValidator.validate(child)
 
-            // 2. Checks if the institution exists.
+            // 2. Checks if child already exists.
+            const id: string = child.id!
+            child.id = undefined
+
+            const childExist = await this._childRepository.checkExist(child)
+            if (childExist) throw new ConflictException(Strings.CHILD.ALREADY_REGISTERED)
+
+            child.id = id
+
+            // 3. Checks if the institution exists.
             if (child.institution && child.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(child.institution)
                 if (!institutionExist) {
@@ -97,10 +110,10 @@ export class ChildService implements IChildService {
             return Promise.reject(err)
         }
 
-        // 3. Update child data.
+        // 4. Update child data.
         const childUp = await this._childRepository.update(child)
 
-        // 4. If updated successfully, the object is published on the message bus.
+        // 5. If updated successfully, the object is published on the message bus.
         if (childUp) {
             const event = new UserUpdateEvent<Child>('ChildUpdateEvent', new Date(), childUp)
 
@@ -109,7 +122,7 @@ export class ChildService implements IChildService {
                 this.saveEvent(event)
             } else {
                 this._logger.info(`User of type Child with ID: ${childUp.id} has been updated`
-                    .concat('and published on event bus...'))
+                    .concat(' and published on event bus...'))
             }
         }
         // 6. Returns the created object.

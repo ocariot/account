@@ -417,10 +417,10 @@ describe('Repositories: Educator', () => {
                 queryMock.filters = { _id: defaultEducator.id, type: UserType.EDUCATOR }
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ defaultEducator ])
 
                 return educatorRepo.checkExist(defaultEducator)
                     .then(result => {
@@ -437,7 +437,7 @@ describe('Repositories: Educator', () => {
                             fields: {},
                             ordination: {},
                             pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { username: defaultEducator.username, type: UserType.EDUCATOR }
+                            filters: { type: UserType.EDUCATOR }
                         }
                     }
                 }
@@ -448,10 +448,10 @@ describe('Repositories: Educator', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ educatorWithoutId ])
 
                 return educatorRepo.checkExist(educatorWithoutId)
                     .then(result => {
@@ -479,10 +479,10 @@ describe('Repositories: Educator', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(false)
+                    .resolves([])
 
                 return educatorRepo.checkExist(customEducator)
                     .then(result => {
@@ -498,7 +498,7 @@ describe('Repositories: Educator', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
                     .rejects({

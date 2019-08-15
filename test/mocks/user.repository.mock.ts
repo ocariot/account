@@ -13,6 +13,14 @@ export class UserRepositoryMock implements IUserRepository {
         return passwordHash === passwordPlain
     }
 
+    public encryptUsername(username: string): string {
+        return username
+    }
+
+    public decryptUsername(encryptedUsername: string): string {
+        return encryptedUsername
+    }
+
     public encryptPassword(password: string): string {
         return password
     }
@@ -76,5 +84,9 @@ export class UserRepositoryMock implements IUserRepository {
 
     public update(item: User): Promise<User> {
         return Promise.resolve(item)
+    }
+
+    public updateLastLogin(username: string): Promise<boolean> {
+        return Promise.resolve(true)
     }
 }

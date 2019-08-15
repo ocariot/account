@@ -91,10 +91,11 @@ describe('Models: Application', () => {
             it('should return a JSON from Application model', () => {
                 let result = new Application().fromJSON(appJSON)
                 result = result.toJSON()
+
                 assert.propertyVal(result, 'id', appJSON.id)
                 assert.propertyVal(result, 'username', appJSON.username)
                 assert.propertyVal(result, 'type', appJSON.type)
-                assert.deepEqual(new ObjectID(result.institution!.id), appJSON.institution)
+                assert.propertyVal(result, 'institution_id', appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
             })
         })

@@ -28,7 +28,7 @@ export class EventBusTask implements IBackgroundTask {
         private readonly _integrationEventRepository: IIntegrationEventRepository,
         @inject(Identifier.LOGGER) private readonly _logger: ILogger
     ) {
-        // this._diContainer = DI.getInstance().getContainer()
+        // this._diContainer = IoC.getInstance().getContainer()
         this._eventBus.enableLogger(true)
     }
 

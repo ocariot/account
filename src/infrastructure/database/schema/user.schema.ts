@@ -1,4 +1,7 @@
 import Mongoose, { Schema } from 'mongoose'
+import { Default } from '../../../utils/default'
+import MongooseFieldEncryption from 'mongoose-field-encryption'
+require('dotenv').config()
 
 interface IUserModel extends Mongoose.Document {
 }
@@ -28,6 +31,8 @@ const userSchema = new Mongoose.Schema({
             ref: 'ChildrenGroup'
         }], // User type Educator and HealthProfessional
         application_name: { type: String }, // User type Application
+        last_login: { type: Date },
+        last_sync: { type: Date },
         scopes: [{ type: String }] // Scope that signal the types of access the user has.
     },
     {
@@ -42,5 +47,8 @@ const userSchema = new Mongoose.Schema({
         }
     }
 )
-userSchema.index({ username: 1 }, { unique: true }) // define index at schema level
+
+const secretKey = process.env.ENCRYPT_SECRET_KEY || Default.ENCRYPT_SECRET_KEY
+userSchema.plugin(MongooseFieldEncryption.fieldEncryption, { secret: secretKey, fields: ['username'] })
+
 export const UserRepoModel = Mongoose.model<IUserModel>('User', userSchema)

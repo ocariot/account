@@ -15,7 +15,7 @@ describe('IntegrationEvents: UserUpdate', () => {
             assert.propertyVal(result.child, 'id', user.id)
             assert.propertyVal(result.child, 'username', user.username)
             assert.propertyVal(result.child, 'type', user.type)
-            assert.property(result.child, 'institution')
+            assert.propertyVal(result.child, 'institution_id', user.institution!.id)
         })
 
         context('when the user is undefined', () => {

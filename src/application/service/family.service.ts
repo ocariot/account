@@ -41,6 +41,9 @@ export class FamilyService implements IFamilyService {
             // 1. Validate Family parameters.
             CreateFamilyValidator.validate(family)
 
+            // 1.5 Ignore last_login attribute if exists.
+            if (family.last_login) family.last_login = undefined
+
             // 2. Checks if family already exists.
             const familyExist = await this._familyRepository.checkExist(family)
             if (familyExist) throw new ConflictException(Strings.FAMILY.ALREADY_REGISTERED)
@@ -93,7 +96,16 @@ export class FamilyService implements IFamilyService {
             // 1. Validate Family parameters.
             UpdateUserValidator.validate(family)
 
-            // 2. Checks if the children to be associated have a record. Your registration is required.
+            // 2. Checks if family already exists.
+            const id: string = family.id!
+            family.id = undefined
+
+            const familyExist = await this._familyRepository.checkExist(family)
+            if (familyExist) throw new ConflictException(Strings.FAMILY.ALREADY_REGISTERED)
+
+            family.id = id
+
+            // 3. Checks if the children to be associated have a record. Your registration is required.
             if (family.children) {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
                 if (checkChildrenExist instanceof ValidationException) {
@@ -104,7 +116,7 @@ export class FamilyService implements IFamilyService {
                 }
             }
 
-            // 3. Checks if the institution exists.
+            // 4. Checks if the institution exists.
             if (family.institution && family.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(family.institution)
                 if (!institutionExist) {
@@ -118,10 +130,10 @@ export class FamilyService implements IFamilyService {
             return Promise.reject(err)
         }
 
-        // 4. Update family data
+        // 5. Update family data
         const familyUp = await this._familyRepository.update(family)
 
-        // 5. If updated successfully, the object is published on the message bus.
+        // 6. If updated successfully, the object is published on the message bus.
         if (familyUp) {
             const event = new UserUpdateEvent<Family>('FamilyUpdateEvent', new Date(), familyUp)
 

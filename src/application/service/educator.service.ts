@@ -43,6 +43,9 @@ export class EducatorService implements IEducatorService {
             // 1. Validate Educator parameters.
             CreateEducatorValidator.validate(educator)
 
+            // 1.5 Ignore last_login attribute if exists.
+            if (educator.last_login) educator.last_login = undefined
+
             // 2. Checks if Educator already exists.
             const educatorExist = await this._educatorRepository.checkExist(educator)
             if (educatorExist) throw new ConflictException(Strings.EDUCATOR.ALREADY_REGISTERED)
@@ -83,7 +86,16 @@ export class EducatorService implements IEducatorService {
             // 1. Validate Educator parameters.
             UpdateUserValidator.validate(educator)
 
-            // 2. Checks if the institution exists.
+            // 2. Checks if Educator already exists.
+            const id: string = educator.id!
+            educator.id = undefined
+
+            const educatorExist = await this._educatorRepository.checkExist(educator)
+            if (educatorExist) throw new ConflictException(Strings.EDUCATOR.ALREADY_REGISTERED)
+
+            educator.id = id
+
+            // 3. Checks if the institution exists.
             if (educator.institution && educator.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(educator.institution)
                 if (!institutionExist) {
@@ -97,10 +109,10 @@ export class EducatorService implements IEducatorService {
             return Promise.reject(err)
         }
 
-        // 3. Update Educator data.
+        // 4. Update Educator data.
         const educatorUp = await this._educatorRepository.update(educator)
 
-        // 4. If updated successfully, the object is published on the message bus.
+        // 5. If updated successfully, the object is published on the message bus.
         if (educatorUp) {
             const event = new UserUpdateEvent<Educator>(
                 'EducatorUpdateEvent', new Date(), educatorUp)
@@ -110,7 +122,7 @@ export class EducatorService implements IEducatorService {
                 this.saveEvent(event)
             } else {
                 this._logger.info(`User of type Educator with ID: ${educatorUp.id} has been updated`
-                    .concat('and published on event bus...'))
+                    .concat(' and published on event bus...'))
             }
         }
         // 6. Returns the created object.
@@ -244,10 +256,7 @@ export class EducatorService implements IEducatorService {
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
             if (!educator) {
-                throw new ValidationException(
-                    Strings.EDUCATOR.NOT_FOUND,
-                    Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
-                )
+                return Promise.resolve(true)
             }
 
             // 3. Remove the children group

@@ -126,7 +126,7 @@ export class HealthProfessionalController {
     public async saveChildrenGroupFromHealthProfessional(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const childrenGroup: ChildrenGroup = new ChildrenGroup().fromJSON(req.body)
-            // Creates an health professional to associate with the group of children
+            // Creates a health professional to associate with the group of children
             const healthProfessional: HealthProfessional = new HealthProfessional()
             healthProfessional.id = req.params.healthprofessional_id
             childrenGroup.user = healthProfessional
@@ -198,6 +198,11 @@ export class HealthProfessionalController {
         try {
             const childrenGroup: ChildrenGroup = new ChildrenGroup().fromJSON(req.body)
             childrenGroup.id = req.params.group_id
+            // Creates a health professional to associate with the group of children
+            const healthProfessional: HealthProfessional = new HealthProfessional()
+            healthProfessional.id = req.params.healthprofessional_id
+            childrenGroup.user = healthProfessional
+
             const result: ChildrenGroup = await this._healthProfessionalService
                 .updateChildrenGroup(req.params.healthprofessional_id, childrenGroup)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())
@@ -219,9 +224,7 @@ export class HealthProfessionalController {
     public async disassociateChildFromHealthProfessional(@request() req: Request, @response() res: Response):
         Promise<Response> {
         try {
-            const result: boolean = await this._healthProfessionalService
-                .deleteChildrenGroup(req.params.healthprofessional_id, req.params.group_id)
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())
+            await this._healthProfessionalService.deleteChildrenGroup(req.params.healthprofessional_id, req.params.group_id)
             return res.status(HttpStatus.NO_CONTENT).send()
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)

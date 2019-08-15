@@ -12,6 +12,7 @@ import { IJSONDeserializable } from '../utils/json.deserializable.interface'
 export class Child extends User implements IJSONSerializable, IJSONDeserializable<Child> {
     private _gender?: string // Gender of the child. Can be male or female.
     private _age?: number  // Age of the child.
+    private _last_sync?: Date // Last synchronization time according to the UTC.
 
     constructor() {
         super()
@@ -53,6 +54,14 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         this._age = value
     }
 
+    get last_sync(): Date | undefined {
+        return this._last_sync
+    }
+
+    set last_sync(value: Date | undefined) {
+        this._last_sync = value
+    }
+
     public fromJSON(json: any): Child {
         if (!json) return this
         super.fromJSON(json)
@@ -67,6 +76,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         }
         if (json.gender !== undefined) this.gender = json.gender
         if (json.age !== undefined) this.age = json.age
+        if (json.last_sync !== undefined) this.last_sync = this.convertDatetimeString(json.last_sync)
 
         return this
     }
@@ -74,7 +84,11 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     public toJSON(): any {
         return {
             ...super.toJSON(),
-            ...{ gender: this.gender, age: this.age }
+            ...{
+                gender: this.gender,
+                age: this.age,
+                last_sync: this.last_sync ? this.last_sync.toISOString() : this.last_sync
+            }
         }
     }
 }

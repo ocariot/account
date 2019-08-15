@@ -30,15 +30,18 @@ export class AuthRepository implements IAuthRepository {
 
     public authenticate(_username: string, password: string): Promise<object> {
         return new Promise<object>((resolve, reject) => {
-            this.userModel.findOne({ username: _username })
+            this.userModel.find({})
                 .then(result => {
-                    if (result) {
-                        const user: User = this.userMapper.transform(result)
+                    for (const item of result) {
+                        if (item.username === _username) {
+                            const user: User = this.userMapper.transform(item)
 
-                        // Validate password and generate access token.
-                        if (!user.password) return resolve(undefined)
-                        if (this._userRepository.comparePasswords(password, user.password)) {
-                            return resolve({ access_token: this.generateAccessToken(user) })
+                            // Validate password and generate access token.
+                            if (!user.password) return resolve(undefined)
+                            if (this._userRepository.comparePasswords(password, user.password)) {
+                                return resolve({ access_token: this.generateAccessToken(user) })
+                            }
+                            return resolve(undefined)
                         }
                     }
                     resolve(undefined)
