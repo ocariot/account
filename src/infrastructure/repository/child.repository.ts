@@ -32,7 +32,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
     public create(item: Child): Promise<Child> {
         // Encrypt password
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
-        const itemNew: Child = this.mapper.transform(item)
+        const itemNew: Child = this.childMapper.transform(item)
         return new Promise<Child>((resolve, reject) => {
             this.childModel.create(itemNew)
                 .then((result) => {
@@ -42,7 +42,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                     query.filters = result._id
                     return resolve(super.findOne(query))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 

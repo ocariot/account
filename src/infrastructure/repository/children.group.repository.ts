@@ -38,8 +38,8 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec() // execute query
-                .then((result: Array<ChildrenGroup>) => resolve(result.map(item => this.mapper.transform(item))))
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .then((result: Array<ChildrenGroup>) => resolve(result.map(item => this.childrenGroupMapper.transform(item))))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
@@ -53,14 +53,14 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
                 .exec()
                 .then((result: ChildrenGroup) => {
                     if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
+                    return resolve(this.childrenGroupMapper.transform(result))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
     public update(item: ChildrenGroup): Promise<ChildrenGroup> {
-        const itemUp: any = this.mapper.transform(item)
+        const itemUp: any = this.childrenGroupMapper.transform(item)
         const populate: any = { path: 'children' }
 
         return new Promise<ChildrenGroup>((resolve, reject) => {
@@ -69,9 +69,9 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
                 .exec()
                 .then((result: ChildrenGroup) => {
                     if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
+                    return resolve(this.childrenGroupMapper.transform(result))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 

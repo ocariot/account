@@ -96,6 +96,8 @@ export class ChildrenGroup extends Entity implements IJSONSerializable, IJSONDes
                     child.type = undefined
                     child.gender = undefined
                     child.age = undefined
+                    child.last_login = undefined
+                    child.last_sync = undefined
                     return child
                 }) :
                 this.children,

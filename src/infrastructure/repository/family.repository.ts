@@ -30,7 +30,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
     public create(item: Family): Promise<Family> {
         // Encrypt password
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
-        const itemNew: Family = this.mapper.transform(item)
+        const itemNew: Family = this.familyMapper.transform(item)
         return new Promise<Family>((resolve, reject) => {
             this.familyModel.create(itemNew)
                 .then((result) => {
@@ -40,7 +40,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                     query.filters = result._id
                     return resolve(this.findOne(query))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
@@ -56,9 +56,9 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                 .populate(populate)
                 .exec()
                 .then((result: Array<Family>) => {
-                    resolve(result.map(item => this.mapper.transform(item)))
+                    resolve(result.map(item => this.familyMapper.transform(item)))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
@@ -72,14 +72,14 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                 .exec()
                 .then((result: Family) => {
                     if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
+                    return resolve(this.familyMapper.transform(result))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
     public update(item: Family): Promise<Family> {
-        const itemUp: any = this.mapper.transform(item)
+        const itemUp: any = this.familyMapper.transform(item)
         const populate: any = { path: 'children' }
 
         return new Promise<Family>((resolve, reject) => {
@@ -88,9 +88,9 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                 .exec()
                 .then((result: Family) => {
                     if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
+                    return resolve(this.familyMapper.transform(result))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 

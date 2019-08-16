@@ -31,7 +31,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
     public create(item: Educator): Promise<Educator> {
         // Encrypt password
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
-        const itemNew: Educator = this.mapper.transform(item)
+        const itemNew: Educator = this.educatorMapper.transform(item)
         return new Promise<Educator>((resolve, reject) => {
             this.educatorModel.create(itemNew)
                 .then((result) => {
@@ -41,7 +41,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                     query.filters = result._id
                     return resolve(this.findOne(query))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
@@ -56,8 +56,8 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<Educator>) => resolve(result.map(item => this.mapper.transform(item))))
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .then((result: Array<Educator>) => resolve(result.map(item => this.educatorMapper.transform(item))))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
@@ -71,14 +71,14 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                 .exec()
                 .then((result: Educator) => {
                     if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
+                    return resolve(this.educatorMapper.transform(result))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
     public update(item: Educator): Promise<Educator> {
-        const itemUp: any = this.mapper.transform(item)
+        const itemUp: any = this.educatorMapper.transform(item)
         const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<Educator>((resolve, reject) => {
@@ -87,9 +87,9 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                 .exec()
                 .then((result: Educator) => {
                     if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
+                    return resolve(this.educatorMapper.transform(result))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 

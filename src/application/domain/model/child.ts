@@ -76,7 +76,11 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         }
         if (json.gender !== undefined) this.gender = json.gender
         if (json.age !== undefined) this.age = json.age
-        if (json.last_sync !== undefined) this.last_sync = this.convertDatetimeString(json.last_sync)
+        if (json.last_sync !== undefined && !(json.last_sync instanceof Date)) {
+            this.last_sync = this.convertDatetimeString(json.last_sync)
+        } else {
+            this.last_sync = json.last_sync
+        }
 
         return this
     }
