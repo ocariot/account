@@ -18,6 +18,7 @@ export class Educator extends User implements IJSONSerializable, IJSONDeserializ
         super.type = UserType.EDUCATOR
         super.scopes = [
             'educators:read',
+            'educators:update',
             'childrengroups:create',
             'childrengroups:read',
             'childrengroups:update',

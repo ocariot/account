@@ -16,6 +16,7 @@ describe('Models: Educator', () => {
         children_groups: new Array<Child>(),
         scopes: [
             'educators:read',
+            'educators:update',
             'childrengroups:create',
             'childrengroups:read',
             'childrengroups:update',

@@ -60,11 +60,11 @@ describe('Routes: User', () => {
         }
     })
 
-    describe('PATCH /v1/users/:user_id/password', () => {
+    describe('PUT /v1/users/:user_id/password', () => {
         context('when the password update was successful', () => {
             it('should return status code 204 and no content', () => {
                 return request
-                    .patch(`/v1/users/${defaultUser.id}/password`)
+                    .put(`/v1/users/${defaultUser.id}/password`)
                     .send({ old_password: 'mysecretkey', new_password: 'mynewsecretkey' })
                     .set('Content-Type', 'application/json')
                     .expect(204)
@@ -77,7 +77,7 @@ describe('Routes: User', () => {
         context('when there are validation errors', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
-                    .patch(`/v1/users/${defaultUser.id}/password`)
+                    .put(`/v1/users/${defaultUser.id}/password`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -92,7 +92,7 @@ describe('Routes: User', () => {
         context('when user is not found', () => {
             it('should return status code 404 and info message from user not found', () => {
                 return request
-                    .patch(`/v1/users/${new ObjectID()}/password`)
+                    .put(`/v1/users/${new ObjectID()}/password`)
                     .send({ old_password: 'mysecretkey', new_password: 'mynewsecretkey' })
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -106,7 +106,7 @@ describe('Routes: User', () => {
         context('when the old password does not match', () => {
             it('should return status code 400 and info message from old password does not match', () => {
                 return request
-                    .patch(`/v1/users/${defaultUser.id}/password`)
+                    .put(`/v1/users/${defaultUser.id}/password`)
                     .send({ old_password: 'anothersecretkey', new_password: 'mynewsecretkey' })
                     .set('Content-Type', 'application/json')
                     .expect(400)

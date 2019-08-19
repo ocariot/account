@@ -12,6 +12,7 @@ export class HealthProfessional extends Educator {
         super.type = UserType.HEALTH_PROFESSIONAL
         super.scopes = [
             'healthprofessionals:read',
+            'healthprofessionals:update',
             'childrengroups:create',
             'childrengroups:read',
             'childrengroups:update',

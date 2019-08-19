@@ -1,6 +1,6 @@
 import HttpStatus from 'http-status-codes'
 import { inject } from 'inversify'
-import { controller, httpDelete, httpPatch, request, response } from 'inversify-express-utils'
+import { controller, httpDelete, httpPut, request, response } from 'inversify-express-utils'
 import { Request, Response } from 'express'
 import { Identifier } from '../../di/identifiers'
 import { ApiExceptionManager } from '../exception/api.exception.manager'
@@ -34,7 +34,7 @@ export class UserController {
      * @param req
      * @param res
      */
-    @httpPatch('/:user_id/password')
+    @httpPut('/:user_id/password')
     public async changeUserPassword(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const result: boolean = await this._userService

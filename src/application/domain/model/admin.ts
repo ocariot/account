@@ -16,6 +16,7 @@ export class Admin extends User implements IJSONSerializable, IJSONDeserializabl
 
         super.scopes = [
             'users:delete',
+            'users:resetPassword',
             'educators:create',
             'educators:read',
             'educators:readAll',

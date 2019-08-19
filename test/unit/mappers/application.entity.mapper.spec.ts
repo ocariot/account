@@ -13,6 +13,7 @@ describe('Mappers: ApplicationEntity', () => {
         type: 'application',
         scopes: [
             'applications:read',
+            'applications:update',
             'institutions:read',
             'institutions:readAll',
             'questionnaires:create',
@@ -77,7 +78,7 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.propertyVal(result, 'username', applicationJSON.username)
                 assert.propertyVal(result, 'password', applicationJSON.password)
                 assert.propertyVal(result, 'type', applicationJSON.type)
-                assert.deepPropertyVal(result, 'scopes', application.scopes)
+                assert.deepPropertyVal(result, 'scopes', applicationJSON.scopes)
                 assert.property(result, 'institution')
                 assert.propertyVal(result, 'application_name', applicationJSON.application_name)
             })
@@ -91,7 +92,7 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.propertyVal(result, 'username', applicationJSON.username)
                 assert.propertyVal(result, 'password', applicationJSON.password)
                 assert.propertyVal(result, 'type', applicationJSON.type)
-                assert.deepPropertyVal(result, 'scopes', application.scopes)
+                assert.deepPropertyVal(result, 'scopes', applicationJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.propertyVal(result, 'application_name', applicationJSON.application_name)
             })
