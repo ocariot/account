@@ -36,6 +36,7 @@ Application settings are defined by environment variables.. To define the settin
 | `ISSUER` | Used to generate the JWT token. Usually it is the name of the platform.  | `ocariot` |
 | `ADMIN_USERNAME` | The default user name of type administrator created automatically when the application is initialized and the database has no administrator user.| `admin` |
 | `ADMIN_PASSWORD` | The default user password of the administrator type created automatically when the application is initialized and the database has no administrator user.  | `admin` |
+| `ENCRYPT_SECRET_KEY` | Secret key used in symmetric encryption applied to username.  | `s3cr3tk3y` |
 | `RABBITMQ_URI` | URI containing the parameters for connection to the message channel RabbitMQ. The [URI specifications ](https://www.rabbitmq.com/uri-spec.html) defined by RabbitMQ are accepted. For example: `amqp://user:pass@host:port/vhost`. | `amqp://guest:guest`<br/>`@127.0.0.1:5672/ocariot` |
 | `MONGODB_URI` | Database connection URI used if the application is running in development or production environment. The [URI specifications ](https://docs.mongodb.com/manual/reference/connection-string) defined by MongoDB are accepted. For example: `mongodb://user:pass@host:port/database?options`. | `mongodb://127.0.0.1:27017`<br/>`/ocariot-account` |
 | `MONGODB_URI_TEST` | Database connection URI used if the application is running in test environment. The [URI specifications ](https://docs.mongodb.com/manual/reference/connection-string) defined by MongoDB are accepted. For example: `mongodb://user:pass@host:port/database?options`. | `mongodb://127.0.0.1:27017`<br/>`/ocariot-account-test` |
@@ -44,6 +45,7 @@ Application settings are defined by environment variables.. To define the settin
 ## Generate Certificates
 For development and testing environments the easiest and fastest way is to generate your own self-signed certificates. These certificates can be used to encrypt data as well as certificates signed by a CA, but users will receive a warning that the certificate is not trusted for their computer or browser. Therefore, self-signed certificates should only be used in non-production environments, that is, development and testing environments. To do this, run the `create-self-signed-certs.sh` script in the root of the repository.
 ```sh
+chmod +x ./create-self-signed-certs.sh
 ./create-self-signed-certs.sh
 ```
 The following files will be created: `server.crt`, `server.key`, `ca.crt`, `jwt.key`, and `jwt.key.pub`.
@@ -119,8 +121,9 @@ docker run --rm \
   -e JWT_PRIVATE_KEY_PATH=.certs/jwt.key \
   -e JWT_PUBLIC_KEY_PATH=.certs/jwt.key.pub \
   -e ISSUER=ocariot \
-  -e ADMIN_USERNAME=admintest \
-  -e ADMIN_PASSWORD=admin \
+  -e ADMIN_USERNAME=admin \
+  -e ADMIN_PASSWORD=admin123 \
+  -e ENCRYPT_SECRET_KEY=s3cr3tk3y \
   -e RABBITMQ_URI="amqp://guest:guest@192.168.0.1:5672/ocariot" \
   -e MONGODB_URI="mongodb://192.168.0.2:27017/ocariot-account" \
   ocariot/account
@@ -140,7 +143,7 @@ docker build -t image_name:tag .
 
 [//]: # (These are reference links used in the body of this note.)
 [license-image]: https://img.shields.io/badge/license-Apache%202-blue.svg
-[license-url]: https://github.com/ocariot/account/blob/master/LICENSE 
+[license-url]: https://github.com/ocariot/account/blob/master/LICENSE
 [node-image]: https://img.shields.io/badge/node-%3E%3D%208.0.0-brightgreen.svg
 [node-url]: https://nodejs.org
 [travis-image]: https://travis-ci.org/ocariot/account.svg?branch=master
