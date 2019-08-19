@@ -17,7 +17,7 @@ import { Application } from '../../application/domain/model/application'
  * @remarks To define paths, we use library inversify-express-utils.
  * @see {@link https://github.com/inversify/inversify-express-utils} for further information.
  */
-@controller('/v1/users/applications')
+@controller('/v1/applications')
 export class ApplicationController {
 
     /**

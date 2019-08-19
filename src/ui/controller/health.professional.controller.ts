@@ -18,7 +18,7 @@ import { ChildrenGroup } from '../../application/domain/model/children.group'
  * @remarks To define paths, we use library inversify-express-utils.
  * @see {@link https://github.com/inversify/inversify-express-utils} for further information.
  */
-@controller('/v1/users/healthprofessionals')
+@controller('/v1/healthprofessionals')
 export class HealthProfessionalController {
 
     /**

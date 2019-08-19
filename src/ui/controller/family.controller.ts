@@ -18,7 +18,7 @@ import { Child } from '../../application/domain/model/child'
  * @remarks To define paths, we use library inversify-express-utils.
  * @see {@link https://github.com/inversify/inversify-express-utils} for further information.
  */
-@controller('/v1/users/families')
+@controller('/v1/families')
 export class FamilyController {
 
     /**
