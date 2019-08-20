@@ -39,4 +39,21 @@ export interface IFamilyRepository extends IRepository<Family> {
      * @throws {ValidationException | RepositoryException}
      */
     disassociateChildFromFamily(childId: string): Promise<boolean>
+
+    /**
+     * Returns the total of families.
+     *
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    count(): Promise<number>
+
+    /**
+     * Returns the total of children in a family.
+     *
+     * @param familyId
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    countChildrenFromFamily(familyId: string): Promise<number>
 }

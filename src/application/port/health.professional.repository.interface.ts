@@ -29,4 +29,21 @@ export interface IHealthProfessionalRepository extends IRepository<HealthProfess
      * @throws {ValidationException | RepositoryException}
      */
     checkExist(healthProfessional: HealthProfessional): Promise<boolean>
+
+    /**
+     * Returns the total of health professionals.
+     *
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    count(): Promise<number>
+
+    /**
+     * Returns the total of children groups in a health professional.
+     *
+     * @param healthProfessionalId
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    countChildrenGroups(healthProfessionalId: string): Promise<number>
 }

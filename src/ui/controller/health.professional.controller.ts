@@ -65,6 +65,8 @@ export class HealthProfessionalController {
         try {
             const result: Array<HealthProfessional> = await this._healthProfessionalService
                 .getAll(new Query().fromJSON(req.query))
+            const count: number = await this._healthProfessionalService.count()
+            res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -156,6 +158,10 @@ export class HealthProfessionalController {
         try {
             const result: Array<ChildrenGroup> = await this._healthProfessionalService
                 .getAllChildrenGroups(req.params.healthprofessional_id, new Query().fromJSON(req.query))
+
+            const count: number = await this._healthProfessionalService.countChildrenGroups(req.params.healthprofessional_id)
+            res.setHeader('X-Total-Count', count)
+
             return res.status(HttpStatus.OK).send(this.toJSONChildrenGroupView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)

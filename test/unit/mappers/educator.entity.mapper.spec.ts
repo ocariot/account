@@ -14,6 +14,7 @@ describe('Mappers: EducatorEntity', () => {
         scopes:
             [
                 'educators:read',
+                'educators:update',
                 'childrengroups:create',
                 'childrengroups:read',
                 'childrengroups:update',

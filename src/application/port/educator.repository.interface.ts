@@ -29,4 +29,21 @@ export interface IEducatorRepository extends IRepository<Educator> {
      * @throws {ValidationException | RepositoryException}
      */
     checkExist(educator: Educator): Promise<boolean>
+
+    /**
+     * Returns the total of educators.
+     *
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    count(): Promise<number>
+
+    /**
+     * Returns the total of children groups in an educator.
+     *
+     * @param educatorId
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    countChildrenGroups(educatorId: string): Promise<number>
 }

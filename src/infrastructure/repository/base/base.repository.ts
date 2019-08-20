@@ -95,9 +95,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         return new Promise<number>((resolve, reject) => {
             this.Model.countDocuments(query.toJSON().filters)
                 .exec()
-                .then(result => {
-                    resolve(Number(result))
-                })
+                .then(result => resolve(Number(result)))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }

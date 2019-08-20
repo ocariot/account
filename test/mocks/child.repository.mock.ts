@@ -14,7 +14,7 @@ export class ChildRepositoryMock implements IChildRepository {
         return Promise.resolve(child.id === '507f1f77bcf86cd799439011')
     }
 
-    public count(query: any): Promise<number> {
+    public count(): Promise<number> {
         return Promise.resolve(1)
     }
 

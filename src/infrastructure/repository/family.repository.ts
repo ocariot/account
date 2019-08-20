@@ -131,4 +131,16 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                 })
         })
     }
+
+    public count(): Promise<number> {
+        return super.count(new Query().fromJSON({ filters: { type: UserType.FAMILY } }))
+    }
+
+    public countChildrenFromFamily(familyId: string): Promise<number> {
+        return new Promise<number>((resolve, reject) => {
+            this.findOne(new Query().fromJSON({ filters: { _id: familyId } }))
+                .then(result => resolve(result && result.children ? result.children.length : 0))
+                .catch(err => reject(this.mongoDBErrorListener(err)))
+        })
+    }
 }

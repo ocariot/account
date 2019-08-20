@@ -7,7 +7,11 @@ export class EducatorRepositoryMock implements IEducatorRepository {
         return Promise.resolve(educator.id === '507f1f77bcf86cd799439011')
     }
 
-    public count(query: any): Promise<number> {
+    public count(): Promise<number> {
+        return Promise.resolve(1)
+    }
+
+    public countChildrenGroups(educatorId: string): Promise<number> {
         return Promise.resolve(1)
     }
 

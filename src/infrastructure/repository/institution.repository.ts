@@ -39,4 +39,8 @@ export class InstitutionRepository extends BaseRepository<Institution, Instituti
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
+
+    public count(): Promise<number> {
+        return super.count(new Query())
+    }
 }

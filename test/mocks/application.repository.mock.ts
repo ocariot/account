@@ -7,7 +7,7 @@ export class ApplicationRepositoryMock implements IApplicationRepository {
         return Promise.resolve(application.id === '507f1f77bcf86cd799439011')
     }
 
-    public count(query: any): Promise<number> {
+    public count(): Promise<number> {
         return Promise.resolve(1)
     }
 

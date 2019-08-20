@@ -91,4 +91,8 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
             }
         })
     }
+
+    public count(): Promise<number> {
+        return super.count(new Query().fromJSON({ filters: { type: UserType.CHILD } }))
+    }
 }

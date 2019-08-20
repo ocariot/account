@@ -65,6 +65,8 @@ export class EducatorController {
         try {
             const result: Array<Educator> = await this._educatorService
                 .getAll(new Query().fromJSON(req.query))
+            const count: number = await this._educatorService.count()
+            res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -153,6 +155,10 @@ export class EducatorController {
         try {
             const result: Array<ChildrenGroup> = await this._educatorService
                 .getAllChildrenGroups(req.params.educator_id, new Query().fromJSON(req.query))
+
+            const count: number = await this._educatorService.countChildrenGroups(req.params.educator_id)
+            res.setHeader('X-Total-Count', count)
+
             return res.status(HttpStatus.OK).send(this.toJSONChildrenGroupView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)

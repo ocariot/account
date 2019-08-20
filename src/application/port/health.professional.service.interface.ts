@@ -60,4 +60,21 @@ export interface IHealthProfessionalService extends IService<HealthProfessional>
      * @throws {ValidationException | RepositoryException}
      */
     deleteChildrenGroup(healthProfessionalId: string, childrenGroupId: string): Promise<boolean>
+
+    /**
+     * Returns the total of health professionals.
+     *
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    count(): Promise<number>
+
+    /**
+     * Returns the total of children groups in a health professional.
+     *
+     * @param healthProfessionalId
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    countChildrenGroups(healthProfessionalId: string): Promise<number>
 }

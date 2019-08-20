@@ -17,7 +17,6 @@ export class Application extends User implements IJSONSerializable, IJSONDeseria
         super.type = UserType.APPLICATION
         super.scopes = [
             'applications:read',
-            'applications:update',
             'institutions:read',
             'institutions:readAll',
             'questionnaires:create',

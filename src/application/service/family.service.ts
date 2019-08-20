@@ -227,6 +227,19 @@ export class FamilyService implements IFamilyService {
         }
     }
 
+    public count(): Promise<number> {
+        return this._familyRepository.count()
+    }
+
+    public countChildrenFromFamily(familyId: string): Promise<number> {
+        try {
+            ObjectIdValidator.validate(familyId)
+        } catch (err) {
+            return Promise.reject(err)
+        }
+        return this._familyRepository.countChildrenFromFamily(familyId)
+    }
+
     /**
      * Saves the event to the database.
      * Useful when it is not possible to run the event and want to perform the

@@ -65,4 +65,8 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
+
+    public count(): Promise<number> {
+        return super.count(new Query().fromJSON({ filters: { type: UserType.APPLICATION } }))
+    }
 }

@@ -148,6 +148,10 @@ export class ChildService implements IChildService {
         return Promise.resolve(true)
     }
 
+    public count(): Promise<number> {
+        return this._childRepository.count()
+    }
+
     /**
      * Saves the event to the database.
      * Useful when it is not possible to run the event and want to perform the

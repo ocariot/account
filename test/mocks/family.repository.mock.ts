@@ -8,7 +8,11 @@ export class FamilyRepositoryMock implements IFamilyRepository {
         return Promise.resolve(family.id === '507f1f77bcf86cd799439011')
     }
 
-    public count(query: any): Promise<number> {
+    public count(): Promise<number> {
+        return Promise.resolve(1)
+    }
+
+    public countChildrenFromFamily(familyId: string): Promise<number> {
         return Promise.resolve(1)
     }
 

@@ -122,4 +122,16 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
+
+    public count(): Promise<number> {
+        return super.count(new Query().fromJSON({ filters: { type: UserType.HEALTH_PROFESSIONAL } }))
+    }
+
+    public countChildrenGroups(healthProfessionalId: string): Promise<number> {
+        return new Promise<number>((resolve, reject) => {
+            this.findOne(new Query().fromJSON({ filters: { _id: healthProfessionalId } }))
+                .then(result => resolve(result && result.children_groups ? result.children_groups.length : 0))
+                .catch(err => reject(this.mongoDBErrorListener(err)))
+        })
+    }
 }

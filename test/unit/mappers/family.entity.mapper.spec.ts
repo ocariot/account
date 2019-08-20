@@ -13,6 +13,7 @@ describe('Mappers: FamilyEntity', () => {
         type: 'family',
         scopes: [
             'families:read',
+            'families:update',
             'institutions:read',
             'questionnaires:create',
             'questionnaires:read',

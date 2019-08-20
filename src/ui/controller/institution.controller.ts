@@ -64,6 +64,8 @@ export class InstitutionController {
         try {
             const result: Array<Institution> = await this._institutionService
                 .getAll(new Query().fromJSON(req.query))
+            const count: number = await this._institutionService.count()
+            res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(result.map(item => item.toJSON()))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)

@@ -133,6 +133,10 @@ export class ApplicationService implements IApplicationService {
         return this._applicationRepository.delete(id)
     }
 
+    public count(): Promise<number> {
+        return this._applicationRepository.count()
+    }
+
     /**
      * Saves the event to the database.
      * Useful when it is not possible to run the event and want to perform the

@@ -285,6 +285,19 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         }
     }
 
+    public count(): Promise<number> {
+        return this._healthProfessionalRepository.count()
+    }
+
+    public countChildrenGroups(healthProfessionalId: string): Promise<number> {
+        try {
+            ObjectIdValidator.validate(healthProfessionalId)
+        } catch (err) {
+            return Promise.reject(err)
+        }
+        return this._healthProfessionalRepository.countChildrenGroups(healthProfessionalId)
+    }
+
     /**
      * Saves the event to the database.
      * Useful when it is not possible to run the event and want to perform the

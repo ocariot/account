@@ -64,6 +64,8 @@ export class ChildController {
         try {
             const result: Array<Child> = await this._childService
                 .getAll(new Query().fromJSON(req.query))
+            const count: number = await this._childService.count()
+            res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)

@@ -108,6 +108,10 @@ export class InstitutionService implements IInstitutionService {
         }
     }
 
+    public count(): Promise<number> {
+        return this._institutionRepository.count()
+    }
+
     /**
      * Saves the event to the database.
      * Useful when it is not possible to run the event and want to perform the

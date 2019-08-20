@@ -7,7 +7,11 @@ export class HealthProfessionalRepositoryMock implements IHealthProfessionalRepo
         return Promise.resolve(healthProfessional.id === '507f1f77bcf86cd799439011')
     }
 
-    public count(query: any): Promise<number> {
+    public count(): Promise<number> {
+        return Promise.resolve(1)
+    }
+
+    public countChildrenGroups(healthProfessionalId: string): Promise<number> {
         return Promise.resolve(1)
     }
 

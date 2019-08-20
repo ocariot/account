@@ -13,7 +13,6 @@ describe('Models: Application', () => {
         type: UserType.APPLICATION,
         scopes: [
             'applications:read',
-            'applications:update',
             'institutions:read',
             'institutions:readAll',
             'questionnaires:create',

@@ -19,4 +19,12 @@ export interface IApplicationRepository extends IRepository<Application> {
      * @throws {ValidationException | RepositoryException}
      */
     checkExist(application: Application): Promise<boolean>
+
+    /**
+     * Returns the total of applications.
+     *
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    count(): Promise<number>
 }

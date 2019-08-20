@@ -279,6 +279,19 @@ export class EducatorService implements IEducatorService {
         }
     }
 
+    public count(): Promise<number> {
+        return this._educatorRepository.count()
+    }
+
+    public countChildrenGroups(educatorId: string): Promise<number> {
+        try {
+            ObjectIdValidator.validate(educatorId)
+        } catch (err) {
+            return Promise.reject(err)
+        }
+        return this._educatorRepository.countChildrenGroups(educatorId)
+    }
+
     /**
      * Saves the event to the database.
      * Useful when it is not possible to run the event and want to perform the

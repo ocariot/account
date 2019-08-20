@@ -119,4 +119,16 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
+
+    public count(): Promise<number> {
+        return super.count(new Query().fromJSON({ filters: { type: UserType.EDUCATOR } }))
+    }
+
+    public countChildrenGroups(educatorId: string): Promise<number> {
+        return new Promise<number>((resolve, reject) => {
+            this.findOne(new Query().fromJSON({ filters: { _id: educatorId } }))
+                .then(result => resolve(result && result.children_groups ? result.children_groups.length : 0))
+                .catch(err => reject(this.mongoDBErrorListener(err)))
+        })
+    }
 }

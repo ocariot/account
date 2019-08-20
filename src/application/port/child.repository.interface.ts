@@ -25,4 +25,12 @@ export interface IChildRepository extends IRepository<Child> {
      * @throws {ValidationException | RepositoryException}
      */
     checkExist(child: Child | Array<Child>): Promise<boolean | ValidationException>
+
+    /**
+     * Returns the total of children.
+     *
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    count(): Promise<number>
 }
