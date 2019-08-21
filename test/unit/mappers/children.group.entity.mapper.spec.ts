@@ -110,7 +110,6 @@ describe('Mappers: ChildrenGroupEntity', () => {
             it('should not normally execute the method, returning a ChildrenGroup as a result of the transformation', () => {
                 const result = new ChildrenGroupEntityMapper().transform(undefined)
 
-                assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'name', undefined)
                 assert.propertyVal(result, 'children', undefined)

@@ -15,6 +15,7 @@ export class HealthProfessionalMock extends HealthProfessional {
         super.password = 'health_professional_password'
         super.institution = this.generateInstitution()
         super.children_groups = [new ChildrenGroupMock(), new ChildrenGroupMock()]
+        super.last_login = new Date()
     }
 
     private generateObjectId(): string {

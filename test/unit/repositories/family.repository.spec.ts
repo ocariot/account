@@ -171,6 +171,7 @@ describe('Repositories: Family', () => {
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
                         assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
                     })
             })
         })
@@ -205,6 +206,7 @@ describe('Repositories: Family', () => {
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
                         assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
                     })
             })
         })
@@ -267,6 +269,7 @@ describe('Repositories: Family', () => {
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
                         assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
                     })
             })
         })
@@ -332,6 +335,7 @@ describe('Repositories: Family', () => {
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
                         assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
                     })
             })
         })
@@ -366,6 +370,7 @@ describe('Repositories: Family', () => {
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
                         assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
                     })
             })
         })
@@ -521,6 +526,112 @@ describe('Repositories: Family', () => {
     describe('disassociateChildFromFamily()', () => {
         it('Not implemented yet.', () => {
             return
+        })
+    })
+
+    describe('count()', () => {
+        context('when there is at least one family in the database', () => {
+            it('should return how many families there are in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(2)
+
+                return familyRepo.count()
+                    .then((countFamilies: number) => {
+                        assert.equal(countFamilies, 2)
+                    })
+            })
+        })
+
+        context('when there no are families in database', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(0)
+
+                return familyRepo.count()
+                    .then((countFamilies: number) => {
+                        assert.equal(countFamilies, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return familyRepo.count()
+                    .catch (err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('countChildrenFromFamily(familyId: string)', () => {
+        context('when there is at least one children associated with the family received', () => {
+            it('should return how many children are associated with such family in the database', () => {
+                defaultFamily.id = '507f1f77bcf86cd799439011'
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultFamily.id })
+                    .chain('exec')
+                    .resolves(defaultFamily)
+
+                return familyRepo.countChildrenFromFamily(defaultFamily.id!)
+                    .then((countChildren: number) => {
+                        assert.equal(countChildren, 2)
+                    })
+            })
+        })
+
+        context('when there no are children associated with such family in database', () => {
+            it('should return 0', () => {
+                defaultFamily.id = '507f1f77bcf86cd799439012'
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultFamily.id })
+                    .chain('exec')
+                    .resolves(new Family())
+
+                return familyRepo.countChildrenFromFamily(defaultFamily.id!)
+                    .then((countChildren: number) => {
+                        assert.equal(countChildren, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: 'invalid_id' })
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return familyRepo.countChildrenFromFamily(defaultFamily.id!)
+                    .catch (err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
         })
     })
 })

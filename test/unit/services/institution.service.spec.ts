@@ -10,7 +10,6 @@ import { IUserRepository } from '../../../src/application/port/user.repository.i
 import { UserRepositoryMock } from '../../mocks/user.repository.mock'
 import { Institution } from '../../../src/application/domain/model/institution'
 import { InstitutionMock } from '../../mocks/institution.mock'
-import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
 import { Strings } from '../../../src/utils/strings'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
@@ -35,7 +34,6 @@ describe('Services: Institution', () => {
         institutionsArr.push(new InstitutionMock())
     }
 
-    const modelFake: any = InstitutionRepoModel
     const userRepo: IUserRepository = new UserRepositoryMock()
     const institutionRepo: IInstitutionRepository = new InstitutionRepositoryMock()
     const integrationRepo: IIntegrationEventRepository = new IntegrationEventRepositoryMock()
@@ -68,13 +66,6 @@ describe('Services: Institution', () => {
     describe('add(institution: Institution)', () => {
         context('when the Institution is correct and it still does not exist in the repository', () => {
             it('should return the Institution that was added', () => {
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(institution)
-                    .chain('exec')
-                    .resolves(institution)
-
                 return institutionService.add(institution)
                     .then(result => {
                         assert.propertyVal(result, 'id', institution.id)
@@ -90,12 +81,6 @@ describe('Services: Institution', () => {
         context('when the Institution is correct but already exists in the repository', () => {
             it('should throw a ConflictException', () => {
                 incorrectInstitution.id = '507f1f77bcf86cd799439011'        // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(incorrectInstitution)
-                    .chain('exec')
-                    .rejects({ message: Strings.INSTITUTION.ALREADY_REGISTERED})
 
                 return institutionService.add(incorrectInstitution)
                     .catch(err => {
@@ -108,13 +93,6 @@ describe('Services: Institution', () => {
             it('should throw a ValidationException', () => {
                 incorrectInstitution.name = ''      // Make mock throw an exception
                 incorrectInstitution.type = ''
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(incorrectInstitution)
-                    .chain('exec')
-                    .rejects({ message: 'Required fields were not provided...',
-                               description: 'Institution validation: name, type is required!' })
 
                 return institutionService.add(incorrectInstitution)
                     .catch(err => {
@@ -134,12 +112,6 @@ describe('Services: Institution', () => {
                 institution.id = '507f1f77bcf86cd799439011'     // Make mock return a filled array
                 const query: IQuery = new Query()
                 query.filters = { _id: institution.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(institutionsArr)
 
                 return institutionService.getAll(query)
                     .then(result => {
@@ -154,12 +126,6 @@ describe('Services: Institution', () => {
                 institution.id = '507f1f77bcf86cd799439012'         // Make mock return an empty array
                 const query: IQuery = new Query()
                 query.filters = { _id: institution.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(new Array(new InstitutionMock()))
 
                 return institutionService.getAll(query)
                     .then(result => {
@@ -179,12 +145,6 @@ describe('Services: Institution', () => {
                 institution.id = '507f1f77bcf86cd799439011'         // Make mock return a Institution
                 const query: IQuery = new Query()
                 query.filters = { _id: institution.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(institution)
 
                 return institutionService.getById(institution.id, query)
                     .then(result => {
@@ -198,12 +158,6 @@ describe('Services: Institution', () => {
                 institution.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
                 const query: IQuery = new Query()
                 query.filters = { _id: institution.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return institutionService.getById(institution.id, query)
                     .then(result => {
@@ -217,13 +171,6 @@ describe('Services: Institution', () => {
                 incorrectInstitution.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
                 const query: IQuery = new Query()
                 query.filters = { _id: incorrectInstitution.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return institutionService.getById(incorrectInstitution.id, query)
                     .catch(err => {
@@ -241,12 +188,6 @@ describe('Services: Institution', () => {
         context('when the Institution exists in the database', () => {
             it('should return the Institution that was updated', () => {
                 institution.id = '507f1f77bcf86cd799439011'         // Make mock return an updated institution
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(institution)
-                    .chain('exec')
-                    .resolves(institution)
 
                 return institutionService.update(institution)
                     .then(result => {
@@ -263,12 +204,6 @@ describe('Services: Institution', () => {
         context('when the Institution does not exist in the database', () => {
             it('should return undefined', () => {
                 institution.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(institution)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return institutionService.update(institution)
                     .then(result => {
@@ -280,13 +215,6 @@ describe('Services: Institution', () => {
         context('when the Institution is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
                 incorrectInstitution.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectInstitution)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return institutionService.update(incorrectInstitution)
                     .catch(err => {
@@ -304,12 +232,6 @@ describe('Services: Institution', () => {
         context('when there is Institution with the received parameter', () => {
             it('should return true', () => {
                 institution.id = '507f1f77bcf86cd799439012'         // Make mock return true
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(institution.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return institutionService.remove(institution.id!)
                     .then(result => {
@@ -321,12 +243,6 @@ describe('Services: Institution', () => {
         context('when there is Institution with the received parameter but there is no connection to the RabbitMQ', () => {
             it('should save the event that informs about the exclusion of institution and return true', () => {
                 connectionRabbitmqPub.isConnected = false
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(institution.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return institutionService.remove(institution.id!)
                     .then(result => {
@@ -339,12 +255,6 @@ describe('Services: Institution', () => {
             it('should return false', () => {
                 connectionRabbitmqPub.isConnected = true
                 institution.id = '507f1f77bcf86cd799439013'         // Make mock return false
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(institution.id)
-                    .chain('exec')
-                    .resolves(false)
 
                 return institutionService.remove(institution.id)
                     .then(result => {
@@ -356,13 +266,6 @@ describe('Services: Institution', () => {
         context('when the Institution is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
                 incorrectInstitution.id = '507f1f77bcf86cd7994390111'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(incorrectInstitution.id)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return institutionService.remove(incorrectInstitution.id)
                     .catch(err => {
@@ -375,16 +278,21 @@ describe('Services: Institution', () => {
         context('when the Institution is associated with one or more users.', () => {
             it('should throw a ValidationException', () => {
                 incorrectInstitution.id = '507f1f77bcf86cd799439011'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(incorrectInstitution.id)
-                    .chain('exec')
-                    .rejects({ message: Strings.INSTITUTION.HAS_ASSOCIATION })
 
                 return institutionService.remove(incorrectInstitution.id)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.INSTITUTION.HAS_ASSOCIATION)
+                    })
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when want count institutions', () => {
+            it('should return the number of institutions', () => {
+                return institutionService.count()
+                    .then(res => {
+                        assert.equal(res, 1)
                     })
             })
         })

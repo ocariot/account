@@ -221,17 +221,16 @@ describe('Routes: Educator', () => {
     describe('PATCH /v1/educators/:educator_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated educator', () => {
-                defaultEducator.username = 'newcoolusername'
-
                 return request
                     .patch(`/v1/educators/${defaultEducator.id}`)
-                    .send({ username: 'newcoolusername' })
+                    .send({ last_login: defaultEducator.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultEducator.id)
                         expect(res.body.username).to.eql(defaultEducator.username)
                         expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.last_login).to.eql(defaultEducator.last_login!.toISOString())
                     })
             })
         })
@@ -636,6 +635,7 @@ describe('Routes: Educator', () => {
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
                         expect(res.body[1]).to.have.property('institution_id')
+                        expect(res.body[1]).to.have.property('last_login')
                     })
             })
         })
@@ -655,7 +655,8 @@ describe('Routes: Educator', () => {
                             password: defaultEducator.password,
                             type: UserType.EDUCATOR,
                             institution: result._id,
-                            scopes: new Array('users:read')
+                            scopes: new Array('users:read'),
+                            last_login: defaultEducator.last_login
                         }).then()
                     })
                 } catch (err) {

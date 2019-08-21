@@ -25,7 +25,6 @@ import { ConnectionRabbitmqMock } from '../../mocks/connection.rabbitmq.mock'
 import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
 import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
 import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
-import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { UserType } from '../../../src/application/domain/model/user'
 import { InstitutionMock } from '../../mocks/institution.mock'
 
@@ -45,7 +44,6 @@ describe('Services: Child', () => {
         childrenArr.push(new ChildMock())
     }
 
-    const modelFake: any = UserRepoModel
     const childRepo: IChildRepository = new ChildRepositoryMock()
     const institutionRepo: IInstitutionRepository = new InstitutionRepositoryMock()
     const childrenGroupRepo: IChildrenGroupRepository = new ChildrenGroupRepositoryMock()
@@ -80,12 +78,6 @@ describe('Services: Child', () => {
     describe('add(child: Child)', () => {
         context('when the Child is correct and it still does not exist in the repository', () => {
             it('should return the Child that was added', () => {
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(child)
-                    .chain('exec')
-                    .resolves(child)
 
                 return childService.add(child)
                     .then(result => {
@@ -97,6 +89,8 @@ describe('Services: Child', () => {
                         assert.propertyVal(result, 'institution', child.institution)
                         assert.propertyVal(result, 'gender', child.gender)
                         assert.propertyVal(result, 'age', child.age)
+                        assert.propertyVal(result, 'last_login', child.last_login)
+                        assert.propertyVal(result, 'last_sync', child.last_sync)
                     })
             })
         })
@@ -104,12 +98,6 @@ describe('Services: Child', () => {
         context('when the Child is correct but already exists in the repository', () => {
             it('should throw a ConflictException', () => {
                 child.id = '507f1f77bcf86cd799439011'        // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(child)
-                    .chain('exec')
-                    .rejects({ message: Strings.CHILD.ALREADY_REGISTERED})
 
                 return childService.add(child)
                     .catch(err => {
@@ -123,13 +111,6 @@ describe('Services: Child', () => {
             it('should throw a ValidationException', () => {
                 child.id = '507f1f77bcf86cd799439012'
                 child.institution!.id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(child)
-                    .chain('exec')
-                    .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return childService.add(child)
                     .catch(err => {
@@ -141,14 +122,6 @@ describe('Services: Child', () => {
 
         context('when the Child is incorrect (missing child fields)', () => {
             it('should throw a ValidationException', () => {
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(incorrectChild)
-                    .chain('exec')
-                    .rejects({ message: 'Required fields were not provided...',
-                               description: 'Child validation: username, password, type, institution, ' +
-                                   'gender, age is required!' })
 
                 return childService.add(incorrectChild)
                     .catch(err => {
@@ -162,13 +135,6 @@ describe('Services: Child', () => {
         context('when the Child is incorrect (the institution id is invalid)', () => {
             it('should throw a ValidationException', () => {
                 child.institution!.id = '507f1f77bcf86cd7994390111'
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(child)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childService.add(child)
                     .catch(err => {
@@ -189,12 +155,6 @@ describe('Services: Child', () => {
                 child.id = '507f1f77bcf86cd799439011'     // Make mock return a filled array
                 const query: IQuery = new Query()
                 query.filters = { _id: child.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(childrenArr)
 
                 return childService.getAll(query)
                     .then(result => {
@@ -209,12 +169,6 @@ describe('Services: Child', () => {
                 child.id = '507f1f77bcf86cd799439012'         // Make mock return an empty array
                 const query: IQuery = new Query()
                 query.filters = { _id: child.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(new Array<ChildMock>())
 
                 return childService.getAll(query)
                     .then(result => {
@@ -234,12 +188,6 @@ describe('Services: Child', () => {
                 child.id = '507f1f77bcf86cd799439011'         // Make mock return a Child
                 const query: IQuery = new Query()
                 query.filters = { _id: child.id, type: UserType.CHILD }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(child)
 
                 return childService.getById(child.id, query)
                     .then(result => {
@@ -253,12 +201,6 @@ describe('Services: Child', () => {
                 child.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
                 const query: IQuery = new Query()
                 query.filters = { _id: child.id, type: UserType.CHILD }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return childService.getById(child.id, query)
                     .then(result => {
@@ -272,13 +214,6 @@ describe('Services: Child', () => {
                 incorrectChild.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
                 const query: IQuery = new Query()
                 query.filters = { _id: incorrectChild.id, type: UserType.CHILD }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childService.getById(incorrectChild.id, query)
                     .catch(err => {
@@ -297,12 +232,6 @@ describe('Services: Child', () => {
             it('should return the Child that was updated', () => {
                 child.password = ''
                 child.id = '507f1f77bcf86cd799439011'         // Make mock return an updated child
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(child)
-                    .chain('exec')
-                    .resolves(child)
 
                 return childService.update(child)
                     .then(result => {
@@ -314,6 +243,8 @@ describe('Services: Child', () => {
                         assert.propertyVal(result, 'institution', child.institution)
                         assert.propertyVal(result, 'gender', child.gender)
                         assert.propertyVal(result, 'age', child.age)
+                        assert.propertyVal(result, 'last_login', child.last_login)
+                        assert.propertyVal(result, 'last_sync', child.last_sync)
                     })
             })
         })
@@ -321,12 +252,6 @@ describe('Services: Child', () => {
         context('when the Child exists in the database but there is no connection to the RabbitMQ', () => {
             it('should return the Child that was saved', () => {
                 connectionRabbitmqPub.isConnected = false
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(child)
-                    .chain('exec')
-                    .resolves(child)
 
                 return childService.update(child)
                     .then(result => {
@@ -338,6 +263,8 @@ describe('Services: Child', () => {
                         assert.propertyVal(result, 'institution', child.institution)
                         assert.propertyVal(result, 'gender', child.gender)
                         assert.propertyVal(result, 'age', child.age)
+                        assert.propertyVal(result, 'last_login', child.last_login)
+                        assert.propertyVal(result, 'last_sync', child.last_sync)
                     })
             })
         })
@@ -346,12 +273,6 @@ describe('Services: Child', () => {
             it('should return undefined', () => {
                 connectionRabbitmqPub.isConnected = true
                 child.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(child)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return childService.update(child)
                     .then(result => {
@@ -363,13 +284,6 @@ describe('Services: Child', () => {
         context('when the Child is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
                 incorrectChild.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectChild)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childService.update(incorrectChild)
                     .catch(err => {
@@ -384,13 +298,6 @@ describe('Services: Child', () => {
                 incorrectChild.id = '507f1f77bcf86cd799439011'
                 incorrectChild.institution = new InstitutionMock()
                 incorrectChild.institution!.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectChild)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childService.update(incorrectChild)
                     .catch(err => {
@@ -403,14 +310,6 @@ describe('Services: Child', () => {
         context('when the Child is incorrect (attempt to update password)', () => {
             it('should throw a ValidationException', () => {
                 child.password = 'child_password'
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(child)
-                    .chain('exec')
-                    .rejects({ message: 'This parameter could not be updated.',
-                               description: 'A specific route to update user password already exists.' +
-                                   'Access: PATCH /users/507f1f77bcf86cd799439012/password to update your password.' })
 
                 return childService.update(child)
                     .catch(err => {
@@ -425,13 +324,6 @@ describe('Services: Child', () => {
             it('should throw a ValidationException', () => {
                 child.password = ''
                 child.institution!.id = '507f1f77bcf86cd799439012'
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(child)
-                    .chain('exec')
-                    .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return childService.update(child)
                     .catch(err => {
@@ -449,12 +341,6 @@ describe('Services: Child', () => {
         context('when there is Child with the received parameter', () => {
             it('should return true', () => {
                 child.id = '507f1f77bcf86cd799439012'         // Make mock return true
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(child.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return childService.remove(child.id!)
                     .then(result => {
@@ -466,12 +352,6 @@ describe('Services: Child', () => {
         context('when there is no Child with the received parameter', () => {
             it('should return false', () => {
                 child.id = '507f1f77bcf86cd799439013'         // Make mock return false
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(child.id)
-                    .chain('exec')
-                    .resolves(false)
 
                 return childService.remove(child.id)
                     .then(result => {
@@ -483,18 +363,22 @@ describe('Services: Child', () => {
         context('when the Child is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
                 incorrectChild.id = '507f1f77bcf86cd7994390111'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(incorrectChild.id)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childService.remove(incorrectChild.id)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when want count children', () => {
+            it('should return the number of children', () => {
+                return childService.count()
+                    .then(res => {
+                        assert.equal(res, 1)
                     })
             })
         })

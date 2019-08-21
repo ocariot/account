@@ -44,15 +44,7 @@ describe('Mappers: EducatorEntity', () => {
             ],
         username: 'educator_mock',
         password: 'educator_password',
-        institution:
-            {
-                id: '9e97b425c3e7db930e9dd04c',
-                type: 'Institute of Scientific Research',
-                name: 'Name Example',
-                address: '221B Baker Street, St.',
-                latitude: 19.451064916085738,
-                longitude: 115.35107223303844
-            },
+        institution: '9e97b425c3e7db930e9dd04c',
         children_groups:
             [
                 {
@@ -81,14 +73,7 @@ describe('Mappers: EducatorEntity', () => {
                                     'gamificationprofile:update'
                                 ],
                                 username: 'child_mock',
-                                institution: {
-                                    id: '273ab3632f16bbd9044753cb',
-                                    type: 'Institute of Scientific Research',
-                                    name: 'Name Example',
-                                    address: '221B Baker Street, St.',
-                                    latitude: 57.972946525983005,
-                                    longitude: 15.984903991931109
-                                },
+                                institution: '273ab3632f16bbd9044753cb',
                                 gender: 'female',
                                 age: 7
                             },
@@ -112,20 +97,14 @@ describe('Mappers: EducatorEntity', () => {
                                     'gamificationprofile:update'
                                 ],
                                 username: 'child_mock',
-                                institution: {
-                                    id: '273ab3632f16bbd9044753cb',
-                                    type: 'Institute of Scientific Research',
-                                    name: 'Name Example',
-                                    address: '221B Baker Street, St.',
-                                    latitude: 57.972946525983005,
-                                    longitude: 15.984903991931109
-                                },
+                                institution: '273ab3632f16bbd9044753cb',
                                 gender: 'male',
                                 age: 7
                             },
                         ]
                 }
-            ]
+            ],
+        last_login: educator.last_login
     }
 
     describe('transform(item: any)', () => {
@@ -139,6 +118,7 @@ describe('Mappers: EducatorEntity', () => {
                 assert.propertyVal(result, 'scopes', educator.scopes)
                 assert.propertyVal(result, 'institution', educator.institution!.id)
                 assert.property(result, 'children_groups')
+                assert.propertyVal(result, 'last_login', educator.last_login)
             })
         })
 
@@ -150,8 +130,9 @@ describe('Mappers: EducatorEntity', () => {
                 assert.propertyVal(result, 'password', educatorJSON.password)
                 assert.propertyVal(result, 'type', educatorJSON.type)
                 assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
-                assert.property(result, 'institution')
+                assert.equal(result.institution.id, educatorJSON.institution)
                 assert.property(result, 'children_groups')
+                assert.propertyVal(result, 'last_login', educatorJSON.last_login)
             })
         })
 
@@ -166,6 +147,7 @@ describe('Mappers: EducatorEntity', () => {
                 assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.property(result, 'children_groups')
+                assert.propertyVal(result, 'last_login', educatorJSON.last_login)
             })
         })
 
@@ -173,12 +155,12 @@ describe('Mappers: EducatorEntity', () => {
             it('should not normally execute the method, returning an Educator as a result of the transformation', () => {
                 const result = new EducatorEntityMapper().transform(undefined)
 
-                assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'children_groups', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
             })
         })
     })

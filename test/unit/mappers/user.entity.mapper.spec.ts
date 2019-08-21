@@ -21,7 +21,8 @@ describe('Mappers: UserEntity', () => {
             address: '221B Baker Street, St.',
             latitude: 16.444253797043274,
             longitude: 88.34393529265958
-        }
+        },
+        last_login: user.last_login
     }
 
     describe('transform(item: any)', () => {
@@ -34,6 +35,7 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'type', user.type)
                 assert.propertyVal(result, 'scopes', user.scopes)
                 assert.propertyVal(result, 'institution', user.institution!.id)
+                assert.propertyVal(result, 'last_login', user.last_login)
             })
         })
 
@@ -45,7 +47,8 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'password', userJSON.password)
                 assert.propertyVal(result, 'type', userJSON.type)
                 assert.propertyVal(result, 'scopes', userJSON.scopes)
-                assert.property(result, 'institution')
+                assert.deepEqual(result.institution.toJSON(), userJSON.institution)
+                assert.propertyVal(result, 'last_login', userJSON.last_login)
             })
         })
 
@@ -59,6 +62,7 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'type', userJSON.type)
                 assert.propertyVal(result, 'scopes', userJSON.scopes)
                 assert.isUndefined(result.institution)
+                assert.propertyVal(result, 'last_login', userJSON.last_login)
             })
         })
 
@@ -66,13 +70,13 @@ describe('Mappers: UserEntity', () => {
             it('should not normally execute the method, returning a User as a result of the transformation', () => {
                 const result = new UserEntityMapper().transform(undefined)
 
-                assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'type', undefined)
                 assert.propertyVal(result, 'scopes', undefined)
                 assert.propertyVal(result, 'institution', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
             })
         })
     })

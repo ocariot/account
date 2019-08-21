@@ -1,6 +1,5 @@
 import sinon from 'sinon'
 import { assert } from 'chai'
-import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
 import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
 import { IConnectionFactory } from '../../../src/infrastructure/port/connection.factory.interface'
@@ -61,8 +60,6 @@ describe('Services: User', () => {
     for (let i = 0; i < 3; i++) {
         usersArr.push(new UserMock())
     }
-
-    const modelFake: any = UserRepoModel
 
     // Mock repo
     const applicationRepo: IApplicationRepository = new ApplicationRepositoryMock()
@@ -149,6 +146,43 @@ describe('Services: User', () => {
     })
 
     /**
+     * Method "resetPassword(userId: string, newPassword: string)"
+     */
+    describe('resetPassword(userId: string, newPassword: string)', () => {
+        context('when the parameters are correct', () => {
+            it('should return true', () => {
+                return userService.resetPassword(user.id!, user.password!)
+                    .then(result => {
+                        assert.equal(result, true)
+                    })
+            })
+        })
+
+        context('when the user id is invalid', () => {
+            it('should throw a ValidationException', () => {
+                user.id = '507f1f77bcf86cd7994390111'
+                return userService.resetPassword(user.id!, user.password!)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+
+        context('when the "oldPassword" and "newPassword" parameters are missing', () => {
+            it('should throw a ValidationException', () => {
+                user.id = '507f1f77bcf86cd799439011'
+                return userService.resetPassword(user.id!, '')
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'Required field not provided...')
+                        assert.propertyVal(err, 'description', 'Reset password validation failed: ' +
+                            'new_password is required!')
+                    })
+            })
+        })
+    })
+
+    /**
      * Method "getAll(query: IQuery)"
      */
     describe('getAll(query: IQuery)', () => {
@@ -156,12 +190,6 @@ describe('Services: User', () => {
             it('should return an User array', () => {
                 const query: IQuery = new Query()
                 query.filters = { _id: user.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(usersArr)
 
                 return userService.getAll(query)
                     .then(result => {
@@ -176,12 +204,6 @@ describe('Services: User', () => {
                 user.id = '507f1f77bcf86cd799439012'         // Make mock return an empty array
                 const query: IQuery = new Query()
                 query.filters = { _id: user.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(new Array<UserMock>())
 
                 return userService.getAll(query)
                     .then(result => {
@@ -201,12 +223,6 @@ describe('Services: User', () => {
                 user.id = '507f1f77bcf86cd799439011'         // Make mock return a Family
                 const query: IQuery = new Query()
                 query.filters = { _id: user.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(user)
 
                 return userService.getById(user.id, query)
                     .then(result => {
@@ -220,12 +236,6 @@ describe('Services: User', () => {
                 user.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
                 const query: IQuery = new Query()
                 query.filters = { _id: user.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return userService.getById(user.id, query)
                     .then(result => {
@@ -239,13 +249,6 @@ describe('Services: User', () => {
                 incorrectUser.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
                 const query: IQuery = new Query()
                 query.filters = { _id: incorrectUser.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return userService.getById(incorrectUser.id, query)
                     .catch(err => {
@@ -263,12 +266,6 @@ describe('Services: User', () => {
         context('when there is User (APPLICATION) with the received parameter', () => {
             it('should return true', () => {
                 user.id = '507f1f77bcf86cd799439011'         // Make mock return true (APPLICATION)
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(user.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return userService.remove(user.id!)
                     .then(result => {
@@ -280,12 +277,6 @@ describe('Services: User', () => {
         context('when there is User (CHILD) with the received parameter', () => {
             it('should return true', () => {
                 user.id = '507f1f77bcf86cd799439012'         // Make mock return true (CHILD)
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(user.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return userService.remove(user.id!)
                     .then(result => {
@@ -297,12 +288,6 @@ describe('Services: User', () => {
         context('when there is User (EDUCATOR) with the received parameter', () => {
             it('should return true', () => {
                 user.id = '507f1f77bcf86cd799439013'         // Make mock return true (EDUCATOR)
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(user.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return userService.remove(user.id!)
                     .then(result => {
@@ -314,12 +299,6 @@ describe('Services: User', () => {
         context('when there is User (FAMILY) with the received parameter', () => {
             it('should return true', () => {
                 user.id = '507f1f77bcf86cd799439014'         // Make mock return true (FAMILY)
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(user.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return userService.remove(user.id!)
                     .then(result => {
@@ -331,12 +310,6 @@ describe('Services: User', () => {
         context('when there is User (HEALTH_PROFESSIONAL) with the received parameter', () => {
             it('should return true', () => {
                 user.id = '507f1f77bcf86cd799439015'         // Make mock return true (HEALTH_PROFESSIONAL)
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(user.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return userService.remove(user.id!)
                     .then(result => {
@@ -349,12 +322,6 @@ describe('Services: User', () => {
             'RabbitMQ to publish an event reporting the removal of the resource', () => {
             it('should return true and save the event to inform the removal of the resource', () => {
                 connectionRabbitmqPub.isConnected = false
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(user.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return userService.remove(user.id!)
                     .then(result => {
@@ -367,12 +334,6 @@ describe('Services: User', () => {
             it('should return false', () => {
                 connectionRabbitmqPub.isConnected = true
                 user.id = '507f1f77bcf86cd799439016'         // Make mock return false
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(user.id)
-                    .chain('exec')
-                    .resolves(false)
 
                 return userService.remove(user.id!)
                     .then(result => {
@@ -384,13 +345,6 @@ describe('Services: User', () => {
         context('when the user id is invalid', () => {
             it('should throw a ValidationException', () => {
                 incorrectUser.id = '507f1f77bcf86cd7994390111'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(incorrectUser.id)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return userService.remove(incorrectUser.id)
                     .catch(err => {

@@ -1,6 +1,5 @@
 import sinon from 'sinon'
 import { BaseRepository } from '../../../src/infrastructure/repository/base/base.repository'
-import { Institution } from '../../../src/application/domain/model/institution'
 import { User, UserType } from '../../../src/application/domain/model/user'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { EntityMapperMock } from '../../mocks/entity.mapper.mock'
@@ -11,6 +10,7 @@ import { ObjectID } from 'bson'
 import { IEntityMapper } from '../../../src/infrastructure/port/entity.mapper.interface'
 import { ILogger } from '../../../src/utils/custom.logger'
 import { Entity } from '../../../src/application/domain/model/entity'
+import { UserMock, UserTypeMock } from '../../mocks/user.mock'
 
 require('sinon-mongoose')
 
@@ -26,21 +26,7 @@ class TestRepository<T extends Entity, TModel> extends BaseRepository<any, any> 
 
 describe('Repositories: Base', () => {
 
-    const institution: Institution = new Institution()
-    institution.id = '5b13826de00324086854584b'
-    institution.type = 'Any Type'
-    institution.name = 'Name Example'
-    institution.address = '221B Baker Street, St.'
-    institution.latitude = 0
-    institution.longitude = 0
-
-    const defaultUser: User = new User()
-    defaultUser.id = '5b13826de00324086854584b'
-    defaultUser.username = 'usertest'
-    defaultUser.password = 'userpass'
-    defaultUser.type = UserType.ADMIN
-    defaultUser.institution = institution
-    defaultUser.scopes = new Array<string>('i-can-everything')
+    const defaultUser: User = new UserMock(UserTypeMock.ADMIN)
 
     const modelFake: any = UserRepoModel
     const repo = new TestRepository(modelFake, new EntityMapperMock(), new CustomLoggerMock())
@@ -60,7 +46,6 @@ describe('Repositories: Base', () => {
         sinon.restore()
     })
 
-    // TODO implement test for create method
     describe('create(item: T)', () => {
         context('when a database error occurs (arguments not passed to findOne)', () => {
             it('should throw a ValidationException', () => {
@@ -123,7 +108,8 @@ describe('Repositories: Base', () => {
                     assert.propertyVal(users[0], 'id', defaultUser.id)
                     assert.propertyVal(users[0], 'username', defaultUser.username)
                     assert.propertyVal(users[0], 'type', defaultUser.type)
-                    assert.deepPropertyVal(users[0], 'institution_id', institution.id)
+                    assert.deepPropertyVal(users[0], 'institution_id', defaultUser.institution!.id)
+                    assert.propertyVal(users[0], 'last_login', defaultUser.last_login!.toISOString())
                 })
         })
 
@@ -201,7 +187,8 @@ describe('Repositories: Base', () => {
                     assert.propertyVal(user, 'id', user.id)
                     assert.propertyVal(user, 'username', user.username)
                     assert.propertyVal(user, 'type', user.type)
-                    assert.deepPropertyVal(user, 'institution_id', institution.id)
+                    assert.deepPropertyVal(user, 'institution_id', defaultUser.institution!.id)
+                    assert.propertyVal(user, 'last_login', defaultUser.last_login!.toISOString())
                 })
         })
 
@@ -257,7 +244,8 @@ describe('Repositories: Base', () => {
                     assert.propertyVal(user, 'id', user.id)
                     assert.propertyVal(user, 'username', user.username)
                     assert.propertyVal(user, 'type', user.type)
-                    assert.deepPropertyVal(user, 'institution_id', institution.id)
+                    assert.deepPropertyVal(user, 'institution_id', defaultUser.institution!.id)
+                    assert.propertyVal(user, 'last_login', defaultUser.last_login!.toISOString())
                 })
         })
 
@@ -281,13 +269,7 @@ describe('Repositories: Base', () => {
         context('when the user id is invalid', () => {
             it('should return info message about invalid parameter', () => {
 
-                const invalidUser: User = new User()
-                invalidUser.id = '5b13826de00324086854584b'
-                invalidUser.username = 'usertest'
-                invalidUser.password = 'userpass'
-                invalidUser.type = UserType.ADMIN
-                invalidUser.institution = institution
-                invalidUser.scopes = new Array<string>('i-can-everything')
+                const invalidUser: User = new UserMock()
 
                 sinon
                     .mock(modelFake)
@@ -419,7 +401,7 @@ describe('Repositories: Base', () => {
             })
         })
 
-        context('when a database occurs', () => {
+        context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
 
                 const customQueryMock: any = {

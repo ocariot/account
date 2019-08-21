@@ -17,6 +17,7 @@ export class UserMock extends User {
         super.type = type
         super.institution = this.generateInstitution()
         super.scopes = new Array<string>('readonly')
+        super.last_login = new Date()
     }
 
     private generateObjectId(): string {
@@ -59,6 +60,7 @@ export class UserMock extends User {
  * Names of user types supported of mock.
  */
 export enum UserTypeMock {
+    ADMIN = 'admin',
     CHILD = 'child',
     EDUCATOR = 'educator',
     HEALTH_PROFESSIONAL = 'healthprofessional',

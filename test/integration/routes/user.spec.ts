@@ -118,6 +118,64 @@ describe('Routes: User', () => {
         })
     })
 
+    describe('POST /v1/users/:user_id/reset-password', () => {
+        context('when the password reset was successful', () => {
+            it('should return status code 204 and no content', () => {
+                return request
+                    .post(`/v1/users/${defaultUser.id}/reset-password`)
+                    .send({ new_password: 'mynewsecretkey' })
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
+                    })
+            })
+        })
+
+        context('when there are validation errors (user id is invalid)', () => {
+            it('should return status code 400 and info message from invalid or missing parameters', () => {
+                return request
+                    .post(`/v1/users/123/reset-password`)
+                    .send({ new_password: 'mynewsecretkey' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+
+        context('when there are validation errors', () => {
+            it('should return status code 400 and info message from invalid or missing parameters', () => {
+                return request
+                    .post(`/v1/users/${defaultUser.id}/reset-password`)
+                    .send({})
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Required field not provided...')
+                        expect(err.body.description).to.eql('Reset password validation failed: ' +
+                            'new_password is required!')
+                    })
+            })
+        })
+
+        context('when user is not found', () => {
+            it('should return status code 404 and info message from user not found', () => {
+                return request
+                    .post(`/v1/users/${new ObjectID()}/reset-password`)
+                    .send({ new_password: 'mynewsecretkey' })
+                    .set('Content-Type', 'application/json')
+                    .expect(404)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.USER.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.USER.NOT_FOUND_DESCRIPTION)
+                    })
+            })
+        })
+    })
+
     describe('DELETE /v1/users/:user_id', () => {
         context('when the user was successful deleted', () => {
             it('should return status code 204 and no content for admin user', () => {
@@ -277,6 +335,19 @@ describe('Routes: User', () => {
                     .expect(204)
                     .then(res => {
                         expect(res.body).to.eql({})
+                    })
+            })
+        })
+
+        context('when there are validation errors (user id is invalid)', () => {
+            it('should return status code 204 and no content, even user does not exists', () => {
+                return request
+                    .delete(`/v1/users/123}`)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })

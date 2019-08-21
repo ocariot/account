@@ -42,7 +42,8 @@ describe('Models: Application', () => {
             'gamificationprofile:read',
             'gamificationprofile:update',
             'gamificationprofile:delete'
-        ]
+        ],
+        last_login: new Date()
     }
 
     describe('fromJSON()', () => {
@@ -56,6 +57,7 @@ describe('Models: Application', () => {
                 assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
                 assert.deepEqual(new ObjectID(result.institution!.id), appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
+                assert.propertyVal(result, 'last_login', appJSON.last_login)
             })
         })
 
@@ -69,6 +71,7 @@ describe('Models: Application', () => {
                 assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'application_name', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
             })
         })
 
@@ -80,8 +83,9 @@ describe('Models: Application', () => {
                 assert.propertyVal(result, 'password', appJSON.password)
                 assert.propertyVal(result, 'type', appJSON.type)
                 assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
-                assert.property(result, 'institution')
+                assert.deepEqual(new ObjectID(result.institution!.id), appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
+                assert.deepPropertyVal(result, 'last_login', appJSON.last_login)
             })
         })
     })
@@ -97,6 +101,7 @@ describe('Models: Application', () => {
                 assert.propertyVal(result, 'type', appJSON.type)
                 assert.propertyVal(result, 'institution_id', appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
+                assert.propertyVal(result, 'last_login', appJSON.last_login.toISOString())
             })
         })
     })

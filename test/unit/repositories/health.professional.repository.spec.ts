@@ -172,6 +172,7 @@ describe('Repositories: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
                     })
             })
         })
@@ -206,6 +207,7 @@ describe('Repositories: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
                     })
             })
         })
@@ -268,6 +270,7 @@ describe('Repositories: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
                     })
             })
         })
@@ -333,6 +336,7 @@ describe('Repositories: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
                     })
             })
         })
@@ -367,6 +371,7 @@ describe('Repositories: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
                     })
             })
         })
@@ -509,6 +514,112 @@ describe('Repositories: HealthProfessional', () => {
 
                 return healthProfessionalRepo.checkExist(defaultHealthProfessional)
                     .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when there is at least one health professional in the database', () => {
+            it('should return how many health professionals there are in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(2)
+
+                return healthProfessionalRepo.count()
+                    .then((countHealthProfessionals: number) => {
+                        assert.equal(countHealthProfessionals, 2)
+                    })
+            })
+        })
+
+        context('when there no are health professionals in database', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(0)
+
+                return healthProfessionalRepo.count()
+                    .then((countHealthProfessionals: number) => {
+                        assert.equal(countHealthProfessionals, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return healthProfessionalRepo.count()
+                    .catch (err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('countChildrenGroups(healthProfessionalId: string)', () => {
+        context('when there is at least one children group associated with the health professional received', () => {
+            it('should return how many children groups are associated with such health professional in the database', () => {
+                defaultHealthProfessional.id = '507f1f77bcf86cd799439011'
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultHealthProfessional.id })
+                    .chain('exec')
+                    .resolves(defaultHealthProfessional)
+
+                return healthProfessionalRepo.countChildrenGroups(defaultHealthProfessional.id!)
+                    .then((countChildrenGroups: number) => {
+                        assert.equal(countChildrenGroups, 2)
+                    })
+            })
+        })
+
+        context('when there no are children groups associated with such health professional in database', () => {
+            it('should return 0', () => {
+                defaultHealthProfessional.id = '507f1f77bcf86cd799439012'
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultHealthProfessional.id })
+                    .chain('exec')
+                    .resolves(new HealthProfessional())
+
+                return healthProfessionalRepo.countChildrenGroups(defaultHealthProfessional.id!)
+                    .then((countChildrenGroups: number) => {
+                        assert.equal(countChildrenGroups, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: 'invalid_id' })
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return healthProfessionalRepo.countChildrenGroups(defaultHealthProfessional.id!)
+                    .catch (err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })

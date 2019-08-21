@@ -46,7 +46,8 @@ describe('Models: Educator', () => {
             'environment:read',
             'missions:read',
             'gamificationprofile:read'
-        ]
+        ],
+        last_login: new Date()
     }
 
     describe('fromJSON()', () => {
@@ -60,6 +61,7 @@ describe('Models: Educator', () => {
                 assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
                 assert.deepEqual(new ObjectID(result.institution!.id), educatorJSON.institution)
+                assert.propertyVal(result, 'last_login', educatorJSON.last_login)
             })
         })
 
@@ -74,6 +76,7 @@ describe('Models: Educator', () => {
                 assert.property(result, 'scopes')
                 assert.propertyVal(result, 'children_groups', undefined)
                 assert.propertyVal(result, 'institution', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
             })
         })
 
@@ -86,7 +89,8 @@ describe('Models: Educator', () => {
                 assert.propertyVal(result, 'type', educatorJSON.type)
                 assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
-                assert.property(result, 'institution')
+                assert.deepEqual(new ObjectID(result.institution!.id), educatorJSON.institution)
+                assert.deepPropertyVal(result, 'last_login', educatorJSON.last_login)
             })
         })
     })
@@ -100,6 +104,7 @@ describe('Models: Educator', () => {
             assert.propertyVal(result, 'type', educatorJSON.type)
             assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
             assert.propertyVal(result, 'institution_id', educatorJSON.institution)
+            assert.propertyVal(result, 'last_login', educatorJSON.last_login.toISOString())
         })
     })
 

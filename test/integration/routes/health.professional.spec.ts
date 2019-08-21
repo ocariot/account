@@ -222,17 +222,16 @@ describe('Routes: HealthProfessional', () => {
     describe('PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated health professional', () => {
-                defaultHealthProfessional.username = 'newcoolusername'
-
                 return request
                     .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
-                    .send({ username: 'newcoolusername' })
+                    .send({ last_login: defaultHealthProfessional.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultHealthProfessional.id)
                         expect(res.body.username).to.eql(defaultHealthProfessional.username)
                         expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.last_login).to.eql(defaultHealthProfessional.last_login!.toISOString())
                     })
             })
         })
@@ -660,6 +659,7 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
                         expect(res.body[1]).to.have.property('institution_id')
+                        expect(res.body[1]).to.have.property('last_login')
                     })
             })
         })
@@ -679,7 +679,8 @@ describe('Routes: HealthProfessional', () => {
                             password: defaultHealthProfessional.password,
                             type: UserType.HEALTH_PROFESSIONAL,
                             institution: result._id,
-                            scopes: new Array('users:read')
+                            scopes: new Array('users:read'),
+                            last_login: defaultHealthProfessional.last_login
                         }).then()
                     })
                 } catch (err) {
@@ -703,7 +704,10 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body[1]).to.have.property('username')
                         expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('children_groups')
-                    })
+                        expect(res.body[2]).to.have.property('id')
+                        expect(res.body[2]).to.have.property('username')
+                        expect(res.body[2]).to.have.property('institution_id')
+                        expect(res.body[2]).to.have.property('children_groups')})
             })
         })
 

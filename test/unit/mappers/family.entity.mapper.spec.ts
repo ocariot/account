@@ -37,14 +37,7 @@ describe('Mappers: FamilyEntity', () => {
         ],
         username: 'family_mock',
         password: 'family_password',
-        institution: {
-            id: '08acd7b4216880c5c576e805',
-            type: 'Institute of Scientific Research',
-            name: 'Name Example',
-            address: '221B Baker Street, St.',
-            latitude: 20.19441680428105,
-            longitude: 105.9879473290647
-        },
+        institution: '08acd7b4216880c5c576e805',
         children: [
             {
                 id: '719a847e5582d1ad44d8e804',
@@ -73,14 +66,7 @@ describe('Mappers: FamilyEntity', () => {
                     'gamificationprofile:read'
                 ],
                 username: 'child_mock',
-                institution: {
-                    id: '08acd7b4216880c5c576e805',
-                    type: 'Institute of Scientific Research',
-                    name: 'Name Example',
-                    address: '221B Baker Street, St.',
-                    latitude: 20.19441680428105,
-                    longitude: 105.9879473290647
-                },
+                institution: '08acd7b4216880c5c576e805',
                 gender: 'male',
                 age: 8
             },
@@ -111,14 +97,7 @@ describe('Mappers: FamilyEntity', () => {
                     'gamificationprofile:read'
                 ],
                 username: 'child_mock',
-                institution: {
-                    id: '08acd7b4216880c5c576e805',
-                    type: 'Institute of Scientific Research',
-                    name: 'Name Example',
-                    address: '221B Baker Street, St.',
-                    latitude: 20.19441680428105,
-                    longitude: 105.9879473290647
-                },
+                institution: '08acd7b4216880c5c576e805',
                 gender: 'female',
                 age: 7
             },
@@ -149,18 +128,12 @@ describe('Mappers: FamilyEntity', () => {
                      'gamificationprofile:read'
                  ],
                 username: 'child_mock',
-                 institution: {
-                     id: '08acd7b4216880c5c576e805',
-                     type: 'Institute of Scientific Research',
-                     name: 'Name Example',
-                     address: '221B Baker Street, St.',
-                     latitude: 20.19441680428105,
-                     longitude: 105.9879473290647
-                 },
+                institution: '08acd7b4216880c5c576e805',
                 gender: 'female',
                 age: 8
              }
-         ]
+         ],
+        last_login: family.last_login
     }
 
     describe('transform(item: any)', () => {
@@ -175,6 +148,7 @@ describe('Mappers: FamilyEntity', () => {
                 assert.propertyVal(result, 'institution', family.institution!.id)
                 assert.equal(result.children[0], family.children![0].id)
                 assert.equal(result.children[1], family.children![1].id)
+                assert.propertyVal(result, 'last_login', family.last_login)
             })
         })
 
@@ -186,8 +160,9 @@ describe('Mappers: FamilyEntity', () => {
                 assert.propertyVal(result, 'password', familyJSON.password)
                 assert.propertyVal(result, 'type', familyJSON.type)
                 assert.propertyVal(result, 'scopes', familyJSON.scopes)
-                assert.property(result, 'institution')
+                assert.equal(result.institution.id, familyJSON.institution)
                 assert.property(result, 'children')
+                assert.propertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
 
@@ -202,6 +177,7 @@ describe('Mappers: FamilyEntity', () => {
                 assert.propertyVal(result, 'scopes', familyJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.property(result, 'children')
+                assert.propertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
 
@@ -209,12 +185,12 @@ describe('Mappers: FamilyEntity', () => {
             it('should not normally execute the method, returning an Family as a result of the transformation', () => {
                 const result = new FamilyEntityMapper().transform(undefined)
 
-                assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'children', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
             })
         })
     })

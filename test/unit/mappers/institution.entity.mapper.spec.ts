@@ -48,7 +48,6 @@ describe('Mappers: InstitutionEntity', () => {
                 'transformation', () => {
                 const result = new InstitutionEntityMapper().transform(undefined)
 
-                assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'type', undefined)
                 assert.propertyVal(result, 'name', undefined)

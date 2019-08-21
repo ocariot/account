@@ -62,7 +62,7 @@ describe('Routes: Application', () => {
                     username: defaultApplication.username,
                     password: 'mysecretkey',
                     application_name: defaultApplication.application_name,
-                    institution_id: institution.id
+                    institution_id: institution.id,
                 }
 
                 return request
@@ -208,11 +208,9 @@ describe('Routes: Application', () => {
     describe('PATCH /applications/:application_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated application', () => {
-                defaultApplication.application_name = 'newnameforapplication'
-
                 return request
                     .patch(`/v1/applications/${defaultApplication.id}`)
-                    .send({ application_name: defaultApplication.application_name })
+                    .send({ last_login: defaultApplication.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -220,6 +218,7 @@ describe('Routes: Application', () => {
                         expect(res.body.username).to.eql(defaultApplication.username)
                         expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.application_name).to.eql(defaultApplication.application_name)
+                        expect(res.body.last_login).to.eql(defaultApplication.last_login!.toISOString())
                     })
             })
         })
@@ -343,6 +342,7 @@ describe('Routes: Application', () => {
                         expect(res.body[1]).to.have.property('username')
                         expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('application_name')
+                        expect(res.body[1]).to.have.property('last_login')
                     })
             })
         })
@@ -362,7 +362,8 @@ describe('Routes: Application', () => {
                             password: 'mysecretkey',
                             application_name: 'app01',
                             institution: new ObjectID(result._id),
-                            type: UserType.APPLICATION
+                            type: UserType.APPLICATION,
+                            last_login: defaultApplication.last_login
                         }).then()
                     })
                 } catch (err) {
@@ -382,6 +383,7 @@ describe('Routes: Application', () => {
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0].username).to.eql('ihaveaunknowusername')
                         expect(res.body[0]).to.have.property('institution_id')
+                        expect(res.body[0]).to.have.property('last_login')
                     })
             })
         })

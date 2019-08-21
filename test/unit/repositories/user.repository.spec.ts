@@ -15,6 +15,8 @@ describe('Repositories: User', () => {
     defaultUser.type = UserType.ADMIN
     defaultUser.scopes = new Array<string>('i-can-everything')
 
+    const otherUser: User = new UserMock()
+
     const userModelFake: any = UserRepoModel
     const userRepo = new UserRepository(userModelFake, new EntityMapperMock(), new CustomLoggerMock())
 
@@ -61,10 +63,139 @@ describe('Repositories: User', () => {
         })
     })
 
-    // TODO implement changePassword test
     describe('changePassword(userId: string, old_password: string, new_password: string)', () => {
-        it('Not implemented yet', () => {
-            return userRepo
+        context('when password is successfully changed', () => {
+            it('should return true', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .resolves(defaultUser)
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .resolves(true)
+
+                return userRepo.changePassword(otherUser.id!, otherUser.password!, 'new_password')
+                    .then(result => {
+                        assert.isTrue(result)
+                    })
+            })
+        })
+
+        context('when the old password does not match', () => {
+            it('should throw a ValidationException', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .resolves(otherUser)
+
+                return userRepo.changePassword(otherUser.id!, otherUser.password!, 'new_password')
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'Password does not match!')
+                        assert.propertyVal(err, 'description',
+                            'The old password parameter does not match with the actual user password.')
+                    })
+            })
+        })
+
+        context('when a database error occurs in changePassword method', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return userRepo.changePassword(otherUser.id!, otherUser.password!, 'new_password')
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+
+        context('when a database error occurs in resetPassword method', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .resolves(defaultUser)
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return userRepo.changePassword(otherUser.id!, otherUser.password!, 'new_password')
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('resetPassword(userId: string, new_password: string)', () => {
+        context('when password is successfully reset', () => {
+            it('should return true', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .resolves(true)
+
+                return userRepo.resetPassword(otherUser.id!, 'new_password')
+                    .then(result => {
+                        assert.isTrue(result)
+                    })
+            })
+        })
+
+        context('when there is no user with the id received', () => {
+            it('should throw a ValidationException', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .resolves(false)
+
+                return userRepo.resetPassword(otherUser.id!, 'new_password')
+                    .then(result => {
+                        assert.isFalse(result)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return userRepo.resetPassword(otherUser.id!, '')
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
         })
     })
 
@@ -138,6 +269,7 @@ describe('Repositories: User', () => {
                         assert.propertyVal(result, 'type', defaultUser.type)
                         assert.propertyVal(result, 'scopes', defaultUser.scopes)
                         assert.propertyVal(result, 'institution', defaultUser.institution)
+                        assert.propertyVal(result, 'last_login', defaultUser.last_login)
                     })
             })
         })
@@ -174,6 +306,79 @@ describe('Repositories: User', () => {
                                description: 'Please try again later...' })
 
                 return userRepo.findById(defaultUser.id)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('updateLastLogin(username: string)', () => {
+        context('when last_login is successfully updated', () => {
+            it('should return true', () => {
+                defaultUser.id = '5a62be07de34500146d9c544'
+                sinon
+                    .mock(userModelFake)
+                    .expects('find')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves([ defaultUser ])
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: defaultUser.id })
+                    .chain('exec')
+                    .resolves(true)
+
+                return userRepo.updateLastLogin(defaultUser.username!)
+                    .then(result => {
+                        assert.isTrue(result)
+                    })
+            })
+        })
+
+        context('when last_login is not updated successfully', () => {
+            it('should return false', () => {
+                defaultUser.id = ''
+                sinon
+                    .mock(userModelFake)
+                    .expects('find')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves([ defaultUser ])
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: defaultUser.id })
+                    .chain('exec')
+                    .resolves(false)
+
+                return userRepo.updateLastLogin(defaultUser.username!)
+                    .then(result => {
+                        assert.isFalse(result)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                defaultUser.id = '5a62be07de34500146d9c544'
+                sinon
+                    .mock(userModelFake)
+                    .expects('find')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves([ defaultUser ])
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: defaultUser.id })
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return userRepo.updateLastLogin(defaultUser.username!)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')

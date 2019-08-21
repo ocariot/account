@@ -31,15 +31,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
             ],
         username: 'health_professional_mock',
         password: 'health_professional_password',
-        institution:
-            {
-                id: '9e97b425c3e7db930e9dd04c',
-                type: 'Institute of Scientific Research',
-                name: 'Name Example',
-                address: '221B Baker Street, St.',
-                latitude: 19.451064916085738,
-                longitude: 115.35107223303844
-            },
+        institution: '9e97b425c3e7db930e9dd04c',
         children_groups:
             [
                 {
@@ -68,14 +60,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
                                     'gamificationprofile:update'
                                 ],
                                 username: 'child_mock',
-                                institution: {
-                                    id: '273ab3632f16bbd9044753cb',
-                                    type: 'Institute of Scientific Research',
-                                    name: 'Name Example',
-                                    address: '221B Baker Street, St.',
-                                    latitude: 57.972946525983005,
-                                    longitude: 15.984903991931109
-                                },
+                                institution: '273ab3632f16bbd9044753cb',
                                 gender: 'female',
                                 age: 7
                             },
@@ -99,20 +84,14 @@ describe('Mappers: HealthProfessionalEntity', () => {
                                     'gamificationprofile:update'
                                 ],
                                 username: 'child_mock',
-                                institution: {
-                                    id: '273ab3632f16bbd9044753cb',
-                                    type: 'Institute of Scientific Research',
-                                    name: 'Name Example',
-                                    address: '221B Baker Street, St.',
-                                    latitude: 57.972946525983005,
-                                    longitude: 15.984903991931109
-                                },
+                                institution: '273ab3632f16bbd9044753cb',
                                 gender: 'male',
                                 age: 7
                             },
                         ]
                 }
-            ]
+            ],
+        last_login: healthProfessional.last_login
     }
 
     describe('transform(item: any)', () => {
@@ -127,6 +106,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'scopes', healthProfessional.scopes)
                 assert.propertyVal(result, 'institution', healthProfessional.institution!.id)
                 assert.property(result, 'children_groups')
+                assert.propertyVal(result, 'last_login', healthProfessional.last_login)
             })
         })
 
@@ -141,6 +121,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'scopes', healthProfessionalJSON.scopes)
                 assert.property(result, 'institution')
                 assert.property(result, 'children_groups')
+                assert.propertyVal(result, 'last_login', healthProfessionalJSON.last_login)
             })
         })
 
@@ -156,6 +137,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'scopes', healthProfessionalJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.property(result, 'children_groups')
+                assert.propertyVal(result, 'last_login', healthProfessionalJSON.last_login)
             })
         })
 
@@ -164,12 +146,12 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 'transformation', () => {
                 const result = new HealthProfessionalEntityMapper().transform(undefined)
 
-                assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'children_groups', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
             })
         })
     })

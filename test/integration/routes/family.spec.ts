@@ -226,11 +226,9 @@ describe('Routes: Family', () => {
     describe('PATCH /v1/families/:family_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated family', () => {
-                defaultFamily.username = 'newcoolusername'
-
                 return request
                     .patch(`/v1/families/${defaultFamily.id}`)
-                    .send({ username: 'newcoolusername' })
+                    .send({ last_login: defaultFamily.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -239,6 +237,7 @@ describe('Routes: Family', () => {
                         expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(1)
+                        expect(res.body.last_login).to.eql(defaultFamily.last_login!.toISOString())
                     })
             })
         })
@@ -500,6 +499,7 @@ describe('Routes: Family', () => {
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
                         expect(res.body[1]).to.have.property('institution_id')
+                        expect(res.body[1]).to.have.property('last_login')
                     })
             })
         })
@@ -519,7 +519,8 @@ describe('Routes: Family', () => {
                             password: defaultFamily.password,
                             type: UserType.FAMILY,
                             institution: result._id,
-                            scopes: new Array('users:read')
+                            scopes: new Array('users:read'),
+                            last_login: defaultFamily.last_login
                         }).then()
                     })
                 } catch (err) {

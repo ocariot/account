@@ -28,7 +28,9 @@ describe('Models: Child', () => {
             'missions:read',
             'gamificationprofile:read',
             'gamificationprofile:update'
-        ]
+        ],
+        last_login: new Date(),
+        last_sync: new Date()
     }
 
     describe('fromJSON()', () => {
@@ -44,6 +46,8 @@ describe('Models: Child', () => {
                 assert.propertyVal(result, 'age', childJSON.age)
                 assert.deepPropertyVal(result, 'scopes', childJSON.scopes)
                 assert.deepEqual(new ObjectID(result.institution!.id), childJSON.institution)
+                assert.propertyVal(result, 'last_login', childJSON.last_login)
+                assert.propertyVal(result, 'last_sync', childJSON.last_sync)
             })
         })
 
@@ -58,6 +62,8 @@ describe('Models: Child', () => {
                 assert.propertyVal(result, 'age', undefined)
                 assert.deepPropertyVal(result, 'scopes', childJSON.scopes)
                 assert.propertyVal(result, 'institution', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
+                assert.propertyVal(result, 'last_sync', undefined)
             })
         })
 
@@ -70,8 +76,10 @@ describe('Models: Child', () => {
                 assert.propertyVal(result, 'type', childJSON.type)
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
-                assert.property(childJSON, 'institution')
+                assert.deepEqual(new ObjectID(result.institution!.id), childJSON.institution)
                 assert.deepPropertyVal(result, 'scopes', childJSON.scopes)
+                assert.deepPropertyVal(result, 'last_login', childJSON.last_login)
+                assert.deepPropertyVal(result, 'last_sync', childJSON.last_sync)
             })
         })
     })
@@ -87,6 +95,8 @@ describe('Models: Child', () => {
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
                 assert.propertyVal(result, 'institution_id', childJSON.institution)
+                assert.propertyVal(result, 'last_login', childJSON.last_login.toISOString())
+                assert.propertyVal(result, 'last_sync', childJSON.last_sync.toISOString())
             })
         })
     })

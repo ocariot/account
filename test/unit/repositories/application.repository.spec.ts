@@ -174,6 +174,7 @@ describe('Repositories: Application', () => {
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
                         assert.propertyVal(result, 'application_name', defaultApplication.application_name)
+                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
                     })
             })
         })
@@ -208,6 +209,7 @@ describe('Repositories: Application', () => {
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
                         assert.propertyVal(result, 'application_name', defaultApplication.application_name)
+                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
                     })
             })
         })
@@ -234,6 +236,7 @@ describe('Repositories: Application', () => {
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
                         assert.propertyVal(result, 'application_name', defaultApplication.application_name)
+                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
                     })
             })
         })
@@ -296,6 +299,7 @@ describe('Repositories: Application', () => {
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
                         assert.propertyVal(result, 'application_name', defaultApplication.application_name)
+                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
                     })
             })
         })
@@ -436,6 +440,58 @@ describe('Repositories: Application', () => {
 
                 return applicationRepo.checkExist(defaultApplication)
                     .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when there is at least one application in the database', () => {
+            it('should return how many applications there are in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(2)
+
+                return applicationRepo.count()
+                    .then((countApplications: number) => {
+                        assert.equal(countApplications, 2)
+                    })
+            })
+        })
+
+        context('when there no are applications in database', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(0)
+
+                return applicationRepo.count()
+                    .then((countApplications: number) => {
+                        assert.equal(countApplications, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return applicationRepo.count()
+                    .catch (err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })

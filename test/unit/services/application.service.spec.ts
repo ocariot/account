@@ -2,7 +2,6 @@ import sinon from 'sinon'
 import { assert } from 'chai'
 import { Application } from '../../../src/application/domain/model/application'
 import { ApplicationMock } from '../../mocks/application.mock'
-import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
 import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
 import { IConnectionFactory } from '../../../src/infrastructure/port/connection.factory.interface'
@@ -42,7 +41,6 @@ describe('Services: Application', () => {
         applicationsArr.push(new ApplicationMock())
     }
 
-    const modelFake: any = UserRepoModel
     const applicationRepo: IApplicationRepository = new ApplicationRepositoryMock()
     const institutionRepo: IInstitutionRepository = new InstitutionRepositoryMock()
     const integrationRepo: IIntegrationEventRepository = new IntegrationEventRepositoryMock()
@@ -76,12 +74,6 @@ describe('Services: Application', () => {
         context('when the Application is correct and it still does not exist in the repository', () => {
             it('should return the Application that was added', () => {
                 application.institution!.id = '507f1f77bcf86cd799439011'      // Make mock return true for the institution exists
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(application)
-                    .chain('exec')
-                    .resolves(application)
 
                 return applicationService.add(application)
                     .then(result => {
@@ -92,6 +84,7 @@ describe('Services: Application', () => {
                         assert.propertyVal(result, 'scopes', application.scopes)
                         assert.propertyVal(result, 'institution', application.institution)
                         assert.propertyVal(result, 'application_name', application.application_name)
+                        assert.propertyVal(result, 'last_login', application.last_login)
                     })
             })
         })
@@ -99,12 +92,6 @@ describe('Services: Application', () => {
         context('when the Application is correct but already exists in the repository', () => {
             it('should throw a ConflictException', () => {
                 application.id = '507f1f77bcf86cd799439011'        // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(application)
-                    .chain('exec')
-                    .rejects({ message: Strings.APPLICATION.ALREADY_REGISTERED})
 
                 return applicationService.add(application)
                     .catch(err => {
@@ -118,13 +105,6 @@ describe('Services: Application', () => {
             it('should throw a ValidationException', () => {
                 application.id = '507f1f77bcf86cd799439012'
                 application.institution!.id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(application)
-                    .chain('exec')
-                    .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return applicationService.add(application)
                     .catch(err => {
@@ -136,14 +116,6 @@ describe('Services: Application', () => {
 
         context('when the Application is incorrect (missing application fields)', () => {
             it('should throw a ValidationException', () => {
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(incorrectApplication)
-                    .chain('exec')
-                    .rejects({ message: 'Required fields were not provided...',
-                               description: 'Application validation: username, password, type, application_name is required!' })
-
                 return applicationService.add(incorrectApplication)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'Required fields were not provided...')
@@ -156,13 +128,6 @@ describe('Services: Application', () => {
         context('when the Application is incorrect (the institution id is invalid)', () => {
             it('should throw a ValidationException', () => {
                 application.institution!.id = '507f1f77bcf86cd7994390111'
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(application)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return applicationService.add(application)
                     .catch(err => {
@@ -183,12 +148,6 @@ describe('Services: Application', () => {
                 application.id = '507f1f77bcf86cd799439011'     // Make mock return a filled array
                 const query: IQuery = new Query()
                 query.filters = { _id: application.id, type: UserType.APPLICATION }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(applicationsArr)
 
                 return applicationService.getAll(query)
                     .then(result => {
@@ -203,12 +162,6 @@ describe('Services: Application', () => {
                 application.id = '507f1f77bcf86cd799439012'         // Make mock return an empty array
                 const query: IQuery = new Query()
                 query.filters = { _id: application.id, type: UserType.APPLICATION }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(new Array<ApplicationMock>())
 
                 return applicationService.getAll(query)
                     .then(result => {
@@ -228,12 +181,6 @@ describe('Services: Application', () => {
                 application.id = '507f1f77bcf86cd799439011'         // Make mock return an application
                 const query: IQuery = new Query()
                 query.filters = { _id: application.id, type: UserType.APPLICATION }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(application)
 
                 return applicationService.getById(application.id, query)
                     .then(result => {
@@ -247,12 +194,6 @@ describe('Services: Application', () => {
                 application.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
                 const query: IQuery = new Query()
                 query.filters = { _id: application.id, type: UserType.APPLICATION }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return applicationService.getById(application.id, query)
                     .then(result => {
@@ -266,13 +207,6 @@ describe('Services: Application', () => {
                 incorrectApplication.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
                 const query: IQuery = new Query()
                 query.filters = { _id: incorrectApplication.id, type: UserType.APPLICATION }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return applicationService.getById(incorrectApplication.id, query)
                     .catch(err => {
@@ -291,12 +225,6 @@ describe('Services: Application', () => {
             it('should return the Application that was updated', () => {
                 application.password = ''
                 application.id = '507f1f77bcf86cd799439011'         // Make mock return an updated Application
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(application)
-                    .chain('exec')
-                    .resolves(application)
 
                 return applicationService.update(application)
                     .then(result => {
@@ -307,6 +235,7 @@ describe('Services: Application', () => {
                         assert.propertyVal(result, 'scopes', application.scopes)
                         assert.propertyVal(result, 'institution', application.institution)
                         assert.propertyVal(result, 'application_name', application.application_name)
+                        assert.propertyVal(result, 'last_login', application.last_login)
                     })
             })
         })
@@ -314,12 +243,6 @@ describe('Services: Application', () => {
         context('when the Application exists in the database but there is no connection to the RabbitMQ', () => {
             it('should return the Application that was saved', () => {
                 connectionRabbitmqPub.isConnected = false
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(application)
-                    .chain('exec')
-                    .resolves(application)
 
                 return applicationService.update(application)
                     .then(result => {
@@ -330,6 +253,7 @@ describe('Services: Application', () => {
                         assert.propertyVal(result, 'scopes', application.scopes)
                         assert.propertyVal(result, 'institution', application.institution)
                         assert.propertyVal(result, 'application_name', application.application_name)
+                        assert.propertyVal(result, 'last_login', application.last_login)
                     })
             })
         })
@@ -338,12 +262,6 @@ describe('Services: Application', () => {
             it('should return undefined', () => {
                 connectionRabbitmqPub.isConnected = true
                 application.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(application)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return applicationService.update(application)
                     .then(result => {
@@ -354,14 +272,6 @@ describe('Services: Application', () => {
 
         context('when the Application is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectApplication)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
-
                 return applicationService.update(incorrectApplication)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
@@ -375,13 +285,6 @@ describe('Services: Application', () => {
                 incorrectApplication.id = '507f1f77bcf86cd799439011'
                 incorrectApplication.institution = new InstitutionMock()
                 incorrectApplication.institution!.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectApplication)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return applicationService.update(incorrectApplication)
                     .catch(err => {
@@ -394,14 +297,6 @@ describe('Services: Application', () => {
         context('when the Application is incorrect (attempt to update password)', () => {
             it('should throw a ValidationException', () => {
                 application.password = 'application_password'
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(application)
-                    .chain('exec')
-                    .rejects({ message: 'This parameter could not be updated.',
-                               description: 'A specific route to update user password already exists.' +
-                                   'Access: PATCH /users/507f1f77bcf86cd799439012/password to update your password.' })
 
                 return applicationService.update(application)
                     .catch(err => {
@@ -416,13 +311,6 @@ describe('Services: Application', () => {
             it('should throw a ValidationException', () => {
                 application.password = ''
                 application.institution!.id = '507f1f77bcf86cd799439012'
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(application)
-                    .chain('exec')
-                    .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return applicationService.update(application)
                     .catch(err => {
@@ -440,12 +328,6 @@ describe('Services: Application', () => {
         context('when there is Application with the received parameter', () => {
             it('should return true', () => {
                 application.id = '507f1f77bcf86cd799439011'         // Make mock return true
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(application.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return applicationService.remove(application.id!)
                     .then(result => {
@@ -457,12 +339,6 @@ describe('Services: Application', () => {
         context('when there is no Application with the received parameter', () => {
             it('should return false', () => {
                 application.id = '507f1f77bcf86cd799439013'         // Make mock return false
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(application.id)
-                    .chain('exec')
-                    .resolves(false)
 
                 return applicationService.remove(application.id)
                     .then(result => {
@@ -474,18 +350,22 @@ describe('Services: Application', () => {
         context('when the Application is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
                 incorrectApplication.id = '507f1f77bcf86cd7994390111'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(incorrectApplication.id)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return applicationService.remove(incorrectApplication.id)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when want count applications', () => {
+            it('should return the number of applications', () => {
+                return applicationService.count()
+                    .then(res => {
+                        assert.equal(res, 1)
                     })
             })
         })

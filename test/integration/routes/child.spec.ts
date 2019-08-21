@@ -211,11 +211,9 @@ describe('Routes: Child', () => {
     describe('PATCH /v1/children/:child_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated child', () => {
-                defaultChild.age = 9
-
                 return request
                     .patch(`/v1/children/${defaultChild.id}`)
-                    .send({ age: 9 })
+                    .send({ last_login: defaultChild.last_login, last_sync: defaultChild.last_sync })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -224,6 +222,8 @@ describe('Routes: Child', () => {
                         expect(res.body.gender).to.eql(defaultChild.gender)
                         expect(res.body.age).to.eql(defaultChild.age)
                         expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.last_login).to.eql(defaultChild.last_login!.toISOString())
+                        expect(res.body.last_sync).to.eql(defaultChild.last_sync!.toISOString())
                     })
             })
         })
@@ -332,6 +332,8 @@ describe('Routes: Child', () => {
                         expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('age')
                         expect(res.body[1]).to.have.property('gender')
+                        expect(res.body[1]).to.have.property('last_login')
+                        expect(res.body[1]).to.have.property('last_sync')
                     })
             })
         })
@@ -353,7 +355,9 @@ describe('Routes: Child', () => {
                             gender: defaultChild.gender,
                             age: 10,
                             institution: result._id,
-                            scopes: new Array('users:read')
+                            scopes: new Array('users:read'),
+                            last_login: defaultChild.last_login,
+                            last_sync: defaultChild.last_sync
                         }).then()
                     })
                 } catch (err) {
@@ -373,16 +377,18 @@ describe('Routes: Child', () => {
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[0]).to.have.property('age')
+                        expect(res.body[0]).to.have.property('gender')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
                         expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('age')
+                        expect(res.body[1]).to.have.property('gender')
                         expect(res.body[2]).to.have.property('id')
                         expect(res.body[2]).to.have.property('username')
                         expect(res.body[2]).to.have.property('institution_id')
                         expect(res.body[2]).to.have.property('age')
+                        expect(res.body[2]).to.have.property('gender')
                     })
-
             })
         })
         context('when there are no children in database', () => {

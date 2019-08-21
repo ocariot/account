@@ -29,16 +29,11 @@ describe('Mappers: ChildEntity', () => {
         ],
         username: 'child_mock',
         password: 'child_password',
-        institution: {
-            id: '273ab3632f16bbd9044753cb',
-            type: 'Institute of Scientific Research',
-            name: 'Name Example',
-            address: '221B Baker Street, St.',
-            latitude: 57.972946525983005,
-            longitude: 15.984903991931109
-        },
+        institution: '273ab3632f16bbd9044753cb',
         gender: 'male',
-        age: 6
+        age: 6,
+        last_login: child.last_login,
+        last_sync: child.last_sync
     }
 
     describe('transform(item: any)', () => {
@@ -53,6 +48,8 @@ describe('Mappers: ChildEntity', () => {
                 assert.propertyVal(result, 'institution', child.institution!.id)
                 assert.propertyVal(result, 'gender', child.gender)
                 assert.propertyVal(result, 'age', child.age)
+                assert.propertyVal(result, 'last_login', child.last_login)
+                assert.propertyVal(result, 'last_sync', child.last_sync)
             })
         })
 
@@ -64,9 +61,11 @@ describe('Mappers: ChildEntity', () => {
                 assert.propertyVal(result, 'password', childJSON.password)
                 assert.propertyVal(result, 'type', childJSON.type)
                 assert.propertyVal(result, 'scopes', childJSON.scopes)
-                assert.property(result, 'institution')
+                assert.equal(result.institution.id, childJSON.institution)
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
+                assert.propertyVal(result, 'last_login', childJSON.last_login)
+                assert.propertyVal(result, 'last_sync', childJSON.last_sync)
             })
         })
 
@@ -82,6 +81,8 @@ describe('Mappers: ChildEntity', () => {
                 assert.isUndefined(result.institution)
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
+                assert.propertyVal(result, 'last_login', childJSON.last_login)
+                assert.propertyVal(result, 'last_sync', childJSON.last_sync)
             })
         })
 
@@ -89,13 +90,14 @@ describe('Mappers: ChildEntity', () => {
             it('should not normally execute the method, returning a Child as a result of the transformation', () => {
                 const result = new ChildEntityMapper().transform(undefined)
 
-                assert.isObject(result)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'gender', undefined)
                 assert.propertyVal(result, 'age', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
+                assert.propertyVal(result, 'last_sync', undefined)
             })
         })
     })

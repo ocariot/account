@@ -163,6 +163,8 @@ describe('Repositories: Child', () => {
                         assert.propertyVal(result, 'institution', defaultChild.institution)
                         assert.propertyVal(result, 'gender', defaultChild.gender)
                         assert.propertyVal(result, 'age', defaultChild.age)
+                        assert.propertyVal(result, 'last_login', defaultChild.last_login)
+                        assert.propertyVal(result, 'last_sync', defaultChild.last_sync)
                     })
             })
         })
@@ -198,6 +200,8 @@ describe('Repositories: Child', () => {
                         assert.propertyVal(result, 'institution', defaultChild.institution)
                         assert.propertyVal(result, 'gender', defaultChild.gender)
                         assert.propertyVal(result, 'age', defaultChild.age)
+                        assert.propertyVal(result, 'last_login', defaultChild.last_login)
+                        assert.propertyVal(result, 'last_sync', defaultChild.last_sync)
                     })
             })
         })
@@ -225,6 +229,8 @@ describe('Repositories: Child', () => {
                         assert.propertyVal(result, 'institution', defaultChild.institution)
                         assert.propertyVal(result, 'gender', defaultChild.gender)
                         assert.propertyVal(result, 'age', defaultChild.age)
+                        assert.propertyVal(result, 'last_login', defaultChild.last_login)
+                        assert.propertyVal(result, 'last_sync', defaultChild.last_sync)
                     })
             })
         })
@@ -288,6 +294,8 @@ describe('Repositories: Child', () => {
                         assert.propertyVal(result, 'institution', defaultChild.institution)
                         assert.propertyVal(result, 'gender', defaultChild.gender)
                         assert.propertyVal(result, 'age', defaultChild.age)
+                        assert.propertyVal(result, 'last_login', defaultChild.last_login)
+                        assert.propertyVal(result, 'last_sync', defaultChild.last_sync)
                     })
             })
         })
@@ -428,6 +436,58 @@ describe('Repositories: Child', () => {
 
                 return childRepo.checkExist(defaultChild)
                     .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when there is at least one child in the database', () => {
+            it('should return how many children there are in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(2)
+
+                return childRepo.count()
+                    .then((countChildren: number) => {
+                        assert.equal(countChildren, 2)
+                    })
+            })
+        })
+
+        context('when there no are children in database', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(0)
+
+                return childRepo.count()
+                    .then((countChildren: number) => {
+                        assert.equal(countChildren, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return childRepo.count()
+                    .catch (err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })

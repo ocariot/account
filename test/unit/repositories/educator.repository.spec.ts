@@ -171,6 +171,7 @@ describe('Repositories: Educator', () => {
                         assert.propertyVal(result, 'scopes', defaultEducator.scopes)
                         assert.propertyVal(result, 'institution', defaultEducator.institution)
                         assert.propertyVal(result, 'children_groups', defaultEducator.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultEducator.last_login)
                     })
             })
         })
@@ -205,6 +206,7 @@ describe('Repositories: Educator', () => {
                         assert.propertyVal(result, 'scopes', defaultEducator.scopes)
                         assert.propertyVal(result, 'institution', defaultEducator.institution)
                         assert.propertyVal(result, 'children_groups', defaultEducator.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultEducator.last_login)
                     })
             })
         })
@@ -267,6 +269,7 @@ describe('Repositories: Educator', () => {
                         assert.propertyVal(result, 'scopes', defaultEducator.scopes)
                         assert.propertyVal(result, 'institution', defaultEducator.institution)
                         assert.propertyVal(result, 'children_groups', defaultEducator.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultEducator.last_login)
                     })
             })
         })
@@ -332,6 +335,7 @@ describe('Repositories: Educator', () => {
                         assert.propertyVal(result, 'scopes', defaultEducator.scopes)
                         assert.propertyVal(result, 'institution', defaultEducator.institution)
                         assert.propertyVal(result, 'children_groups', defaultEducator.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultEducator.last_login)
                     })
             })
         })
@@ -366,6 +370,7 @@ describe('Repositories: Educator', () => {
                         assert.propertyVal(result, 'scopes', defaultEducator.scopes)
                         assert.propertyVal(result, 'institution', defaultEducator.institution)
                         assert.propertyVal(result, 'children_groups', defaultEducator.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultEducator.last_login)
                     })
             })
         })
@@ -508,6 +513,112 @@ describe('Repositories: Educator', () => {
 
                 return educatorRepo.checkExist(defaultEducator)
                     .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when there is at least one educator in the database', () => {
+            it('should return how many educators there are in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(2)
+
+                return educatorRepo.count()
+                    .then((countEducators: number) => {
+                        assert.equal(countEducators, 2)
+                    })
+            })
+        })
+
+        context('when there no are educators in database', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(0)
+
+                return educatorRepo.count()
+                    .then((countEducators: number) => {
+                        assert.equal(countEducators, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return educatorRepo.count()
+                    .catch (err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('countChildrenGroups(educatorId: string)', () => {
+        context('when there is at least one children group associated with the educator received', () => {
+            it('should return how many children groups are associated with such educator in the database', () => {
+                defaultEducator.id = '507f1f77bcf86cd799439011'
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultEducator.id })
+                    .chain('exec')
+                    .resolves(defaultEducator)
+
+                return educatorRepo.countChildrenGroups(defaultEducator.id!)
+                    .then((countChildrenGroups: number) => {
+                        assert.equal(countChildrenGroups, 2)
+                    })
+            })
+        })
+
+        context('when there no are children groups associated with such educator in database', () => {
+            it('should return 0', () => {
+                defaultEducator.id = '507f1f77bcf86cd799439012'
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultEducator.id })
+                    .chain('exec')
+                    .resolves(new Educator())
+
+                return educatorRepo.countChildrenGroups(defaultEducator.id!)
+                    .then((countChildrenGroups: number) => {
+                        assert.equal(countChildrenGroups, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: 'invalid_id' })
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return educatorRepo.countChildrenGroups(defaultEducator.id!)
+                    .catch (err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })
