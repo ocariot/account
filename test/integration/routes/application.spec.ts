@@ -62,7 +62,7 @@ describe('Routes: Application', () => {
                     username: defaultApplication.username,
                     password: 'mysecretkey',
                     application_name: defaultApplication.application_name,
-                    institution_id: institution.id,
+                    institution_id: institution.id
                 }
 
                 return request
