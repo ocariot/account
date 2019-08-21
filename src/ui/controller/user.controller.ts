@@ -1,12 +1,11 @@
 import HttpStatus from 'http-status-codes'
 import { inject } from 'inversify'
-import { controller, httpDelete, httpPut, request, response } from 'inversify-express-utils'
+import { controller, httpDelete, httpPost, httpPut, request, response } from 'inversify-express-utils'
 import { Request, Response } from 'express'
 import { Identifier } from '../../di/identifiers'
 import { ApiExceptionManager } from '../exception/api.exception.manager'
 import { ApiException } from '../exception/api.exception'
 import { IUserService } from '../../application/port/user.service.interface'
-import { ChangePasswordException } from '../../application/domain/exception/change.password.exception'
 import { Strings } from '../../utils/strings'
 
 /**
@@ -44,10 +43,27 @@ export class UserController {
             }
             return res.status(HttpStatus.NO_CONTENT).send()
         } catch (err) {
-            if (err instanceof ChangePasswordException) {
-                return res.status(HttpStatus.BAD_REQUEST)
-                    .send(new ApiException(HttpStatus.BAD_REQUEST, err.message, err.description).toJson())
+            const handlerError = ApiExceptionManager.build(err)
+            return res.status(handlerError.code)
+                .send(handlerError.toJson())
+        }
+    }
+
+    /**
+     * Reset user password.
+     *
+     * @param req
+     * @param res
+     */
+    @httpPost('/:user_id/reset-password')
+    public async resetUserPassword(@request() req: Request, @response() res: Response): Promise<Response> {
+        try {
+            const result: boolean = await this._userService.resetPassword(req.params.user_id, req.body.new_password)
+            if (!result) {
+                return res.status(HttpStatus.NOT_FOUND).send(this.getMessageUserNotFound())
             }
+            return res.status(HttpStatus.NO_CONTENT).send()
+        } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
                 .send(handlerError.toJson())

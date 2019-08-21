@@ -15,6 +15,7 @@ import { IApplicationService } from '../port/application.service.interface'
 import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
 import { ILogger } from '../../utils/custom.logger'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { ResetPasswordValidator } from '../domain/validator/reset.password.validator'
 
 /**
  * Implementing user Service.
@@ -50,6 +51,17 @@ export class UserService implements IUserService {
 
         // 3. Update user password.
         return this._userRepository.changePassword(userId, oldPassword, newPassword)
+    }
+
+    public async resetPassword(userId: string, newPassword: string): Promise<boolean> {
+        // 1. Validate id.
+        ObjectIdValidator.validate(userId)
+
+        // 2. Validate passwords.
+        ResetPasswordValidator.validate(newPassword)
+
+        // 3. Reset user password.
+        return this._userRepository.resetPassword(userId, newPassword)
     }
 
     public async getAll(query: IQuery): Promise<Array<User>> {

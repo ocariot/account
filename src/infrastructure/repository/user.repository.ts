@@ -7,10 +7,10 @@ import { ILogger } from '../../utils/custom.logger'
 import { Identifier } from '../../di/identifiers'
 import { UserEntity } from '../entity/user.entity'
 import { IUserRepository } from '../../application/port/user.repository.interface'
-import { ChangePasswordException } from '../../application/domain/exception/change.password.exception'
-import { Strings } from '../../utils/strings'
 import { IQuery } from '../../application/port/query.interface'
 import { Query } from './query/query'
+import { Strings } from '../../utils/strings'
+import { ValidationException } from '../../application/domain/exception/validation.exception'
 
 /**
  * Implementation of the user repository.
@@ -40,20 +40,26 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
                 .then((user) => {
                     if (!user) return resolve(false)
                     if (!this.comparePasswords(old_password, user.password)) {
-                        return reject(new ChangePasswordException(
+                        return reject(new ValidationException(
                             Strings.USER.PASSWORD_NOT_MATCH,
                             Strings.USER.PASSWORD_NOT_MATCH_DESCRIPTION
                         ))
                     }
-                    user.password = this.encryptPassword(new_password)
-                    user.change_password = false
-                    this.userModel.findOneAndUpdate({ _id: user.id }, user, { new: true })
-                        .exec()
-                        .then(result => {
-                            if (!result) return resolve(false)
-                            return resolve(true)
-                        })
-                        .catch(err => reject(super.mongoDBErrorListener(err)))
+                    return resolve(this.resetPassword(userId, new_password))
+                })
+                .catch(err => reject(super.mongoDBErrorListener(err)))
+        })
+    }
+
+    public resetPassword(userId: string, new_password: string): Promise<boolean> {
+        return new Promise<boolean>((resolve, reject) => {
+            new_password = this.encryptPassword(new_password)
+
+            this.userModel.findOneAndUpdate({ _id: userId }, { password: new_password }, { new: true })
+                .exec()
+                .then(result => {
+                    if (!result) return resolve(false)
+                    return resolve(true)
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })

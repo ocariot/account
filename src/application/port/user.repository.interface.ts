@@ -31,6 +31,16 @@ export interface IUserRepository extends IRepository<User> {
     changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean>
 
     /**
+     * Reset the user password.
+     *
+     * @param userId
+     * @param newPassword
+     * @return {Promise<boolean>} True if the password was changed or False, otherwise.
+     * @throws {ValidationException | RepositoryException}
+     */
+    resetPassword(userId: string, newPassword: string): Promise<boolean>
+
+    /**
      * Encrypt the user password
      *
      * @param password

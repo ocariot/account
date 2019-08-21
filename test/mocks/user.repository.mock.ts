@@ -13,6 +13,10 @@ export class UserRepositoryMock implements IUserRepository {
         return passwordHash === passwordPlain
     }
 
+    public resetPassword(userId: string, newPassword: string): Promise<boolean> {
+        return Promise.resolve(true)
+    }
+
     public encryptUsername(username: string): string {
         return username
     }
