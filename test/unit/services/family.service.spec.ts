@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { assert } from 'chai'
 import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
 import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
@@ -26,8 +25,6 @@ import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
 import { UserType } from '../../../src/application/domain/model/user'
 import { InstitutionMock } from '../../mocks/institution.mock'
-
-require('sinon-mongoose')
 
 describe('Services: Family', () => {
     const family: Family = new FamilyMock()
@@ -64,10 +61,6 @@ describe('Services: Family', () => {
         } catch (err) {
             throw new Error('Failure on FamilyService unit test: ' + err.message)
         }
-    })
-
-    afterEach(() => {
-        sinon.restore()
     })
 
     /**

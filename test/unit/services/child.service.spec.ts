@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { assert } from 'chai'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
 import { IInstitutionRepository } from '../../../src/application/port/institution.repository.interface'
@@ -27,8 +26,6 @@ import { IIntegrationEventRepository } from '../../../src/application/port/integ
 import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
 import { UserType } from '../../../src/application/domain/model/user'
 import { InstitutionMock } from '../../mocks/institution.mock'
-
-require('sinon-mongoose')
 
 describe('Services: Child', () => {
     const child: Child = new ChildMock()
@@ -66,10 +63,6 @@ describe('Services: Child', () => {
         } catch (err) {
             throw new Error('Failure on ChildService unit test: ' + err.message)
         }
-    })
-
-    afterEach(() => {
-        sinon.restore()
     })
 
     /**

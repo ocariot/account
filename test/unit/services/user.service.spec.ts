@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { assert } from 'chai'
 import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
 import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
@@ -45,8 +44,6 @@ import { ApplicationRepositoryMock } from '../../mocks/application.repository.mo
 import { Strings } from '../../../src/utils/strings'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
-
-require('sinon-mongoose')
 
 describe('Services: User', () => {
     const user: User = new UserMock()
@@ -102,10 +99,6 @@ describe('Services: User', () => {
         } catch (err) {
             throw new Error('Failure on UserService unit test: ' + err.message)
         }
-    })
-
-    afterEach(() => {
-        sinon.restore()
     })
 
     /**

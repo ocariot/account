@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { assert } from 'chai'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
 import { IInstitutionRepository } from '../../../src/application/port/institution.repository.interface'
@@ -21,8 +20,6 @@ import { IConnectionEventBus } from '../../../src/infrastructure/port/connection
 import { ConnectionRabbitmqMock } from '../../mocks/connection.rabbitmq.mock'
 import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
 import { EventBusRabbitmqMock } from '../../mocks/event.bus.rabbitmq.mock'
-
-require('sinon-mongoose')
 
 describe('Services: Institution', () => {
     const institution: Institution = new InstitutionMock()
@@ -54,10 +51,6 @@ describe('Services: Institution', () => {
         } catch (err) {
             throw new Error('Failure on InstitutionService unit test: ' + err.message)
         }
-    })
-
-    afterEach(() => {
-        sinon.restore()
     })
 
     /**

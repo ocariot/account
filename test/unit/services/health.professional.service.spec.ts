@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { assert } from 'chai'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
 import { IInstitutionRepository } from '../../../src/application/port/institution.repository.interface'
@@ -33,8 +32,6 @@ import { IHealthProfessionalRepository } from '../../../src/application/port/hea
 import { HealthProfessionalRepositoryMock } from '../../mocks/health.professional.repository.mock'
 import { HealthProfessional } from '../../../src/application/domain/model/health.professional'
 import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
-
-require('sinon-mongoose')
 
 describe('Services: HealthProfessional', () => {
     /**
@@ -88,10 +85,6 @@ describe('Services: HealthProfessional', () => {
         } catch (err) {
             throw new Error('Failure on HealthProfessionalService unit test: ' + err.message)
         }
-    })
-
-    afterEach(() => {
-        sinon.restore()
     })
 
     /**

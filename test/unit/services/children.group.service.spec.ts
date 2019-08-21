@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { assert } from 'chai'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
 import { ILogger } from '../../../src/utils/custom.logger'
@@ -15,8 +14,6 @@ import { Strings } from '../../../src/utils/strings'
 import { Child } from '../../../src/application/domain/model/child'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
-
-require('sinon-mongoose')
 
 describe('Services: ChildrenGroup', () => {
     const childrenGroup: ChildrenGroup = new ChildrenGroupMock()
@@ -36,10 +33,6 @@ describe('Services: ChildrenGroup', () => {
     const customLogger: ILogger = new CustomLoggerMock()
 
     const childrenGroupService: IChildrenGroupService = new ChildrenGroupService(childrenGroupRepo, childRepo, customLogger)
-
-    afterEach(() => {
-        sinon.restore()
-    })
 
     /**
      * Method "add(childrenGroup: ChildrenGroup)"

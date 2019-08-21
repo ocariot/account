@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { assert } from 'chai'
 import { IAuthService } from '../../../src/application/port/auth.service.interface'
 import { AuthService } from '../../../src/application/service/auth.service'
@@ -7,8 +6,6 @@ import { AuthRepositoryMock } from '../../mocks/auth.repository.mock'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
 import { UserRepositoryMock } from '../../mocks/user.repository.mock'
-
-require('sinon-mongoose')
 
 describe('Services: Auth', () => {
     let username: string = 'valid_username'
@@ -21,10 +18,6 @@ describe('Services: Auth', () => {
     const authRepo: IAuthRepository = new AuthRepositoryMock()
 
     const authService: IAuthService = new AuthService(authRepo, new UserRepositoryMock())
-
-    afterEach(() => {
-        sinon.restore()
-    })
 
     /**
      * Method "authenticate(username: string, password: string)"

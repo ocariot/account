@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { assert } from 'chai'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
 import { IInstitutionRepository } from '../../../src/application/port/institution.repository.interface'
@@ -33,8 +32,6 @@ import { ChildrenGroup } from '../../../src/application/domain/model/children.gr
 import { ChildrenGroupMock } from '../../mocks/children.group.mock'
 import { UserMock } from '../../mocks/user.mock'
 import { Child } from '../../../src/application/domain/model/child'
-
-require('sinon-mongoose')
 
 describe('Services: Educator', () => {
     /**
@@ -88,10 +85,6 @@ describe('Services: Educator', () => {
         } catch (err) {
             throw new Error('Failure on EducatorService unit test: ' + err.message)
         }
-    })
-
-    afterEach(() => {
-        sinon.restore()
     })
 
     /**
