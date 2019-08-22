@@ -584,7 +584,6 @@ describe('Repositories: Family', () => {
     describe('countChildrenFromFamily(familyId: string)', () => {
         context('when there is at least one children associated with the family received', () => {
             it('should return how many children are associated with such family in the database', () => {
-                defaultFamily.id = '507f1f77bcf86cd799439011'
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
@@ -599,9 +598,8 @@ describe('Repositories: Family', () => {
             })
         })
 
-        context('when there no are children associated with such family in database', () => {
+        context('when there no are children associated with the family received', () => {
             it('should return 0', () => {
-                defaultFamily.id = '507f1f77bcf86cd799439012'
                 sinon
                     .mock(modelFake)
                     .expects('findOne')

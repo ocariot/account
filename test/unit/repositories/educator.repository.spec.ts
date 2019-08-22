@@ -575,7 +575,6 @@ describe('Repositories: Educator', () => {
     describe('countChildrenGroups(educatorId: string)', () => {
         context('when there is at least one children group associated with the educator received', () => {
             it('should return how many children groups are associated with such educator in the database', () => {
-                defaultEducator.id = '507f1f77bcf86cd799439011'
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
@@ -590,9 +589,8 @@ describe('Repositories: Educator', () => {
             })
         })
 
-        context('when there no are children groups associated with such educator in database', () => {
+        context('when there no are children groups associated with the educator received', () => {
             it('should return 0', () => {
-                defaultEducator.id = '507f1f77bcf86cd799439012'
                 sinon
                     .mock(modelFake)
                     .expects('findOne')

@@ -576,7 +576,6 @@ describe('Repositories: HealthProfessional', () => {
     describe('countChildrenGroups(healthProfessionalId: string)', () => {
         context('when there is at least one children group associated with the health professional received', () => {
             it('should return how many children groups are associated with such health professional in the database', () => {
-                defaultHealthProfessional.id = '507f1f77bcf86cd799439011'
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
@@ -591,9 +590,8 @@ describe('Repositories: HealthProfessional', () => {
             })
         })
 
-        context('when there no are children groups associated with such health professional in database', () => {
+        context('when there no are children groups associated with the health professional received', () => {
             it('should return 0', () => {
-                defaultHealthProfessional.id = '507f1f77bcf86cd799439012'
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
