@@ -284,11 +284,6 @@ export class EducatorService implements IEducatorService {
     }
 
     public countChildrenGroups(educatorId: string): Promise<number> {
-        try {
-            ObjectIdValidator.validate(educatorId)
-        } catch (err) {
-            return Promise.reject(err)
-        }
         return this._educatorRepository.countChildrenGroups(educatorId)
     }
 

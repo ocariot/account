@@ -290,11 +290,6 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     }
 
     public countChildrenGroups(healthProfessionalId: string): Promise<number> {
-        try {
-            ObjectIdValidator.validate(healthProfessionalId)
-        } catch (err) {
-            return Promise.reject(err)
-        }
         return this._healthProfessionalRepository.countChildrenGroups(healthProfessionalId)
     }
 

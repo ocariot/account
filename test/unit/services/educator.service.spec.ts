@@ -808,16 +808,5 @@ describe('Services: Educator', () => {
                     })
             })
         })
-
-        context('when the educatorId is invalid', () => {
-            it('should throw a ValidationException', () => {
-                return educatorService.countChildrenGroups('123')
-                    .catch(err => {
-                        assert.propertyVal(err, 'message', 'Some ID provided does not have a valid format!')
-                        assert.propertyVal(err, 'description', 'A 24-byte hex ID similar to this: 507f191e810c19729de860ea is ' +
-                            'expected.')
-                    })
-            })
-        })
     })
 })

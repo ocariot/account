@@ -232,11 +232,6 @@ export class FamilyService implements IFamilyService {
     }
 
     public countChildrenFromFamily(familyId: string): Promise<number> {
-        try {
-            ObjectIdValidator.validate(familyId)
-        } catch (err) {
-            return Promise.reject(err)
-        }
         return this._familyRepository.countChildrenFromFamily(familyId)
     }
 
