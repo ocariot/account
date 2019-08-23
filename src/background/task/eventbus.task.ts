@@ -127,28 +127,28 @@ export class EventBusTask implements IBackgroundTask {
             const userFamilyUpdateEvent: UserUpdateEvent<Family> = new UserUpdateEvent(
                 event.event_name,
                 event.timestamp,
-                new Family().fromJSON(event.child)
+                new Family().fromJSON(event.family)
             )
             return eventBus.publish(userFamilyUpdateEvent, event.__routing_key)
         } else if (event.event_name === 'EducatorUpdateEvent') {
             const userEducatorUpdateEvent: UserUpdateEvent<Educator> = new UserUpdateEvent(
                 event.event_name,
                 event.timestamp,
-                new Educator().fromJSON(event.child)
+                new Educator().fromJSON(event.educator)
             )
             return eventBus.publish(userEducatorUpdateEvent, event.__routing_key)
         } else if (event.event_name === 'HealthProfessionalUpdateEvent') {
             const userHealthProfessionalUpdateEvent: UserUpdateEvent<HealthProfessional> = new UserUpdateEvent(
                 event.event_name,
                 event.timestamp,
-                new HealthProfessional().fromJSON(event.child)
+                new HealthProfessional().fromJSON(event.healthprofessional)
             )
             return eventBus.publish(userHealthProfessionalUpdateEvent, event.__routing_key)
         } else if (event.event_name === 'ApplicationUpdateEvent') {
             const userApplicationUpdateEvent: UserUpdateEvent<Application> = new UserUpdateEvent(
                 event.event_name,
                 event.timestamp,
-                new Application().fromJSON(event.child)
+                new Application().fromJSON(event.application)
             )
             return eventBus.publish(userApplicationUpdateEvent, event.__routing_key)
         } else if (event.event_name === 'InstitutionDeleteEvent') {
