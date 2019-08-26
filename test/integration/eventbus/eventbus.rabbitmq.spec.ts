@@ -5,11 +5,14 @@ import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
 import { UserDeleteEvent } from '../../../src/application/integration-event/event/user.delete.event'
 import { EventBusException } from '../../../src/application/domain/exception/eventbus.exception'
 import { UserUpdateEvent } from '../../../src/application/integration-event/event/user.update.event'
-import { UserMock, UserTypeMock } from '../../mocks/user.mock'
+import { UserMock } from '../../mocks/user.mock'
 import { ChildMock } from '../../mocks/child.mock'
 import { FamilyMock } from '../../mocks/family.mock'
 import { InstitutionEvent } from '../../../src/application/integration-event/event/institution.event'
 import { InstitutionMock } from '../../mocks/institution.mock'
+import { EducatorMock } from '../../mocks/educator.mock'
+import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
+import { ApplicationMock } from '../../mocks/application.mock'
 
 const eventBus: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
 
@@ -104,7 +107,7 @@ describe('EVENT BUS', () => {
                     await eventBus.connectionPub.tryConnect(1, 500)
 
                     return eventBus.publish(
-                        new UserUpdateEvent('EducatorUpdateEvent', new Date(), new UserMock(UserTypeMock.EDUCATOR)),
+                        new UserUpdateEvent('EducatorUpdateEvent', new Date(), new EducatorMock()),
                         'educators.update')
                         .then((result: boolean) => {
                             expect(result).to.equal(true)
@@ -121,8 +124,7 @@ describe('EVENT BUS', () => {
                     await eventBus.connectionPub.tryConnect(1, 500)
 
                     return eventBus.publish(
-                        new UserUpdateEvent('HealthProfessionalUpdateEvent', new Date(),
-                            new UserMock(UserTypeMock.HEALTH_PROFESSIONAL)),
+                        new UserUpdateEvent('HealthProfessionalUpdateEvent', new Date(), new HealthProfessionalMock()),
                         'healthprofessionals.update')
                         .then((result: boolean) => {
                             expect(result).to.equal(true)
@@ -139,7 +141,7 @@ describe('EVENT BUS', () => {
                     await eventBus.connectionPub.tryConnect(1, 500)
 
                     return eventBus.publish(
-                        new UserUpdateEvent('ApplicationUpdateEvent', new Date(), new UserMock(UserTypeMock.APPLICATION)),
+                        new UserUpdateEvent('ApplicationUpdateEvent', new Date(), new ApplicationMock()),
                         'applications.update')
                         .then((result: boolean) => {
                             expect(result).to.equal(true)
@@ -156,7 +158,7 @@ describe('EVENT BUS', () => {
                     await eventBus.connectionPub.tryConnect(1, 500)
 
                     return eventBus.publish(
-                        new UserUpdateEvent('UserDeleteEvent', new Date(), new UserMock()),
+                        new UserDeleteEvent('UserDeleteEvent', new Date(), new UserMock()),
                         'users.delete')
                         .then((result: boolean) => {
                             expect(result).to.equal(true)
