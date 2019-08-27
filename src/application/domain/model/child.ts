@@ -95,3 +95,8 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         }
     }
 }
+
+export enum Gender {
+    FEMALE = 'female',
+    MALE = 'male'
+}
