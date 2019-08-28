@@ -162,6 +162,53 @@ describe('Routes: Child', () => {
                     })
             })
         })
+
+        context('when the gender provided was invalid', () => {
+            it('should return status code 400 and message for invalid gender', () => {
+
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: 'invalid_gender',
+                    age: defaultChild.age,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('The gender provided "invalid_gender" is not supported...')
+                        expect(err.body.description).to.eql('The names of the allowed genders are: male, female.')
+                    })
+            })
+        })
+
+        context('when the age provided was invalid', () => {
+            it('should return status code 400 and message for invalid gender', () => {
+
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: -1,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Age field is invalid...')
+                        expect(err.body.description).to.eql(
+                            'Child validation: The age parameter can only contain a value greater than zero.')
+                    })
+            })
+        })
     })
 
     describe('GET /v1/children/:child_id', () => {

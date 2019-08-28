@@ -21,7 +21,7 @@ export class CreateChildValidator {
         if (child.age === undefined) fields.push('age')
         else if (child.age <= 0) {
             throw new ValidationException(`Age field is invalid...`,
-                'Child validation: The age parameter can only contain a value greater than zero')
+                'Child validation: The age parameter can only contain a value greater than zero.')
         }
 
         if (fields.length > 0) {

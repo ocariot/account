@@ -48,6 +48,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
 
     public checkExist(children: Child | Array<Child>): Promise<boolean | ValidationException> {
         const query: Query = new Query()
+        query.pagination.limit = Number.MAX_SAFE_INTEGER
 
         return new Promise<boolean | ValidationException>((resolve, reject) => {
             if (children instanceof Array) {
@@ -82,10 +83,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                             if (result.length) return resolve(true)
                             return resolve(false)
                         }
-                        for (const child of result) {
-                            if (child.username === children.username) return resolve(true)
-                        }
-                        return resolve(false)
+                        return resolve(result.some(value => value.username === children.username))
                     })
                     .catch(err => reject(super.mongoDBErrorListener(err)))
             }

@@ -47,6 +47,7 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
 
     public checkExist(application: Application): Promise<boolean> {
         const query: Query = new Query()
+        query.pagination.limit = Number.MAX_SAFE_INTEGER
         if (application.id) query.filters = { _id: application.id }
 
         query.addFilter({ type: UserType.APPLICATION })
@@ -57,10 +58,7 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
                         if (result.length > 0) return resolve(true)
                         return resolve(false)
                     }
-                    for (const appItem of result) {
-                        if (appItem.username === application.username) return resolve(true)
-                    }
-                    return resolve(false)
+                    return resolve(result.some(value => value.username === application.username))
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })

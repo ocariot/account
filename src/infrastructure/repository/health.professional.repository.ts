@@ -104,6 +104,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
 
     public checkExist(healthProfessional: HealthProfessional): Promise<boolean> {
         const query: Query = new Query()
+        query.pagination.limit = Number.MAX_SAFE_INTEGER
         if (healthProfessional.id) query.filters = { _id: healthProfessional.id }
 
         query.addFilter({ type: UserType.HEALTH_PROFESSIONAL })
@@ -114,10 +115,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
                         if (result.length > 0) return resolve(true)
                         return resolve(false)
                     }
-                    for (const healthProfItem of result) {
-                        if (healthProfItem.username === healthProfessional.username) return resolve(true)
-                    }
-                    return resolve(false)
+                    return resolve(result.some(value => value.username === healthProfessional.username))
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })

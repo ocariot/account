@@ -132,7 +132,7 @@ describe('Validators: Child', () => {
                 CreateChildValidator.validate(child)
             } catch (err) {
                 assert.equal(err.message, 'The gender provided "invalid_gender" is not supported...')
-                assert.equal(err.description, 'The names of the allowed genders are: female, male.')
+                assert.equal(err.description, 'The names of the allowed genders are: male, female.')
             }
         })
     })
@@ -147,7 +147,7 @@ describe('Validators: Child', () => {
             } catch (err) {
                 assert.equal(err.message, 'Age field is invalid...')
                 assert.equal(err.description,
-                    'Child validation: The age parameter can only contain a value greater than zero')
+                    'Child validation: The age parameter can only contain a value greater than zero.')
             }
         })
     })

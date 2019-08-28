@@ -7,7 +7,7 @@ import { Strings } from '../../../src/utils/strings'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
 import { ChildMock } from '../../mocks/child.mock'
-import { Child } from '../../../src/application/domain/model/child'
+import { Child, Gender } from '../../../src/application/domain/model/child'
 import { IChildRepository } from '../../../src/application/port/child.repository.interface'
 import { ChildRepositoryMock } from '../../mocks/child.repository.mock'
 import { IChildrenGroupRepository } from '../../../src/application/port/children.group.repository.interface'
@@ -133,6 +133,35 @@ describe('Services: Child', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+
+        context('when the Child is incorrect (the gender is invalid)', () => {
+            it('should throw a ValidationException', () => {
+                child.institution!.id = '507f1f77bcf86cd799439011'
+                child.gender = 'invalid_gender'
+
+                return childService.add(child)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message',
+                            'The gender provided "invalid_gender" is not supported...')
+                        assert.propertyVal(err, 'description',
+                            'The names of the allowed genders are: male, female.')
+                    })
+            })
+        })
+
+        context('when the Child is incorrect (the age is invalid)', () => {
+            it('should throw a ValidationException', () => {
+                child.gender = Gender.MALE
+                child.age = -1
+
+                return childService.add(child)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'Age field is invalid...')
+                        assert.propertyVal(err, 'description',
+                            'Child validation: The age parameter can only contain a value greater than zero.')
                     })
             })
         })

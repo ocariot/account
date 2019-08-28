@@ -101,6 +101,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
     public checkExist(educator: Educator): Promise<boolean> {
         const query: Query = new Query()
+        query.pagination.limit = Number.MAX_SAFE_INTEGER
         if (educator.id) query.filters = { _id: educator.id }
 
         query.addFilter({ type: UserType.EDUCATOR })
@@ -111,10 +112,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                         if (result.length > 0) return resolve(true)
                         return resolve(false)
                     }
-                    for (const educatorItem of result) {
-                        if (educatorItem.username === educator.username) return resolve(true)
-                    }
-                    return resolve(false)
+                    return resolve(result.some(value => value.username === educator.username))
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })

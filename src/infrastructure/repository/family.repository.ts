@@ -102,6 +102,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
 
     public checkExist(family: Family): Promise<boolean> {
         const query: Query = new Query()
+        query.pagination.limit = Number.MAX_SAFE_INTEGER
         if (family.id) query.filters = { _id: family.id }
 
         query.addFilter({ type: UserType.FAMILY })
@@ -112,10 +113,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                         if (result.length > 0) return resolve(true)
                         return resolve(false)
                     }
-                    for (const familyItem of result) {
-                        if (familyItem.username === family.username) return resolve(true)
-                    }
-                    return resolve(false)
+                    return resolve(result.some(value => value.username === family.username))
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
