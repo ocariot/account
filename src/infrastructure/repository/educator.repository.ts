@@ -101,12 +101,12 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
     public checkExist(educator: Educator): Promise<boolean> {
         const query: Query = new Query()
-        query.pagination.limit = Number.MAX_SAFE_INTEGER
         if (educator.id) query.filters = { _id: educator.id }
 
         query.addFilter({ type: UserType.EDUCATOR })
         return new Promise<boolean>((resolve, reject) => {
-            this.find(query)
+            this.educatorModel.find(query.filters)
+                .exec()
                 .then((result: Array<Educator>) => {
                     if (educator.id) {
                         if (result.length > 0) return resolve(true)

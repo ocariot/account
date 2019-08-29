@@ -500,7 +500,6 @@ describe('Repositories: Family', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                defaultFamily.id = ''
                 queryMock.filters = { _id: defaultFamily.id, type: UserType.FAMILY }
 
                 sinon

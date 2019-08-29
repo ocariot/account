@@ -48,7 +48,6 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
 
     public checkExist(children: Child | Array<Child>): Promise<boolean | ValidationException> {
         const query: Query = new Query()
-        query.pagination.limit = Number.MAX_SAFE_INTEGER
 
         return new Promise<boolean | ValidationException>((resolve, reject) => {
             if (children instanceof Array) {
@@ -77,7 +76,8 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                 query.filters = { type: UserType.CHILD }
                 if (children.id) query.addFilter( { _id: children.id })
 
-                super.find(query)
+                this.childModel.find(query.filters)
+                    .exec()
                     .then((result: Array<Child>) => {
                         if (children.id) {
                             if (result.length) return resolve(true)

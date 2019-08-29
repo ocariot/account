@@ -47,12 +47,12 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
 
     public checkExist(application: Application): Promise<boolean> {
         const query: Query = new Query()
-        query.pagination.limit = Number.MAX_SAFE_INTEGER
         if (application.id) query.filters = { _id: application.id }
 
         query.addFilter({ type: UserType.APPLICATION })
         return new Promise<boolean>((resolve, reject) => {
-            super.find(query)
+            this.applicationModel.find(query.filters)
+                .exec()
                 .then((result: Array<Application>) => {
                     if (application.id) {
                         if (result.length > 0) return resolve(true)

@@ -5,7 +5,7 @@ import { ObjectIdValidator } from './object.id.validator'
 export class CreateChildValidator {
     public static validate(child: Child): void | ValidationException {
         const fields: Array<string> = []
-        const genders = Object.values(Gender)
+        const genders: Array<string> = Object.values(Gender)
 
         // validate null
         if (!child.username) fields.push('username')

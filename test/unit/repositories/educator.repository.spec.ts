@@ -498,7 +498,6 @@ describe('Repositories: Educator', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                defaultEducator.id = ''
                 queryMock.filters = { _id: defaultEducator.id, type: UserType.EDUCATOR }
 
                 sinon

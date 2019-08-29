@@ -102,12 +102,12 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
 
     public checkExist(family: Family): Promise<boolean> {
         const query: Query = new Query()
-        query.pagination.limit = Number.MAX_SAFE_INTEGER
         if (family.id) query.filters = { _id: family.id }
 
         query.addFilter({ type: UserType.FAMILY })
         return new Promise<boolean>((resolve, reject) => {
-            this.find(query)
+            this.familyModel.find(query.filters)
+                .exec()
                 .then((result: Array<Family>) => {
                     if (family.id) {
                         if (result.length > 0) return resolve(true)

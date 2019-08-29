@@ -423,7 +423,6 @@ describe('Repositories: Child', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                defaultChild.id = ''
                 queryMock.filters = { _id: defaultChild.id, type: UserType.CHILD }
 
                 sinon

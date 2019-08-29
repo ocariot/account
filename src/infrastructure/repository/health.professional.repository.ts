@@ -104,12 +104,12 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
 
     public checkExist(healthProfessional: HealthProfessional): Promise<boolean> {
         const query: Query = new Query()
-        query.pagination.limit = Number.MAX_SAFE_INTEGER
         if (healthProfessional.id) query.filters = { _id: healthProfessional.id }
 
         query.addFilter({ type: UserType.HEALTH_PROFESSIONAL })
         return new Promise<boolean>((resolve, reject) => {
-            this.find(query)
+            this.healthProfessionalModel.find(query.filters)
+                .exec()
                 .then((result: Array<HealthProfessional>) => {
                     if (healthProfessional.id) {
                         if (result.length > 0) return resolve(true)

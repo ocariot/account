@@ -427,7 +427,6 @@ describe('Repositories: Application', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                defaultApplication.id = ''
                 queryMock.filters = { _id: defaultApplication.id, type: UserType.APPLICATION }
 
                 sinon
