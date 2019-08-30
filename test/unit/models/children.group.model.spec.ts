@@ -77,13 +77,27 @@ describe('Models: ChildrenGroup', () => {
     })
 
     describe('toJSON()', () => {
-        it('should return a JSON from children group model', () => {
-            let result = new ChildrenGroup().fromJSON(childrenGroupJSON)
-            result = result.toJSON()
-            assert.propertyVal(result, 'id', childrenGroupJSON.id)
-            assert.propertyVal(result, 'name', childrenGroupJSON.name)
-            assert.deepPropertyVal(result, 'children', childrenGroupJSON.children)
-            assert.propertyVal(result, 'school_class', childrenGroupJSON.school_class)
+        context('when the children group is complete', () => {
+            it('should return a JSON from children group model', () => {
+                let result = new ChildrenGroup().fromJSON(childrenGroupJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', childrenGroupJSON.id)
+                assert.propertyVal(result, 'name', childrenGroupJSON.name)
+                assert.deepPropertyVal(result, 'children', childrenGroupJSON.children)
+                assert.propertyVal(result, 'school_class', childrenGroupJSON.school_class)
+            })
+        })
+
+        context('when the children group is incomplete', () => {
+            it('should return a JSON from children group model', () => {
+                childrenGroupJSON.children = undefined
+                let result = new ChildrenGroup().fromJSON(childrenGroupJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', childrenGroupJSON.id)
+                assert.propertyVal(result, 'name', childrenGroupJSON.name)
+                assert.deepPropertyVal(result, 'children', childrenGroupJSON.children)
+                assert.propertyVal(result, 'school_class', childrenGroupJSON.school_class)
+            })
         })
     })
 })

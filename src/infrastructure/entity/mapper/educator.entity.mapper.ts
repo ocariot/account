@@ -41,17 +41,6 @@ export class EducatorEntityMapper implements IEntityMapper<Educator, EducatorEnt
     }
 
     /**
-     * Convert {EducatorEntity} for {Educator}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: EducatorEntity): Educator {
-        throw Error('Not implemented!')
-    }
-
-    /**
      * Convert JSON for {Educator}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,

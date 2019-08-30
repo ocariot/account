@@ -90,15 +90,31 @@ describe('Models: Family', () => {
     })
 
     describe('toJSON()', () => {
-        it('should return a JSON from family model', () => {
-            let result = new Family().fromJSON(familyJSON)
-            result = result.toJSON()
-            assert.propertyVal(result, 'id', familyJSON.id)
-            assert.propertyVal(result, 'username', familyJSON.username)
-            assert.propertyVal(result, 'type', familyJSON.type)
-            assert.deepPropertyVal(result, 'children', familyJSON.children)
-            assert.propertyVal(result, 'institution_id', familyJSON.institution)
-            assert.propertyVal(result, 'last_login', familyJSON.last_login.toISOString())
+        context('when the children group is complete', () => {
+            it('should return a JSON from family model', () => {
+                let result = new Family().fromJSON(familyJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', familyJSON.id)
+                assert.propertyVal(result, 'username', familyJSON.username)
+                assert.propertyVal(result, 'type', familyJSON.type)
+                assert.deepPropertyVal(result, 'children', familyJSON.children)
+                assert.propertyVal(result, 'institution_id', familyJSON.institution)
+                assert.propertyVal(result, 'last_login', familyJSON.last_login.toISOString())
+            })
+        })
+
+        context('when the children group is incomplete', () => {
+            it('should return a JSON from family model', () => {
+                familyJSON.children = undefined
+                let result = new Family().fromJSON(familyJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', familyJSON.id)
+                assert.propertyVal(result, 'username', familyJSON.username)
+                assert.propertyVal(result, 'type', familyJSON.type)
+                assert.deepPropertyVal(result, 'children', familyJSON.children)
+                assert.propertyVal(result, 'institution_id', familyJSON.institution)
+                assert.propertyVal(result, 'last_login', familyJSON.last_login.toISOString())
+            })
         })
     })
 

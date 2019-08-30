@@ -36,17 +36,6 @@ export class ChildEntityMapper implements IEntityMapper<Child, ChildEntity> {
     }
 
     /**
-     * Convert {ChildEntity} for {Child}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: ChildEntity): Child {
-        throw Error('Not implemented!')
-    }
-
-    /**
      * Convert JSON for {Child}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,

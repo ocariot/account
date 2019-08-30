@@ -41,17 +41,6 @@ export class HealthProfessionalEntityMapper implements IEntityMapper<HealthProfe
     }
 
     /**
-     * Convert {HealthProfessionalEntity} for {HealthProfessional}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: HealthProfessionalEntity): HealthProfessional {
-        throw Error('Not implemented!')
-    }
-
-    /**
      * Convert JSON for {HealthProfessional}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,

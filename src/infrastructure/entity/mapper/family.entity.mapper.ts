@@ -41,17 +41,6 @@ export class FamilyEntityMapper implements IEntityMapper<Family, FamilyEntity> {
     }
 
     /**
-     * Convert {FamilyEntity} for {Family}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: FamilyEntity): Family {
-        throw Error('Not implemented!')
-    }
-
-    /**
      * Convert JSON for {Family}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,

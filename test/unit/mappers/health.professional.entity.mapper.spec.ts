@@ -2,10 +2,18 @@ import { assert } from 'chai'
 import { HealthProfessional } from '../../../src/application/domain/model/health.professional'
 import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
 import { HealthProfessionalEntityMapper } from '../../../src/infrastructure/entity/mapper/health.professional.entity.mapper'
+import { HealthProfessionalEntity } from '../../../src/infrastructure/entity/health.professional.entity'
+import { UserType } from '../../../src/application/domain/model/user'
 
 describe('Mappers: HealthProfessionalEntity', () => {
     const healthProfessional: HealthProfessional = new HealthProfessionalMock()
     healthProfessional.password = 'health_professional_password'
+    healthProfessional.children_groups![1].id = undefined
+
+    // To test how mapper works with an object without any attributes
+    const emptyHealthProfessional: HealthProfessional = new HealthProfessional()
+    emptyHealthProfessional.type = undefined
+    emptyHealthProfessional.scopes = undefined!
 
     // Create healthProfessional JSON
     const healthProfessionalJSON: any = {
@@ -25,6 +33,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
             'foodrecord:read',
             'physicalactivities:read',
             'sleep:read',
+            'measurements:read',
             'environment:read',
             'missions:read',
             'gamificationprofile:read',
@@ -95,11 +104,14 @@ describe('Mappers: HealthProfessionalEntity', () => {
         last_login: healthProfessional.last_login
     }
 
+    // To test how mapper works with an object without any attributes (JSON)
+    const emptyHealthProfessionalJSON: any = {}
+
     describe('transform(item: any)', () => {
         context('when the parameter is of type HealthProfessional', () => {
-            it('should normally execute the method, returning an HealthProfessionalEntity as a result of the ' +
+            it('should normally execute the method, returning a HealthProfessionalEntity as a result of the ' +
                 'transformation', () => {
-                const result = new HealthProfessionalEntityMapper().transform(healthProfessional)
+                const result: HealthProfessionalEntity = new HealthProfessionalEntityMapper().transform(healthProfessional)
                 assert.propertyVal(result, 'id', healthProfessional.id)
                 assert.propertyVal(result, 'username', healthProfessional.username)
                 assert.propertyVal(result, 'password', healthProfessional.password)
@@ -111,10 +123,17 @@ describe('Mappers: HealthProfessionalEntity', () => {
             })
         })
 
+        context('when the parameter is of type HealthProfessional and does not contain any attributes', () => {
+            it('should normally execute the method, returning an empty HealthProfessionalEntity', () => {
+                const result: HealthProfessionalEntity = new HealthProfessionalEntityMapper().transform(emptyHealthProfessional)
+                assert.isEmpty(result)
+            })
+        })
+
         context('when the parameter is a JSON', () => {
-            it('should not normally execute the method, returning an HealthProfessional as a result of the ' +
+            it('should not normally execute the method, returning a HealthProfessional as a result of the ' +
                 'transformation', () => {
-                const result = new HealthProfessionalEntityMapper().transform(healthProfessionalJSON)
+                const result: HealthProfessional = new HealthProfessionalEntityMapper().transform(healthProfessionalJSON)
                 assert.propertyVal(result, 'id', healthProfessionalJSON.id)
                 assert.propertyVal(result, 'username', healthProfessionalJSON.username)
                 assert.propertyVal(result, 'password', healthProfessionalJSON.password)
@@ -127,10 +146,10 @@ describe('Mappers: HealthProfessionalEntity', () => {
         })
 
         context('when the parameter is a JSON without an institution', () => {
-            it('should not normally execute the method, returning an HealthProfessional as a result of the ' +
+            it('should not normally execute the method, returning a HealthProfessional as a result of the ' +
                 'transformation', () => {
                 healthProfessionalJSON.institution = null
-                const result = new HealthProfessionalEntityMapper().transform(healthProfessionalJSON)
+                const result: HealthProfessional = new HealthProfessionalEntityMapper().transform(healthProfessionalJSON)
                 assert.propertyVal(result, 'id', healthProfessionalJSON.id)
                 assert.propertyVal(result, 'username', healthProfessionalJSON.username)
                 assert.propertyVal(result, 'password', healthProfessionalJSON.password)
@@ -142,10 +161,25 @@ describe('Mappers: HealthProfessionalEntity', () => {
             })
         })
 
+        context('when the parameter is a JSON and does not contain any attributes', () => {
+            it('should normally execute the method, returning a HealthProfessional as a result of the transformation', () => {
+                const result: HealthProfessional = new HealthProfessionalEntityMapper().transform(emptyHealthProfessionalJSON)
+
+                assert.propertyVal(result, 'id', emptyHealthProfessionalJSON.id)
+                assert.propertyVal(result, 'username', emptyHealthProfessionalJSON.username)
+                assert.propertyVal(result, 'password', emptyHealthProfessionalJSON.password)
+                assert.propertyVal(result, 'type', UserType.HEALTH_PROFESSIONAL)
+                assert.deepPropertyVal(result, 'scopes', healthProfessionalJSON.scopes)
+                assert.propertyVal(result, 'institution', emptyHealthProfessionalJSON.institution)
+                assert.propertyVal(result, 'last_login', emptyHealthProfessionalJSON.last_login)
+                assert.propertyVal(result, 'children_groups', emptyHealthProfessionalJSON.children_groups)
+            })
+        })
+
         context('when the parameter is a undefined', () => {
-            it('should not normally execute the method, returning an HealthProfessional as a result of the ' +
+            it('should not normally execute the method, returning a HealthProfessional as a result of the ' +
                 'transformation', () => {
-                const result = new HealthProfessionalEntityMapper().transform(undefined)
+                const result: HealthProfessional = new HealthProfessionalEntityMapper().transform(undefined)
 
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)

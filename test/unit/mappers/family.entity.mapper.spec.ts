@@ -2,12 +2,20 @@ import { assert } from 'chai'
 import { Family } from '../../../src/application/domain/model/family'
 import { FamilyMock } from '../../mocks/family.mock'
 import { FamilyEntityMapper } from '../../../src/infrastructure/entity/mapper/family.entity.mapper'
+import { FamilyEntity } from '../../../src/infrastructure/entity/family.entity'
+import { UserType } from '../../../src/application/domain/model/user'
 
 describe('Mappers: FamilyEntity', () => {
     const family: Family = new FamilyMock()
     family.password = 'family_password'
+    family.children![1].id = undefined
 
-    // Create educator JSON
+    // To test how mapper works with an object without any attributes
+    const emptyFamily: Family = new Family()
+    emptyFamily.type = undefined
+    emptyFamily.scopes = undefined!
+
+    // Create family JSON
     const familyJSON: any = {
         id: '7cf999f68228fb5e49f1d198',
         type: 'family',
@@ -31,6 +39,9 @@ describe('Mappers: FamilyEntity', () => {
             'sleep:read',
             'sleep:update',
             'sleep:delete',
+            'measurements:create',
+            'measurements:read',
+            'measurements:delete',
             'environment:read',
             'missions:read',
             'gamificationprofile:read',
@@ -137,40 +148,50 @@ describe('Mappers: FamilyEntity', () => {
         last_login: family.last_login
     }
 
+    // To test how mapper works with an object without any attributes (JSON)
+    const emptyFamilyJSON: any = {}
+
     describe('transform(item: any)', () => {
         context('when the parameter is of type Family', () => {
-            it('should normally execute the method, returning an FamilyEntity as a result of the transformation', () => {
-                const result = new FamilyEntityMapper().transform(family)
+            it('should normally execute the method, returning a FamilyEntity as a result of the transformation', () => {
+                const result: FamilyEntity = new FamilyEntityMapper().transform(family)
                 assert.propertyVal(result, 'id', family.id)
                 assert.propertyVal(result, 'username', family.username)
                 assert.propertyVal(result, 'password', family.password)
                 assert.propertyVal(result, 'type', family.type)
                 assert.propertyVal(result, 'scopes', family.scopes)
                 assert.propertyVal(result, 'institution', family.institution!.id)
-                assert.equal(result.children[0], family.children![0].id)
-                assert.equal(result.children[1], family.children![1].id)
+                assert.equal(result.children![0], family.children![0].id)
+                assert.equal(result.children![1], family.children![1].id)
                 assert.propertyVal(result, 'last_login', family.last_login)
             })
         })
 
+        context('when the parameter is of type Family and does not contain any attributes', () => {
+            it('should normally execute the method, returning an empty FamilyEntity', () => {
+                const result: FamilyEntity = new FamilyEntityMapper().transform(emptyFamily)
+                assert.isEmpty(result)
+            })
+        })
+
         context('when the parameter is a JSON', () => {
-            it('should not normally execute the method, returning an Family as a result of the transformation', () => {
-                const result = new FamilyEntityMapper().transform(familyJSON)
+            it('should not normally execute the method, returning a Family as a result of the transformation', () => {
+                const result: Family = new FamilyEntityMapper().transform(familyJSON)
                 assert.propertyVal(result, 'id', familyJSON.id)
                 assert.propertyVal(result, 'username', familyJSON.username)
                 assert.propertyVal(result, 'password', familyJSON.password)
                 assert.propertyVal(result, 'type', familyJSON.type)
                 assert.propertyVal(result, 'scopes', familyJSON.scopes)
-                assert.equal(result.institution.id, familyJSON.institution)
+                assert.equal(result.institution!.id, familyJSON.institution)
                 assert.property(result, 'children')
                 assert.propertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
 
         context('when the parameter is a JSON without an institution', () => {
-            it('should not normally execute the method, returning an Family as a result of the transformation', () => {
+            it('should not normally execute the method, returning a Family as a result of the transformation', () => {
                 familyJSON.institution = null
-                const result = new FamilyEntityMapper().transform(familyJSON)
+                const result: Family = new FamilyEntityMapper().transform(familyJSON)
                 assert.propertyVal(result, 'id', familyJSON.id)
                 assert.propertyVal(result, 'username', familyJSON.username)
                 assert.propertyVal(result, 'password', familyJSON.password)
@@ -182,9 +203,24 @@ describe('Mappers: FamilyEntity', () => {
             })
         })
 
+        context('when the parameter is a JSON and does not contain any attributes', () => {
+            it('should normally execute the method, returning a Family as a result of the transformation', () => {
+                const result: Family = new FamilyEntityMapper().transform(emptyFamilyJSON)
+
+                assert.propertyVal(result, 'id', emptyFamilyJSON.id)
+                assert.propertyVal(result, 'username', emptyFamilyJSON.username)
+                assert.propertyVal(result, 'password', emptyFamilyJSON.password)
+                assert.propertyVal(result, 'type', UserType.FAMILY)
+                assert.deepPropertyVal(result, 'scopes', familyJSON.scopes)
+                assert.propertyVal(result, 'institution', emptyFamilyJSON.institution)
+                assert.propertyVal(result, 'last_login', emptyFamilyJSON.last_login)
+                assert.propertyVal(result, 'children', emptyFamilyJSON.children)
+            })
+        })
+
         context('when the parameter is a undefined', () => {
-            it('should not normally execute the method, returning an Family as a result of the transformation', () => {
-                const result = new FamilyEntityMapper().transform(undefined)
+            it('should not normally execute the method, returning a Family as a result of the transformation', () => {
+                const result: Family = new FamilyEntityMapper().transform(undefined)
 
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)

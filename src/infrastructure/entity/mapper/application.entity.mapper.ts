@@ -34,17 +34,6 @@ export class ApplicationEntityMapper implements IEntityMapper<Application, Appli
     }
 
     /**
-     * Convert {ApplicationEntity} for {Application}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: ApplicationEntity): Application {
-        throw Error('Not implemented!')
-    }
-
-    /**
      * Convert JSON for {Application}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,

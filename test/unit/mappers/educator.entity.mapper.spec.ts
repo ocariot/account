@@ -2,10 +2,18 @@ import { assert } from 'chai'
 import { EducatorEntityMapper } from '../../../src/infrastructure/entity/mapper/educator.entity.mapper'
 import { EducatorMock } from '../../mocks/educator.mock'
 import { Educator } from '../../../src/application/domain/model/educator'
+import { EducatorEntity } from '../../../src/infrastructure/entity/educator.entity'
+import { UserType } from '../../../src/application/domain/model/user'
 
 describe('Mappers: EducatorEntity', () => {
     const educator: Educator = new EducatorMock()
     educator.password = 'educator_password'
+    educator.children_groups![1].id = undefined
+
+    // To test how mapper works with an object without any attributes
+    const emptyEducator: Educator = new Educator()
+    emptyEducator.type = undefined
+    emptyEducator.scopes = undefined!
 
     // Create educator JSON
     const educatorJSON: any = {
@@ -38,6 +46,9 @@ describe('Mappers: EducatorEntity', () => {
                 'sleep:read',
                 'sleep:update',
                 'sleep:delete',
+                'measurements:create',
+                'measurements:read',
+                'measurements:delete',
                 'environment:read',
                 'missions:read',
                 'gamificationprofile:read',
@@ -108,10 +119,13 @@ describe('Mappers: EducatorEntity', () => {
         last_login: educator.last_login
     }
 
+    // To test how mapper works with an object without any attributes (JSON)
+    const emptyEducatorJSON: any = {}
+
     describe('transform(item: any)', () => {
         context('when the parameter is of type Educator', () => {
             it('should normally execute the method, returning an EducatorEntity as a result of the transformation', () => {
-                const result = new EducatorEntityMapper().transform(educator)
+                const result: EducatorEntity = new EducatorEntityMapper().transform(educator)
                 assert.propertyVal(result, 'id', educator.id)
                 assert.propertyVal(result, 'username', educator.username)
                 assert.propertyVal(result, 'password', educator.password)
@@ -123,15 +137,22 @@ describe('Mappers: EducatorEntity', () => {
             })
         })
 
+        context('when the parameter is of type Educator and does not contain any attributes', () => {
+            it('should normally execute the method, returning an empty EducatorEntity', () => {
+                const result: EducatorEntity = new EducatorEntityMapper().transform(emptyEducator)
+                assert.isEmpty(result)
+            })
+        })
+
         context('when the parameter is a JSON', () => {
             it('should not normally execute the method, returning an Educator as a result of the transformation', () => {
-                const result = new EducatorEntityMapper().transform(educatorJSON)
+                const result: Educator = new EducatorEntityMapper().transform(educatorJSON)
                 assert.propertyVal(result, 'id', educatorJSON.id)
                 assert.propertyVal(result, 'username', educatorJSON.username)
                 assert.propertyVal(result, 'password', educatorJSON.password)
                 assert.propertyVal(result, 'type', educatorJSON.type)
                 assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
-                assert.equal(result.institution.id, educatorJSON.institution)
+                assert.equal(result.institution!.id, educatorJSON.institution)
                 assert.property(result, 'children_groups')
                 assert.propertyVal(result, 'last_login', educatorJSON.last_login)
             })
@@ -140,7 +161,7 @@ describe('Mappers: EducatorEntity', () => {
         context('when the parameter is a JSON without an institution', () => {
             it('should not normally execute the method, returning an Educator as a result of the transformation', () => {
                 educatorJSON.institution = null
-                const result = new EducatorEntityMapper().transform(educatorJSON)
+                const result: Educator = new EducatorEntityMapper().transform(educatorJSON)
                 assert.propertyVal(result, 'id', educatorJSON.id)
                 assert.propertyVal(result, 'username', educatorJSON.username)
                 assert.propertyVal(result, 'password', educatorJSON.password)
@@ -152,9 +173,24 @@ describe('Mappers: EducatorEntity', () => {
             })
         })
 
+        context('when the parameter is a JSON and does not contain any attributes', () => {
+            it('should normally execute the method, returning an Educator as a result of the transformation', () => {
+                const result: Educator = new EducatorEntityMapper().transform(emptyEducatorJSON)
+
+                assert.propertyVal(result, 'id', emptyEducatorJSON.id)
+                assert.propertyVal(result, 'username', emptyEducatorJSON.username)
+                assert.propertyVal(result, 'password', emptyEducatorJSON.password)
+                assert.propertyVal(result, 'type', UserType.EDUCATOR)
+                assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
+                assert.propertyVal(result, 'institution', emptyEducatorJSON.institution)
+                assert.propertyVal(result, 'last_login', emptyEducatorJSON.last_login)
+                assert.propertyVal(result, 'children_groups', emptyEducatorJSON.children_groups)
+            })
+        })
+
         context('when the parameter is a undefined', () => {
             it('should not normally execute the method, returning an Educator as a result of the transformation', () => {
-                const result = new EducatorEntityMapper().transform(undefined)
+                const result: Educator = new EducatorEntityMapper().transform(undefined)
 
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)

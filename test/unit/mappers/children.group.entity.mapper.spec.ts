@@ -4,11 +4,16 @@ import { ChildrenGroupMock } from '../../mocks/children.group.mock'
 import { ChildrenGroupEntityMapper } from '../../../src/infrastructure/entity/mapper/children.group.entity.mapper'
 import { ObjectId } from 'bson'
 import { UserMock } from '../../mocks/user.mock'
+import { ChildrenGroupEntity } from '../../../src/infrastructure/entity/children.group.entity'
 
 describe('Mappers: ChildrenGroupEntity', () => {
     const children_group: ChildrenGroup = new ChildrenGroupMock()
     children_group.id = new ObjectId().toHexString()
     children_group.user = new UserMock()
+    children_group.children![1].id = undefined
+
+    // To test how mapper works with an object without any attributes
+    const emptyChildrenGroup: ChildrenGroup = new ChildrenGroup()
 
     // Create children_group JSON
     const childrenGroupJSON: any = {
@@ -82,22 +87,31 @@ describe('Mappers: ChildrenGroupEntity', () => {
             ]
     }
 
+    // To test how mapper works with an object without any attributes (JSON)
+    const emptyChildrenGroupJSON: any = {}
+
     describe('transform(item: any)', () => {
         context('when the parameter is of type ChildrenGroup', () => {
             it('should normally execute the method, returning a ChildrenGroupEntity as a result of the transformation', () => {
-                const result = new ChildrenGroupEntityMapper().transform(children_group)
+                const result: ChildrenGroupEntity = new ChildrenGroupEntityMapper().transform(children_group)
                 assert.propertyVal(result, 'id', children_group.id)
                 assert.propertyVal(result, 'name', children_group.name)
-                assert.equal(result.children[0], children_group.children![0].id)
-                assert.equal(result.children[1], children_group.children![1].id)
+                assert.equal(result.children![0], children_group.children![0].id)
                 assert.propertyVal(result, 'school_class', children_group.school_class)
                 assert.propertyVal(result, 'user_id', children_group.user!.id)
             })
         })
 
+        context('when the parameter is of type ChildrenGroup and does not contain any attributes', () => {
+            it('should normally execute the method, returning an empty ChildrenGroupEntity', () => {
+                const result: ChildrenGroupEntity = new ChildrenGroupEntityMapper().transform(emptyChildrenGroup)
+                assert.isEmpty(result)
+            })
+        })
+
         context('when the parameter is a JSON', () => {
             it('should not normally execute the method, returning a ChildrenGroup as a result of the transformation', () => {
-                const result = new ChildrenGroupEntityMapper().transform(childrenGroupJSON)
+                const result: ChildrenGroup = new ChildrenGroupEntityMapper().transform(childrenGroupJSON)
                 assert.propertyVal(result, 'id', childrenGroupJSON.id)
                 assert.propertyVal(result, 'name', childrenGroupJSON.name)
                 assert.property(result, 'children')
@@ -106,9 +120,20 @@ describe('Mappers: ChildrenGroupEntity', () => {
             })
         })
 
+        context('when the parameter is a JSON and does not contain any attributes', () => {
+            it('should normally execute the method, returning a ChildrenGroup as a result of the transformation', () => {
+                const result: ChildrenGroup = new ChildrenGroupEntityMapper().transform(emptyChildrenGroupJSON)
+                assert.propertyVal(result, 'id', emptyChildrenGroupJSON.id)
+                assert.propertyVal(result, 'name', emptyChildrenGroupJSON.name)
+                assert.propertyVal(result, 'children', emptyChildrenGroupJSON.children)
+                assert.propertyVal(result, 'school_class', emptyChildrenGroupJSON.school_class)
+                assert.propertyVal(result, 'user', emptyChildrenGroupJSON.user)
+            })
+        })
+
         context('when the parameter is a undefined', () => {
             it('should not normally execute the method, returning a ChildrenGroup as a result of the transformation', () => {
-                const result = new ChildrenGroupEntityMapper().transform(undefined)
+                const result: ChildrenGroup = new ChildrenGroupEntityMapper().transform(undefined)
 
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'name', undefined)

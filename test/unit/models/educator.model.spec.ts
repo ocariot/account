@@ -97,15 +97,31 @@ describe('Models: Educator', () => {
     })
 
     describe('toJSON()', () => {
-        it('should return a JSON from educator model', () => {
-            let result = new Educator().fromJSON(educatorJSON)
-            result = result.toJSON()
-            assert.propertyVal(result, 'id', educatorJSON.id)
-            assert.propertyVal(result, 'username', educatorJSON.username)
-            assert.propertyVal(result, 'type', educatorJSON.type)
-            assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
-            assert.propertyVal(result, 'institution_id', educatorJSON.institution)
-            assert.propertyVal(result, 'last_login', educatorJSON.last_login.toISOString())
+        context('when the educator is complete', () => {
+            it('should return a JSON from educator model', () => {
+                let result = new Educator().fromJSON(educatorJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', educatorJSON.id)
+                assert.propertyVal(result, 'username', educatorJSON.username)
+                assert.propertyVal(result, 'type', educatorJSON.type)
+                assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
+                assert.propertyVal(result, 'institution_id', educatorJSON.institution)
+                assert.propertyVal(result, 'last_login', educatorJSON.last_login.toISOString())
+            })
+        })
+
+        context('when the educator is incomplete', () => {
+            it('should return a JSON from educator model', () => {
+                educatorJSON.children_groups = undefined
+                let result = new Educator().fromJSON(educatorJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', educatorJSON.id)
+                assert.propertyVal(result, 'username', educatorJSON.username)
+                assert.propertyVal(result, 'type', educatorJSON.type)
+                assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
+                assert.propertyVal(result, 'institution_id', educatorJSON.institution)
+                assert.propertyVal(result, 'last_login', educatorJSON.last_login.toISOString())
+            })
         })
     })
 
@@ -137,6 +153,15 @@ describe('Models: Educator', () => {
                 educator.removeChildrenGroup(educator.children_groups![1])
                 // Size check equal to 1 because 'new EducatorMock()' creates an educator with two children_groups
                 assert.equal(educator.children_groups!.length, 1)
+            })
+        })
+
+        context('when the educator has no registered children groups', () => {
+            it('should remove the childrenGroup that was passed by parameter', () => {
+                const educator = new EducatorMock()
+                educator.children_groups = undefined
+                educator.removeChildrenGroup(new ChildrenGroupMock())
+                // Does not do anything
             })
         })
     })

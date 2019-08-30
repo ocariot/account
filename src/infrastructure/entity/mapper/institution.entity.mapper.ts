@@ -31,17 +31,6 @@ export class InstitutionEntityMapper implements IEntityMapper<Institution, Insti
     }
 
     /**
-     * Convert {UserEntity} for {User}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: InstitutionEntity): Institution {
-        throw Error('Not implemented!')
-    }
-
-    /**
      * Convert JSON for {Institution}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,
