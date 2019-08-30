@@ -27,7 +27,8 @@ export class HealthProfessional extends Educator {
             'measurements:read',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
+            'gamificationprofile:read',
+            'external:sync'
         ]
     }
 }

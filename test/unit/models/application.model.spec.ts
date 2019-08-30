@@ -41,7 +41,8 @@ describe('Models: Application', () => {
             'gamificationprofile:create',
             'gamificationprofile:read',
             'gamificationprofile:update',
-            'gamificationprofile:delete'
+            'gamificationprofile:delete',
+            'external:sync'
         ],
         last_login: new Date()
     }

@@ -42,7 +42,8 @@ describe('Mappers: ApplicationEntity', () => {
             'gamificationprofile:create',
             'gamificationprofile:read',
             'gamificationprofile:update',
-            'gamificationprofile:delete'
+            'gamificationprofile:delete',
+            'external:sync'
         ],
         username: 'application_mock',
         password: 'application_password',

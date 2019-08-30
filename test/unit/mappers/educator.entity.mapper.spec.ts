@@ -40,7 +40,8 @@ describe('Mappers: EducatorEntity', () => {
                 'sleep:delete',
                 'environment:read',
                 'missions:read',
-                'gamificationprofile:read'
+                'gamificationprofile:read',
+                'external:sync'
             ],
         username: 'educator_mock',
         password: 'educator_password',

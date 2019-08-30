@@ -47,8 +47,9 @@ export class Educator extends User implements IJSONSerializable, IJSONDeserializ
             'measurements:delete',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
-        ]
+            'gamificationprofile:read',
+            'external:sync'
+    ]
     }
 
     get children_groups(): Array<ChildrenGroup> | undefined {

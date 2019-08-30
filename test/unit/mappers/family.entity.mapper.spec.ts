@@ -33,7 +33,8 @@ describe('Mappers: FamilyEntity', () => {
             'sleep:delete',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
+            'gamificationprofile:read',
+            'external:sync'
         ],
         username: 'family_mock',
         password: 'family_password',

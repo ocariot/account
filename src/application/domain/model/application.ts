@@ -45,7 +45,8 @@ export class Application extends User implements IJSONSerializable, IJSONDeseria
             'gamificationprofile:create',
             'gamificationprofile:read',
             'gamificationprofile:update',
-            'gamificationprofile:delete'
+            'gamificationprofile:delete',
+            'external:sync'
         ]
     }
 

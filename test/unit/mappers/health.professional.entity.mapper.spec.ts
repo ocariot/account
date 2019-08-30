@@ -27,7 +27,8 @@ describe('Mappers: HealthProfessionalEntity', () => {
             'sleep:read',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
+            'gamificationprofile:read',
+            'external:sync'
             ],
         username: 'health_professional_mock',
         password: 'health_professional_password',

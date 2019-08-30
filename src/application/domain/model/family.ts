@@ -41,7 +41,8 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
             'measurements:delete',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
+            'gamificationprofile:read',
+            'external:sync'
         ]
     }
 

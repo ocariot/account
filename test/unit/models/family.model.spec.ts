@@ -38,7 +38,8 @@ describe('Models: Family', () => {
             'measurements:delete',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
+            'gamificationprofile:read',
+            'external:sync'
         ],
         last_login: new Date()
     }
