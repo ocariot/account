@@ -61,10 +61,8 @@ export class FamilyRepositoryMock implements IFamilyRepository {
     }
 
     public update(family: Family): Promise<Family> {
-        if (family.id === '507f1f77bcf86cd799439011'){
-            return Promise.resolve(family)
-        }
-        return Promise.resolve(undefined!)
+        if (family.id === '507f1f77bcf86cd799439013') return Promise.resolve(undefined!)
+        return Promise.resolve(family)
     }
 
 }

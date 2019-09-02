@@ -224,7 +224,7 @@ describe('Services: Institution', () => {
     describe('remove(id: string)', () => {
         context('when there is Institution with the received parameter', () => {
             it('should return true', () => {
-                institution.id = '507f1f77bcf86cd799439012'         // Make mock return true
+                institution.id = '507f1f77bcf86cd799439014'         // Make mock return true
 
                 return institutionService.remove(institution.id!)
                     .then(result => {
@@ -244,12 +244,24 @@ describe('Services: Institution', () => {
             })
         })
 
+        context('when there is Institution with the received parameter, there is no connection to the RabbitMQ ' +
+            'but the event could not be saved', () => {
+            it('should return true because the current implementation does not throw an exception, it just prints a log', () => {
+                institution.id = '507f1f77bcf86cd799439012'     // Make mock throw an error in IntegrationEventRepository
+
+                return institutionService.remove(institution.id)
+                    .then(result => {
+                        assert.equal(result, true)
+                    })
+            })
+        })
+
         context('when there is no Institution with the received parameter', () => {
             it('should return false', () => {
                 connectionRabbitmqPub.isConnected = true
                 institution.id = '507f1f77bcf86cd799439013'         // Make mock return false
 
-                return institutionService.remove(institution.id)
+                return institutionService.remove(institution.id!)
                     .then(result => {
                         assert.equal(result, false)
                     })

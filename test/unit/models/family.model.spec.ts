@@ -99,7 +99,7 @@ describe('Models: Family', () => {
                 assert.propertyVal(result, 'type', familyJSON.type)
                 assert.deepPropertyVal(result, 'children', familyJSON.children)
                 assert.propertyVal(result, 'institution_id', familyJSON.institution)
-                assert.propertyVal(result, 'last_login', familyJSON.last_login.toISOString())
+                assert.propertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
 
@@ -113,7 +113,7 @@ describe('Models: Family', () => {
                 assert.propertyVal(result, 'type', familyJSON.type)
                 assert.deepPropertyVal(result, 'children', familyJSON.children)
                 assert.propertyVal(result, 'institution_id', familyJSON.institution)
-                assert.propertyVal(result, 'last_login', familyJSON.last_login.toISOString())
+                assert.propertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
     })

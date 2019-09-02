@@ -48,9 +48,8 @@ export class ChildRepositoryMock implements IChildRepository {
     }
 
     public update(child: Child): Promise<Child> {
-        if (child.id === '507f1f77bcf86cd799439011')
-            return Promise.resolve(child)
-        return Promise.resolve(undefined!)
+        if (child.id === '507f1f77bcf86cd799439013') return Promise.resolve(undefined!)
+        return Promise.resolve(child)
     }
 
 }

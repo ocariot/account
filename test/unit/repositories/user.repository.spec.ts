@@ -338,6 +338,29 @@ describe('Repositories: User', () => {
             })
         })
 
+        context('when none of the database users have username the same as the parameter passed', () => {
+            it('should return false', () => {
+                defaultUser.username = 'different_username'
+                sinon
+                    .mock(userModelFake)
+                    .expects('find')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves([ new UserMock() ])
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: defaultUser.id })
+                    .chain('exec')
+                    .resolves(false)
+
+                return userRepo.updateLastLogin(defaultUser.username!)
+                    .then(result => {
+                        assert.isFalse(result)
+                    })
+            })
+        })
+
         context('when last_login is not updated successfully', () => {
             it('should return false', () => {
                 defaultUser.id = ''

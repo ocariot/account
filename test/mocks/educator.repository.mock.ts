@@ -55,9 +55,8 @@ export class EducatorRepositoryMock implements IEducatorRepository {
     }
 
     public update(educator: Educator): Promise<Educator> {
-        if (educator.id === '507f1f77bcf86cd799439011')
-            return Promise.resolve(educator)
-        return Promise.resolve(undefined!)
+        if (educator.id === '507f1f77bcf86cd799439013') return Promise.resolve(undefined!)
+        return Promise.resolve(educator)
     }
 
 }

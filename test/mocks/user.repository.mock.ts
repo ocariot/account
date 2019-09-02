@@ -91,6 +91,7 @@ export class UserRepositoryMock implements IUserRepository {
     }
 
     public updateLastLogin(username: string): Promise<boolean> {
-        return Promise.resolve(true)
+        if (username) return Promise.resolve(true)
+        return Promise.resolve(false)
     }
 }

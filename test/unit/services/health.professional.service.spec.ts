@@ -276,10 +276,30 @@ describe('Services: HealthProfessional', () => {
             })
         })
 
+        context('when the HealthProfessional exists in the database, there is no connection to the RabbitMQ ' +
+            'but the event could not be saved', () => {
+            it('should return the HealthProfessional because the current implementation does not throw an exception, ' +
+                'it just prints a log', () => {
+                healthProfessional.id = '507f1f77bcf86cd799439012'     // Make mock throw an error in IntegrationEventRepository
+
+                return healthProfessionalService.update(healthProfessional)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', healthProfessional.id)
+                        assert.propertyVal(result, 'username', healthProfessional.username)
+                        assert.propertyVal(result, 'password', healthProfessional.password)
+                        assert.propertyVal(result, 'type', healthProfessional.type)
+                        assert.propertyVal(result, 'scopes', healthProfessional.scopes)
+                        assert.propertyVal(result, 'institution', healthProfessional.institution)
+                        assert.propertyVal(result, 'children_groups', healthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', healthProfessional.last_login)
+                    })
+            })
+        })
+
         context('when the HealthProfessional does not exist in the database', () => {
             it('should return undefined', () => {
                 connectionRabbitmqPub.isConnected = true
-                healthProfessional.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
+                healthProfessional.id = '507f1f77bcf86cd799439013'         // Make mock return undefined
 
                 return healthProfessionalService.update(healthProfessional)
                     .then(result => {
@@ -322,7 +342,7 @@ describe('Services: HealthProfessional', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'This parameter could not be updated.')
                         assert.propertyVal(err, 'description', 'A specific route to update user password already exists.' +
-                            'Access: PATCH /users/507f1f77bcf86cd799439012/password to update your password.')
+                            'Access: PATCH /users/507f1f77bcf86cd799439013/password to update your password.')
                     })
             })
         })

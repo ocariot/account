@@ -106,7 +106,7 @@ describe('Models: Educator', () => {
                 assert.propertyVal(result, 'type', educatorJSON.type)
                 assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
                 assert.propertyVal(result, 'institution_id', educatorJSON.institution)
-                assert.propertyVal(result, 'last_login', educatorJSON.last_login.toISOString())
+                assert.propertyVal(result, 'last_login', educatorJSON.last_login)
             })
         })
 
@@ -120,7 +120,7 @@ describe('Models: Educator', () => {
                 assert.propertyVal(result, 'type', educatorJSON.type)
                 assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
                 assert.propertyVal(result, 'institution_id', educatorJSON.institution)
-                assert.propertyVal(result, 'last_login', educatorJSON.last_login.toISOString())
+                assert.propertyVal(result, 'last_login', educatorJSON.last_login)
             })
         })
     })

@@ -90,7 +90,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
             ...{
                 gender: this.gender,
                 age: this.age,
-                last_sync: this.last_sync ? this.last_sync.toISOString() : this.last_sync
+                last_sync: this.last_sync
             }
         }
     }

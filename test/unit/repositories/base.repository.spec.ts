@@ -109,7 +109,7 @@ describe('Repositories: Base', () => {
                     assert.propertyVal(users[0], 'username', defaultUser.username)
                     assert.propertyVal(users[0], 'type', defaultUser.type)
                     assert.deepPropertyVal(users[0], 'institution_id', defaultUser.institution!.id)
-                    assert.propertyVal(users[0], 'last_login', defaultUser.last_login!.toISOString())
+                    assert.propertyVal(users[0], 'last_login', defaultUser.last_login)
                 })
         })
 
@@ -188,7 +188,7 @@ describe('Repositories: Base', () => {
                     assert.propertyVal(user, 'username', user.username)
                     assert.propertyVal(user, 'type', user.type)
                     assert.deepPropertyVal(user, 'institution_id', defaultUser.institution!.id)
-                    assert.propertyVal(user, 'last_login', defaultUser.last_login!.toISOString())
+                    assert.propertyVal(user, 'last_login', defaultUser.last_login)
                 })
         })
 
@@ -245,7 +245,7 @@ describe('Repositories: Base', () => {
                     assert.propertyVal(user, 'username', user.username)
                     assert.propertyVal(user, 'type', user.type)
                     assert.deepPropertyVal(user, 'institution_id', defaultUser.institution!.id)
-                    assert.propertyVal(user, 'last_login', defaultUser.last_login!.toISOString())
+                    assert.propertyVal(user, 'last_login', defaultUser.last_login)
                 })
         })
 

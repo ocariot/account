@@ -102,7 +102,7 @@ describe('Models: Application', () => {
                 assert.propertyVal(result, 'type', appJSON.type)
                 assert.propertyVal(result, 'institution_id', appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
-                assert.propertyVal(result, 'last_login', appJSON.last_login.toISOString())
+                assert.propertyVal(result, 'last_login', appJSON.last_login)
             })
         })
     })

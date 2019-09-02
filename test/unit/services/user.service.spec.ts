@@ -323,6 +323,18 @@ describe('Services: User', () => {
             })
         })
 
+        context('when there is User (HEALTH_PROFESSIONAL) with the received parameter, there is no connection to the ' +
+            'RabbitMQ, but the event could not be saved', () => {
+            it('should return true because the current implementation does not throw an exception, it just prints a log', () => {
+                user.id = '507f1f77bcf86cd799439012'     // Make mock throw an error in IntegrationEventRepository
+
+                return userService.remove(user.id)
+                    .then(result => {
+                        assert.equal(result, true)
+                    })
+            })
+        })
+
         context('when there is no User with the received parameter', () => {
             it('should return false', () => {
                 connectionRabbitmqPub.isConnected = true

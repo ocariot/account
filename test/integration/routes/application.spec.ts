@@ -55,7 +55,38 @@ describe('Routes: Application', () => {
     })
 
     describe('POST /v1/applications', () => {
+        context('when posting a new application without institution', () => {
+            it('should return status code 201 and the saved application', () => {
+
+                const body = {
+                    username: defaultApplication.username,
+                    password: 'mysecretkey',
+                    application_name: defaultApplication.application_name
+                }
+
+                return request
+                    .post('/v1/applications')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(201)
+                    .then(res => {
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql(defaultApplication.username)
+                        expect(res.body.application_name).to.eql(defaultApplication.application_name)
+                        defaultApplication.id = res.body.id
+                    })
+            })
+        })
+
         context('when posting a new application user', () => {
+            before(() => {
+                try {
+                    deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on children.physicalactivities routes test: ' + err.message)
+                }
+            })
+
             it('should return status code 201 and the saved application', () => {
 
                 const body = {

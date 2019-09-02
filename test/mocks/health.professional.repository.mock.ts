@@ -55,9 +55,8 @@ export class HealthProfessionalRepositoryMock implements IHealthProfessionalRepo
     }
 
     public update(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
-        if (healthProfessional.id === '507f1f77bcf86cd799439011')
-            return Promise.resolve(healthProfessional)
-        return Promise.resolve(undefined!)
+        if (healthProfessional.id === '507f1f77bcf86cd799439013') return Promise.resolve(undefined!)
+        return Promise.resolve(healthProfessional)
     }
 
 }

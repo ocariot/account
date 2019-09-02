@@ -118,7 +118,7 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
             username: this.username,
             type: this.type,
             institution_id: this.institution ? this.institution.id : undefined,
-            last_login: this.last_login ? this.last_login.toISOString() : this.last_login
+            last_login: this.last_login
         }
     }
 }

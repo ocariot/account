@@ -253,7 +253,6 @@ describe('Services: Child', () => {
         context('when the Child exists in the database', () => {
             it('should return the Child that was updated', () => {
                 child.password = ''
-                child.id = '507f1f77bcf86cd799439011'         // Make mock return an updated child
 
                 return childService.update(child)
                     .then(result => {
@@ -274,6 +273,29 @@ describe('Services: Child', () => {
         context('when the Child exists in the database but there is no connection to the RabbitMQ', () => {
             it('should return the Child that was saved', () => {
                 connectionRabbitmqPub.isConnected = false
+                child.id = '507f1f77bcf86cd799439011'
+
+                return childService.update(child)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', child.id)
+                        assert.propertyVal(result, 'username', child.username)
+                        assert.propertyVal(result, 'password', child.password)
+                        assert.propertyVal(result, 'type', child.type)
+                        assert.propertyVal(result, 'scopes', child.scopes)
+                        assert.propertyVal(result, 'institution', child.institution)
+                        assert.propertyVal(result, 'gender', child.gender)
+                        assert.propertyVal(result, 'age', child.age)
+                        assert.propertyVal(result, 'last_login', child.last_login)
+                        assert.propertyVal(result, 'last_sync', child.last_sync)
+                    })
+            })
+        })
+
+        context('when the Child exists in the database, there is no connection to the RabbitMQ ' +
+            'but the event could not be saved', () => {
+            it('should return the Child because the current implementation does not throw an exception, ' +
+                'it just prints a log', () => {
+                child.id = '507f1f77bcf86cd799439012'           // Make mock throw an error in IntegrationEventRepository
 
                 return childService.update(child)
                     .then(result => {
@@ -294,7 +316,7 @@ describe('Services: Child', () => {
         context('when the Child does not exist in the database', () => {
             it('should return undefined', () => {
                 connectionRabbitmqPub.isConnected = true
-                child.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
+                child.id = '507f1f77bcf86cd799439013'         // Make mock return undefined
 
                 return childService.update(child)
                     .then(result => {
@@ -337,7 +359,7 @@ describe('Services: Child', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'This parameter could not be updated.')
                         assert.propertyVal(err, 'description', 'A specific route to update user password already exists.' +
-                            'Access: PATCH /users/507f1f77bcf86cd799439012/password to update your password.')
+                            'Access: PATCH /users/507f1f77bcf86cd799439013/password to update your password.')
                     })
             })
         })

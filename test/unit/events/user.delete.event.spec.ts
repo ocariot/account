@@ -15,7 +15,7 @@ describe('IntegrationEvents: UserDelete', () => {
             assert.propertyVal(result.user, 'username', user.username)
             assert.propertyVal(result.user, 'type', user.type)
             assert.propertyVal(result.user, 'institution_id', user.institution!.id)
-            assert.propertyVal(result.user, 'last_login', user.last_login!.toISOString())
+            assert.propertyVal(result.user, 'last_login', user.last_login)
         })
 
         context('when the user is undefined', () => {
