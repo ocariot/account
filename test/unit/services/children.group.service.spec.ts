@@ -75,7 +75,8 @@ describe('Services: ChildrenGroup', () => {
                 return childrenGroupService.add(childrenGroup)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER)
+                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
+                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -236,7 +237,8 @@ describe('Services: ChildrenGroup', () => {
                 return childrenGroupService.update(childrenGroup)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER)
+                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
+                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })

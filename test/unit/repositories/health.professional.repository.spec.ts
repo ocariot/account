@@ -45,14 +45,12 @@ describe('Repositories: HealthProfessional', () => {
     })
 
     describe('create(item: HealthProfessional)', () => {
-
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
                 sinon
                     .mock(modelFake)
                     .expects('create')
                     .withArgs(defaultHealthProfessional)
-                    .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 

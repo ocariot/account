@@ -107,7 +107,8 @@ describe('Services: Family', () => {
                 return familyService.add(family)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER)
+                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
+                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -365,7 +366,8 @@ describe('Services: Family', () => {
                 return familyService.update(family)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER)
+                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
+                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -442,6 +444,20 @@ describe('Services: Family', () => {
             })
         })
 
+        context('when there is no child in the family object', () => {
+            it('should return an empty array', () => {
+                family.id = '507f1f77bcf86cd799439015'     // Make mock return a filled array
+                const query: IQuery = new Query()
+                query.filters = { _id: family.id, type: UserType.FAMILY }
+
+                return familyService.getAllChildren(family.id, query)
+                    .then(result => {
+                        assert.isArray(result)
+                        assert.isEmpty(result)
+                    })
+            })
+        })
+
         context('when there is no family object in the database that matches the query filters', () => {
             it('should return undefined', () => {
                 family.id = '507f1f77bcf86cd799439012'         // Make mock return an empty array
@@ -451,6 +467,19 @@ describe('Services: Family', () => {
                 return familyService.getAllChildren(family.id, query)
                     .then(result => {
                         assert.isUndefined(result)
+                    })
+            })
+        })
+
+        context('when a repository error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                family.id = '507f1f77bcf86cd799439016'         // Make mock throw an exception
+                const query: IQuery = new Query()
+                query.filters = { _id: family.id, type: UserType.FAMILY }
+
+                return familyService.getAllChildren(family.id, query)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UNEXPECTED)
                     })
             })
         })
@@ -550,6 +579,17 @@ describe('Services: Family', () => {
             it('should return true', () => {
                 family.children![0].id = '507f1f77bcf86cd799439011'
                 family.id = '507f1f77bcf86cd799439011'     // Make mock return true
+
+                return familyService.disassociateChild(family.id, family.children![0].id!)
+                    .then(result => {
+                        assert.equal(result, true)
+                    })
+            })
+        })
+
+        context('when there is no child in the family object', () => {
+            it('should return true', () => {
+                family.id = '507f1f77bcf86cd799439015'     // Make mock return true
 
                 return familyService.disassociateChild(family.id, family.children![0].id!)
                     .then(result => {

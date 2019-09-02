@@ -36,6 +36,8 @@ describe('Routes: Family', () => {
     child.type = UserType.CHILD
     child.institution = institution
 
+    const otherChild = new ChildMock()
+
     const anotherChild = new Child()
 
     before(async () => {
@@ -73,6 +75,28 @@ describe('Routes: Family', () => {
     })
 
     describe('POST /v1/families', () => {
+        context('when posting a new family user with unregistered children', () => {
+            it('should return status code 400 and an info message about the unregistered children', () => {
+                const body = {
+                    username: defaultFamily.username,
+                    password: defaultFamily.password,
+                    children: [ otherChild ],
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/families')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.code).to.eql(400)
+                        expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(otherChild.id))
+                    })
+            })
+        })
+
         context('when posting a new family user', () => {
             it('should return status code 201 and the saved family', () => {
                 const body = {

@@ -5,10 +5,12 @@ import { ChildMock } from './child.mock'
 import { Strings } from '../../src/utils/strings'
 
 export class ChildRepositoryMock implements IChildRepository {
-    public checkExist(child: Child): Promise<boolean> {
+    public checkExist(child: Child): Promise<boolean | ValidationException> {
         if (child instanceof Array) {
-            if (child[0].id === '507f1f77bcf86cd799439012') throw new ValidationException(
-                Strings.CHILD.CHILDREN_REGISTER_REQUIRED, Strings.CHILD.IDS_WITHOUT_REGISTER)
+            if (child[0].id === '507f1f77bcf86cd799439012') {
+                return Promise.resolve(new ValidationException(
+                    Strings.CHILD.CHILDREN_REGISTER_REQUIRED, Strings.CHILD.IDS_WITHOUT_REGISTER))
+            }
             return Promise.resolve(child[0].id === '507f1f77bcf86cd799439012')
         }
         return Promise.resolve(child.id === '507f1f77bcf86cd799439011')
