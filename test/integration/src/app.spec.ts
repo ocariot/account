@@ -34,10 +34,19 @@ describe('App', () => {
                 institution.id = item._id
 
             } catch (err) {
-                throw new Error('Failure on Child test: ' + err.message)
+                throw new Error('Failure on App test: ' + err.message)
             }
         }
     )
+
+    after(async () => {
+        try {
+            await deleteAllInstitutions()
+            await dbConnection.dispose()
+        } catch (err) {
+            throw new Error('Failure on App test: ' + err.message)
+        }
+    })
 
     /**
      * setupErrorsHandler()

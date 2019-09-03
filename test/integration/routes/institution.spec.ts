@@ -198,7 +198,7 @@ describe('Routes: Institution', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.ALREADY_REGISTERED)
                     })
             })
         })

@@ -66,7 +66,16 @@ export class InstitutionService implements IInstitutionService {
         // 1. Validate id.
         if (institution.id) ObjectIdValidator.validate(institution.id)
 
-        // 2. Update a institution.
+        // 2. Checks if Institution already exists.
+        const id: string = institution.id!
+        institution.id = undefined
+
+        const institutionExist = await this._institutionRepository.checkExist(institution)
+        if (institutionExist) throw new ConflictException(Strings.INSTITUTION.ALREADY_REGISTERED)
+
+        institution.id = id
+
+        // 3. Update a institution.
         return this._institutionRepository.update(institution)
     }
 
