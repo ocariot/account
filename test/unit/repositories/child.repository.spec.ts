@@ -44,8 +44,40 @@ describe('Repositories: Child', () => {
     })
 
     describe('create(item: Child)', () => {
+        context('when the Child does not have password', () => {
+            it('should return a Child without password', () => {
+                defaultChild.password = undefined
+
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(defaultChild)
+                    .resolves(defaultChild)
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(defaultChild.id)
+                    .chain('exec')
+                    .resolves(defaultChild)
+
+                return childRepo.create(defaultChild)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', defaultChild.id)
+                        assert.propertyVal(result, 'username', defaultChild.username)
+                        assert.isUndefined(result.password)
+                        assert.propertyVal(result, 'type', defaultChild.type)
+                        assert.propertyVal(result, 'scopes', defaultChild.scopes)
+                        assert.propertyVal(result, 'institution', defaultChild.institution)
+                        assert.propertyVal(result, 'last_login', defaultChild.last_login)
+                        assert.propertyVal(result, 'last_sync', defaultChild.last_sync)
+                    })
+            })
+        })
+
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
+                defaultChild.password = 'child_password'
+
                 sinon
                     .mock(modelFake)
                     .expects('create')
@@ -340,6 +372,10 @@ describe('Repositories: Child', () => {
     })
 
     describe('checkExists()', () => {
+        const childWithoutId = new Child()
+        childWithoutId.username = defaultChild.username
+        childWithoutId.type = defaultChild.type
+
         context('when there is a child with the search filters used', () => {
             it('should return true if exists in search by id', () => {
                 defaultChild.id = '507f1f77bcf86cd799439011'
@@ -371,10 +407,6 @@ describe('Repositories: Child', () => {
                         }
                     }
                 }
-
-                const childWithoutId = new Child()
-                childWithoutId.username = defaultChild.username
-                childWithoutId.type = defaultChild.type
 
                 sinon
                     .mock(modelFake)
@@ -417,6 +449,45 @@ describe('Repositories: Child', () => {
                 return childRepo.checkExist(customChild)
                     .then(result => {
                         assert.isFalse(result)
+                    })
+            })
+        })
+
+        context('when the parameter is an empty children array', () => {
+            it('should return false', () => {
+                queryMock.filters = { _id: defaultChild.id, type: UserType.CHILD }
+
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(queryMock.toJSON().filters)
+                    .chain('exec')
+                    .resolves(defaultChild)
+
+                return childRepo.checkExist([])
+                    .then(result => {
+                        assert.isFalse(result)
+
+                    })
+            })
+        })
+
+        context('when the parameter is a children array and a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                queryMock.filters = { _id: childWithoutId.id, type: UserType.CHILD }
+
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(queryMock.toJSON().filters)
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return childRepo.checkExist([ childWithoutId ])
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
                     })
             })
         })

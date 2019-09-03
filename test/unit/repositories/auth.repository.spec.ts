@@ -8,6 +8,7 @@ import { Institution } from '../../../src/application/domain/model/institution'
 import { UserRepositoryMock } from '../../mocks/user.repository.mock'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { Strings } from '../../../src/utils/strings'
+import { UserMock } from '../../mocks/user.mock'
 
 require('sinon-mongoose')
 
@@ -28,6 +29,9 @@ describe('Repositories: AuthRepository', () => {
     user.institution = institution
     user.scopes = new Array<string>('i-can-everything')
 
+    const userWithoutPass = new UserMock()
+    userWithoutPass.password = undefined
+
     const modelFake: any = UserRepoModel
     const userRepo = new UserRepositoryMock()
     const repo = new AuthRepository(modelFake, new EntityMapperMock(), userRepo, new CustomLoggerMock())
@@ -37,18 +41,52 @@ describe('Repositories: AuthRepository', () => {
     })
 
     describe('authenticate()', () => {
-        it('should return the access token', () => {
-            sinon
-                .mock(modelFake)
-                .expects('find')
-                .withArgs({})
-                .chain('exec')
-                .resolves([ user ])
+        context('when the user is found', () => {
+            it('should return the access token', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('find')
+                    .withArgs({})
+                    .chain('exec')
+                    .resolves([ user ])
 
-            return repo.authenticate('usertest', 'userpass')
-                .then(result => {
-                    assert.property(result, 'access_token')
-                })
+                return repo.authenticate('usertest', 'userpass')
+                    .then(result => {
+                        assert.property(result, 'access_token')
+                    })
+            })
+        })
+
+        context('when the password does not match that of any user found', () => {
+            it('should return undefined', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('find')
+                    .withArgs({})
+                    .chain('exec')
+                    .resolves([ new UserMock() ])
+
+                return repo.authenticate('user_mock', 'userpass')
+                    .then(result => {
+                        assert.isUndefined(result)
+                    })
+            })
+        })
+
+        context('when the password does not match that of any user found', () => {
+            it('should return undefined', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('find')
+                    .withArgs({})
+                    .chain('exec')
+                    .resolves([ userWithoutPass ])
+
+                return repo.authenticate('user_mock', 'userpass')
+                    .then(result => {
+                        assert.isUndefined(result)
+                    })
+            })
         })
 
         context('when the user is not found', () => {

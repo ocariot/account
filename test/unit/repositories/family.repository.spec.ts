@@ -44,9 +44,40 @@ describe('Repositories: Family', () => {
     })
 
     describe('create(item: Family)', () => {
+        context('when the Family does not have password', () => {
+            it('should return a Family without password', () => {
+                defaultFamily.password = undefined
+
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(defaultFamily)
+                    .resolves(defaultFamily)
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(defaultFamily.id)
+                    .chain('exec')
+                    .resolves(defaultFamily)
+
+                return familyRepo.create(defaultFamily)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', defaultFamily.id)
+                        assert.propertyVal(result, 'username', defaultFamily.username)
+                        assert.isUndefined(result.password)
+                        assert.propertyVal(result, 'type', defaultFamily.type)
+                        assert.propertyVal(result, 'scopes', defaultFamily.scopes)
+                        assert.propertyVal(result, 'institution', defaultFamily.institution)
+                        assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
+                    })
+            })
+        })
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
+                defaultFamily.password = 'family_password'
+
                 sinon
                     .mock(modelFake)
                     .expects('create')

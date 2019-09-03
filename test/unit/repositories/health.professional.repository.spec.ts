@@ -45,8 +45,40 @@ describe('Repositories: HealthProfessional', () => {
     })
 
     describe('create(item: HealthProfessional)', () => {
+        context('when the HealthProfessional does not have password', () => {
+            it('should return a HealthProfessional without password', () => {
+                defaultHealthProfessional.password = undefined
+
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(defaultHealthProfessional)
+                    .resolves(defaultHealthProfessional)
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(defaultHealthProfessional.id)
+                    .chain('exec')
+                    .resolves(defaultHealthProfessional)
+
+                return healthProfessionalRepo.create(defaultHealthProfessional)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', defaultHealthProfessional.id)
+                        assert.propertyVal(result, 'username', defaultHealthProfessional.username)
+                        assert.isUndefined(result.password)
+                        assert.propertyVal(result, 'type', defaultHealthProfessional.type)
+                        assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
+                        assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
+                        assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
+                    })
+            })
+        })
+
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
+                defaultHealthProfessional.password = 'health_professional_password'
+
                 sinon
                     .mock(modelFake)
                     .expects('create')

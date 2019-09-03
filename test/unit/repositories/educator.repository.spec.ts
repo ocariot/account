@@ -44,9 +44,40 @@ describe('Repositories: Educator', () => {
     })
 
     describe('create(item: Educator)', () => {
+        context('when the Educator does not have password', () => {
+            it('should return an Educator without password', () => {
+                defaultEducator.password = undefined
+
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(defaultEducator)
+                    .resolves(defaultEducator)
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(defaultEducator.id)
+                    .chain('exec')
+                    .resolves(defaultEducator)
+
+                return educatorRepo.create(defaultEducator)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', defaultEducator.id)
+                        assert.propertyVal(result, 'username', defaultEducator.username)
+                        assert.isUndefined(result.password)
+                        assert.propertyVal(result, 'type', defaultEducator.type)
+                        assert.propertyVal(result, 'scopes', defaultEducator.scopes)
+                        assert.propertyVal(result, 'institution', defaultEducator.institution)
+                        assert.propertyVal(result, 'children_groups', defaultEducator.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultEducator.last_login)
+                    })
+            })
+        })
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
+                defaultEducator.password = 'educator_password'
+
                 sinon
                     .mock(modelFake)
                     .expects('create')

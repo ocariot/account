@@ -46,13 +46,44 @@ describe('Repositories: Application', () => {
     })
 
     describe('create(item: Application)', () => {
-        context('when a database error occurs', () => {
-            it('should throw a RepositoryException', () => {
+        context('when the application does not have password', () => {
+            it('should return an Application without password', () => {
+                defaultApplication.password = undefined
+
                 sinon
                     .mock(modelFake)
                     .expects('create')
                     .withArgs(defaultApplication)
+                    .resolves(defaultApplication)
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(defaultApplication.id)
                     .chain('exec')
+                    .resolves(defaultApplication)
+
+                return applicationRepo.create(defaultApplication)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', defaultApplication.id)
+                        assert.propertyVal(result, 'username', defaultApplication.username)
+                        assert.isUndefined(result.password)
+                        assert.propertyVal(result, 'type', defaultApplication.type)
+                        assert.propertyVal(result, 'scopes', defaultApplication.scopes)
+                        assert.propertyVal(result, 'institution', defaultApplication.institution)
+                        assert.propertyVal(result, 'application_name', defaultApplication.application_name)
+                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                defaultApplication.password = 'application_password'
+
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(defaultApplication)
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 

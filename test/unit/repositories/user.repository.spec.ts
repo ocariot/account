@@ -37,8 +37,39 @@ describe('Repositories: User', () => {
     })
 
     describe('create(item: User)', () => {
+        context('when the User does not have password', () => {
+            it('should return an User without password', () => {
+                defaultUser.password = undefined
+
+                sinon
+                    .mock(userModelFake)
+                    .expects('create')
+                    .withArgs(defaultUser)
+                    .resolves(defaultUser)
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOne')
+                    .withArgs(defaultUser.id)
+                    .chain('exec')
+                    .resolves(defaultUser)
+
+                return userRepo.create(defaultUser)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', defaultUser.id)
+                        assert.propertyVal(result, 'username', defaultUser.username)
+                        assert.isUndefined(result.password)
+                        assert.propertyVal(result, 'type', defaultUser.type)
+                        assert.propertyVal(result, 'scopes', defaultUser.scopes)
+                        assert.propertyVal(result, 'institution', defaultUser.institution)
+                        assert.propertyVal(result, 'last_login', defaultUser.last_login)
+                    })
+            })
+        })
+
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
+                defaultUser.password = 'user_password'
+
                 sinon
                     .mock(userModelFake)
                     .expects('create')
