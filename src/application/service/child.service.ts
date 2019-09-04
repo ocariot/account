@@ -75,7 +75,7 @@ export class ChildService implements IChildService {
 
     public async getById(id: string, query: IQuery): Promise<Child> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a child.
         query.addFilter({ _id: id, type: UserType.CHILD })
@@ -131,7 +131,7 @@ export class ChildService implements IChildService {
 
     public async remove(id: string): Promise<boolean> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Delete a child
         const childDel = await this._childRepository.delete(id)

@@ -18,6 +18,13 @@ describe('Validators: UpdateUser', () => {
         })
     })
 
+    context('when the validation was successful and the user is empty', () => {
+        it('should return undefined', () => {
+            const result = UpdateUserValidator.validate(new User())
+            assert.equal(result, undefined)
+        })
+    })
+
     context('when the id parameter is invalid', () => {
         it('should throw a ValidationException', () => {
             try {

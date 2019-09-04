@@ -74,7 +74,7 @@ export class EducatorService implements IEducatorService {
 
     public async getById(id: string, query: IQuery): Promise<Educator> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a educator.
         query.addFilter({ _id: id, type: UserType.EDUCATOR })
@@ -133,7 +133,7 @@ export class EducatorService implements IEducatorService {
         let isDeleted: boolean
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(id)
+            ObjectIdValidator.validate(id, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2.Delete the educator by id and your children groups.
             isDeleted = await this._educatorRepository.delete(id)
@@ -149,7 +149,7 @@ export class EducatorService implements IEducatorService {
     public async saveChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(educatorId)
+            ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
@@ -177,7 +177,7 @@ export class EducatorService implements IEducatorService {
     public async getAllChildrenGroups(educatorId: string, query: IQuery): Promise<Array<ChildrenGroup>> {
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(educatorId)
+            ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
@@ -198,8 +198,8 @@ export class EducatorService implements IEducatorService {
         Promise<ChildrenGroup | undefined> {
         try {
             // 1. Validate if educator id or children group id is valid
-            ObjectIdValidator.validate(educatorId)
-            ObjectIdValidator.validate(childrenGroupId)
+            ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
+            ObjectIdValidator.validate(childrenGroupId, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
@@ -225,8 +225,8 @@ export class EducatorService implements IEducatorService {
     public async updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
             // 1. Validate if educator id or children group id is valid
-            ObjectIdValidator.validate(educatorId)
-            if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id)
+            ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
+            if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
@@ -250,8 +250,8 @@ export class EducatorService implements IEducatorService {
     public async deleteChildrenGroup(educatorId: string, childrenGroupId: string): Promise<boolean> {
         try {
             // 1. Validate if educator id or children group id is valid
-            ObjectIdValidator.validate(educatorId)
-            ObjectIdValidator.validate(childrenGroupId)
+            ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
+            ObjectIdValidator.validate(childrenGroupId, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)

@@ -77,7 +77,7 @@ export class HealthProfessionalService implements IHealthProfessionalService {
 
     public async getById(id: string, query: IQuery): Promise<HealthProfessional> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Find a health professional.
         query.addFilter({ _id: id, type: UserType.HEALTH_PROFESSIONAL })
@@ -137,7 +137,7 @@ export class HealthProfessionalService implements IHealthProfessionalService {
 
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(id)
+            ObjectIdValidator.validate(id, Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Delete the health professional by id and your children groups.
             isDeleted = await this._healthProfessionalRepository.delete(id)
@@ -153,7 +153,7 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     public async saveChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(healthProfessionalId)
+            ObjectIdValidator.validate(healthProfessionalId, Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
             // 2. Checks if the health professional exists.
             const healthProfessional: HealthProfessional =
                 await this._healthProfessionalRepository.findById(healthProfessionalId)
@@ -181,7 +181,7 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     public async getAllChildrenGroups(healthProfessionalId: string, query: IQuery): Promise<Array<ChildrenGroup>> {
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(healthProfessionalId)
+            ObjectIdValidator.validate(healthProfessionalId, Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the health professional exists.
             const healthProfessional: HealthProfessional =
@@ -204,8 +204,8 @@ export class HealthProfessionalService implements IHealthProfessionalService {
 
         try {
             // 1. Validate if health professional id or children group id is valid
-            ObjectIdValidator.validate(healthProfessionalId)
-            ObjectIdValidator.validate(childrenGroupId)
+            ObjectIdValidator.validate(healthProfessionalId, Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
+            ObjectIdValidator.validate(childrenGroupId, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the health professional exists.
             const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
@@ -231,8 +231,8 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     public async updateChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
             // 1. Validate if health professional id or children group id is valid
-            ObjectIdValidator.validate(healthProfessionalId)
-            if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id)
+            ObjectIdValidator.validate(healthProfessionalId, Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
+            if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
 
             // 1. Checks if the health professional exists.
             const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
@@ -256,8 +256,8 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     public async deleteChildrenGroup(healthProfessionalId: string, childrenGroupId: string): Promise<boolean> {
         try {
             // 1. Validate if health professional id or children group id is valid
-            ObjectIdValidator.validate(healthProfessionalId)
-            ObjectIdValidator.validate(childrenGroupId)
+            ObjectIdValidator.validate(healthProfessionalId, Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
+            ObjectIdValidator.validate(childrenGroupId, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the health professional exists.
             const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)

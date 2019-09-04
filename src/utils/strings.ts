@@ -17,7 +17,8 @@ export abstract class Strings {
         NOT_FOUND: 'User not found!',
         NOT_FOUND_DESCRIPTION: 'User not found or already removed. A new operation for the same resource is not required.',
         PASSWORD_NOT_MATCH: 'Password does not match!',
-        PASSWORD_NOT_MATCH_DESCRIPTION: 'The old password parameter does not match with the actual user password.'
+        PASSWORD_NOT_MATCH_DESCRIPTION: 'The old password parameter does not match with the actual user password.',
+        PARAM_ID_NOT_VALID_FORMAT: 'Parameter {user_id} is not in valid format!'
     }
 
     public static readonly CHILD: any = {
@@ -26,7 +27,8 @@ export abstract class Strings {
         IDS_WITHOUT_REGISTER: 'The following IDs were verified without registration:',
         NOT_FOUND: 'Child not found!',
         NOT_FOUND_DESCRIPTION: 'Child not found or already removed. A new operation for the same resource is not required.',
-        ASSOCIATION_FAILURE: 'The association could not be performed because the child does not have a record.'
+        ASSOCIATION_FAILURE: 'The association could not be performed because the child does not have a record.',
+        PARAM_ID_NOT_VALID_FORMAT: 'Parameter {child_id} is not in valid format!'
     }
 
     public static readonly INSTITUTION: any = {
@@ -35,39 +37,45 @@ export abstract class Strings {
         ALERT_REGISTER_REQUIRED: 'It is necessary that the institution be registered before trying again.',
         NOT_FOUND: 'Institution not found!',
         HAS_ASSOCIATION: 'The institution is associated with one or more users.',
-        NOT_FOUND_DESCRIPTION: 'Institution not found or already removed. A new operation for the same resource is not required.'
+        NOT_FOUND_DESCRIPTION: 'Institution not found or already removed. A new operation for the same resource is not required.',
+        PARAM_ID_NOT_VALID_FORMAT: 'Parameter {institution_id} is not in valid format!'
     }
 
     public static readonly FAMILY: any = {
         ALREADY_REGISTERED: 'Family is already registered!',
         NOT_FOUND: 'Family not found!',
-        NOT_FOUND_DESCRIPTION: 'Family not found or already removed. A new operation for the same resource is not required.'
+        NOT_FOUND_DESCRIPTION: 'Family not found or already removed. A new operation for the same resource is not required.',
+        PARAM_ID_NOT_VALID_FORMAT: 'Parameter {family_id} is not in valid format!'
     }
 
     public static readonly EDUCATOR: any = {
         ALREADY_REGISTERED: 'Educator is already registered!',
         NOT_FOUND: 'Educator not found!',
-        NOT_FOUND_DESCRIPTION: 'Educator not found or already removed. A new operation for the same resource is not required.'
+        NOT_FOUND_DESCRIPTION: 'Educator not found or already removed. A new operation for the same resource is not required.',
+        PARAM_ID_NOT_VALID_FORMAT: 'Parameter {educator_id} is not in valid format!'
     }
 
     public static readonly HEALTH_PROFESSIONAL: any = {
         ALREADY_REGISTERED: 'Health Professional is already registered!',
         NOT_FOUND: 'Health Professional not found!',
         NOT_FOUND_DESCRIPTION: 'Health Professional not found or already removed.' +
-            ' A new operation for the same resource is not required.'
+            ' A new operation for the same resource is not required.',
+        PARAM_ID_NOT_VALID_FORMAT: 'Parameter {healthprofessional_id} is not in valid format!'
     }
 
     public static readonly APPLICATION: any = {
         ALREADY_REGISTERED: 'Application is already registered!',
         NOT_FOUND: 'Application not found!',
-        NOT_FOUND_DESCRIPTION: 'Application not found or already removed. A new operation for the same resource is not required.'
+        NOT_FOUND_DESCRIPTION: 'Application not found or already removed. A new operation for the same resource is not required.',
+        PARAM_ID_NOT_VALID_FORMAT: 'Parameter {application_id} is not in valid format!'
     }
 
     public static readonly CHILDREN_GROUP: any = {
         ALREADY_REGISTERED: 'Children Group is already registered!',
         NOT_FOUND: 'Children Group not found!',
         NOT_FOUND_DESCRIPTION: 'Children Group not found or already removed. ' +
-            'A new operation for the same resource is not required.'
+            'A new operation for the same resource is not required.',
+        PARAM_ID_NOT_VALID_FORMAT: 'Parameter {group_id} is not in valid format!'
     }
 
     public static readonly ERROR_MESSAGE: any = {

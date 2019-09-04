@@ -16,6 +16,7 @@ import { IIntegrationEventRepository } from '../port/integration.event.repositor
 import { ILogger } from '../../utils/custom.logger'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 import { ResetPasswordValidator } from '../domain/validator/reset.password.validator'
+import { Strings } from '../../utils/strings'
 
 /**
  * Implementing user Service.
@@ -44,7 +45,7 @@ export class UserService implements IUserService {
 
     public async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<boolean> {
         // 1. Validate id.
-        ObjectIdValidator.validate(userId)
+        ObjectIdValidator.validate(userId, Strings.USER.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Validate passwords.
         UpdatePasswordValidator.validate(oldPassword, newPassword)
@@ -55,7 +56,7 @@ export class UserService implements IUserService {
 
     public async resetPassword(userId: string, newPassword: string): Promise<boolean> {
         // 1. Validate id.
-        ObjectIdValidator.validate(userId)
+        ObjectIdValidator.validate(userId, Strings.USER.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Validate passwords.
         ResetPasswordValidator.validate(newPassword)
@@ -70,7 +71,7 @@ export class UserService implements IUserService {
 
     public async getById(id: string, query: IQuery): Promise<User> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.USER.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a user.
         query.addFilter({ _id: id })
@@ -79,7 +80,7 @@ export class UserService implements IUserService {
 
     public async remove(id: string): Promise<boolean> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.USER.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Find a user by id.
         const user = await this._userRepository.findById(id)

@@ -70,7 +70,7 @@ export class ApplicationService implements IApplicationService {
 
     public async getById(id: string, query: IQuery): Promise<Application> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.APPLICATION.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a application.
         query.addFilter({ _id: id, type: UserType.APPLICATION })
@@ -127,7 +127,7 @@ export class ApplicationService implements IApplicationService {
 
     public async remove(id: string): Promise<boolean> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.APPLICATION.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Delete a application.
         return this._applicationRepository.delete(id)

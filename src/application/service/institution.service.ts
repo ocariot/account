@@ -55,7 +55,7 @@ export class InstitutionService implements IInstitutionService {
 
     public async getById(id: string, query: IQuery): Promise<Institution> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a institution.
         query.filters = { _id: id }
@@ -64,7 +64,7 @@ export class InstitutionService implements IInstitutionService {
 
     public async update(institution: Institution): Promise<Institution> {
         // 1. Validate id.
-        if (institution.id) ObjectIdValidator.validate(institution.id)
+        if (institution.id) ObjectIdValidator.validate(institution.id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Checks if Institution already exists.
         const id: string = institution.id!
@@ -82,7 +82,7 @@ export class InstitutionService implements IInstitutionService {
     public async remove(id: string): Promise<boolean> {
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(id)
+            ObjectIdValidator.validate(id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if Institution is associated with one or more users.
             const hasInstitution = await this._userRepository.hasInstitution(id)

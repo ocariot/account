@@ -84,7 +84,7 @@ export class FamilyService implements IFamilyService {
 
     public async getById(id: string, query: IQuery): Promise<Family> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Find a family.
         query.addFilter({ _id: id, type: UserType.FAMILY })
@@ -150,7 +150,7 @@ export class FamilyService implements IFamilyService {
 
     public async remove(id: string): Promise<boolean> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Delete a family.
         return this._familyRepository.delete(id)
@@ -158,7 +158,7 @@ export class FamilyService implements IFamilyService {
 
     public async getAllChildren(familyId: string, query: IQuery): Promise<Array<Child> | undefined> {
         // 1. Validate id.
-        ObjectIdValidator.validate(familyId)
+        ObjectIdValidator.validate(familyId, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get all children from family.
         query.addFilter({ _id: familyId, type: UserType.FAMILY })
@@ -176,8 +176,8 @@ export class FamilyService implements IFamilyService {
     public async associateChild(familyId: string, childId: string): Promise<Family> {
 
         // 1. Validate if family id or child id is valid
-        ObjectIdValidator.validate(familyId)
-        ObjectIdValidator.validate(childId)
+        ObjectIdValidator.validate(familyId, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
+        ObjectIdValidator.validate(childId, Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
 
         const child = new Child()
         child.id = childId
@@ -207,8 +207,8 @@ export class FamilyService implements IFamilyService {
         try {
 
             // 1. Validate if family id or child id is valid
-            ObjectIdValidator.validate(familyId)
-            ObjectIdValidator.validate(childId)
+            ObjectIdValidator.validate(familyId, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
+            ObjectIdValidator.validate(childId, Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the family exists.
             const family: Family = await this._familyRepository.findById(familyId)
