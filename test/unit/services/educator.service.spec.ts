@@ -8,13 +8,9 @@ import { ChildRepositoryMock } from '../../mocks/child.repository.mock'
 import { IChildrenGroupRepository } from '../../../src/application/port/children.group.repository.interface'
 import { ChildrenGroupRepositoryMock } from '../../mocks/children.group.repository.mock'
 import { IConnectionFactory } from '../../../src/infrastructure/port/connection.factory.interface'
-import { ConnectionFactoryRabbitmqMock } from '../../mocks/connection.factory.rabbitmq.mock'
-import { IConnectionEventBus } from '../../../src/infrastructure/port/connection.event.bus.interface'
-import { EventBusRabbitmqMock } from '../../mocks/event.bus.rabbitmq.mock'
-import { ConnectionRabbitmqMock } from '../../mocks/connection.rabbitmq.mock'
-import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
-import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
-import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
+import { ConnectionFactoryRabbitMQMock } from '../../mocks/connection.factory.rabbitmq.mock'
+import { RabbitMQMock } from '../../mocks/rabbitmq.mock'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 import { EducatorMock } from '../../mocks/educator.mock'
 import { Educator } from '../../../src/application/domain/model/educator'
 import { IChildrenGroupService } from '../../../src/application/port/children.group.service.interface'
@@ -32,6 +28,7 @@ import { ChildrenGroup } from '../../../src/application/domain/model/children.gr
 import { ChildrenGroupMock } from '../../mocks/children.group.mock'
 import { UserMock } from '../../mocks/user.mock'
 import { Child } from '../../../src/application/domain/model/child'
+import { Default } from '../../../src/utils/default'
 
 describe('Services: Educator', () => {
     /**
@@ -66,22 +63,18 @@ describe('Services: Educator', () => {
     const childRepo: IChildRepository = new ChildRepositoryMock()
     const institutionRepo: IInstitutionRepository = new InstitutionRepositoryMock()
     const childrenGroupRepo: IChildrenGroupRepository = new ChildrenGroupRepositoryMock()
-    const integrationRepo: IIntegrationEventRepository = new IntegrationEventRepositoryMock()
 
-    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitmqMock()
-    const connectionRabbitmqPub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const connectionRabbitmqSub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const eventBusRabbitmq: IEventBus = new EventBusRabbitmqMock(connectionRabbitmqPub, connectionRabbitmqSub)
+    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitMQMock()
+    const rabbitmq: IEventBus = new RabbitMQMock(connectionFactoryRabbitmq)
     const customLogger: ILogger = new CustomLoggerMock()
 
     const childrenGroupService: IChildrenGroupService = new ChildrenGroupService(childrenGroupRepo, childRepo, customLogger)
     const educatorService: IEducatorService = new EducatorService(educatorRepo, institutionRepo, childrenGroupRepo,
-        childrenGroupService, integrationRepo, eventBusRabbitmq, customLogger)
+        childrenGroupService, rabbitmq, customLogger)
 
     before(async () => {
         try {
-            await connectionRabbitmqPub.tryConnect(0, 500)
-            await connectionRabbitmqSub.tryConnect(0, 500)
+            await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
         } catch (err) {
             throw new Error('Failure on EducatorService unit test: ' + err.message)
         }
@@ -258,47 +251,8 @@ describe('Services: Educator', () => {
             })
         })
 
-        context('when the Educator exists in the database but there is no connection to the RabbitMQ', () => {
-            it('should return the Educator that was saved', () => {
-                connectionRabbitmqPub.isConnected = false
-
-                return educatorService.update(educator)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', educator.id)
-                        assert.propertyVal(result, 'username', educator.username)
-                        assert.propertyVal(result, 'password', educator.password)
-                        assert.propertyVal(result, 'type', educator.type)
-                        assert.propertyVal(result, 'scopes', educator.scopes)
-                        assert.propertyVal(result, 'institution', educator.institution)
-                        assert.propertyVal(result, 'children_groups', educator.children_groups)
-                        assert.propertyVal(result, 'last_login', educator.last_login)
-                    })
-            })
-        })
-
-        context('when the Educator exists in the database, there is no connection to the RabbitMQ ' +
-            'but the event could not be saved', () => {
-            it('should return the Educator because the current implementation does not throw an exception, ' +
-                'it just prints a log', () => {
-                educator.id = '507f1f77bcf86cd799439012'           // Make mock throw an error in IntegrationEventRepository
-
-                return educatorService.update(educator)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', educator.id)
-                        assert.propertyVal(result, 'username', educator.username)
-                        assert.propertyVal(result, 'password', educator.password)
-                        assert.propertyVal(result, 'type', educator.type)
-                        assert.propertyVal(result, 'scopes', educator.scopes)
-                        assert.propertyVal(result, 'institution', educator.institution)
-                        assert.propertyVal(result, 'children_groups', educator.children_groups)
-                        assert.propertyVal(result, 'last_login', educator.last_login)
-                    })
-            })
-        })
-
         context('when the Educator does not exist in the database', () => {
             it('should return undefined', () => {
-                connectionRabbitmqPub.isConnected = true
                 educator.id = '507f1f77bcf86cd799439013'         // Make mock return undefined
 
                 return educatorService.update(educator)

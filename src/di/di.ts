@@ -5,12 +5,9 @@ import { Identifier } from './identifiers'
 import { UserEntity } from '../infrastructure/entity/user.entity'
 import { IEntityMapper } from '../infrastructure/port/entity.mapper.interface'
 import { User } from '../application/domain/model/user'
-import { EventBusRabbitMQ } from '../infrastructure/eventbus/rabbitmq/eventbus.rabbitmq'
 import { ConnectionFactoryMongoDB } from '../infrastructure/database/connection.factory.mongodb'
-import { ConnectionMongoDB } from '../infrastructure/database/connection.mongodb'
-import { IConnectionDB } from '../infrastructure/port/connection.db.interface'
 import { IConnectionFactory } from '../infrastructure/port/connection.factory.interface'
-import { IEventBus } from '../infrastructure/port/event.bus.interface'
+import { IEventBus } from '../infrastructure/port/eventbus.interface'
 import { BackgroundService } from '../background/background.service'
 import { App } from '../app'
 import { CustomLogger, ILogger } from '../utils/custom.logger'
@@ -84,15 +81,13 @@ import { UserService } from '../application/service/user.service'
 import { IUserRepository } from '../application/port/user.repository.interface'
 import { UserRepository } from '../infrastructure/repository/user.repository'
 import { ConnectionFactoryRabbitMQ } from '../infrastructure/eventbus/rabbitmq/connection.factory.rabbitmq'
-import { IConnectionEventBus } from '../infrastructure/port/connection.event.bus.interface'
-import { ConnectionRabbitMQ } from '../infrastructure/eventbus/rabbitmq/connection.rabbitmq'
-import { EventBusTask } from '../background/task/eventbus.task'
-import { IIntegrationEventRepository } from '../application/port/integration.event.repository.interface'
-import { IntegrationEventRepository } from '../infrastructure/repository/integration.event.repository'
 import { IntegrationEventRepoModel } from '../infrastructure/database/schema/integration.event.schema'
 import { IBackgroundTask } from '../application/port/background.task.interface'
 import { RegisterDefaultAdminTask } from '../background/task/register.default.admin.task'
 import { GenerateJwtKeysTask } from '../background/task/generate.jwt.keys.task'
+import { MongoDB } from '../infrastructure/database/mongo.db'
+import { IDatabase } from '../infrastructure/port/database.interface'
+import { RabbitMQ } from '../infrastructure/eventbus/rabbitmq/rabbitmq'
 
 export class IoC {
     private readonly _container: Container
@@ -179,9 +174,6 @@ export class IoC {
             .to(InstitutionRepository).inSingletonScope()
         this.container.bind<IChildrenGroupRepository>(Identifier.CHILDREN_GROUP_REPOSITORY)
             .to(ChildrenGroupRepository).inSingletonScope()
-        this.container
-            .bind<IIntegrationEventRepository>(Identifier.INTEGRATION_EVENT_REPOSITORY)
-            .to(IntegrationEventRepository).inSingletonScope()
 
         // Mongoose Schema
         this.container.bind(Identifier.USER_REPO_MODEL).toConstantValue(UserRepoModel)
@@ -220,25 +212,19 @@ export class IoC {
             .bind<IConnectionFactory>(Identifier.RABBITMQ_CONNECTION_FACTORY)
             .to(ConnectionFactoryRabbitMQ).inSingletonScope()
         this.container
-            .bind<IConnectionEventBus>(Identifier.RABBITMQ_CONNECTION)
-            .to(ConnectionRabbitMQ)
-        this.container
             .bind<IEventBus>(Identifier.RABBITMQ_EVENT_BUS)
-            .to(EventBusRabbitMQ).inSingletonScope()
+            .to(RabbitMQ).inSingletonScope()
         this.container
             .bind<IConnectionFactory>(Identifier.MONGODB_CONNECTION_FACTORY)
             .to(ConnectionFactoryMongoDB).inSingletonScope()
         this.container
-            .bind<IConnectionDB>(Identifier.MONGODB_CONNECTION)
-            .to(ConnectionMongoDB).inSingletonScope()
+            .bind<IDatabase>(Identifier.MONGODB_CONNECTION)
+            .to(MongoDB).inSingletonScope()
         this.container
             .bind(Identifier.BACKGROUND_SERVICE)
             .to(BackgroundService).inSingletonScope()
 
         // Tasks
-        this.container
-            .bind<IBackgroundTask>(Identifier.EVENT_BUS_TASK)
-            .to(EventBusTask).inRequestScope()
         this.container
             .bind<IBackgroundTask>(Identifier.REGISTER_DEFAULT_ADMIN_TASK)
             .to(RegisterDefaultAdminTask).inRequestScope()

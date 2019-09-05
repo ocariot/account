@@ -5,10 +5,11 @@ import { expect } from 'chai'
 import { Child } from '../../../src/application/domain/model/child'
 import { ChildMock } from '../../mocks/child.mock'
 import { Institution } from '../../../src/application/domain/model/institution'
-import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
+import { IDatabase } from '../../../src/infrastructure/port/database.interface'
+import { Default } from '../../../src/utils/default'
 
-const dbConnection: IConnectionDB = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
 const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
@@ -21,7 +22,7 @@ describe('App', () => {
 
     before(async () => {
             try {
-                await dbConnection.tryConnect(0, 500)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
                 await deleteAllInstitutions()
 
                 const item = await createInstitution({

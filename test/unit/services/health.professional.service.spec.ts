@@ -8,13 +8,9 @@ import { ChildRepositoryMock } from '../../mocks/child.repository.mock'
 import { IChildrenGroupRepository } from '../../../src/application/port/children.group.repository.interface'
 import { ChildrenGroupRepositoryMock } from '../../mocks/children.group.repository.mock'
 import { IConnectionFactory } from '../../../src/infrastructure/port/connection.factory.interface'
-import { ConnectionFactoryRabbitmqMock } from '../../mocks/connection.factory.rabbitmq.mock'
-import { IConnectionEventBus } from '../../../src/infrastructure/port/connection.event.bus.interface'
-import { EventBusRabbitmqMock } from '../../mocks/event.bus.rabbitmq.mock'
-import { ConnectionRabbitmqMock } from '../../mocks/connection.rabbitmq.mock'
-import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
-import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
-import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
+import { ConnectionFactoryRabbitMQMock } from '../../mocks/connection.factory.rabbitmq.mock'
+import { RabbitMQMock } from '../../mocks/rabbitmq.mock'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 import { IChildrenGroupService } from '../../../src/application/port/children.group.service.interface'
 import { ChildrenGroupService } from '../../../src/application/service/children.group.service'
 import { Strings } from '../../../src/utils/strings'
@@ -32,6 +28,7 @@ import { IHealthProfessionalRepository } from '../../../src/application/port/hea
 import { HealthProfessionalRepositoryMock } from '../../mocks/health.professional.repository.mock'
 import { HealthProfessional } from '../../../src/application/domain/model/health.professional'
 import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
+import { Default } from '../../../src/utils/default'
 
 describe('Services: HealthProfessional', () => {
     /**
@@ -66,22 +63,18 @@ describe('Services: HealthProfessional', () => {
     const childRepo: IChildRepository = new ChildRepositoryMock()
     const institutionRepo: IInstitutionRepository = new InstitutionRepositoryMock()
     const childrenGroupRepo: IChildrenGroupRepository = new ChildrenGroupRepositoryMock()
-    const integrationRepo: IIntegrationEventRepository = new IntegrationEventRepositoryMock()
 
-    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitmqMock()
-    const connectionRabbitmqPub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const connectionRabbitmqSub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const eventBusRabbitmq: IEventBus = new EventBusRabbitmqMock(connectionRabbitmqPub, connectionRabbitmqSub)
+    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitMQMock()
+    const rabbitmq: IEventBus = new RabbitMQMock(connectionFactoryRabbitmq)
     const customLogger: ILogger = new CustomLoggerMock()
 
     const childrenGroupService: IChildrenGroupService = new ChildrenGroupService(childrenGroupRepo, childRepo, customLogger)
     const healthProfessionalService: IHealthProfessionalService = new HealthProfessionalService(healthProfessionalRepo,
-        institutionRepo, childrenGroupService, childrenGroupRepo, integrationRepo, eventBusRabbitmq, customLogger)
+        institutionRepo, childrenGroupRepo, childrenGroupService, rabbitmq, customLogger)
 
     before(async () => {
         try {
-            await connectionRabbitmqPub.tryConnect(0, 500)
-            await connectionRabbitmqSub.tryConnect(0, 500)
+            await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
         } catch (err) {
             throw new Error('Failure on HealthProfessionalService unit test: ' + err.message)
         }
@@ -258,47 +251,8 @@ describe('Services: HealthProfessional', () => {
             })
         })
 
-        context('when the HealthProfessional exists in the database but there is no connection to the RabbitMQ', () => {
-            it('should return the HealthProfessional that was saved', () => {
-                connectionRabbitmqPub.isConnected = false
-
-                return healthProfessionalService.update(healthProfessional)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', healthProfessional.id)
-                        assert.propertyVal(result, 'username', healthProfessional.username)
-                        assert.propertyVal(result, 'password', healthProfessional.password)
-                        assert.propertyVal(result, 'type', healthProfessional.type)
-                        assert.propertyVal(result, 'scopes', healthProfessional.scopes)
-                        assert.propertyVal(result, 'institution', healthProfessional.institution)
-                        assert.propertyVal(result, 'children_groups', healthProfessional.children_groups)
-                        assert.propertyVal(result, 'last_login', healthProfessional.last_login)
-                    })
-            })
-        })
-
-        context('when the HealthProfessional exists in the database, there is no connection to the RabbitMQ ' +
-            'but the event could not be saved', () => {
-            it('should return the HealthProfessional because the current implementation does not throw an exception, ' +
-                'it just prints a log', () => {
-                healthProfessional.id = '507f1f77bcf86cd799439012'     // Make mock throw an error in IntegrationEventRepository
-
-                return healthProfessionalService.update(healthProfessional)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', healthProfessional.id)
-                        assert.propertyVal(result, 'username', healthProfessional.username)
-                        assert.propertyVal(result, 'password', healthProfessional.password)
-                        assert.propertyVal(result, 'type', healthProfessional.type)
-                        assert.propertyVal(result, 'scopes', healthProfessional.scopes)
-                        assert.propertyVal(result, 'institution', healthProfessional.institution)
-                        assert.propertyVal(result, 'children_groups', healthProfessional.children_groups)
-                        assert.propertyVal(result, 'last_login', healthProfessional.last_login)
-                    })
-            })
-        })
-
         context('when the HealthProfessional does not exist in the database', () => {
             it('should return undefined', () => {
-                connectionRabbitmqPub.isConnected = true
                 healthProfessional.id = '507f1f77bcf86cd799439013'         // Make mock return undefined
 
                 return healthProfessionalService.update(healthProfessional)

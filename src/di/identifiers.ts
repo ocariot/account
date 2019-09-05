@@ -38,7 +38,6 @@ export abstract class Identifier {
     public static readonly APPLICATION_REPOSITORY: any = Symbol.for('ApplicationRepository')
     public static readonly INSTITUTION_REPOSITORY: any = Symbol.for('InstitutionRepository')
     public static readonly CHILDREN_GROUP_REPOSITORY: any = Symbol.for('ChildrenGroupRepository')
-    public static readonly INTEGRATION_EVENT_REPOSITORY: any = Symbol.for('IntegrationEventRepository')
 
     // Models
     public static readonly USER_REPO_MODEL: any = Symbol.for('UserRepoModel')
@@ -57,16 +56,16 @@ export abstract class Identifier {
     public static readonly CHILDREN_GROUP_ENTITY_MAPPER: any = Symbol.for('ChildrenGroupEntityMapper')
 
     // Background Services
-    public static readonly RABBITMQ_EVENT_BUS: any = Symbol.for('EventBusRabbitMQ')
+    public static readonly RABBITMQ_EVENT_BUS: any = Symbol.for('RabbitMQ')
     public static readonly RABBITMQ_CONNECTION_FACTORY: any = Symbol.for('ConnectionFactoryRabbitMQ')
-    public static readonly RABBITMQ_CONNECTION: any = Symbol.for('ConnectionRabbitMQ')
     public static readonly MONGODB_CONNECTION_FACTORY: any = Symbol.for('ConnectionFactoryMongoDB')
-    public static readonly MONGODB_CONNECTION: any = Symbol.for('ConnectionMongoDB')
+    public static readonly MONGODB_CONNECTION: any = Symbol.for('MongoDB')
     public static readonly BACKGROUND_SERVICE: any = Symbol.for('BackgroundService')
 
     // Tasks
     public static readonly REGISTER_DEFAULT_ADMIN_TASK: any = Symbol.for('RegisterDefaultAdminTask')
-    public static readonly EVENT_BUS_TASK: any = Symbol.for('EventBusTask')
+    public static readonly SUB_EVENT_BUS_TASK: any = Symbol.for('SubscribeEventBusTask')
+    public static readonly PROVIDER_EVENT_BUS_TASK: any = Symbol.for('ProviderEventBusTask')
     public static readonly GENERATE_JWT_KEYS_TASK: any = Symbol.for('GenerateJwtKeysTask')
 
     // Log
