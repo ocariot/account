@@ -15,6 +15,7 @@ export class EducatorMock extends Educator {
         super.password = 'educator_password'
         super.institution = this.generateInstitution()
         super.children_groups = [new ChildrenGroupMock(), new ChildrenGroupMock()]
+        super.last_login = new Date()
     }
 
     private generateObjectId(): string {

@@ -17,17 +17,17 @@ import { Application } from '../../application/domain/model/application'
  * @remarks To define paths, we use library inversify-express-utils.
  * @see {@link https://github.com/inversify/inversify-express-utils} for further information.
  */
-@controller('/users/applications')
+@controller('/v1/applications')
 export class ApplicationController {
 
     /**
      * Creates an instance of Application controller.
      *
-     * @param {IApplicationService} _application
+     * @param {IApplicationService} _applicationService
      * @param {ILogger} _logger
      */
     constructor(
-        @inject(Identifier.APPLICATION_SERVICE) private readonly _application: IApplicationService,
+        @inject(Identifier.APPLICATION_SERVICE) private readonly _applicationService: IApplicationService,
         @inject(Identifier.LOGGER) readonly _logger: ILogger
     ) {
     }
@@ -42,7 +42,7 @@ export class ApplicationController {
     public async saveApplication(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const application: Application = new Application().fromJSON(req.body)
-            const result: Application = await this._application.add(application)
+            const result: Application = await this._applicationService.add(application)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -62,8 +62,10 @@ export class ApplicationController {
     @httpGet('/')
     public async getAllApplications(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const result: Array<Application> = await this._application
+            const result: Array<Application> = await this._applicationService
                 .getAll(new Query().fromJSON(req.query))
+            const count: number = await this._applicationService.count()
+            res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -83,7 +85,7 @@ export class ApplicationController {
     @httpGet('/:application_id')
     public async getApplicationById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const result: Application = await this._application
+            const result: Application = await this._applicationService
                 .getById(req.params.application_id, new Query().fromJSON(req.query))
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundApplication())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
@@ -105,7 +107,7 @@ export class ApplicationController {
         try {
             const application: Application = new Application().fromJSON(req.body)
             application.id = req.params.application_id
-            const result: Application = await this._application.update(application)
+            const result: Application = await this._applicationService.update(application)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundApplication())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {

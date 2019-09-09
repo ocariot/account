@@ -27,6 +27,9 @@ describe('Models: Application', () => {
             'sleep:read',
             'sleep:update',
             'sleep:delete',
+            'measurements:create',
+            'measurements:read',
+            'measurements:delete',
             'environment:create',
             'environment:read',
             'environment:update',
@@ -38,8 +41,10 @@ describe('Models: Application', () => {
             'gamificationprofile:create',
             'gamificationprofile:read',
             'gamificationprofile:update',
-            'gamificationprofile:delete'
-        ]
+            'gamificationprofile:delete',
+            'external:sync'
+        ],
+        last_login: new Date()
     }
 
     describe('fromJSON()', () => {
@@ -53,6 +58,7 @@ describe('Models: Application', () => {
                 assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
                 assert.deepEqual(new ObjectID(result.institution!.id), appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
+                assert.propertyVal(result, 'last_login', appJSON.last_login)
             })
         })
 
@@ -66,6 +72,7 @@ describe('Models: Application', () => {
                 assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'application_name', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
             })
         })
 
@@ -77,8 +84,9 @@ describe('Models: Application', () => {
                 assert.propertyVal(result, 'password', appJSON.password)
                 assert.propertyVal(result, 'type', appJSON.type)
                 assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
-                assert.property(result, 'institution')
+                assert.deepEqual(new ObjectID(result.institution!.id), appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
+                assert.deepPropertyVal(result, 'last_login', appJSON.last_login)
             })
         })
     })
@@ -88,11 +96,13 @@ describe('Models: Application', () => {
             it('should return a JSON from Application model', () => {
                 let result = new Application().fromJSON(appJSON)
                 result = result.toJSON()
+
                 assert.propertyVal(result, 'id', appJSON.id)
                 assert.propertyVal(result, 'username', appJSON.username)
                 assert.propertyVal(result, 'type', appJSON.type)
-                assert.deepEqual(new ObjectID(result.institution!.id), appJSON.institution)
+                assert.propertyVal(result, 'institution_id', appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
+                assert.propertyVal(result, 'last_login', appJSON.last_login)
             })
         })
     })

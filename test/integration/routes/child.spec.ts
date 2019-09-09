@@ -2,9 +2,7 @@ import { Institution } from '../../../src/application/domain/model/institution'
 import { UserType } from '../../../src/application/domain/model/user'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
-import { Container } from 'inversify'
-import { DI } from '../../../src/di/di'
-import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
+import { DIContainer } from '../../../src/di/di'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
 import { Child } from '../../../src/application/domain/model/child'
@@ -12,10 +10,13 @@ import { expect } from 'chai'
 import { ObjectID } from 'bson'
 import { ChildMock } from '../../mocks/child.mock'
 import { Strings } from '../../../src/utils/strings'
+import { IDatabase } from '../../../src/infrastructure/port/database.interface'
+import { Default } from '../../../src/utils/default'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Child', () => {
@@ -26,7 +27,8 @@ describe('Routes: Child', () => {
 
     before(async () => {
             try {
-                await dbConnection.tryConnect(0, 500)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
 
@@ -50,12 +52,13 @@ describe('Routes: Child', () => {
             await deleteAllUsers()
             await deleteAllInstitutions()
             await dbConnection.dispose()
+            await rabbitmq.dispose()
         } catch (err) {
             throw new Error('Failure on Child test: ' + err.message)
         }
     })
 
-    describe('POST /users/children', () => {
+    describe('POST /v1/children', () => {
         context('when posting a new child user', () => {
             it('should return status code 201 and the saved child', () => {
                 const body = {
@@ -67,7 +70,7 @@ describe('Routes: Child', () => {
                 }
 
                 return request
-                    .post('/users/children')
+                    .post('/v1/children')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
@@ -76,12 +79,7 @@ describe('Routes: Child', () => {
                         expect(res.body.username).to.eql(defaultChild.username)
                         expect(res.body.gender).to.eql(defaultChild.gender)
                         expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         defaultChild.id = res.body.id
                     })
             })
@@ -98,7 +96,7 @@ describe('Routes: Child', () => {
                 }
 
                 return request
-                    .post('/users/children')
+                    .post('/v1/children')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -113,7 +111,7 @@ describe('Routes: Child', () => {
                 const body = {}
 
                 return request
-                    .post('/users/children')
+                    .post('/v1/children')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -136,7 +134,7 @@ describe('Routes: Child', () => {
                 }
 
                 return request
-                    .post('/users/children')
+                    .post('/v1/children')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -159,7 +157,7 @@ describe('Routes: Child', () => {
                 }
 
                 return request
-                    .post('/users/children')
+                    .post('/v1/children')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -169,13 +167,60 @@ describe('Routes: Child', () => {
                     })
             })
         })
+
+        context('when the gender provided was invalid', () => {
+            it('should return status code 400 and message for invalid gender', () => {
+
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: 'invalid_gender',
+                    age: defaultChild.age,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('The gender provided "invalid_gender" is not supported...')
+                        expect(err.body.description).to.eql('The names of the allowed genders are: male, female.')
+                    })
+            })
+        })
+
+        context('when the age provided was invalid', () => {
+            it('should return status code 400 and message for invalid gender', () => {
+
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: -1,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Age field is invalid...')
+                        expect(err.body.description).to.eql(
+                            'Child validation: The age parameter can only contain a value greater than zero.')
+                    })
+            })
+        })
     })
 
-    describe('GET /users/children/:child_id', () => {
+    describe('GET /v1/children/:child_id', () => {
         context('when get a unique child in database', () => {
             it('should return status code 200 and a child', () => {
                 return request
-                    .get(`/users/children/${defaultChild.id}`)
+                    .get(`/v1/children/${defaultChild.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -183,12 +228,7 @@ describe('Routes: Child', () => {
                         expect(res.body.username).to.eql(defaultChild.username)
                         expect(res.body.gender).to.eql(defaultChild.gender)
                         expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                     })
             })
         })
@@ -196,7 +236,7 @@ describe('Routes: Child', () => {
         context('when the child is not found', () => {
             it('should return status code 404 and info message from child not found', () => {
                 return request
-                    .get(`/users/children/${new ObjectID()}`)
+                    .get(`/v1/children/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -209,25 +249,23 @@ describe('Routes: Child', () => {
         context('when the child_id is invalid', () => {
             it('should return status code 400 and message info about invalid id', () => {
                 return request
-                    .get('/users/children/123')
+                    .get('/v1/children/123')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('PATCH /users/children/:child_id', () => {
+    describe('PATCH /v1/children/:child_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated child', () => {
-                defaultChild.age = 9
-
                 return request
-                    .patch(`/users/children/${defaultChild.id}`)
-                    .send({ age: 9 })
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ last_login: defaultChild.last_login, last_sync: defaultChild.last_sync })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -235,12 +273,9 @@ describe('Routes: Child', () => {
                         expect(res.body.username).to.eql(defaultChild.username)
                         expect(res.body.gender).to.eql(defaultChild.gender)
                         expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.last_login).to.eql(defaultChild.last_login!.toISOString())
+                        expect(res.body.last_sync).to.eql(defaultChild.last_sync!.toISOString())
                     })
             })
         })
@@ -262,12 +297,12 @@ describe('Routes: Child', () => {
                 }
 
                 return request
-                    .patch(`/users/children/${defaultChild.id}`)
+                    .patch(`/v1/children/${defaultChild.id}`)
                     .send({ username: 'anothercoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Child is already registered!')
                     })
             })
         })
@@ -275,7 +310,7 @@ describe('Routes: Child', () => {
         context('when the institution provided does not exists', () => {
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/users/children/${defaultChild.id}`)
+                    .patch(`/v1/children/${defaultChild.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -289,7 +324,7 @@ describe('Routes: Child', () => {
         context('when the institution id provided was invalid', () => {
             it('should return status code 400 and message for invalid institution id', () => {
                 return request
-                    .patch(`/users/children/${defaultChild.id}`)
+                    .patch(`/v1/children/${defaultChild.id}`)
                     .send({ institution_id: '123' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -303,7 +338,7 @@ describe('Routes: Child', () => {
         context('when the child is not found', () => {
             it('should return status code 404 and info message from child not found', () => {
                 return request
-                    .patch(`/users/children/${new ObjectID()}`)
+                    .patch(`/v1/children/${new ObjectID()}`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -317,7 +352,7 @@ describe('Routes: Child', () => {
         context('when the child_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch('/users/children/123')
+                    .patch('/v1/children/123')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -329,11 +364,11 @@ describe('Routes: Child', () => {
         })
     })
 
-    describe('GET /users/children', () => {
+    describe('GET /v1/children', () => {
         context('when want get all children in database', () => {
             it('should return status code 200 and a list of children', () => {
                 return request
-                    .get('/users/children')
+                    .get('/v1/children')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -341,26 +376,16 @@ describe('Routes: Child', () => {
                         expect(res.body.length).to.eql(2)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution.longitude).to.eql(0)
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[0]).to.have.property('age')
                         expect(res.body[0]).to.have.property('gender')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution.longitude).to.eql(0)
+                        expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('age')
                         expect(res.body[1]).to.have.property('gender')
+                        expect(res.body[1]).to.have.property('last_login')
+                        expect(res.body[1]).to.have.property('last_sync')
                     })
             })
         })
@@ -382,14 +407,16 @@ describe('Routes: Child', () => {
                             gender: defaultChild.gender,
                             age: 10,
                             institution: result._id,
-                            scopes: new Array('users:read')
+                            scopes: new Array('users:read'),
+                            last_login: defaultChild.last_login,
+                            last_sync: defaultChild.last_sync
                         }).then()
                     })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
 
-                const url = '/users/children/?age=lte:11&fields=username,age,institution.name&sort=age,username' +
+                const url = '/v1/children?age=lte:11&sort=age,username' +
                     '&page=1&limit=3'
                 return request
                     .get(url)
@@ -398,29 +425,22 @@ describe('Routes: Child', () => {
                     .then(res => {
                         expect(res.body).is.an.instanceOf(Array)
                         expect(res.body.length).to.eql(3)
-                        expect(res.body[0]).to.not.have.any.keys('gender')
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('name')
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[0]).to.have.property('age')
-                        expect(res.body[1]).to.not.have.any.keys('gender')
+                        expect(res.body[0]).to.have.property('gender')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution).to.have.property('name')
+                        expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('age')
-                        expect(res.body[2]).to.not.have.any.keys('gender')
+                        expect(res.body[1]).to.have.property('gender')
                         expect(res.body[2]).to.have.property('id')
                         expect(res.body[2]).to.have.property('username')
-                        expect(res.body[2].institution).to.not.have.any.keys('type', 'address', 'latitude', 'longitude')
-                        expect(res.body[2].institution).to.have.property('id')
-                        expect(res.body[2].institution).to.have.property('name')
+                        expect(res.body[2]).to.have.property('institution_id')
                         expect(res.body[2]).to.have.property('age')
+                        expect(res.body[2]).to.have.property('gender')
                     })
-
             })
         })
         context('when there are no children in database', () => {
@@ -432,7 +452,7 @@ describe('Routes: Child', () => {
                 }
 
                 return request
-                    .get('/users/children')
+                    .get('/v1/children')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {

@@ -7,8 +7,8 @@ import { UserType } from '../../application/domain/model/user'
 import { Query } from '../../infrastructure/repository/query/query'
 import { Default } from '../../utils/default'
 import { Admin } from '../../application/domain/model/admin'
-import { IConnectionDB } from '../../infrastructure/port/connection.db.interface'
 import { IBackgroundTask } from '../../application/port/background.task.interface'
+import { IDatabase } from '../../infrastructure/port/database.interface'
 
 /**
  * In this class it's checked whether there are any admin users in the database.
@@ -24,7 +24,7 @@ import { IBackgroundTask } from '../../application/port/background.task.interfac
 @injectable()
 export class RegisterDefaultAdminTask implements IBackgroundTask {
     constructor(
-        @inject(Identifier.MONGODB_CONNECTION) private readonly _mongodb: IConnectionDB,
+        @inject(Identifier.MONGODB_CONNECTION) private readonly _mongodb: IDatabase,
         @inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
         @inject(Identifier.LOGGER) private readonly _logger: ILogger
     ) {

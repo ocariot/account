@@ -8,7 +8,8 @@ describe('Models: User', () => {
         username: 'ihaveaunknowusername',
         password: 'mysecretkey',
         institution: new ObjectID(),
-        scope: ['users:read']
+        scope: ['users:read'],
+        last_login: new Date()
     }
 
     describe('fromJSON()', () => {
@@ -20,6 +21,7 @@ describe('Models: User', () => {
                 assert.propertyVal(result, 'password', userJSON.password)
                 assert.deepEqual(new ObjectID(result.institution!.id), userJSON.institution)
                 assert.deepPropertyVal(result, 'scopes', userJSON.scope)
+                assert.propertyVal(result, 'last_login', userJSON.last_login)
             })
         })
 
@@ -30,6 +32,7 @@ describe('Models: User', () => {
                 assert.propertyVal(result, 'username', undefined)
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
             })
         })
 
@@ -39,8 +42,9 @@ describe('Models: User', () => {
                 assert.propertyVal(result, 'id', userJSON.id.toHexString())
                 assert.propertyVal(result, 'username', userJSON.username)
                 assert.propertyVal(result, 'password', userJSON.password)
-                assert.property(result, 'institution')
+                assert.deepEqual(new ObjectID(result.institution!.id), userJSON.institution)
                 assert.deepPropertyVal(result, 'scopes', userJSON.scope)
+                assert.deepPropertyVal(result, 'last_login', userJSON.last_login)
             })
         })
     })

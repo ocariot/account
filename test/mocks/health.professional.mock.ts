@@ -1,8 +1,6 @@
 import { Institution } from '../../src/application/domain/model/institution'
-import { ChildMock } from './child.mock'
-import { ChildrenGroup } from '../../src/application/domain/model/children.group'
-import { UserMock } from './user.mock'
 import { HealthProfessional } from '../../src/application/domain/model/health.professional'
+import { ChildrenGroupMock } from './children.group.mock'
 
 export class HealthProfessionalMock extends HealthProfessional {
 
@@ -16,14 +14,8 @@ export class HealthProfessionalMock extends HealthProfessional {
         super.username = 'health_professional_mock'
         super.password = 'health_professional_password'
         super.institution = this.generateInstitution()
-
-        const children_group: ChildrenGroup = new ChildrenGroup()
-        children_group.name = 'children group 1'
-        children_group.children = [new ChildMock(), new ChildMock(), new ChildMock()]
-        children_group.school_class = 'Room 01'
-        children_group.user = new UserMock()
-
-        super.children_groups = [children_group]
+        super.children_groups = [new ChildrenGroupMock(), new ChildrenGroupMock()]
+        super.last_login = new Date()
     }
 
     private generateObjectId(): string {

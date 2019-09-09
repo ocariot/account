@@ -18,6 +18,7 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
         super.type = UserType.FAMILY
         super.scopes = [
             'families:read',
+            'families:update',
             'institutions:read',
             'questionnaires:create',
             'questionnaires:read',
@@ -35,9 +36,13 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
             'sleep:read',
             'sleep:update',
             'sleep:delete',
+            'measurements:create',
+            'measurements:read',
+            'measurements:delete',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
+            'gamificationprofile:read',
+            'external:sync'
         ]
     }
 
@@ -84,6 +89,10 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
                     this.children.map(child => {
                         child.toJSON()
                         child.type = undefined
+                        child.gender = undefined
+                        child.age = undefined
+                        child.last_login = undefined
+                        child.last_sync = undefined
                         return child
                     }) :
                     this.children

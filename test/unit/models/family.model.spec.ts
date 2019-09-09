@@ -15,6 +15,7 @@ describe('Models: Family', () => {
         children: new Array<Child>(),
         scopes: [
             'families:read',
+            'families:update',
             'institutions:read',
             'questionnaires:create',
             'questionnaires:read',
@@ -32,10 +33,15 @@ describe('Models: Family', () => {
             'sleep:read',
             'sleep:update',
             'sleep:delete',
+            'measurements:create',
+            'measurements:read',
+            'measurements:delete',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
-        ]
+            'gamificationprofile:read',
+            'external:sync'
+        ],
+        last_login: new Date()
     }
 
     describe('fromJSON()', () => {
@@ -49,6 +55,7 @@ describe('Models: Family', () => {
                 assert.deepPropertyVal(result, 'scopes', familyJSON.scopes)
                 assert.deepPropertyVal(result, 'children', familyJSON.children)
                 assert.deepEqual(new ObjectID(result.institution!.id), familyJSON.institution)
+                assert.propertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
 
@@ -63,6 +70,7 @@ describe('Models: Family', () => {
                 assert.property(result, 'scopes')
                 assert.propertyVal(result, 'children', undefined)
                 assert.propertyVal(result, 'institution', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
             })
         })
 
@@ -75,20 +83,38 @@ describe('Models: Family', () => {
                 assert.propertyVal(result, 'type', familyJSON.type)
                 assert.deepPropertyVal(result, 'scopes', familyJSON.scopes)
                 assert.deepPropertyVal(result, 'children', familyJSON.children)
-                assert.property(result, 'institution')
+                assert.deepEqual(new ObjectID(result.institution!.id), familyJSON.institution)
+                assert.deepPropertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
     })
 
     describe('toJSON()', () => {
-        it('should return a JSON from family model', () => {
-            let result = new Family().fromJSON(familyJSON)
-            result = result.toJSON()
-            assert.propertyVal(result, 'id', familyJSON.id)
-            assert.propertyVal(result, 'username', familyJSON.username)
-            assert.propertyVal(result, 'type', familyJSON.type)
-            assert.deepPropertyVal(result, 'children', familyJSON.children)
-            assert.deepEqual(new ObjectID(result.institution!.id), familyJSON.institution)
+        context('when the children group is complete', () => {
+            it('should return a JSON from family model', () => {
+                let result = new Family().fromJSON(familyJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', familyJSON.id)
+                assert.propertyVal(result, 'username', familyJSON.username)
+                assert.propertyVal(result, 'type', familyJSON.type)
+                assert.deepPropertyVal(result, 'children', familyJSON.children)
+                assert.propertyVal(result, 'institution_id', familyJSON.institution)
+                assert.propertyVal(result, 'last_login', familyJSON.last_login)
+            })
+        })
+
+        context('when the children group is incomplete', () => {
+            it('should return a JSON from family model', () => {
+                familyJSON.children = undefined
+                let result = new Family().fromJSON(familyJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', familyJSON.id)
+                assert.propertyVal(result, 'username', familyJSON.username)
+                assert.propertyVal(result, 'type', familyJSON.type)
+                assert.deepPropertyVal(result, 'children', familyJSON.children)
+                assert.propertyVal(result, 'institution_id', familyJSON.institution)
+                assert.propertyVal(result, 'last_login', familyJSON.last_login)
+            })
         })
     })
 

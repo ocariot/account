@@ -1,24 +1,23 @@
 import { expect } from 'chai'
 import { App } from '../../../src/app'
 import { Identifier } from '../../../src/di/identifiers'
-import { DI } from '../../../src/di/di'
-import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
-import { Container } from 'inversify'
+import { DIContainer } from '../../../src/di/di'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { UserType } from '../../../src/application/domain/model/user'
 import { Admin } from '../../../src/application/domain/model/admin'
 import { IUserRepository } from '../../../src/application/port/user.repository.interface'
+import { IDatabase } from '../../../src/infrastructure/port/database.interface'
+import { Default } from '../../../src/utils/default'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const userService: IUserRepository = container.get(Identifier.USER_REPOSITORY)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const userService: IUserRepository = DIContainer.get(Identifier.USER_REPOSITORY)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Auth', () => {
     before(async () => {
             try {
-                await dbConnection.tryConnect(0, 500)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
                 const item: Admin = new Admin()
                 item.username = 'admin'
@@ -41,11 +40,11 @@ describe('Routes: Auth', () => {
         }
     })
 
-    describe('POST /auth', () => {
+    describe('POST /v1/auth', () => {
         context('when the authentication was successful', () => {
             it('should return the access token', () => {
                 request
-                    .post('/auth')
+                    .post('/v1/auth')
                     .send({ username: 'admin', password: 'mysecretkey' })
                     .set('Content-Type', 'application/json')
                     .expect(200)
@@ -58,7 +57,7 @@ describe('Routes: Auth', () => {
         context('when the username or password does not exists', () => {
             it('should return status code 401 and info message about unauthorized', () => {
                 request
-                    .post('/auth')
+                    .post('/v1/auth')
                     .send({ username: 'any', password: 'any' })
                     .set('Content-Type', 'application/json')
                     .expect(401)
@@ -71,7 +70,7 @@ describe('Routes: Auth', () => {
         context('when there are validation errors in authentication', () => {
             it('should return status code 400 and info message about validation errors', () => {
                 request
-                    .post('/auth')
+                    .post('/v1/auth')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)

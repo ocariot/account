@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { assert } from 'chai'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
 import { IInstitutionRepository } from '../../../src/application/port/institution.repository.interface'
@@ -9,14 +8,9 @@ import { ChildRepositoryMock } from '../../mocks/child.repository.mock'
 import { IChildrenGroupRepository } from '../../../src/application/port/children.group.repository.interface'
 import { ChildrenGroupRepositoryMock } from '../../mocks/children.group.repository.mock'
 import { IConnectionFactory } from '../../../src/infrastructure/port/connection.factory.interface'
-import { ConnectionFactoryRabbitmqMock } from '../../mocks/connection.factory.rabbitmq.mock'
-import { IConnectionEventBus } from '../../../src/infrastructure/port/connection.event.bus.interface'
-import { EventBusRabbitmqMock } from '../../mocks/event.bus.rabbitmq.mock'
-import { ConnectionRabbitmqMock } from '../../mocks/connection.rabbitmq.mock'
-import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
-import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
-import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
-import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
+import { ConnectionFactoryRabbitMQMock } from '../../mocks/connection.factory.rabbitmq.mock'
+import { RabbitMQMock } from '../../mocks/rabbitmq.mock'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 import { IChildrenGroupService } from '../../../src/application/port/children.group.service.interface'
 import { ChildrenGroupService } from '../../../src/application/service/children.group.service'
 import { Strings } from '../../../src/utils/strings'
@@ -26,7 +20,6 @@ import { UserType } from '../../../src/application/domain/model/user'
 import { InstitutionMock } from '../../mocks/institution.mock'
 import { ChildrenGroup } from '../../../src/application/domain/model/children.group'
 import { ChildrenGroupMock } from '../../mocks/children.group.mock'
-import { ChildrenGroupRepoModel } from '../../../src/infrastructure/database/schema/children.group.schema'
 import { UserMock } from '../../mocks/user.mock'
 import { Child } from '../../../src/application/domain/model/child'
 import { IHealthProfessionalService } from '../../../src/application/port/health.professional.service.interface'
@@ -35,8 +28,7 @@ import { IHealthProfessionalRepository } from '../../../src/application/port/hea
 import { HealthProfessionalRepositoryMock } from '../../mocks/health.professional.repository.mock'
 import { HealthProfessional } from '../../../src/application/domain/model/health.professional'
 import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
-
-require('sinon-mongoose')
+import { Default } from '../../../src/utils/default'
 
 describe('Services: HealthProfessional', () => {
     /**
@@ -67,35 +59,25 @@ describe('Services: HealthProfessional', () => {
         childrenGroupArr.push(new ChildrenGroupMock())
     }
 
-    const modelFake: any = UserRepoModel
-    const modelChildrenGroupFake: any = ChildrenGroupRepoModel
     const healthProfessionalRepo: IHealthProfessionalRepository = new HealthProfessionalRepositoryMock()
     const childRepo: IChildRepository = new ChildRepositoryMock()
     const institutionRepo: IInstitutionRepository = new InstitutionRepositoryMock()
     const childrenGroupRepo: IChildrenGroupRepository = new ChildrenGroupRepositoryMock()
-    const integrationRepo: IIntegrationEventRepository = new IntegrationEventRepositoryMock()
 
-    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitmqMock()
-    const connectionRabbitmqPub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const connectionRabbitmqSub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const eventBusRabbitmq: IEventBus = new EventBusRabbitmqMock(connectionRabbitmqPub, connectionRabbitmqSub)
+    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitMQMock()
+    const rabbitmq: IEventBus = new RabbitMQMock(connectionFactoryRabbitmq)
     const customLogger: ILogger = new CustomLoggerMock()
 
     const childrenGroupService: IChildrenGroupService = new ChildrenGroupService(childrenGroupRepo, childRepo, customLogger)
     const healthProfessionalService: IHealthProfessionalService = new HealthProfessionalService(healthProfessionalRepo,
-        institutionRepo, childrenGroupService, childrenGroupRepo, integrationRepo, eventBusRabbitmq, customLogger)
+        institutionRepo, childrenGroupRepo, childrenGroupService, rabbitmq, customLogger)
 
     before(async () => {
         try {
-            await connectionRabbitmqPub.tryConnect(0, 500)
-            await connectionRabbitmqSub.tryConnect(0, 500)
+            await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
         } catch (err) {
             throw new Error('Failure on HealthProfessionalService unit test: ' + err.message)
         }
-    })
-
-    afterEach(() => {
-        sinon.restore()
     })
 
     /**
@@ -104,13 +86,6 @@ describe('Services: HealthProfessional', () => {
     describe('add(healthProfessional: HealthProfessional)', () => {
         context('when the HealthProfessional is correct and it still does not exist in the repository', () => {
             it('should return the HealthProfessional that was added', () => {
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(healthProfessional)
-                    .chain('exec')
-                    .resolves(healthProfessional)
-
                 return healthProfessionalService.add(healthProfessional)
                     .then(result => {
                         assert.propertyVal(result, 'id', healthProfessional.id)
@@ -120,6 +95,7 @@ describe('Services: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', healthProfessional.scopes)
                         assert.propertyVal(result, 'institution', healthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', healthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', healthProfessional.last_login)
                     })
             })
         })
@@ -127,12 +103,6 @@ describe('Services: HealthProfessional', () => {
         context('when the HealthProfessional is correct but already exists in the repository', () => {
             it('should throw a ConflictException', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439011'        // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(healthProfessional)
-                    .chain('exec')
-                    .rejects({ message: Strings.HEALTH_PROFESSIONAL.ALREADY_REGISTERED})
 
                 return healthProfessionalService.add(healthProfessional)
                     .catch(err => {
@@ -146,13 +116,6 @@ describe('Services: HealthProfessional', () => {
             it('should throw a ValidationException', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439012'
                 healthProfessional.institution!.id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(healthProfessional)
-                    .chain('exec')
-                    .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return healthProfessionalService.add(healthProfessional)
                     .catch(err => {
@@ -164,14 +127,6 @@ describe('Services: HealthProfessional', () => {
 
         context('when the HealthProfessional is incorrect (missing fields)', () => {
             it('should throw a ValidationException', () => {
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(incorrectHealthProfessional)
-                    .chain('exec')
-                    .rejects({ message: 'Required fields were not provided...',
-                               description: 'HealthProfessional validation: username, password, type, institution is required!' })
-
                 return healthProfessionalService.add(incorrectHealthProfessional)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'Required fields were not provided...')
@@ -184,13 +139,6 @@ describe('Services: HealthProfessional', () => {
         context('when the HealthProfessional is incorrect (the institution id is invalid)', () => {
             it('should throw a ValidationException', () => {
                 healthProfessional.institution!.id = '507f1f77bcf86cd7994390111'
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(healthProfessional)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.add(healthProfessional)
                     .catch(err => {
@@ -211,12 +159,6 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439011'     // Make mock return a filled array
                 const query: IQuery = new Query()
                 query.filters = { _id: healthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(healthProfessionalsArr)
 
                 return healthProfessionalService.getAll(query)
                     .then(result => {
@@ -231,12 +173,6 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439012'         // Make mock return an empty array
                 const query: IQuery = new Query()
                 query.filters = { _id: healthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(new Array<HealthProfessionalMock>())
 
                 return healthProfessionalService.getAll(query)
                     .then(result => {
@@ -256,12 +192,6 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439011'         // Make mock return a Child
                 const query: IQuery = new Query()
                 query.filters = { _id: healthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(healthProfessional)
 
                 return healthProfessionalService.getById(healthProfessional.id, query)
                     .then(result => {
@@ -275,12 +205,6 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
                 const query: IQuery = new Query()
                 query.filters = { _id: healthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return healthProfessionalService.getById(healthProfessional.id, query)
                     .then(result => {
@@ -294,17 +218,10 @@ describe('Services: HealthProfessional', () => {
                 incorrectHealthProfessional.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
                 const query: IQuery = new Query()
                 query.filters = { _id: incorrectHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.getById(incorrectHealthProfessional.id, query)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -319,12 +236,6 @@ describe('Services: HealthProfessional', () => {
             it('should return the HealthProfessional that was updated', () => {
                 healthProfessional.password = ''
                 healthProfessional.id = '507f1f77bcf86cd799439011'         // Make mock return an updated child
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(healthProfessional)
-                    .chain('exec')
-                    .resolves(healthProfessional)
 
                 return healthProfessionalService.update(healthProfessional)
                     .then(result => {
@@ -335,43 +246,14 @@ describe('Services: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', healthProfessional.scopes)
                         assert.propertyVal(result, 'institution', healthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', healthProfessional.children_groups)
-                    })
-            })
-        })
-
-        context('when the HealthProfessional exists in the database but there is no connection to the RabbitMQ', () => {
-            it('should return the HealthProfessional that was saved', () => {
-                connectionRabbitmqPub.isConnected = false
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(healthProfessional)
-                    .chain('exec')
-                    .resolves(healthProfessional)
-
-                return healthProfessionalService.update(healthProfessional)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', healthProfessional.id)
-                        assert.propertyVal(result, 'username', healthProfessional.username)
-                        assert.propertyVal(result, 'password', healthProfessional.password)
-                        assert.propertyVal(result, 'type', healthProfessional.type)
-                        assert.propertyVal(result, 'scopes', healthProfessional.scopes)
-                        assert.propertyVal(result, 'institution', healthProfessional.institution)
-                        assert.propertyVal(result, 'children_groups', healthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', healthProfessional.last_login)
                     })
             })
         })
 
         context('when the HealthProfessional does not exist in the database', () => {
             it('should return undefined', () => {
-                connectionRabbitmqPub.isConnected = true
-                healthProfessional.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(healthProfessional)
-                    .chain('exec')
-                    .resolves(undefined)
+                healthProfessional.id = '507f1f77bcf86cd799439013'         // Make mock return undefined
 
                 return healthProfessionalService.update(healthProfessional)
                     .then(result => {
@@ -383,13 +265,6 @@ describe('Services: HealthProfessional', () => {
         context('when the HealthProfessional is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
                 incorrectHealthProfessional.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectHealthProfessional)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.update(incorrectHealthProfessional)
                     .catch(err => {
@@ -404,13 +279,6 @@ describe('Services: HealthProfessional', () => {
                 incorrectHealthProfessional.id = '507f1f77bcf86cd799439011'
                 incorrectHealthProfessional.institution = new InstitutionMock()
                 incorrectHealthProfessional.institution!.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectHealthProfessional)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.update(incorrectHealthProfessional)
                     .catch(err => {
@@ -423,20 +291,12 @@ describe('Services: HealthProfessional', () => {
         context('when the Child is incorrect (attempt to update password)', () => {
             it('should throw a ValidationException', () => {
                 healthProfessional.password = 'health_professional_password'
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(healthProfessional)
-                    .chain('exec')
-                    .rejects({ message: 'This parameter could not be updated.',
-                               description: 'A specific route to update user password already exists.' +
-                                   'Access: PATCH /users/507f1f77bcf86cd799439012/password to update your password.' })
 
                 return healthProfessionalService.update(healthProfessional)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'This parameter could not be updated.')
                         assert.propertyVal(err, 'description', 'A specific route to update user password already exists.' +
-                            'Access: PATCH /users/507f1f77bcf86cd799439012/password to update your password.')
+                            'Access: PATCH /users/507f1f77bcf86cd799439013/password to update your password.')
                     })
             })
         })
@@ -445,13 +305,6 @@ describe('Services: HealthProfessional', () => {
             it('should throw a ValidationException', () => {
                 healthProfessional.password = ''
                 healthProfessional.institution!.id = '507f1f77bcf86cd799439012'
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(healthProfessional)
-                    .chain('exec')
-                    .rejects({ message: Strings.INSTITUTION.REGISTER_REQUIRED,
-                               description: Strings.INSTITUTION.ALERT_REGISTER_REQUIRED })
 
                 return healthProfessionalService.update(healthProfessional)
                     .catch(err => {
@@ -469,12 +322,6 @@ describe('Services: HealthProfessional', () => {
         context('when there is HealthProfessional with the received parameter', () => {
             it('should return true', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439015'         // Make mock return true
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(healthProfessional.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return healthProfessionalService.remove(healthProfessional.id)
                     .then(result => {
@@ -486,12 +333,6 @@ describe('Services: HealthProfessional', () => {
         context('when there is no HealthProfessional with the received parameter', () => {
             it('should return false', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439012'         // Make mock return false
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(healthProfessional.id)
-                    .chain('exec')
-                    .resolves(false)
 
                 return healthProfessionalService.remove(healthProfessional.id)
                     .then(result => {
@@ -503,17 +344,10 @@ describe('Services: HealthProfessional', () => {
         context('when the Child is incorrect (invalid id)', () => {
             it('should throw a ValidationException', () => {
                 incorrectHealthProfessional.id = '507f1f77bcf86cd7994390111'       // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(incorrectHealthProfessional.id)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.remove(incorrectHealthProfessional.id)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -526,13 +360,12 @@ describe('Services: HealthProfessional', () => {
     describe('saveChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup)', () => {
         context('when there is HealthProfessional with the received parameter', () => {
             it('should return a ChildrenGroup that was added', () => {
+                if (childrenGroup.children) {
+                    childrenGroup.children.forEach(childItem => {
+                        childItem.id = '507f1f77bcf86cd799439011'
+                    })
+                }
                 healthProfessional.id = '507f1f77bcf86cd799439011'
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('create')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .resolves(childrenGroup)
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id, childrenGroup)
                     .then(result => {
@@ -548,13 +381,6 @@ describe('Services: HealthProfessional', () => {
         context('when there is no HealthProfessional with the received parameter', () => {
             it('should return a ChildrenGroup that was added', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439012'
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('create')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
-                               description: Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id, childrenGroup)
                     .catch(err => {
@@ -568,12 +394,6 @@ describe('Services: HealthProfessional', () => {
             it('should throw a ConflictException', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439011'
                 childrenGroup.id = '507f1f77bcf86cd799439011'        // Make mock throw an exception
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('create')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.CHILDREN_GROUP.ALREADY_REGISTERED})
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, childrenGroup)
                     .catch(err => {
@@ -587,18 +407,12 @@ describe('Services: HealthProfessional', () => {
             it('should throw a ValidationException', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'
                 childrenGroup.children![0].id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('create')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                               description: Strings.CHILD.IDS_WITHOUT_REGISTER })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, childrenGroup)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER)
+                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
+                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -607,13 +421,6 @@ describe('Services: HealthProfessional', () => {
             it('should throw a ValidationException', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'
                 childrenGroup.user!.id = '507f1f77bcf86cd7994390111'      // Make mock throw an exception
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('create')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, childrenGroup)
                     .catch(err => {
@@ -625,14 +432,6 @@ describe('Services: HealthProfessional', () => {
 
         context('when the ChildrenGroup is incorrect (missing ChildrenGroup fields)', () => {
             it('should throw a ValidationException', () => {
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('create')
-                    .withArgs(incorrectChildrenGroup)
-                    .chain('exec')
-                    .rejects({ message: 'Required fields were not provided...',
-                               description: 'Children Group validation: name, user, Collection with children IDs is required!' })
-
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'Required fields were not provided...')
@@ -645,14 +444,6 @@ describe('Services: HealthProfessional', () => {
         context('when the ChildrenGroup is incorrect (missing ChildrenGroup (missing some child id) fields)', () => {
             it('should throw a ValidationException', () => {
                 incorrectChildrenGroup.children = [new Child()]         // Make mock throw an exception
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('create')
-                    .withArgs(incorrectChildrenGroup)
-                    .chain('exec')
-                    .rejects({ message: 'Required fields were not provided...',
-                               description: 'Children Group validation: name, user, Collection with children IDs (ID can not ' +
-                                   'be empty) is required!' })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
@@ -668,13 +459,6 @@ describe('Services: HealthProfessional', () => {
                 const childTest: Child = new Child()
                 childTest.id = '507f1f77bcf86cd7994390111'          // Make mock throw an exception
                 incorrectChildrenGroup.children = [childTest]
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('create')
-                    .withArgs(incorrectChildrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, childrenGroup)
                     .catch(err => {
@@ -694,12 +478,6 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439011'
                 const query: IQuery = new Query()
                 query.filters = { _id : healthProfessional.id }
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(childrenGroupArr)
 
                 return healthProfessionalService.getAllChildrenGroups(healthProfessional.id, query)
                     .then(result => {
@@ -714,12 +492,6 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439012'
                 const query: IQuery = new Query()
                 query.filters = { _id : healthProfessional.id }
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(new Array<ChildrenGroupMock>())
 
                 return healthProfessionalService.getAllChildrenGroups(healthProfessional.id, query)
                     .then(result => {
@@ -734,17 +506,10 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.id = '507f1f77bcf86cd7994390111'      // Make mock throw an exception
                 const query: IQuery = new Query()
                 query.filters = { _id : healthProfessional.id }
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.getAllChildrenGroups(healthProfessional.id, query)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -761,12 +526,6 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.children_groups![0].id = '507f1f77bcf86cd799439011'
                 const query: IQuery = new Query()
                 query.filters = { _id : healthProfessional.children_groups![0].id }
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(childrenGroup)
 
                 return healthProfessionalService.getChildrenGroupById(healthProfessional.id,
                     healthProfessional.children_groups![0].id, query)
@@ -782,12 +541,6 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.children_groups![0].id = '507f1f77bcf86cd799439011'
                 const query: IQuery = new Query()
                 query.filters = { _id : healthProfessional.children_groups![0].id }
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return healthProfessionalService.getChildrenGroupById(healthProfessional.id,
                     healthProfessional.children_groups![0].id, query)
@@ -803,12 +556,6 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.children_groups![0].id = '507f1f77bcf86cd799439011'
                 const query: IQuery = new Query()
                 query.filters = { _id : healthProfessional.children_groups![0].id }
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return healthProfessionalService.getChildrenGroupById(healthProfessional.id, childrenGroup.id!, query)
                     .then(result => {
@@ -823,18 +570,11 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.children_groups![0].id = '507f1f77bcf86cd799439011'
                 const query: IQuery = new Query()
                 query.filters = { _id : healthProfessional.children_groups![0].id }
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.getChildrenGroupById(healthProfessional.id,
                     healthProfessional.children_groups![0].id, query)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -846,18 +586,11 @@ describe('Services: HealthProfessional', () => {
                 healthProfessional.children_groups![0].id = '507f1f77bcf86cd7994390111'  // Make mock throw an exception
                 const query: IQuery = new Query()
                 query.filters = { _id : healthProfessional.children_groups![0].id }
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.getChildrenGroupById(healthProfessional.id,
                     healthProfessional.children_groups![0].id, query)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -870,13 +603,16 @@ describe('Services: HealthProfessional', () => {
     describe('updateChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup)', () => {
         context('when there is HealthProfessional with the received parameter', () => {
             it('should return the ChildrenGroup that was updated', () => {
+                if (healthProfessional.children_groups) {
+                    healthProfessional.children_groups.forEach(childrenGroupItem => {
+                        if (childrenGroupItem.children) {
+                            childrenGroupItem.children.forEach(childItem => {
+                                childItem.id = '507f1f77bcf86cd799439011'
+                            })
+                        }
+                    })
+                }
                 healthProfessional.children_groups![0].id = '507f1f77bcf86cd799439011'        // Make id valid again
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(healthProfessional.children_groups![0])
-                    .chain('exec')
-                    .resolves(healthProfessional.children_groups![0])
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id!,
                     healthProfessional.children_groups![0])
@@ -893,13 +629,6 @@ describe('Services: HealthProfessional', () => {
         context('when there is no HealthProfessional with the received parameter', () => {
             it('should throw a ValidationException', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439012'
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(healthProfessional.children_groups![0])
-                    .chain('exec')
-                    .rejects({ message: Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
-                               description: Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id,
                     healthProfessional.children_groups![0])
@@ -913,18 +642,11 @@ describe('Services: HealthProfessional', () => {
         context('when the HealthProfessional id is invalid', () => {
             it('should throw a ValidationException', () => {
                 healthProfessional.id = '507f1f77bcf86cd7994390111'      // Make mock throw an exception
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(healthProfessional.children_groups![0])
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id,
                     healthProfessional.children_groups![0])
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -934,18 +656,11 @@ describe('Services: HealthProfessional', () => {
             it('should throw a ValidationException', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439011'
                 healthProfessional.children_groups![0].id = '507f1f77bcf86cd7994390111'  // Make mock throw an exception
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(healthProfessional.children_groups![0])
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id,
                     healthProfessional.children_groups![0])
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -955,18 +670,12 @@ describe('Services: HealthProfessional', () => {
             it('should throw a ValidationException', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439011'
                 childrenGroup.children![0].id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                               description: Strings.CHILD.IDS_WITHOUT_REGISTER })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id!, childrenGroup)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER)
+                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
+                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -974,14 +683,6 @@ describe('Services: HealthProfessional', () => {
         context('when the ChildrenGroup is incorrect (missing ChildrenGroup (missing some child id) fields)', () => {
             it('should throw a ValidationException', () => {
                 incorrectChildrenGroup.children = [new Child()]         // Make mock throw an exception
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectChildrenGroup)
-                    .chain('exec')
-                    .rejects({ message: 'Required fields were not provided...',
-                               description: 'Children Group validation: Collection with children IDs (ID can not be empty) ' +
-                                   'is required!' })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
@@ -997,13 +698,6 @@ describe('Services: HealthProfessional', () => {
                 const childTest: Child = new Child()
                 childTest.id = '507f1f77bcf86cd7994390111'          // Make mock throw an exception
                 incorrectChildrenGroup.children = [childTest]
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectChildrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
@@ -1021,12 +715,6 @@ describe('Services: HealthProfessional', () => {
         context('when there is an HealthProfessional and a ChildrenGroup with the received parameters', () => {
             it('should return true', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439011'         // Make mock return true
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('deleteOne')
-                    .withArgs(childrenGroup.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return healthProfessionalService.deleteChildrenGroup(healthProfessional.id!, childrenGroup.id)
                     .then(result => {
@@ -1038,12 +726,6 @@ describe('Services: HealthProfessional', () => {
         context('when there is an HealthProfessional but not a ChildrenGroup with the received parameters', () => {
             it('should return false', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'         // Make mock return false
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('deleteOne')
-                    .withArgs(childrenGroup.id)
-                    .chain('exec')
-                    .resolves(false)
 
                 return healthProfessionalService.deleteChildrenGroup(healthProfessional.id!, childrenGroup.id)
                     .then(result => {
@@ -1055,13 +737,6 @@ describe('Services: HealthProfessional', () => {
         context('when there is no HealthProfessional with the received parameters', () => {
             it('should throw a ValidationException', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439012'         // Make mock return false
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('deleteOne')
-                    .withArgs(childrenGroup.id)
-                    .chain('exec')
-                    .rejects({ message: Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
-                               description: Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION })
 
                 return healthProfessionalService.deleteChildrenGroup(healthProfessional.id, childrenGroup.id!)
                     .catch(err => {
@@ -1074,18 +749,11 @@ describe('Services: HealthProfessional', () => {
         context('when the HealthProfessional id is invalid', () => {
             it('should throw a ValidationException', () => {
                 healthProfessional.id = '507f1f77bcf86cd7994390111'      // Make mock throw an exception
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('deleteOne')
-                    .withArgs(childrenGroup.id)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id,
                     healthProfessional.children_groups![0])
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -1095,19 +763,34 @@ describe('Services: HealthProfessional', () => {
             it('should throw a ValidationException', () => {
                 healthProfessional.id = '507f1f77bcf86cd799439011'
                 healthProfessional.children_groups![0].id = '507f1f77bcf86cd7994390111'  // Make mock throw an exception
-                sinon
-                    .mock(modelChildrenGroupFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(healthProfessional.children_groups![0])
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id,
                     healthProfessional.children_groups![0])
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when want count health professionals', () => {
+            it('should return the number of health professionals', () => {
+                return healthProfessionalService.count()
+                    .then(res => {
+                        assert.equal(res, 1)
+                    })
+            })
+        })
+    })
+
+    describe('countChildrenGroups(healthProfessionalId: string)', () => {
+        context('when there is at least one children group associated with the health professional received', () => {
+            it('should return how many children groups are associated with such health professional in the database', () => {
+                return healthProfessionalService.countChildrenGroups(healthProfessional.id!)
+                    .then(res => {
+                        assert.equal(res, 1)
                     })
             })
         })

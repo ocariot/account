@@ -5,12 +5,9 @@ import { Identifier } from './identifiers'
 import { UserEntity } from '../infrastructure/entity/user.entity'
 import { IEntityMapper } from '../infrastructure/port/entity.mapper.interface'
 import { User } from '../application/domain/model/user'
-import { EventBusRabbitMQ } from '../infrastructure/eventbus/rabbitmq/eventbus.rabbitmq'
 import { ConnectionFactoryMongoDB } from '../infrastructure/database/connection.factory.mongodb'
-import { ConnectionMongoDB } from '../infrastructure/database/connection.mongodb'
-import { IConnectionDB } from '../infrastructure/port/connection.db.interface'
 import { IConnectionFactory } from '../infrastructure/port/connection.factory.interface'
-import { IEventBus } from '../infrastructure/port/event.bus.interface'
+import { IEventBus } from '../infrastructure/port/eventbus.interface'
 import { BackgroundService } from '../background/background.service'
 import { App } from '../app'
 import { CustomLogger, ILogger } from '../utils/custom.logger'
@@ -84,48 +81,31 @@ import { UserService } from '../application/service/user.service'
 import { IUserRepository } from '../application/port/user.repository.interface'
 import { UserRepository } from '../infrastructure/repository/user.repository'
 import { ConnectionFactoryRabbitMQ } from '../infrastructure/eventbus/rabbitmq/connection.factory.rabbitmq'
-import { IConnectionEventBus } from '../infrastructure/port/connection.event.bus.interface'
-import { ConnectionRabbitMQ } from '../infrastructure/eventbus/rabbitmq/connection.rabbitmq'
-import { EventBusTask } from '../background/task/eventbus.task'
-import { IIntegrationEventRepository } from '../application/port/integration.event.repository.interface'
-import { IntegrationEventRepository } from '../infrastructure/repository/integration.event.repository'
 import { IntegrationEventRepoModel } from '../infrastructure/database/schema/integration.event.schema'
 import { IBackgroundTask } from '../application/port/background.task.interface'
 import { RegisterDefaultAdminTask } from '../background/task/register.default.admin.task'
 import { GenerateJwtKeysTask } from '../background/task/generate.jwt.keys.task'
+import { MongoDB } from '../infrastructure/database/mongo.db'
+import { IDatabase } from '../infrastructure/port/database.interface'
+import { RabbitMQ } from '../infrastructure/eventbus/rabbitmq/rabbitmq'
+import { SubscribeEventBusTask } from '../background/task/subscribe.event.bus.task'
+import { ProviderEventBusTask } from '../background/task/provider.event.bus.task'
 
-export class DI {
-    private static instance: DI
-    private readonly container: Container
+export class IoC {
+    private readonly _container: Container
 
     /**
      * Creates an instance of DI.
      *
      * @private
      */
-    private constructor() {
-        this.container = new Container()
+    constructor() {
+        this._container = new Container()
         this.initDependencies()
     }
 
-    /**
-     * Recover single instance of class.
-     *
-     * @static
-     * @return {App}
-     */
-    public static getInstance(): DI {
-        if (!this.instance) this.instance = new DI()
-        return this.instance
-    }
-
-    /**
-     * Get Container inversify.
-     *
-     * @returns {Container}
-     */
-    public getContainer(): Container {
-        return this.container
+    get container(): Container {
+        return this._container
     }
 
     /**
@@ -196,9 +176,6 @@ export class DI {
             .to(InstitutionRepository).inSingletonScope()
         this.container.bind<IChildrenGroupRepository>(Identifier.CHILDREN_GROUP_REPOSITORY)
             .to(ChildrenGroupRepository).inSingletonScope()
-        this.container
-            .bind<IIntegrationEventRepository>(Identifier.INTEGRATION_EVENT_REPOSITORY)
-            .to(IntegrationEventRepository).inSingletonScope()
 
         // Mongoose Schema
         this.container.bind(Identifier.USER_REPO_MODEL).toConstantValue(UserRepoModel)
@@ -237,33 +214,35 @@ export class DI {
             .bind<IConnectionFactory>(Identifier.RABBITMQ_CONNECTION_FACTORY)
             .to(ConnectionFactoryRabbitMQ).inSingletonScope()
         this.container
-            .bind<IConnectionEventBus>(Identifier.RABBITMQ_CONNECTION)
-            .to(ConnectionRabbitMQ)
-        this.container
             .bind<IEventBus>(Identifier.RABBITMQ_EVENT_BUS)
-            .to(EventBusRabbitMQ).inSingletonScope()
+            .to(RabbitMQ).inSingletonScope()
         this.container
             .bind<IConnectionFactory>(Identifier.MONGODB_CONNECTION_FACTORY)
             .to(ConnectionFactoryMongoDB).inSingletonScope()
         this.container
-            .bind<IConnectionDB>(Identifier.MONGODB_CONNECTION)
-            .to(ConnectionMongoDB).inSingletonScope()
+            .bind<IDatabase>(Identifier.MONGODB_CONNECTION)
+            .to(MongoDB).inSingletonScope()
         this.container
             .bind(Identifier.BACKGROUND_SERVICE)
             .to(BackgroundService).inSingletonScope()
 
         // Tasks
         this.container
-            .bind<IBackgroundTask>(Identifier.EVENT_BUS_TASK)
-            .to(EventBusTask).inRequestScope()
-        this.container
             .bind<IBackgroundTask>(Identifier.REGISTER_DEFAULT_ADMIN_TASK)
             .to(RegisterDefaultAdminTask).inRequestScope()
         this.container
             .bind<IBackgroundTask>(Identifier.GENERATE_JWT_KEYS_TASK)
             .to(GenerateJwtKeysTask).inRequestScope()
+        this.container
+            .bind<IBackgroundTask>(Identifier.SUB_EVENT_BUS_TASK)
+            .to(SubscribeEventBusTask).inRequestScope()
+        this.container
+            .bind<IBackgroundTask>(Identifier.PROVIDER_EVENT_BUS_TASK)
+            .to(ProviderEventBusTask).inRequestScope()
 
         // Log
         this.container.bind<ILogger>(Identifier.LOGGER).to(CustomLogger).inSingletonScope()
     }
 }
+
+export const DIContainer = new IoC().container

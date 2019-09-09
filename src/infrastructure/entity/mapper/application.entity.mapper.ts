@@ -27,20 +27,10 @@ export class ApplicationEntityMapper implements IEntityMapper<Application, Appli
         if (item.type) result.type = item.type
         if (item.institution !== undefined) result.institution = item.institution.id
         if (item.application_name !== undefined) result.application_name = item.application_name
+        if (item.last_login) result.last_login = item.last_login
         if (item.scopes) result.scopes = item.scopes
 
         return result
-    }
-
-    /**
-     * Convert {ApplicationEntity} for {Application}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: ApplicationEntity): Application {
-        throw Error('Not implemented!')
     }
 
     /**
@@ -60,9 +50,13 @@ export class ApplicationEntityMapper implements IEntityMapper<Application, Appli
         if (json.type !== undefined) result.type = json.type
         if (json.institution !== undefined) {
             if (json.institution === null) result.institution = undefined
-            else result.institution = new Institution().fromJSON(json.institution)
+            else {
+                result.institution = new Institution()
+                result.institution.id = json.institution
+            }
         }
         if (json.application_name !== undefined) result.application_name = json.application_name
+        if (json.last_login !== undefined) result.last_login = json.last_login
         if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result

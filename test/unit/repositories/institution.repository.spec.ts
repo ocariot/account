@@ -15,7 +15,7 @@ describe('Repositories: Institution', () => {
     const defaultInstitution: Institution = new InstitutionMock()
 
     const modelFake = InstitutionRepoModel
-    const repo = new InstitutionRepository(modelFake, new EntityMapperMock(), new CustomLoggerMock())
+    const institutionRepo = new InstitutionRepository(modelFake, new EntityMapperMock(), new CustomLoggerMock())
 
     afterEach(() => {
         sinon.restore()
@@ -41,7 +41,7 @@ describe('Repositories: Institution', () => {
                 .chain('exec')
                 .resolves(true)
 
-            return repo.checkExist(defaultInstitution)
+            return institutionRepo.checkExist(defaultInstitution)
                 .then(result => {
                     assert.isTrue(result)
                 })
@@ -69,7 +69,7 @@ describe('Repositories: Institution', () => {
                 .chain('exec')
                 .resolves(true)
 
-            return repo.checkExist(institutionWithoutId)
+            return institutionRepo.checkExist(institutionWithoutId)
                 .then(result => {
                     assert.isTrue(result)
                 })
@@ -99,7 +99,7 @@ describe('Repositories: Institution', () => {
                     .chain('exec')
                     .resolves(false)
 
-                return repo.checkExist(customInstitution)
+                return institutionRepo.checkExist(customInstitution)
                     .then(result => {
                         assert.isFalse(result)
                     })
@@ -134,11 +134,63 @@ describe('Repositories: Institution', () => {
                     })
 
                 try {
-                    await repo.checkExist(customInstitution)
+                    await institutionRepo.checkExist(customInstitution)
                 } catch (err) {
                     assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                     assert.propertyVal(err, 'description', 'Please try again later...')
                 }
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when there is at least one institution in the database', () => {
+            it('should return how many institutions there are in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(2)
+
+                return institutionRepo.count()
+                    .then((countInstitutions: number) => {
+                        assert.equal(countInstitutions, 2)
+                    })
+            })
+        })
+
+        context('when there no are institutions in database', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(0)
+
+                return institutionRepo.count()
+                    .then((countInstitutions: number) => {
+                        assert.equal(countInstitutions, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return institutionRepo.count()
+                    .catch (err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
             })
         })
     })

@@ -1,7 +1,5 @@
 import { expect } from 'chai'
-import { Container } from 'inversify'
-import { DI } from '../../../src/di/di'
-import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
+import { DIContainer } from '../../../src/di/di'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
@@ -10,10 +8,13 @@ import { ObjectID } from 'bson'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { UserType } from '../../../src/application/domain/model/user'
 import { Strings } from '../../../src/utils/strings'
+import { IDatabase } from '../../../src/infrastructure/port/database.interface'
+import { Default } from '../../../src/utils/default'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Institution', () => {
@@ -29,7 +30,8 @@ describe('Routes: Institution', () => {
 
     before(async () => {
             try {
-                await dbConnection.tryConnect(0, 500)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 await deleteAllInstitutions()
             } catch (err) {
                 throw new Error('Failure on Institution test: ' + err.message)
@@ -42,12 +44,13 @@ describe('Routes: Institution', () => {
             await deleteAllInstitutions()
             await deleteAllUsers()
             await dbConnection.dispose()
+            await rabbitmq.dispose()
         } catch (err) {
             throw new Error('Failure on Institution test: ' + err.message)
         }
     })
 
-    describe('POST /institutions', () => {
+    describe('POST /v1/institutions', () => {
         context('when posting a new institution', () => {
             it('should return status code 201 and the saved institution', () => {
                 const body = {
@@ -59,7 +62,7 @@ describe('Routes: Institution', () => {
                 }
 
                 return request
-                    .post('/institutions')
+                    .post('/v1/institutions')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
@@ -86,7 +89,7 @@ describe('Routes: Institution', () => {
                 }
 
                 return request
-                    .post('/institutions')
+                    .post('/v1/institutions')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -102,7 +105,7 @@ describe('Routes: Institution', () => {
                 }
 
                 return request
-                    .post('/institutions')
+                    .post('/v1/institutions')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -114,11 +117,11 @@ describe('Routes: Institution', () => {
         })
     })
 
-    describe('GET /institutions/:institution_id', () => {
+    describe('GET /v1/institutions/:institution_id', () => {
         context('when get a unique institution in database', () => {
             it('should return status code 200 and a institution', () => {
                 return request
-                    .get(`/institutions/${defaultInstitution.id}`)
+                    .get(`/v1/institutions/${defaultInstitution.id}`)
                     .set('Content-Type', 'application/json')
                     .then(res => {
                         expect(res.body.id).to.eql(defaultInstitution.id)
@@ -134,7 +137,7 @@ describe('Routes: Institution', () => {
         context('when the institution is not found', () => {
             it('should return status code 404 and info message from institution not found', () => {
                 return request
-                    .get(`/institutions/${new ObjectID()}`)
+                    .get(`/v1/institutions/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.INSTITUTION.NOT_FOUND)
@@ -146,23 +149,23 @@ describe('Routes: Institution', () => {
         context('when the institution is in invalid format', () => {
             it('should return status code 400 and info message from invalid ID format', () => {
                 return request
-                    .get('/institutions/123')
+                    .get('/v1/institutions/123')
                     .set('Content-Type', 'application/json')
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('PATCH /institutions/:institution_id', () => {
+    describe('PATCH /v1/institutions/:institution_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and a updated institution', () => {
                 defaultInstitution.type = 'Another Cool Type'
 
                 return request
-                    .patch(`/institutions/${defaultInstitution.id}`)
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
                     .send({ type: 'Another Cool Type' })
                     .set('Content-Type', 'application/json')
                     .expect(200)
@@ -195,12 +198,12 @@ describe('Routes: Institution', () => {
                 }
 
                 return request
-                    .patch(`/institutions/${defaultInstitution.id}`)
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
                     .send({ name: 'Other Name' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.ALREADY_REGISTERED)
                     })
             })
         })
@@ -208,7 +211,7 @@ describe('Routes: Institution', () => {
         context('when the institution is not found', () => {
             it('should return status code 404 and info message from institution not found', () => {
                 return request
-                    .patch(`/institutions/${new ObjectID()}`)
+                    .patch(`/v1/institutions/${new ObjectID()}`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -222,23 +225,23 @@ describe('Routes: Institution', () => {
         context('when the institution_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch('/institutions/123')
+                    .patch('/v1/institutions/123')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('DELETE /institutions/:institution_id', () => {
+    describe('DELETE /v1/institutions/:institution_id', () => {
         context('when the deletion was successful', () => {
             it('should return status code 204 and no content', () => {
                 return request
-                    .delete(`/institutions/${anotherInstitution.id}`)
+                    .delete(`/v1/institutions/${anotherInstitution.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -264,7 +267,7 @@ describe('Routes: Institution', () => {
                 }
 
                 return request
-                    .delete(`/institutions/${defaultInstitution.id}`)
+                    .delete(`/v1/institutions/${defaultInstitution.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -276,7 +279,7 @@ describe('Routes: Institution', () => {
         context('when the institution is not found', () => {
             it('should return status code 204 and no content, even the institution was not founded', () => {
                 return request
-                    .delete(`/institutions/${new ObjectID()}`)
+                    .delete(`/v1/institutions/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -288,22 +291,22 @@ describe('Routes: Institution', () => {
         context('when the institution_id is invalid', () => {
             it('should return status code 400 and info message from invalid ID', () => {
                 return request
-                    .delete('/institutions/123')
+                    .delete('/v1/institutions/123')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('GET /institutions', () => {
+    describe('GET /v1/institutions', () => {
         context('when want get all institutions in database', () => {
             it('should return status coe 200 and a list of institutions', () => {
                 return request
-                    .get('/institutions')
+                    .get('/v1/institutions')
                     .set('Content-Type', 'application/json')
                     .then(res => {
                         expect(res.body).is.instanceof(Array)
@@ -327,7 +330,7 @@ describe('Routes: Institution', () => {
                 }
 
                 return request
-                    .get('/institutions')
+                    .get('/v1/institutions')
                     .set('Content-Type', 'application/json')
                     .then(res => {
                         expect(res.body).is.instanceof(Array)

@@ -14,10 +14,8 @@ import { IInstitutionRepository } from '../port/institution.repository.interface
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
-import { IEventBus } from '../../infrastructure/port/event.bus.interface'
-import { UserUpdateEvent } from '../integration-event/event/user.update.event'
+import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
-import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
 
 /**
  * Implementing family Service.
@@ -30,8 +28,6 @@ export class FamilyService implements IFamilyService {
     constructor(@inject(Identifier.FAMILY_REPOSITORY) private readonly _familyRepository: IFamilyRepository,
                 @inject(Identifier.CHILD_REPOSITORY) private readonly _childRepository: IChildRepository,
                 @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
-                @inject(Identifier.INTEGRATION_EVENT_REPOSITORY)
-                private readonly _integrationEventRepository: IIntegrationEventRepository,
                 @inject(Identifier.RABBITMQ_EVENT_BUS) private readonly _eventBus: IEventBus,
                 @inject(Identifier.LOGGER) private readonly _logger: ILogger) {
     }
@@ -40,6 +36,9 @@ export class FamilyService implements IFamilyService {
         try {
             // 1. Validate Family parameters.
             CreateFamilyValidator.validate(family)
+
+            // 1.5 Ignore last_login attribute if exists.
+            if (family.last_login) family.last_login = undefined
 
             // 2. Checks if family already exists.
             const familyExist = await this._familyRepository.checkExist(family)
@@ -81,7 +80,7 @@ export class FamilyService implements IFamilyService {
 
     public async getById(id: string, query: IQuery): Promise<Family> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Find a family.
         query.addFilter({ _id: id, type: UserType.FAMILY })
@@ -93,7 +92,16 @@ export class FamilyService implements IFamilyService {
             // 1. Validate Family parameters.
             UpdateUserValidator.validate(family)
 
-            // 2. Checks if the children to be associated have a record. Your registration is required.
+            // 2. Checks if family already exists.
+            const id: string = family.id!
+            family.id = undefined
+
+            const familyExist = await this._familyRepository.checkExist(family)
+            if (familyExist) throw new ConflictException(Strings.FAMILY.ALREADY_REGISTERED)
+
+            family.id = id
+
+            // 3. Checks if the children to be associated have a record. Your registration is required.
             if (family.children) {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
                 if (checkChildrenExist instanceof ValidationException) {
@@ -104,7 +112,7 @@ export class FamilyService implements IFamilyService {
                 }
             }
 
-            // 3. Checks if the institution exists.
+            // 4. Checks if the institution exists.
             if (family.institution && family.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(family.institution)
                 if (!institutionExist) {
@@ -118,19 +126,20 @@ export class FamilyService implements IFamilyService {
             return Promise.reject(err)
         }
 
-        // 4. Update family data
+        // 5. Update family data
         const familyUp = await this._familyRepository.update(family)
 
-        // 5. If updated successfully, the object is published on the message bus.
+        // 6. If updated successfully, the object is published on the message bus.
         if (familyUp) {
-            const event = new UserUpdateEvent<Family>('FamilyUpdateEvent', new Date(), familyUp)
-
-            if (!(await this._eventBus.publish(event, 'families.update'))) {
-                // 6. Save Event for submission attempt later when there is connection to message channel.
-                this.saveEvent(event)
-            } else {
-                this._logger.info(`User of type Family with ID: ${familyUp.id} has been updated and published on event bus...`)
-            }
+            this._eventBus.bus
+                .pubUpdateFamily(familyUp)
+                .then(() => {
+                    this._logger.info(`User of type Family with ID: ${familyUp.id} has been updated`
+                        .concat(' and published on event bus...'))
+                })
+                .catch((err) => {
+                    this._logger.error(`Error trying to publish event UpdateFamily. ${err.message}`)
+                })
         }
         // 7. Returns the created object.
         return Promise.resolve(familyUp)
@@ -138,7 +147,7 @@ export class FamilyService implements IFamilyService {
 
     public async remove(id: string): Promise<boolean> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Delete a family.
         return this._familyRepository.delete(id)
@@ -146,7 +155,7 @@ export class FamilyService implements IFamilyService {
 
     public async getAllChildren(familyId: string, query: IQuery): Promise<Array<Child> | undefined> {
         // 1. Validate id.
-        ObjectIdValidator.validate(familyId)
+        ObjectIdValidator.validate(familyId, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get all children from family.
         query.addFilter({ _id: familyId, type: UserType.FAMILY })
@@ -164,8 +173,8 @@ export class FamilyService implements IFamilyService {
     public async associateChild(familyId: string, childId: string): Promise<Family> {
 
         // 1. Validate if family id or child id is valid
-        ObjectIdValidator.validate(familyId)
-        ObjectIdValidator.validate(childId)
+        ObjectIdValidator.validate(familyId, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
+        ObjectIdValidator.validate(childId, Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
 
         const child = new Child()
         child.id = childId
@@ -195,8 +204,8 @@ export class FamilyService implements IFamilyService {
         try {
 
             // 1. Validate if family id or child id is valid
-            ObjectIdValidator.validate(familyId)
-            ObjectIdValidator.validate(childId)
+            ObjectIdValidator.validate(familyId, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
+            ObjectIdValidator.validate(childId, Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the family exists.
             const family: Family = await this._familyRepository.findById(familyId)
@@ -215,25 +224,11 @@ export class FamilyService implements IFamilyService {
         }
     }
 
-    /**
-     * Saves the event to the database.
-     * Useful when it is not possible to run the event and want to perform the
-     * operation at another time.
-     * @param event
-     */
-    private saveEvent(event: UserUpdateEvent<Family>): void {
-        const saveEvent: any = event.toJSON()
-        saveEvent.__operation = 'publish'
-        saveEvent.__routing_key = 'families.update'
-        this._integrationEventRepository
-            .create(JSON.parse(JSON.stringify(saveEvent)))
-            .then(() => {
-                this._logger.warn(`Could not publish the event named ${event.event_name}.`
-                    .concat(` The event was saved in the database for a possible recovery.`))
-            })
-            .catch(err => {
-                this._logger.error(`There was an error trying to save the name event: ${event.event_name}.`
-                    .concat(`Error: ${err.message}. Event: ${JSON.stringify(saveEvent)}`))
-            })
+    public count(): Promise<number> {
+        return this._familyRepository.count()
+    }
+
+    public countChildrenFromFamily(familyId: string): Promise<number> {
+        return this._familyRepository.countChildrenFromFamily(familyId)
     }
 }

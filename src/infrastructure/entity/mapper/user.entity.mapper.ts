@@ -27,20 +27,10 @@ export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
         if (item.password) result.password = item.password
         if (item.type) result.type = item.type
         if (item.institution !== undefined) result.institution = item.institution.id
+        if (item.last_login) result.last_login = item.last_login
         if (item.scopes) result.scopes = item.scopes
 
         return result
-    }
-
-    /**
-     * Convert {UserEntity} for {User}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: UserEntity): User {
-        throw Error('Not implemented!')
     }
 
     /**
@@ -62,6 +52,7 @@ export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
             if (json.institution === null) result.institution = undefined
             else result.institution = new Institution().fromJSON(json.institution)
         }
+        if (json.last_login !== undefined) result.last_login = json.last_login
         if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result

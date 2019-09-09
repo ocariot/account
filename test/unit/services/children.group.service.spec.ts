@@ -1,4 +1,3 @@
-import sinon from 'sinon'
 import { assert } from 'chai'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
 import { ILogger } from '../../../src/utils/custom.logger'
@@ -11,13 +10,10 @@ import { ChildrenGroupMock } from '../../mocks/children.group.mock'
 import { IChildrenGroupService } from '../../../src/application/port/children.group.service.interface'
 import { ChildrenGroupService } from '../../../src/application/service/children.group.service'
 import { UserMock } from '../../mocks/user.mock'
-import { ChildrenGroupRepoModel } from '../../../src/infrastructure/database/schema/children.group.schema'
 import { Strings } from '../../../src/utils/strings'
 import { Child } from '../../../src/application/domain/model/child'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
-
-require('sinon-mongoose')
 
 describe('Services: ChildrenGroup', () => {
     const childrenGroup: ChildrenGroup = new ChildrenGroupMock()
@@ -31,7 +27,6 @@ describe('Services: ChildrenGroup', () => {
         childrenGroupArr.push(new ChildrenGroupMock())
     }
 
-    const modelFake: any = ChildrenGroupRepoModel
     const childRepo: IChildRepository = new ChildRepositoryMock()
     const childrenGroupRepo: IChildrenGroupRepository = new ChildrenGroupRepositoryMock()
 
@@ -39,22 +34,15 @@ describe('Services: ChildrenGroup', () => {
 
     const childrenGroupService: IChildrenGroupService = new ChildrenGroupService(childrenGroupRepo, childRepo, customLogger)
 
-    afterEach(() => {
-        sinon.restore()
-    })
-
     /**
      * Method "add(childrenGroup: ChildrenGroup)"
      */
     describe('add(childrenGroup: ChildrenGroup)', () => {
         context('when the ChildrenGroup is correct and it still does not exist in the repository', () => {
             it('should return the ChildrenGroup that was added', () => {
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .resolves(childrenGroup)
+                if (childrenGroup.children) childrenGroup.children.forEach(childItem => {
+                    childItem.id = '507f1f77bcf86cd799439011'
+                })
 
                 return childrenGroupService.add(childrenGroup)
                     .then(result => {
@@ -70,12 +58,6 @@ describe('Services: ChildrenGroup', () => {
         context('when the ChildrenGroup is correct but already exists in the repository', () => {
             it('should throw a ConflictException', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439011'        // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.CHILDREN_GROUP.ALREADY_REGISTERED})
 
                 return childrenGroupService.add(childrenGroup)
                     .catch(err => {
@@ -89,18 +71,12 @@ describe('Services: ChildrenGroup', () => {
             it('should throw a ValidationException', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'
                 childrenGroup.children![0].id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                               description: Strings.CHILD.IDS_WITHOUT_REGISTER })
 
                 return childrenGroupService.add(childrenGroup)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER)
+                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
+                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -109,13 +85,6 @@ describe('Services: ChildrenGroup', () => {
             it('should throw a ValidationException', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'
                 childrenGroup.user!.id = '507f1f77bcf86cd7994390111'      // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childrenGroupService.add(childrenGroup)
                     .catch(err => {
@@ -127,13 +96,6 @@ describe('Services: ChildrenGroup', () => {
 
         context('when the ChildrenGroup is incorrect (missing ChildrenGroup fields)', () => {
             it('should throw a ValidationException', () => {
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(incorrectChildrenGroup)
-                    .chain('exec')
-                    .rejects({ message: 'Required fields were not provided...',
-                               description: 'Children Group validation: name, user, Collection with children IDs is required!' })
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
@@ -147,14 +109,6 @@ describe('Services: ChildrenGroup', () => {
         context('when the ChildrenGroup is incorrect (missing ChildrenGroup (missing some child id) fields)', () => {
             it('should throw a ValidationException', () => {
                 incorrectChildrenGroup.children = [new Child()]         // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(incorrectChildrenGroup)
-                    .chain('exec')
-                    .rejects({ message: 'Required fields were not provided...',
-                               description: 'Children Group validation: name, user, Collection with children IDs (ID can not ' +
-                                   'be empty) is required!' })
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
@@ -170,13 +124,6 @@ describe('Services: ChildrenGroup', () => {
                 const childTest: Child = new Child()
                 childTest.id = '507f1f77bcf86cd7994390111'          // Make mock throw an exception
                 incorrectChildrenGroup.children = [childTest]
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .withArgs(incorrectChildrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
@@ -196,12 +143,6 @@ describe('Services: ChildrenGroup', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439011'     // Make mock return a filled array
                 const query: IQuery = new Query()
                 query.filters = { _id: childrenGroup.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(childrenGroupArr)
 
                 return childrenGroupService.getAll(query)
                     .then(result => {
@@ -216,12 +157,6 @@ describe('Services: ChildrenGroup', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'         // Make mock return an empty array
                 const query: IQuery = new Query()
                 query.filters = { _id: childrenGroup.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(new Array<ChildrenGroupMock>())
 
                 return childrenGroupService.getAll(query)
                     .then(result => {
@@ -241,12 +176,6 @@ describe('Services: ChildrenGroup', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439011'         // Make mock return a ChildrenGroup
                 const query: IQuery = new Query()
                 query.filters = { _id: childrenGroup.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(childrenGroup)
 
                 return childrenGroupService.getById(childrenGroup.id, query)
                     .then(result => {
@@ -260,12 +189,6 @@ describe('Services: ChildrenGroup', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
                 const query: IQuery = new Query()
                 query.filters = { _id: childrenGroup.id }
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(query)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return childrenGroupService.getById(childrenGroup.id, query)
                     .then(result => {
@@ -283,12 +206,6 @@ describe('Services: ChildrenGroup', () => {
             it('should return the ChildrenGroup that was updated', () => {
                 childrenGroup.children![0].id = '507f1f77bcf86cd799439011'
                 childrenGroup.id = '507f1f77bcf86cd799439011'         // Make mock return an updated child
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .resolves(childrenGroup)
 
                 return childrenGroupService.update(childrenGroup)
                     .then(result => {
@@ -304,12 +221,6 @@ describe('Services: ChildrenGroup', () => {
         context('when the ChildrenGroup does not exist in the database', () => {
             it('should return undefined', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .resolves(undefined)
 
                 return childrenGroupService.update(childrenGroup)
                     .then(result => {
@@ -322,18 +233,12 @@ describe('Services: ChildrenGroup', () => {
             it('should throw a ValidationException', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439011'
                 childrenGroup.children![0].id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(childrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                               description: Strings.CHILD.IDS_WITHOUT_REGISTER })
 
                 return childrenGroupService.update(childrenGroup)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER)
+                        assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
+                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -341,14 +246,6 @@ describe('Services: ChildrenGroup', () => {
         context('when the ChildrenGroup is incorrect (missing ChildrenGroup (missing some child id) fields)', () => {
             it('should throw a ValidationException', () => {
                 incorrectChildrenGroup.children = [new Child()]         // Make mock throw an exception
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectChildrenGroup)
-                    .chain('exec')
-                    .rejects({ message: 'Required fields were not provided...',
-                               description: 'Children Group validation: Collection with children IDs (ID can not be empty) ' +
-                                   'is required!' })
 
                 return childrenGroupService.update(incorrectChildrenGroup)
                     .catch(err => {
@@ -364,13 +261,6 @@ describe('Services: ChildrenGroup', () => {
                 const childTest: Child = new Child()
                 childTest.id = '507f1f77bcf86cd7994390111'          // Make mock throw an exception
                 incorrectChildrenGroup.children = [childTest]
-                sinon
-                    .mock(modelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs(incorrectChildrenGroup)
-                    .chain('exec')
-                    .rejects({ message: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                               description: Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC })
 
                 return childrenGroupService.update(incorrectChildrenGroup)
                     .catch(err => {
@@ -388,12 +278,6 @@ describe('Services: ChildrenGroup', () => {
         context('when there is ChildrenGroup with the received parameter', () => {
             it('should return true', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439011'         // Make mock return true
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(childrenGroup.id)
-                    .chain('exec')
-                    .resolves(true)
 
                 return childrenGroupService.remove(childrenGroup.id!)
                     .then(result => {
@@ -405,12 +289,6 @@ describe('Services: ChildrenGroup', () => {
         context('when there is no ChildrenGroup with the received parameter', () => {
             it('should return false', () => {
                 childrenGroup.id = '507f1f77bcf86cd799439012'         // Make mock return false
-                sinon
-                    .mock(modelFake)
-                    .expects('deleteOne')
-                    .withArgs(childrenGroup.id)
-                    .chain('exec')
-                    .resolves(false)
 
                 return childrenGroupService.remove(childrenGroup.id)
                     .then(result => {

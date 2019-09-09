@@ -45,14 +45,44 @@ describe('Repositories: HealthProfessional', () => {
     })
 
     describe('create(item: HealthProfessional)', () => {
+        context('when the HealthProfessional does not have password', () => {
+            it('should return a HealthProfessional without password', () => {
+                defaultHealthProfessional.password = undefined
 
-        context('when a database error occurs', () => {
-            it('should throw a RepositoryException', () => {
                 sinon
                     .mock(modelFake)
                     .expects('create')
                     .withArgs(defaultHealthProfessional)
+                    .resolves(defaultHealthProfessional)
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(defaultHealthProfessional.id)
                     .chain('exec')
+                    .resolves(defaultHealthProfessional)
+
+                return healthProfessionalRepo.create(defaultHealthProfessional)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', defaultHealthProfessional.id)
+                        assert.propertyVal(result, 'username', defaultHealthProfessional.username)
+                        assert.isUndefined(result.password)
+                        assert.propertyVal(result, 'type', defaultHealthProfessional.type)
+                        assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
+                        assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
+                        assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                defaultHealthProfessional.password = 'health_professional_password'
+
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(defaultHealthProfessional)
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
@@ -172,6 +202,7 @@ describe('Repositories: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
                     })
             })
         })
@@ -206,6 +237,7 @@ describe('Repositories: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
                     })
             })
         })
@@ -268,6 +300,7 @@ describe('Repositories: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
                     })
             })
         })
@@ -333,6 +366,7 @@ describe('Repositories: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
                     })
             })
         })
@@ -367,6 +401,7 @@ describe('Repositories: HealthProfessional', () => {
                         assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
                         assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
                         assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
+                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
                     })
             })
         })
@@ -418,10 +453,10 @@ describe('Repositories: HealthProfessional', () => {
                 queryMock.filters = { _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ defaultHealthProfessional ])
 
                 return healthProfessionalRepo.checkExist(defaultHealthProfessional)
                     .then(result => {
@@ -438,7 +473,7 @@ describe('Repositories: HealthProfessional', () => {
                             fields: {},
                             ordination: {},
                             pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { username: defaultHealthProfessional.username, type: UserType.HEALTH_PROFESSIONAL }
+                            filters: { type: UserType.HEALTH_PROFESSIONAL }
                         }
                     }
                 }
@@ -449,10 +484,10 @@ describe('Repositories: HealthProfessional', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ healthProfessionalWithoutId ])
 
                 return healthProfessionalRepo.checkExist(healthProfessionalWithoutId)
                     .then(result => {
@@ -480,10 +515,10 @@ describe('Repositories: HealthProfessional', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(false)
+                    .resolves([])
 
                 return healthProfessionalRepo.checkExist(customHealthProfessional)
                     .then(result => {
@@ -494,12 +529,11 @@ describe('Repositories: HealthProfessional', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                defaultHealthProfessional.id = ''
                 queryMock.filters = { _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
                     .rejects({
@@ -509,6 +543,110 @@ describe('Repositories: HealthProfessional', () => {
 
                 return healthProfessionalRepo.checkExist(defaultHealthProfessional)
                     .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when there is at least one health professional in the database', () => {
+            it('should return how many health professionals there are in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(2)
+
+                return healthProfessionalRepo.count()
+                    .then((countHealthProfessionals: number) => {
+                        assert.equal(countHealthProfessionals, 2)
+                    })
+            })
+        })
+
+        context('when there no are health professionals in database', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(0)
+
+                return healthProfessionalRepo.count()
+                    .then((countHealthProfessionals: number) => {
+                        assert.equal(countHealthProfessionals, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return healthProfessionalRepo.count()
+                    .catch (err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('countChildrenGroups(healthProfessionalId: string)', () => {
+        context('when there is at least one children group associated with the health professional received', () => {
+            it('should return how many children groups are associated with such health professional in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultHealthProfessional.id })
+                    .chain('exec')
+                    .resolves(defaultHealthProfessional)
+
+                return healthProfessionalRepo.countChildrenGroups(defaultHealthProfessional.id!)
+                    .then((countChildrenGroups: number) => {
+                        assert.equal(countChildrenGroups, 2)
+                    })
+            })
+        })
+
+        context('when there no are children groups associated with the health professional received', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultHealthProfessional.id })
+                    .chain('exec')
+                    .resolves(new HealthProfessional())
+
+                return healthProfessionalRepo.countChildrenGroups(defaultHealthProfessional.id!)
+                    .then((countChildrenGroups: number) => {
+                        assert.equal(countChildrenGroups, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultHealthProfessional.id })
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return healthProfessionalRepo.countChildrenGroups(defaultHealthProfessional.id!)
+                    .catch (err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })

@@ -1,6 +1,4 @@
-import { Container } from 'inversify'
-import { DI } from '../../../src/di/di'
-import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
+import { DIContainer } from '../../../src/di/di'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
 import { Family } from '../../../src/application/domain/model/family'
@@ -16,11 +14,14 @@ import { FamilyMock } from '../../mocks/family.mock'
 import { InstitutionMock } from '../../mocks/institution.mock'
 import { ChildMock } from '../../mocks/child.mock'
 import { Strings } from '../../../src/utils/strings'
+import { IDatabase } from '../../../src/infrastructure/port/database.interface'
+import { Default } from '../../../src/utils/default'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const childService: IChildService = container.get(Identifier.CHILD_SERVICE)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
+const childService: IChildService = DIContainer.get(Identifier.CHILD_SERVICE)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Family', () => {
@@ -38,11 +39,14 @@ describe('Routes: Family', () => {
     child.type = UserType.CHILD
     child.institution = institution
 
+    const otherChild = new ChildMock()
+
     const anotherChild = new Child()
 
     before(async () => {
             try {
-                await dbConnection.tryConnect(0, 500)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
 
@@ -69,12 +73,35 @@ describe('Routes: Family', () => {
             await deleteAllUsers()
             await deleteAllInstitutions()
             await dbConnection.dispose()
+            await rabbitmq.dispose()
         } catch (err) {
             throw new Error('Failure on Family test: ' + err.message)
         }
     })
 
-    describe('POST /users/families', () => {
+    describe('POST /v1/families', () => {
+        context('when posting a new family user with unregistered children', () => {
+            it('should return status code 400 and an info message about the unregistered children', () => {
+                const body = {
+                    username: defaultFamily.username,
+                    password: defaultFamily.password,
+                    children: [ otherChild ],
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/families')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.code).to.eql(400)
+                        expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(otherChild.id))
+                    })
+            })
+        })
+
         context('when posting a new family user', () => {
             it('should return status code 201 and the saved family', () => {
                 const body = {
@@ -85,19 +112,14 @@ describe('Routes: Family', () => {
                 }
 
                 return request
-                    .post('/users/families')
+                    .post('/v1/families')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(1)
                         defaultFamily.id = res.body.id
@@ -115,7 +137,7 @@ describe('Routes: Family', () => {
                 }
 
                 return request
-                    .post('/users/families')
+                    .post('/v1/families')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -131,7 +153,7 @@ describe('Routes: Family', () => {
                 }
 
                 return request
-                    .post('/users/families')
+                    .post('/v1/families')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -153,7 +175,7 @@ describe('Routes: Family', () => {
                 }
 
                 return request
-                    .post('/users/families')
+                    .post('/v1/families')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -174,7 +196,7 @@ describe('Routes: Family', () => {
                 }
 
                 return request
-                    .post('/users/families')
+                    .post('/v1/families')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -186,22 +208,17 @@ describe('Routes: Family', () => {
         })
     })
 
-    describe('GET /users/families/:family_id', () => {
+    describe('GET /v1/families/:family_id', () => {
         context('when get a unique family in database', () => {
             it('should return status code 200 and a family', () => {
                 return request
-                    .get(`/users/families/${defaultFamily.id}`)
+                    .get(`/v1/families/${defaultFamily.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultFamily.id)
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(1)
                     })
@@ -211,7 +228,7 @@ describe('Routes: Family', () => {
         context('when the family is not found', () => {
             it('should return status code 404 and info message from family not found', () => {
                 return request
-                    .get(`/users/families/${new ObjectID()}`)
+                    .get(`/v1/families/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -224,38 +241,32 @@ describe('Routes: Family', () => {
         context('when the family_id is invalid', () => {
             it('should return status code 400 and message info about invalid id', () => {
                 return request
-                    .get('/users/families/123')
+                    .get('/v1/families/123')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('PATCH /users/families/:family_id', () => {
+    describe('PATCH /v1/families/:family_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated family', () => {
-                defaultFamily.username = 'newcoolusername'
-
                 return request
-                    .patch(`/users/families/${defaultFamily.id}`)
-                    .send({ username: 'newcoolusername' })
+                    .patch(`/v1/families/${defaultFamily.id}`)
+                    .send({ last_login: defaultFamily.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultFamily.id)
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(1)
+                        expect(res.body.last_login).to.eql(defaultFamily.last_login!.toISOString())
                     })
             })
         })
@@ -275,12 +286,12 @@ describe('Routes: Family', () => {
                 }
 
                 return request
-                    .patch(`/users/families/${defaultFamily.id}`)
+                    .patch(`/v1/families/${defaultFamily.id}`)
                     .send({ username: 'acoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Family is already registered!')
                     })
             })
         })
@@ -288,7 +299,7 @@ describe('Routes: Family', () => {
         context('when the institution provided does not exists', () => {
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/users/families/${defaultFamily.id}`)
+                    .patch(`/v1/families/${defaultFamily.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -302,7 +313,7 @@ describe('Routes: Family', () => {
         context('when the institution id provided was invalid', () => {
             it(' should return status code 400 and message for invalid institution id', () => {
                 return request
-                    .patch(`/users/families/${defaultFamily.id}`)
+                    .patch(`/v1/families/${defaultFamily.id}`)
                     .send({ institution_id: '123' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -316,7 +327,7 @@ describe('Routes: Family', () => {
         context('when the family is not found', () => {
             it('should return status code 404 and info message from family not found', () => {
                 return request
-                    .patch(`/users/families/${new ObjectID()}`)
+                    .patch(`/v1/families/${new ObjectID()}`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -330,7 +341,7 @@ describe('Routes: Family', () => {
         context('when the family_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch('/users/families/123')
+                    .patch('/v1/families/123')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -342,7 +353,7 @@ describe('Routes: Family', () => {
         })
     })
 
-    describe('POST /users/families/:family_id/children/:child_id', () => {
+    describe('POST /v1/families/:family_id/children/:child_id', () => {
         context('when want associate a child with a family', () => {
             it('should return status code 200 and a family', async () => {
                 anotherChild.username = 'ihaveauniqueusername'
@@ -357,18 +368,13 @@ describe('Routes: Family', () => {
                 })
 
                 return request
-                    .post(`/users/families/${defaultFamily.id}/children/${anotherChild.id}`)
+                    .post(`/v1/families/${defaultFamily.id}/children/${anotherChild.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultFamily.id)
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).is.eql(2)
                     })
@@ -378,7 +384,7 @@ describe('Routes: Family', () => {
         context('when the child id does not exists', () => {
             it('should return status code 400 and info message from invalid child ID', () => {
                 return request
-                    .post(`/users/families/${defaultFamily.id}/children/${new ObjectID()}`)
+                    .post(`/v1/families/${defaultFamily.id}/children/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -390,22 +396,22 @@ describe('Routes: Family', () => {
         context('when the child id is invalid', () => {
             it('should return status code 400 and info message from invalid child ID', () => {
                 return request
-                    .post(`/users/families/${defaultFamily.id}/children/123`)
+                    .post(`/v1/families/${defaultFamily.id}/children/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('DELETE /users/families/:family_id/children/:child_id', () => {
+    describe('DELETE /v1/families/:family_id/children/:child_id', () => {
         context('when want disassociate a child from a family', () => {
             it('should return status code 204 and no content', () => {
                 return request
-                    .delete(`/users/families/${defaultFamily.id}/children/${anotherChild.id}`)
+                    .delete(`/v1/families/${defaultFamily.id}/children/${anotherChild.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -417,7 +423,7 @@ describe('Routes: Family', () => {
         context('when the child id does not exists', () => {
             it('should return status code 204 and no content, even the child id does not exists', () => {
                 return request
-                    .delete(`/users/families/${defaultFamily.id}/children/${new ObjectID()}`)
+                    .delete(`/v1/families/${defaultFamily.id}/children/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -429,22 +435,22 @@ describe('Routes: Family', () => {
         context('when the child id is invalid', () => {
             it('should return status code 400 and info message about invalid child id', () => {
                 return request
-                    .delete(`/users/families/${defaultFamily.id}/children/123`)
+                    .delete(`/v1/families/${defaultFamily.id}/children/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('GET /users/families/:family_id/children', () => {
+    describe('GET /v1/families/:family_id/children', () => {
         context('when want get all children from family', () => {
             it('should return status code 200 and the family children', () => {
                 return request
-                    .get(`/users/families/${defaultFamily.id}/children`)
+                    .get(`/v1/families/${defaultFamily.id}/children`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -452,12 +458,7 @@ describe('Routes: Family', () => {
                         expect(res.body.length).is.eql(1)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0].username).to.eql('anothercoolusername')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution.longitude).to.eql(0)
+                        expect(res.body[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body[0].age).to.eql(11)
                         expect(res.body[0].gender).to.eql('male')
                     })
@@ -473,7 +474,7 @@ describe('Routes: Family', () => {
                 }
 
                 request
-                    .get(`/users/families/${defaultFamily.id}/children`)
+                    .get(`/v1/families/${defaultFamily.id}/children`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -487,7 +488,7 @@ describe('Routes: Family', () => {
         context('when family id does not exists', () => {
             it('should return status code 404 and info message from family not found', () => {
                 return request
-                    .get(`/users/families/${new ObjectID()}/children`)
+                    .get(`/v1/families/${new ObjectID()}/children`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -500,22 +501,22 @@ describe('Routes: Family', () => {
         context('when family id is invalid', () => {
             it('should return status code 400 and info message invalid family id', () => {
                 return request
-                    .get('/users/families/123/children')
+                    .get('/v1/families/123/children')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('GET /users/families', () => {
+    describe('GET /v1/families', () => {
         context('when want get all families in database', () => {
             it('should return status code 200 and a list of users', () => {
                 return request
-                    .get('/users/families')
+                    .get('/v1/families')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -523,21 +524,11 @@ describe('Routes: Family', () => {
                         expect(res.body.length).to.eql(2)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution.longitude).to.eql(0)
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution.longitude).to.eql(0)
+                        expect(res.body[1]).to.have.property('institution_id')
+                        expect(res.body[1]).to.have.property('last_login')
                     })
             })
         })
@@ -557,15 +548,15 @@ describe('Routes: Family', () => {
                             password: defaultFamily.password,
                             type: UserType.FAMILY,
                             institution: result._id,
-                            scopes: new Array('users:read')
+                            scopes: new Array('users:read'),
+                            last_login: defaultFamily.last_login
                         }).then()
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
 
-                const url: string = '/users/families/?sort=username&fields=username,institution.name&' +
-                    'institution.type=Any Type&page=1&limit=3'
+                const url: string = '/v1/families?sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -573,18 +564,14 @@ describe('Routes: Family', () => {
                     .expect(200)
                     .then(res => {
                         expect(res.body).is.an.instanceOf(Array)
-                        expect(res.body.length).to.eql(2)
+                        expect(res.body.length).to.eql(3)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('name')
-                        expect(res.body[0].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[0]).to.have.property('children')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution).to.have.property('name')
+                        expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('children')
                     })
             })
@@ -599,7 +586,7 @@ describe('Routes: Family', () => {
                 }
 
                 return request
-                    .get('/users/families')
+                    .get('/v1/families')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {

@@ -7,4 +7,11 @@ import { Child } from '../domain/model/child'
  * @extends {IService<Child>}
  */
 export interface IChildService extends IService<Child> {
+    /**
+     * Returns the total of children.
+     *
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    count(): Promise<number>
 }

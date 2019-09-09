@@ -1,6 +1,4 @@
-import { Container } from 'inversify'
-import { DI } from '../../../src/di/di'
-import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
+import { DIContainer } from '../../../src/di/di'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
 import { Educator } from '../../../src/application/domain/model/educator'
@@ -16,10 +14,13 @@ import { ChildrenGroupRepoModel } from '../../../src/infrastructure/database/sch
 import { EducatorMock } from '../../mocks/educator.mock'
 import { Strings } from '../../../src/utils/strings'
 import { InstitutionMock } from '../../mocks/institution.mock'
+import { IDatabase } from '../../../src/infrastructure/port/database.interface'
+import { Default } from '../../../src/utils/default'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Educator', () => {
@@ -35,7 +36,8 @@ describe('Routes: Educator', () => {
 
     before(async () => {
             try {
-                await dbConnection.tryConnect(0, 500)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
                 await deleteAllChildrenGroups()
@@ -73,12 +75,13 @@ describe('Routes: Educator', () => {
             await deleteAllInstitutions()
             await deleteAllChildrenGroups()
             await dbConnection.dispose()
+            await rabbitmq.dispose()
         } catch (err) {
             throw new Error('Failure on Educator test: ' + err.message)
         }
     })
 
-    describe('POST /users/educators', () => {
+    describe('POST /v1/educators', () => {
         context('when posting a new educator user', () => {
             it('should return status code 201 and the saved educator', () => {
                 const body = {
@@ -88,19 +91,14 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post('/users/educators')
+                    .post('/v1/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultEducator.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         defaultEducator.id = res.body.id
                     })
             })
@@ -115,7 +113,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post('/users/educators')
+                    .post('/v1/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -131,7 +129,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post('/users/educators')
+                    .post('/v1/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -151,7 +149,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post('/users/educators')
+                    .post('/v1/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -171,7 +169,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post('/users/educators')
+                    .post('/v1/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -183,22 +181,17 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('GET /users/educators/:educator_id', () => {
+    describe('GET /v1/educators/:educator_id', () => {
         context('when get a unique educator in database', () => {
             it('should return status code 200 and a educator', () => {
                 return request
-                    .get(`/users/educators/${defaultEducator.id}`)
+                    .get(`/v1/educators/${defaultEducator.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultEducator.id)
                         expect(res.body.username).to.eql(defaultEducator.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                     })
             })
         })
@@ -206,7 +199,7 @@ describe('Routes: Educator', () => {
         context('when the educator is not found', () => {
             it('should return status code 404 and info message from educator not found', () => {
                 return request
-                    .get(`/users/educators/${new ObjectID()}`)
+                    .get(`/v1/educators/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -219,36 +212,30 @@ describe('Routes: Educator', () => {
         context('when the educator_id is invalid', () => {
             it('should return status code 400 and message info about invalid id', () => {
                 return request
-                    .get('/users/educators/123')
+                    .get('/v1/educators/123')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('PATCH /users/educators/:educator_id', () => {
+    describe('PATCH /v1/educators/:educator_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated educator', () => {
-                defaultEducator.username = 'newcoolusername'
-
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}`)
-                    .send({ username: 'newcoolusername' })
+                    .patch(`/v1/educators/${defaultEducator.id}`)
+                    .send({ last_login: defaultEducator.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultEducator.id)
                         expect(res.body.username).to.eql(defaultEducator.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.last_login).to.eql(defaultEducator.last_login!.toISOString())
                     })
             })
         })
@@ -268,12 +255,12 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}`)
+                    .patch(`/v1/educators/${defaultEducator.id}`)
                     .send({ username: 'anothercoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Educator is already registered!')
                     })
             })
         })
@@ -281,7 +268,7 @@ describe('Routes: Educator', () => {
         context('when the institution provided does not exists', () => {
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}`)
+                    .patch(`/v1/educators/${defaultEducator.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -295,7 +282,7 @@ describe('Routes: Educator', () => {
         context('when the institution id provided was invalid', () => {
             it(' should return status code 400 and message for invalid institution id', () => {
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}`)
+                    .patch(`/v1/educators/${defaultEducator.id}`)
                     .send({ institution_id: '123' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -309,7 +296,7 @@ describe('Routes: Educator', () => {
         context('when the educator is not found', () => {
             it('should return status code 404 and info message from educator not found', () => {
                 return request
-                    .patch(`/users/educators/${new ObjectID()}`)
+                    .patch(`/v1/educators/${new ObjectID()}`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -323,7 +310,7 @@ describe('Routes: Educator', () => {
         context('when the educator_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch('/users/educators/123')
+                    .patch('/v1/educators/123')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -335,7 +322,7 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('POST /users/educators/:educator_id/children/groups', () => {
+    describe('POST /v1/educators/:educator_id/children/groups', () => {
         context('when posting a new children group', () => {
             it('should return status code 201 and a children group', () => {
                 defaultChildrenGroup.name = 'Children Group One'
@@ -348,7 +335,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .post(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
@@ -359,14 +346,7 @@ describe('Routes: Educator', () => {
                         expect(res.body.children.length).to.eql(1)
                         expect(res.body.children[0]).to.have.property('id')
                         expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution).to.have.property('id')
-                        expect(res.body.children[0].institution.type).to.eql('Any Type')
-                        expect(res.body.children[0].institution.name).to.eql('Name Example')
-                        expect(res.body.children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.children[0].institution.latitude).to.eql(0)
-                        expect(res.body.children[0].institution.longitude).to.eql(0)
-                        expect(res.body.children[0].age).to.eql(11)
-                        expect(res.body.children[0].gender).to.eql('male')
+                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body.school_class).to.eql(body.school_class)
                         defaultChildrenGroup.id = res.body.id
                         defaultChildrenGroup.children = res.body.children
@@ -377,7 +357,7 @@ describe('Routes: Educator', () => {
         context('when there are validation errors', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
-                    .post(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .post(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -398,7 +378,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .post(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .post(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -413,13 +393,13 @@ describe('Routes: Educator', () => {
         context('when the children id(ids) does not exists in database', () => {
             it('should return status code 400 and info message from invalid ID', () => {
                 const body = {
-                    name: 'Children Group One',
+                    name: 'Children Group Two',
                     children: new Array<string | undefined>('507f1f77bcf86cd799439011'),
                     school_class: '3th Grade'
                 }
 
                 return request
-                    .post(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .post(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -432,11 +412,11 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('GET /users/educators/:educator_id/children/groups/:group_id', () => {
+    describe('GET /v1/educators/:educator_id/children/groups/:group_id', () => {
         context('when want get a unique children group', () => {
             it('should return status code 200 and a children group', () => {
                 return request
-                    .get(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
+                    .get(`/v1/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -446,14 +426,8 @@ describe('Routes: Educator', () => {
                         expect(res.body.children.length).to.eql(1)
                         expect(res.body.children[0]).to.have.property('id')
                         expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution).to.have.property('id')
-                        expect(res.body.children[0].institution.type).to.eql('Any Type')
-                        expect(res.body.children[0].institution.name).to.eql('Name Example')
-                        expect(res.body.children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.children[0].institution.latitude).to.eql(0)
-                        expect(res.body.children[0].institution.longitude).to.eql(0)
-                        expect(res.body.children[0].age).to.eql(11)
-                        expect(res.body.children[0].gender).to.eql('male')
+                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
+
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                         defaultChildrenGroup.id = res.body.id
                     })
@@ -463,7 +437,7 @@ describe('Routes: Educator', () => {
         context('when the children group is not found', () => {
             it('should return status code 404 and info message from children group not found', () => {
                 return request
-                    .get(`/users/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
+                    .get(`/v1/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -476,24 +450,24 @@ describe('Routes: Educator', () => {
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .get(`/users/educators/${defaultEducator.id}/children/groups/123`)
+                    .get(`/v1/educators/${defaultEducator.id}/children/groups/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('PATCH /users/educators/:educator_id/children/groups/:group_id', () => {
+    describe('PATCH /v1/educators/:educator_id/children/groups/:group_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and a updated children group', () => {
                 defaultChildrenGroup.school_class = '5th Grade'
 
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
+                    .patch(`/v1/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ school_class: defaultChildrenGroup.school_class })
                     .set('Content-Type', 'application/json')
                     .expect(200)
@@ -504,14 +478,7 @@ describe('Routes: Educator', () => {
                         expect(res.body.children.length).to.eql(1)
                         expect(res.body.children[0]).to.have.property('id')
                         expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution).to.have.property('id')
-                        expect(res.body.children[0].institution.type).to.eql('Any Type')
-                        expect(res.body.children[0].institution.name).to.eql('Name Example')
-                        expect(res.body.children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.children[0].institution.latitude).to.eql(0)
-                        expect(res.body.children[0].institution.longitude).to.eql(0)
-                        expect(res.body.children[0].age).to.eql(11)
-                        expect(res.body.children[0].gender).to.eql('male')
+                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                         defaultChildrenGroup.id = res.body.id
                     })
@@ -534,12 +501,12 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
+                    .patch(`/v1/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ name: 'anothercoolname' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Children Group is already registered!')
                     })
             })
         })
@@ -547,7 +514,7 @@ describe('Routes: Educator', () => {
         context('when the children group was updated with a not existent child id', () => {
             it('should return status code 400 and info message for invalid child id', () => {
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
+                    .patch(`/v1/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ children: new Array<string>('507f1f77bcf86cd799439011') })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -562,7 +529,7 @@ describe('Routes: Educator', () => {
         context('when the children group was updated with a invalid child id', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch(`/users/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
+                    .patch(`/v1/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ children: new Array<string>('123') })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -575,11 +542,11 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('DELETE /users/educators/:educator_id/children/groups/:group_id', () => {
+    describe('DELETE /v1/educators/:educator_id/children/groups/:group_id', () => {
         context('when the delete was successful', () => {
             it('should return status code 204 and no content', () => {
                 return request
-                    .delete(`/users/educators/${defaultEducator.id}/children/groups/${anotherChildrenGroup.id}`)
+                    .delete(`/v1/educators/${defaultEducator.id}/children/groups/${anotherChildrenGroup.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -591,12 +558,11 @@ describe('Routes: Educator', () => {
         context('when the children group is not founded', () => {
             it('should return status code 404 and info message for children group not found', () => {
                 return request
-                    .delete(`/users/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
+                    .delete(`/v1/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
-                    .expect(404)
-                    .then(err => {
-                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.NOT_FOUND)
-                        expect(err.body.description).to.eql(Strings.CHILDREN_GROUP.NOT_FOUND_DESCRIPTION)
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
                     })
             })
         })
@@ -604,22 +570,22 @@ describe('Routes: Educator', () => {
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message for invalid children group ID', () => {
                 return request
-                    .delete(`/users/educators/${defaultEducator.id}/children/groups/123}`)
+                    .delete(`/v1/educators/${defaultEducator.id}/children/groups/123}`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('GET  /users/educators/:educator_id/children/groups', () => {
+    describe('GET  /v1/educators/:educator_id/children/groups', () => {
         context('when want all children groups from educator', () => {
             it('should return status code 200 and a list of children groups', () => {
                 return request
-                    .get(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .get(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -631,14 +597,7 @@ describe('Routes: Educator', () => {
                         expect(res.body[0].children.length).to.eql(1)
                         expect(res.body[0].children[0]).to.have.property('id')
                         expect(res.body[0].children[0].username).to.eql('anotherusername')
-                        expect(res.body[0].children[0].institution).to.have.property('id')
-                        expect(res.body[0].children[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].children[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].children[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].children[0].institution.longitude).to.eql(0)
-                        expect(res.body[0].children[0].age).to.eql(11)
-                        expect(res.body[0].children[0].gender).to.eql('male')
+                        expect(res.body[0].children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body[0].school_class).to.eql(defaultChildrenGroup.school_class)
                     })
             })
@@ -653,7 +612,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .get(`/users/educators/${defaultEducator.id}/children/groups`)
+                    .get(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -665,11 +624,11 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('GET /users/educators', () => {
+    describe('GET /v1/educators', () => {
         context('when want get all educators in database', () => {
             it('should return status code 200 and a list of educators', () => {
                 return request
-                    .get('/users/educators')
+                    .get('/v1/educators')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -677,22 +636,11 @@ describe('Routes: Educator', () => {
                         expect(res.body.length).to.eql(2)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution.longitude).to.eql(0)
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution.longitude).to.eql(0)
+                        expect(res.body[1]).to.have.property('institution_id')
+                        expect(res.body[1]).to.have.property('last_login')
                     })
             })
         })
@@ -712,15 +660,15 @@ describe('Routes: Educator', () => {
                             password: defaultEducator.password,
                             type: UserType.EDUCATOR,
                             institution: result._id,
-                            scopes: new Array('users:read')
+                            scopes: new Array('users:read'),
+                            last_login: defaultEducator.last_login
                         }).then()
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
 
-                const url: string = '/users/educators/?sort=username&fields=username,institution.name&' +
-                    'institution.type=Any Type&page=1&limit=3'
+                const url: string = '/v1/educators?sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -728,19 +676,19 @@ describe('Routes: Educator', () => {
                     .expect(200)
                     .then(res => {
                         expect(res.body).is.an.instanceOf(Array)
-                        expect(res.body.length).to.eql(2)
+                        expect(res.body.length).to.eql(3)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('name')
-                        expect(res.body[0].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[0]).to.have.property('children_groups')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution).to.have.property('name')
+                        expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('children_groups')
+                        expect(res.body[2]).to.have.property('id')
+                        expect(res.body[2]).to.have.property('username')
+                        expect(res.body[2]).to.have.property('institution_id')
+                        expect(res.body[2]).to.have.property('children_groups')
                     })
             })
         })
@@ -754,7 +702,7 @@ describe('Routes: Educator', () => {
                 }
 
                 return request
-                    .get('/users/educators')
+                    .get('/v1/educators')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {

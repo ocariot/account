@@ -12,6 +12,7 @@ export class HealthProfessional extends Educator {
         super.type = UserType.HEALTH_PROFESSIONAL
         super.scopes = [
             'healthprofessionals:read',
+            'healthprofessionals:update',
             'childrengroups:create',
             'childrengroups:read',
             'childrengroups:update',
@@ -23,9 +24,11 @@ export class HealthProfessional extends Educator {
             'foodrecord:read',
             'physicalactivities:read',
             'sleep:read',
+            'measurements:read',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
+            'gamificationprofile:read',
+            'external:sync'
         ]
     }
 }

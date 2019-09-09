@@ -38,17 +38,6 @@ export class ChildrenGroupEntityMapper implements IEntityMapper<ChildrenGroup, C
     }
 
     /**
-     * Convert {ChildrenGroupEntity} for {ChildrenGroup}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: ChildrenGroupEntity): ChildrenGroup {
-        throw Error('Not implemented!')
-    }
-
-    /**
      * Convert JSON for {ChildrenGroup}.
      *
      * @see Each attribute must be mapped only if it contains an assigned value,

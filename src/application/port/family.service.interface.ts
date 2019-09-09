@@ -41,4 +41,21 @@ export interface IFamilyService extends IService<Family> {
      * @throws {ValidationException | RepositoryException}
      */
     disassociateChild(familyId: string, childId: string): Promise<boolean | undefined>
+
+    /**
+     * Returns the total of families.
+     *
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    count(): Promise<number>
+
+    /**
+     * Returns the total of children in a family.
+     *
+     * @param familyId
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    countChildrenFromFamily(familyId: string): Promise<number>
 }

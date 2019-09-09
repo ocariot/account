@@ -1,6 +1,4 @@
-import { Container } from 'inversify'
-import { DI } from '../../../src/di/di'
-import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
+import { DIContainer } from '../../../src/di/di'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
 import { HealthProfessional } from '../../../src/application/domain/model/health.professional'
@@ -16,10 +14,13 @@ import { ChildrenGroup } from '../../../src/application/domain/model/children.gr
 import { InstitutionMock } from '../../mocks/institution.mock'
 import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
 import { Strings } from '../../../src/utils/strings'
+import { IDatabase } from '../../../src/infrastructure/port/database.interface'
+import { Default } from '../../../src/utils/default'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: HealthProfessional', () => {
@@ -35,7 +36,8 @@ describe('Routes: HealthProfessional', () => {
 
     before(async () => {
             try {
-                await dbConnection.tryConnect(0, 500)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
                 await deleteAllChildrenGroups()
@@ -73,12 +75,13 @@ describe('Routes: HealthProfessional', () => {
             await deleteAllInstitutions()
             await deleteAllChildrenGroups()
             await dbConnection.dispose()
+            await rabbitmq.dispose()
         } catch (err) {
             throw new Error('Failure on HealthProfessional test: ' + err.message)
         }
     })
 
-    describe('POST /users/healthprofessionals', () => {
+    describe('POST /v1/healthprofessionals', () => {
         context('when posting a new health professional user', () => {
             it('should return status code 201 and the saved health professional', () => {
                 const body = {
@@ -88,19 +91,14 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/users/healthprofessionals')
+                    .post('/v1/healthprofessionals')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultHealthProfessional.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         defaultHealthProfessional.id = res.body.id
                     })
             })
@@ -115,7 +113,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/users/healthprofessionals')
+                    .post('/v1/healthprofessionals')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -131,7 +129,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/users/healthprofessionals')
+                    .post('/v1/healthprofessionals')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -152,7 +150,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/users/healthprofessionals')
+                    .post('/v1/healthprofessionals')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -172,7 +170,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/users/children')
+                    .post('/v1/children')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -184,22 +182,17 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('GET /users/healthprofessionals/:healthprofessional_id', () => {
+    describe('GET /v1/healthprofessionals/:healthprofessional_id', () => {
         context('when get a unique health professional in database', () => {
             it('should return status code 200 and a health professional', () => {
                 return request
-                    .get(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultHealthProfessional.id)
                         expect(res.body.username).to.eql(defaultHealthProfessional.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                     })
             })
         })
@@ -207,7 +200,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the health professional is not found', () => {
             it('should return status code 404 and info message from health professional not found', () => {
                 return request
-                    .get(`/users/healthprofessionals/${new ObjectID()}`)
+                    .get(`/v1/healthprofessionals/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -220,36 +213,30 @@ describe('Routes: HealthProfessional', () => {
         context('when the healthprofessional_id is invalid', () => {
             it('should return status code 400 and message info about invalid id', () => {
                 return request
-                    .get('/users/healthprofessionals/123')
+                    .get('/v1/healthprofessionals/123')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('PATCH /users/healthprofessionals/:healthprofessional_id', () => {
+    describe('PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated health professional', () => {
-                defaultHealthProfessional.username = 'newcoolusername'
-
                 return request
-                    .patch(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
-                    .send({ username: 'newcoolusername' })
+                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .send({ last_login: defaultHealthProfessional.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultHealthProfessional.id)
                         expect(res.body.username).to.eql(defaultHealthProfessional.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.last_login).to.eql(defaultHealthProfessional.last_login!.toISOString())
                     })
             })
         })
@@ -269,12 +256,12 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .patch(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
                     .send({ username: 'anothercoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Health Professional is already registered!')
                     })
             })
         })
@@ -282,7 +269,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the institution provided does not exists', () => {
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -296,7 +283,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the institution id provided was invalid', () => {
             it(' should return status code 400 and message for invalid institution id', () => {
                 return request
-                    .patch(`/users/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
                     .send({ institution_id: '123' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -310,7 +297,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the health professional is not found', () => {
             it('should return status code 404 and info message from health professional not found', () => {
                 return request
-                    .patch(`/users/healthprofessionals/${new ObjectID()}`)
+                    .patch(`/v1/healthprofessionals/${new ObjectID()}`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -324,7 +311,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the healthprofessional_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch('/users/healthprofessionals/123')
+                    .patch('/v1/healthprofessionals/123')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -336,7 +323,7 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('POST /users/healthprofessionals/:healthprofessional_id/children/groups', () => {
+    describe('POST /v1/healthprofessionals/:healthprofessional_id/children/groups', () => {
         context('when posting a new children group', () => {
             it('should return status code 201 and a children group', () => {
                 defaultChildrenGroup.name = 'Children Group One'
@@ -349,7 +336,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
@@ -360,14 +347,7 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.children.length).to.eql(1)
                         expect(res.body.children[0]).to.have.property('id')
                         expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution).to.have.property('id')
-                        expect(res.body.children[0].institution.type).to.eql('Any Type')
-                        expect(res.body.children[0].institution.name).to.eql('Name Example')
-                        expect(res.body.children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.children[0].institution.latitude).to.eql(0)
-                        expect(res.body.children[0].institution.longitude).to.eql(0)
-                        expect(res.body.children[0].age).to.eql(11)
-                        expect(res.body.children[0].gender).to.eql('male')
+                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body.school_class).to.eql(body.school_class)
                         defaultChildrenGroup.id = res.body.id
                         defaultChildrenGroup.children = res.body.children
@@ -378,7 +358,7 @@ describe('Routes: HealthProfessional', () => {
         context('when there are validation errors', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
-                    .post(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -399,7 +379,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -414,13 +394,13 @@ describe('Routes: HealthProfessional', () => {
         context('when the children id(ids) does not exists in database', () => {
             it('should return status code 400 and info message from invalid ID', () => {
                 const body = {
-                    name: 'Children Group One',
+                    name: 'Children Group Two',
                     children: new Array<string | undefined>('507f1f77bcf86cd799439011'),
                     school_class: '3th Grade'
                 }
 
                 return request
-                    .post(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -434,10 +414,10 @@ describe('Routes: HealthProfessional', () => {
 
     })
 
-    describe('GET /users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
+    describe('GET /v1/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when want get a unique children group', () => {
             it('should return status code 200 and a children group', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
 
                 return request
@@ -451,14 +431,7 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.children.length).to.eql(1)
                         expect(res.body.children[0]).to.have.property('id')
                         expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution).to.have.property('id')
-                        expect(res.body.children[0].institution.type).to.eql('Any Type')
-                        expect(res.body.children[0].institution.name).to.eql('Name Example')
-                        expect(res.body.children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.children[0].institution.latitude).to.eql(0)
-                        expect(res.body.children[0].institution.longitude).to.eql(0)
-                        expect(res.body.children[0].age).to.eql(11)
-                        expect(res.body.children[0].gender).to.eql('male')
+                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                         defaultChildrenGroup.id = res.body.id
                     })
@@ -467,7 +440,7 @@ describe('Routes: HealthProfessional', () => {
 
         context('when the children group is not found', () => {
             it('should return status code 404 and info message from children group not found', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${new ObjectID()}`)
                 return request
                     .get(url)
@@ -483,23 +456,23 @@ describe('Routes: HealthProfessional', () => {
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message from invalid ID', () => {
                 return request
-                    .get(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups/123`)
+                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('PATCH /users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
+    describe('PATCH /v1/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and a updated children group', () => {
                 defaultChildrenGroup.school_class = '5th Grade'
 
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
 
                 return request
@@ -514,14 +487,7 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.children.length).to.eql(1)
                         expect(res.body.children[0]).to.have.property('id')
                         expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution).to.have.property('id')
-                        expect(res.body.children[0].institution.type).to.eql('Any Type')
-                        expect(res.body.children[0].institution.name).to.eql('Name Example')
-                        expect(res.body.children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.children[0].institution.latitude).to.eql(0)
-                        expect(res.body.children[0].institution.longitude).to.eql(0)
-                        expect(res.body.children[0].age).to.eql(11)
-                        expect(res.body.children[0].gender).to.eql('male')
+                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                         defaultChildrenGroup.id = res.body.id
                     })
@@ -543,7 +509,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
 
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
 
                 return request
@@ -552,14 +518,14 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Children Group is already registered!')
                     })
             })
         })
 
         context('when the children group was updated with a not existent child id', () => {
             it('should return status code 400 and info message for invalid child id', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
 
                 return request
@@ -577,7 +543,7 @@ describe('Routes: HealthProfessional', () => {
 
         context('when the children group was updated with a invalid child id', () => {
             it('should return status code 400 and info message from invalid ID.', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${defaultChildrenGroup.id}`)
 
                 return request
@@ -594,10 +560,10 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('DELETE /users/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
+    describe('DELETE /v1/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when the delete was successful', () => {
             it('should return status code 204 and no content', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${anotherChildrenGroup.id}`)
 
                 return request
@@ -612,16 +578,15 @@ describe('Routes: HealthProfessional', () => {
 
         context('when the children group is not founded', () => {
             it('should return status code 404 and info message for children group not found', () => {
-                const url = `/users/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${new ObjectID()}`)
 
                 return request
                     .delete(url)
                     .set('Content-Type', 'application/json')
-                    .expect(404)
-                    .then(err => {
-                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.NOT_FOUND)
-                        expect(err.body.description).to.eql(Strings.CHILDREN_GROUP.NOT_FOUND_DESCRIPTION)
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
                     })
             })
         })
@@ -629,22 +594,22 @@ describe('Routes: HealthProfessional', () => {
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message for invalid children group ID', () => {
                 return request
-                    .delete(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups/123`)
+                    .delete(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('GET /users/healthprofessionals/:healthprofessional_id/children/groups', () => {
+    describe('GET /v1/healthprofessionals/:healthprofessional_id/children/groups', () => {
         context('when want all children groups from healthprofessional', () => {
             it('should return status code 200 and a list of children groups', () => {
                 return request
-                    .get(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -656,14 +621,7 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body[0].children.length).to.eql(1)
                         expect(res.body[0].children[0]).to.have.property('id')
                         expect(res.body[0].children[0].username).to.eql('anotherusername')
-                        expect(res.body[0].children[0].institution).to.have.property('id')
-                        expect(res.body[0].children[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].children[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].children[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].children[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].children[0].institution.longitude).to.eql(0)
-                        expect(res.body[0].children[0].age).to.eql(11)
-                        expect(res.body[0].children[0].gender).to.eql('male')
+                        expect(res.body[0].children[0].institution_id).to.eql(institution.id!.toString())
                         expect(res.body[0].school_class).to.eql(defaultChildrenGroup.school_class)
                     })
             })
@@ -678,7 +636,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .get(`/users/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -690,11 +648,11 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('GET /users/healthprofessionals', () => {
+    describe('GET /v1/healthprofessionals', () => {
         context('when want get all health professionals in database', () => {
             it('should return status code 200 and a list of health professionals', () => {
                 return request
-                    .get('/users/healthprofessionals')
+                    .get('/v1/healthprofessionals')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -702,20 +660,11 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.length).to.eql(2)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution.longitude).to.eql(0)
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution.longitude).to.eql(0)
+                        expect(res.body[1]).to.have.property('institution_id')
+                        expect(res.body[1]).to.have.property('last_login')
                     })
             })
         })
@@ -735,15 +684,15 @@ describe('Routes: HealthProfessional', () => {
                             password: defaultHealthProfessional.password,
                             type: UserType.HEALTH_PROFESSIONAL,
                             institution: result._id,
-                            scopes: new Array('users:read')
+                            scopes: new Array('users:read'),
+                            last_login: defaultHealthProfessional.last_login
                         }).then()
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
 
-                const url: string = '/users/healthprofessionals/?sort=username&fields=username,institution.name&' +
-                    'institution.type=Any Type&page=1&limit=3'
+                const url: string = '/v1/healthprofessionals?sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -751,20 +700,19 @@ describe('Routes: HealthProfessional', () => {
                     .expect(200)
                     .then(res => {
                         expect(res.body).is.an.instanceOf(Array)
-                        expect(res.body.length).to.eql(2)
+                        expect(res.body.length).to.eql(3)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution).to.have.property('name')
-                        expect(res.body[0].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[0]).to.have.property('children_groups')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1].institution).to.not.have.any.keys('address', 'type', 'latitude', 'longitude')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution).to.have.property('name')
+                        expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('children_groups')
-                    })
+                        expect(res.body[2]).to.have.property('id')
+                        expect(res.body[2]).to.have.property('username')
+                        expect(res.body[2]).to.have.property('institution_id')
+                        expect(res.body[2]).to.have.property('children_groups')})
             })
         })
 
@@ -777,7 +725,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .get('/users/healthprofessionals')
+                    .get('/v1/healthprofessionals')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {

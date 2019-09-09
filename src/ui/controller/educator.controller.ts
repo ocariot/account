@@ -18,7 +18,7 @@ import { ChildrenGroup } from '../../application/domain/model/children.group'
  * @remarks To define paths, we use library inversify-express-utils.
  * @see {@link https://github.com/inversify/inversify-express-utils} for further information.
  */
-@controller('/users/educators')
+@controller('/v1/educators')
 export class EducatorController {
 
     /**
@@ -65,6 +65,8 @@ export class EducatorController {
         try {
             const result: Array<Educator> = await this._educatorService
                 .getAll(new Query().fromJSON(req.query))
+            const count: number = await this._educatorService.count()
+            res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -153,6 +155,8 @@ export class EducatorController {
         try {
             const result: Array<ChildrenGroup> = await this._educatorService
                 .getAllChildrenGroups(req.params.educator_id, new Query().fromJSON(req.query))
+            const count: number = await this._educatorService.countChildrenGroups(req.params.educator_id)
+            res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(this.toJSONChildrenGroupView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -192,6 +196,11 @@ export class EducatorController {
         try {
             const childrenGroup: ChildrenGroup = new ChildrenGroup().fromJSON(req.body)
             childrenGroup.id = req.params.group_id
+            // Creates an educator to associate with the group of children
+            const educator: Educator = new Educator()
+            educator.id = req.params.educator_id
+            childrenGroup.user = educator
+
             const result: ChildrenGroup = await this._educatorService.updateChildrenGroup(req.params.educator_id, childrenGroup)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONChildrenGroupView(result))
@@ -211,8 +220,7 @@ export class EducatorController {
     @httpDelete('/:educator_id/children/groups/:group_id')
     public async disassociateChildFromEducator(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
-            const result: boolean = await this._educatorService.deleteChildrenGroup(req.params.educator_id, req.params.group_id)
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())
+            await this._educatorService.deleteChildrenGroup(req.params.educator_id, req.params.group_id)
             return res.status(HttpStatus.NO_CONTENT).send()
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)

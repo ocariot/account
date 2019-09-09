@@ -16,6 +16,7 @@ describe('Models: Educator', () => {
         children_groups: new Array<Child>(),
         scopes: [
             'educators:read',
+            'educators:update',
             'childrengroups:create',
             'childrengroups:read',
             'childrengroups:update',
@@ -39,10 +40,15 @@ describe('Models: Educator', () => {
             'sleep:read',
             'sleep:update',
             'sleep:delete',
+            'measurements:create',
+            'measurements:read',
+            'measurements:delete',
             'environment:read',
             'missions:read',
-            'gamificationprofile:read'
-        ]
+            'gamificationprofile:read',
+            'external:sync'
+        ],
+        last_login: new Date()
     }
 
     describe('fromJSON()', () => {
@@ -56,6 +62,7 @@ describe('Models: Educator', () => {
                 assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
                 assert.deepEqual(new ObjectID(result.institution!.id), educatorJSON.institution)
+                assert.propertyVal(result, 'last_login', educatorJSON.last_login)
             })
         })
 
@@ -70,6 +77,7 @@ describe('Models: Educator', () => {
                 assert.property(result, 'scopes')
                 assert.propertyVal(result, 'children_groups', undefined)
                 assert.propertyVal(result, 'institution', undefined)
+                assert.propertyVal(result, 'last_login', undefined)
             })
         })
 
@@ -82,20 +90,38 @@ describe('Models: Educator', () => {
                 assert.propertyVal(result, 'type', educatorJSON.type)
                 assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
-                assert.property(result, 'institution')
+                assert.deepEqual(new ObjectID(result.institution!.id), educatorJSON.institution)
+                assert.deepPropertyVal(result, 'last_login', educatorJSON.last_login)
             })
         })
     })
 
     describe('toJSON()', () => {
-        it('should return a JSON from educator model', () => {
-            let result = new Educator().fromJSON(educatorJSON)
-            result = result.toJSON()
-            assert.propertyVal(result, 'id', educatorJSON.id)
-            assert.propertyVal(result, 'username', educatorJSON.username)
-            assert.propertyVal(result, 'type', educatorJSON.type)
-            assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
-            assert.deepEqual(new ObjectID(result.institution!.id), educatorJSON.institution)
+        context('when the educator is complete', () => {
+            it('should return a JSON from educator model', () => {
+                let result = new Educator().fromJSON(educatorJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', educatorJSON.id)
+                assert.propertyVal(result, 'username', educatorJSON.username)
+                assert.propertyVal(result, 'type', educatorJSON.type)
+                assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
+                assert.propertyVal(result, 'institution_id', educatorJSON.institution)
+                assert.propertyVal(result, 'last_login', educatorJSON.last_login)
+            })
+        })
+
+        context('when the educator is incomplete', () => {
+            it('should return a JSON from educator model', () => {
+                educatorJSON.children_groups = undefined
+                let result = new Educator().fromJSON(educatorJSON)
+                result = result.toJSON()
+                assert.propertyVal(result, 'id', educatorJSON.id)
+                assert.propertyVal(result, 'username', educatorJSON.username)
+                assert.propertyVal(result, 'type', educatorJSON.type)
+                assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
+                assert.propertyVal(result, 'institution_id', educatorJSON.institution)
+                assert.propertyVal(result, 'last_login', educatorJSON.last_login)
+            })
         })
     })
 
@@ -127,6 +153,15 @@ describe('Models: Educator', () => {
                 educator.removeChildrenGroup(educator.children_groups![1])
                 // Size check equal to 1 because 'new EducatorMock()' creates an educator with two children_groups
                 assert.equal(educator.children_groups!.length, 1)
+            })
+        })
+
+        context('when the educator has no registered children groups', () => {
+            it('should remove the childrenGroup that was passed by parameter', () => {
+                const educator = new EducatorMock()
+                educator.children_groups = undefined
+                educator.removeChildrenGroup(new ChildrenGroupMock())
+                // Does not do anything
             })
         })
     })

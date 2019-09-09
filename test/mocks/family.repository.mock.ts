@@ -2,13 +2,19 @@ import { IFamilyRepository } from '../../src/application/port/family.repository.
 import { Family } from '../../src/application/domain/model/family'
 import { FamilyMock } from './family.mock'
 import { ValidationException } from '../../src/application/domain/exception/validation.exception'
+import { RepositoryException } from '../../src/application/domain/exception/repository.exception'
+import { Strings } from '../../src/utils/strings'
 
 export class FamilyRepositoryMock implements IFamilyRepository {
     public checkExist(family: Family): Promise<boolean> {
         return Promise.resolve(family.id === '507f1f77bcf86cd799439011')
     }
 
-    public count(query: any): Promise<number> {
+    public count(): Promise<number> {
+        return Promise.resolve(1)
+    }
+
+    public countChildrenFromFamily(familyId: string): Promise<number> {
         return Promise.resolve(1)
     }
 
@@ -43,7 +49,12 @@ export class FamilyRepositoryMock implements IFamilyRepository {
             family.id = '507f1f77bcf86cd799439011'
             family.children![0].id = '507f1f77bcf86cd799439011'
             return Promise.resolve(family)
-        }
+        } else if (familyId === '507f1f77bcf86cd799439015') {
+            const family: Family = new FamilyMock()
+            family.children = undefined
+            return Promise.resolve(family)
+        } else if (familyId === '507f1f77bcf86cd799439016')
+            throw new RepositoryException(Strings.ERROR_MESSAGE.UNEXPECTED)
         return Promise.resolve(undefined!)
     }
 
@@ -57,10 +68,8 @@ export class FamilyRepositoryMock implements IFamilyRepository {
     }
 
     public update(family: Family): Promise<Family> {
-        if (family.id === '507f1f77bcf86cd799439011'){
-            return Promise.resolve(family)
-        }
-        return Promise.resolve(undefined!)
+        if (family.id === '507f1f77bcf86cd799439013') return Promise.resolve(undefined!)
+        return Promise.resolve(family)
     }
 
 }

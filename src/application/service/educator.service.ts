@@ -15,10 +15,8 @@ import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
 import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
-import { IEventBus } from '../../infrastructure/port/event.bus.interface'
-import { UserUpdateEvent } from '../integration-event/event/user.update.event'
+import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
-import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
 
 /**
  * Implementing educator Service.
@@ -32,8 +30,6 @@ export class EducatorService implements IEducatorService {
                 @inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
                 @inject(Identifier.CHILDREN_GROUP_REPOSITORY) private readonly _childrenGroupRepository: IChildrenGroupRepository,
                 @inject(Identifier.CHILDREN_GROUP_SERVICE) private readonly _childrenGroupService: IChildrenGroupService,
-                @inject(Identifier.INTEGRATION_EVENT_REPOSITORY)
-                private readonly _integrationEventRepository: IIntegrationEventRepository,
                 @inject(Identifier.RABBITMQ_EVENT_BUS) private readonly _eventBus: IEventBus,
                 @inject(Identifier.LOGGER) private readonly _logger: ILogger) {
     }
@@ -42,6 +38,9 @@ export class EducatorService implements IEducatorService {
         try {
             // 1. Validate Educator parameters.
             CreateEducatorValidator.validate(educator)
+
+            // 1.5 Ignore last_login attribute if exists.
+            if (educator.last_login) educator.last_login = undefined
 
             // 2. Checks if Educator already exists.
             const educatorExist = await this._educatorRepository.checkExist(educator)
@@ -71,7 +70,7 @@ export class EducatorService implements IEducatorService {
 
     public async getById(id: string, query: IQuery): Promise<Educator> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a educator.
         query.addFilter({ _id: id, type: UserType.EDUCATOR })
@@ -83,7 +82,16 @@ export class EducatorService implements IEducatorService {
             // 1. Validate Educator parameters.
             UpdateUserValidator.validate(educator)
 
-            // 2. Checks if the institution exists.
+            // 2. Checks if Educator already exists.
+            const id: string = educator.id!
+            educator.id = undefined
+
+            const educatorExist = await this._educatorRepository.checkExist(educator)
+            if (educatorExist) throw new ConflictException(Strings.EDUCATOR.ALREADY_REGISTERED)
+
+            educator.id = id
+
+            // 3. Checks if the institution exists.
             if (educator.institution && educator.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(educator.institution)
                 if (!institutionExist) {
@@ -97,21 +105,20 @@ export class EducatorService implements IEducatorService {
             return Promise.reject(err)
         }
 
-        // 3. Update Educator data.
+        // 4. Update Educator data.
         const educatorUp = await this._educatorRepository.update(educator)
 
-        // 4. If updated successfully, the object is published on the message bus.
+        // 5. If updated successfully, the object is published on the message bus.
         if (educatorUp) {
-            const event = new UserUpdateEvent<Educator>(
-                'EducatorUpdateEvent', new Date(), educatorUp)
-
-            if (!(await this._eventBus.publish(event, 'educators.update'))) {
-                // 5. Save Event for submission attempt later when there is connection to message channel.
-                this.saveEvent(event)
-            } else {
-                this._logger.info(`User of type Educator with ID: ${educatorUp.id} has been updated`
-                    .concat('and published on event bus...'))
-            }
+            this._eventBus.bus
+                .pubUpdateEducator(educatorUp)
+                .then(() => {
+                    this._logger.info(`User of type Educator with ID: ${educatorUp.id} has been updated`
+                        .concat(' and published on event bus...'))
+                })
+                .catch((err) => {
+                    this._logger.error(`Error trying to publish event UpdateEducator. ${err.message}`)
+                })
         }
         // 6. Returns the created object.
         return Promise.resolve(educatorUp)
@@ -121,7 +128,7 @@ export class EducatorService implements IEducatorService {
         let isDeleted: boolean
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(id)
+            ObjectIdValidator.validate(id, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2.Delete the educator by id and your children groups.
             isDeleted = await this._educatorRepository.delete(id)
@@ -137,7 +144,7 @@ export class EducatorService implements IEducatorService {
     public async saveChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(educatorId)
+            ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
@@ -165,7 +172,7 @@ export class EducatorService implements IEducatorService {
     public async getAllChildrenGroups(educatorId: string, query: IQuery): Promise<Array<ChildrenGroup>> {
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(educatorId)
+            ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
@@ -186,8 +193,8 @@ export class EducatorService implements IEducatorService {
         Promise<ChildrenGroup | undefined> {
         try {
             // 1. Validate if educator id or children group id is valid
-            ObjectIdValidator.validate(educatorId)
-            ObjectIdValidator.validate(childrenGroupId)
+            ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
+            ObjectIdValidator.validate(childrenGroupId, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
@@ -213,8 +220,8 @@ export class EducatorService implements IEducatorService {
     public async updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
         try {
             // 1. Validate if educator id or children group id is valid
-            ObjectIdValidator.validate(educatorId)
-            if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id)
+            ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
+            if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
@@ -238,16 +245,13 @@ export class EducatorService implements IEducatorService {
     public async deleteChildrenGroup(educatorId: string, childrenGroupId: string): Promise<boolean> {
         try {
             // 1. Validate if educator id or children group id is valid
-            ObjectIdValidator.validate(educatorId)
-            ObjectIdValidator.validate(childrenGroupId)
+            ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
+            ObjectIdValidator.validate(childrenGroupId, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
             if (!educator) {
-                throw new ValidationException(
-                    Strings.EDUCATOR.NOT_FOUND,
-                    Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
-                )
+                return Promise.resolve(true)
             }
 
             // 3. Remove the children group
@@ -270,25 +274,11 @@ export class EducatorService implements IEducatorService {
         }
     }
 
-    /**
-     * Saves the event to the database.
-     * Useful when it is not possible to run the event and want to perform the
-     * operation at another time.
-     * @param event
-     */
-    private saveEvent(event: UserUpdateEvent<Educator>): void {
-        const saveEvent: any = event.toJSON()
-        saveEvent.__operation = 'publish'
-        saveEvent.__routing_key = 'educator.update'
-        this._integrationEventRepository
-            .create(JSON.parse(JSON.stringify(saveEvent)))
-            .then(() => {
-                this._logger.warn(`Could not publish the event named ${event.event_name}.`
-                    .concat(` The event was saved in the database for a possible recovery.`))
-            })
-            .catch(err => {
-                this._logger.error(`There was an error trying to save the name event: ${event.event_name}.`
-                    .concat(`Error: ${err.message}. Event: ${JSON.stringify(saveEvent)}`))
-            })
+    public count(): Promise<number> {
+        return this._educatorRepository.count()
+    }
+
+    public countChildrenGroups(educatorId: string): Promise<number> {
+        return this._educatorRepository.countChildrenGroups(educatorId)
     }
 }

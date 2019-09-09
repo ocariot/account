@@ -18,7 +18,7 @@ import { Child } from '../../application/domain/model/child'
  * @remarks To define paths, we use library inversify-express-utils.
  * @see {@link https://github.com/inversify/inversify-express-utils} for further information.
  */
-@controller('/users/families')
+@controller('/v1/families')
 export class FamilyController {
 
     /**
@@ -65,6 +65,8 @@ export class FamilyController {
         try {
             const result: Array<Family> = await this._familyService
                 .getAll(new Query().fromJSON(req.query))
+            const count: number = await this._familyService.count()
+            res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -129,7 +131,8 @@ export class FamilyController {
         try {
             const result: Array<Child> | undefined = await this._familyService
                 .getAllChildren(req.params.family_id, new Query().fromJSON(req.query))
-
+            const count: number = await this._familyService.countChildrenFromFamily(req.params.family_id)
+            res.setHeader('X-Total-Count', count)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageFamilyNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {

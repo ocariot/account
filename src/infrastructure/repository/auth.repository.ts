@@ -30,15 +30,18 @@ export class AuthRepository implements IAuthRepository {
 
     public authenticate(_username: string, password: string): Promise<object> {
         return new Promise<object>((resolve, reject) => {
-            this.userModel.findOne({ username: _username })
+            this.userModel.find({})
                 .then(result => {
-                    if (result) {
-                        const user: User = this.userMapper.transform(result)
+                    for (const item of result) {
+                        if (item.username === _username) {
+                            const user: User = this.userMapper.transform(item)
 
-                        // Validate password and generate access token.
-                        if (!user.password) return resolve(undefined)
-                        if (this._userRepository.comparePasswords(password, user.password)) {
-                            return resolve({ access_token: this.generateAccessToken(user) })
+                            // Validate password and generate access token.
+                            if (!user.password) return resolve(undefined)
+                            if (this._userRepository.comparePasswords(password, user.password)) {
+                                return resolve({ access_token: this.generateAccessToken(user) })
+                            }
+                            return resolve(undefined)
                         }
                     }
                     resolve(undefined)
@@ -53,6 +56,7 @@ export class AuthRepository implements IAuthRepository {
         const private_key = readFileSync(process.env.JWT_PRIVATE_KEY_PATH || Default.JWT_PRIVATE_KEY_PATH)
         const payload: object = {
             sub: user.id,
+            sub_type: user.type,
             iss: process.env.ISSUER || Default.JWT_ISSUER,
             iat: Math.floor(Date.now() / 1000),
             scope: user.scopes.join(' ')

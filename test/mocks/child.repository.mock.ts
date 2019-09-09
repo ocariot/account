@@ -5,16 +5,18 @@ import { ChildMock } from './child.mock'
 import { Strings } from '../../src/utils/strings'
 
 export class ChildRepositoryMock implements IChildRepository {
-    public checkExist(child: Child | Array<Child>): Promise<boolean | ValidationException> {
+    public checkExist(child: Child): Promise<boolean | ValidationException> {
         if (child instanceof Array) {
-            if (child[0].id === '507f1f77bcf86cd799439012') throw new ValidationException(
-                Strings.CHILD.CHILDREN_REGISTER_REQUIRED, Strings.CHILD.IDS_WITHOUT_REGISTER)
+            if (child[0].id === '507f1f77bcf86cd799439012') {
+                return Promise.resolve(new ValidationException(
+                    Strings.CHILD.CHILDREN_REGISTER_REQUIRED, Strings.CHILD.IDS_WITHOUT_REGISTER))
+            }
             return Promise.resolve(child[0].id === '507f1f77bcf86cd799439012')
         }
         return Promise.resolve(child.id === '507f1f77bcf86cd799439011')
     }
 
-    public count(query: any): Promise<number> {
+    public count(): Promise<number> {
         return Promise.resolve(1)
     }
 
@@ -48,9 +50,8 @@ export class ChildRepositoryMock implements IChildRepository {
     }
 
     public update(child: Child): Promise<Child> {
-        if (child.id === '507f1f77bcf86cd799439011')
-            return Promise.resolve(child)
-        return Promise.resolve(undefined!)
+        if (child.id === '507f1f77bcf86cd799439013') return Promise.resolve(undefined!)
+        return Promise.resolve(child)
     }
 
 }

@@ -34,20 +34,10 @@ export class EducatorEntityMapper implements IEntityMapper<Educator, EducatorEnt
             })
             result.children_groups = childrenGroupsTemp
         }
+        if (item.last_login) result.last_login = item.last_login
         if (item.scopes) result.scopes = item.scopes
 
         return result
-    }
-
-    /**
-     * Convert {EducatorEntity} for {Educator}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: EducatorEntity): Educator {
-        throw Error('Not implemented!')
     }
 
     /**
@@ -67,11 +57,15 @@ export class EducatorEntityMapper implements IEntityMapper<Educator, EducatorEnt
         if (json.type !== undefined) result.type = json.type
         if (json.institution !== undefined) {
             if (json.institution === null) result.institution = undefined
-            else result.institution = new Institution().fromJSON(json.institution)
+            else {
+                result.institution = new Institution()
+                result.institution.id = json.institution
+            }
         }
         if (json.children_groups !== undefined) {
             result.children_groups = json.children_groups.map(item => new ChildrenGroup().fromJSON(item))
         }
+        if (json.last_login !== undefined) result.last_login = json.last_login
         if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result

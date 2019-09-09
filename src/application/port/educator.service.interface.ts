@@ -60,4 +60,21 @@ export interface IEducatorService extends IService<Educator> {
      * @throws {ValidationException | RepositoryException}
      */
     deleteChildrenGroup(educatorId: string, childrenGroupId: string): Promise<boolean>
+
+    /**
+     * Returns the total of educators.
+     *
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    count(): Promise<number>
+
+    /**
+     * Returns the total of children groups in an educator.
+     *
+     * @param educatorId
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    countChildrenGroups(educatorId: string): Promise<number>
 }

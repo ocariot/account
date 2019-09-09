@@ -19,14 +19,11 @@ export abstract class Default {
     public static readonly JWT_ISSUER: string = 'ocariot'
 
     // MongoDB
-    public static readonly MONGODB_URI: string = 'mongodb://127.0.0.1:27017/account-service'
-    public static readonly MONGODB_URI_TEST: string = 'mongodb://127.0.0.1:27017/account-service-test'
+    public static readonly MONGODB_URI: string = 'mongodb://127.0.0.1:27017/ocariot-account'
+    public static readonly MONGODB_URI_TEST: string = 'mongodb://127.0.0.1:27017/ocariot-account-test'
 
     // RabbitMQ
-    public static readonly RABBITMQ_HOST: string = '127.0.0.1:5672'
-    public static readonly RABBITMQ_PORT: number = 5672
-    public static readonly RABBITMQ_USERNAME: string = 'guest'
-    public static readonly RABBITMQ_PASSWORD: string = 'guest'
+    public static readonly RABBITMQ_URI: string = 'amqp://guest:guest@127.0.0.1:5672/ocariot'
 
     // Log
     public static readonly LOG_DIR: string = 'logs'
@@ -34,6 +31,9 @@ export abstract class Default {
     // ADMIN USER DEFAULT
     public static readonly ADMIN_USERNAME: string = 'admin'
     public static readonly ADMIN_PASSWORD: string = 'admin*159'
+
+    // Secret Key of the Username Anonymization
+    public static readonly ENCRYPT_SECRET_KEY: string = 's3cr3tk3y'
 
     // Certificate Path
     public static readonly JWT_PRIVATE_KEY_PATH: string = '.certs/jwt.key'
@@ -43,6 +43,7 @@ export abstract class Default {
     // To generate self-signed certificates, see: https://devcenter.heroku.com/articles/ssl-certificate-self
     public static readonly SSL_KEY_PATH: string = '.certs/server.key'
     public static readonly SSL_CERT_PATH: string = '.certs/server.crt'
+    public static readonly RABBIMQ_CA_PATH: string = '.certs/ca.crt'
 
     public static readonly IP_WHITELIST: Array<string> = ['*']
 }

@@ -13,7 +13,7 @@ import { ApiException } from '../exception/api.exception'
  * @remarks To define paths, we use library inversify-express-utils.
  * @see {@link https://github.com/inversify/inversify-express-utils} for further information.
  */
-@controller('/auth')
+@controller('/v1/auth')
 export class AuthController {
 
     /**

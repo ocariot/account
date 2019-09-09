@@ -31,6 +31,9 @@ export class Application extends User implements IJSONSerializable, IJSONDeseria
             'sleep:read',
             'sleep:update',
             'sleep:delete',
+            'measurements:create',
+            'measurements:read',
+            'measurements:delete',
             'environment:create',
             'environment:read',
             'environment:update',
@@ -42,7 +45,8 @@ export class Application extends User implements IJSONSerializable, IJSONDeseria
             'gamificationprofile:create',
             'gamificationprofile:read',
             'gamificationprofile:update',
-            'gamificationprofile:delete'
+            'gamificationprofile:delete',
+            'external:sync'
         ]
     }
 

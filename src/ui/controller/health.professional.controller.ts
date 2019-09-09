@@ -18,7 +18,7 @@ import { ChildrenGroup } from '../../application/domain/model/children.group'
  * @remarks To define paths, we use library inversify-express-utils.
  * @see {@link https://github.com/inversify/inversify-express-utils} for further information.
  */
-@controller('/users/healthprofessionals')
+@controller('/v1/healthprofessionals')
 export class HealthProfessionalController {
 
     /**
@@ -65,6 +65,8 @@ export class HealthProfessionalController {
         try {
             const result: Array<HealthProfessional> = await this._healthProfessionalService
                 .getAll(new Query().fromJSON(req.query))
+            const count: number = await this._healthProfessionalService.count()
+            res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -126,7 +128,7 @@ export class HealthProfessionalController {
     public async saveChildrenGroupFromHealthProfessional(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const childrenGroup: ChildrenGroup = new ChildrenGroup().fromJSON(req.body)
-            // Creates an health professional to associate with the group of children
+            // Creates a health professional to associate with the group of children
             const healthProfessional: HealthProfessional = new HealthProfessional()
             healthProfessional.id = req.params.healthprofessional_id
             childrenGroup.user = healthProfessional
@@ -156,6 +158,8 @@ export class HealthProfessionalController {
         try {
             const result: Array<ChildrenGroup> = await this._healthProfessionalService
                 .getAllChildrenGroups(req.params.healthprofessional_id, new Query().fromJSON(req.query))
+            const count: number = await this._healthProfessionalService.countChildrenGroups(req.params.healthprofessional_id)
+            res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(this.toJSONChildrenGroupView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
@@ -198,6 +202,11 @@ export class HealthProfessionalController {
         try {
             const childrenGroup: ChildrenGroup = new ChildrenGroup().fromJSON(req.body)
             childrenGroup.id = req.params.group_id
+            // Creates a health professional to associate with the group of children
+            const healthProfessional: HealthProfessional = new HealthProfessional()
+            healthProfessional.id = req.params.healthprofessional_id
+            childrenGroup.user = healthProfessional
+
             const result: ChildrenGroup = await this._healthProfessionalService
                 .updateChildrenGroup(req.params.healthprofessional_id, childrenGroup)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())
@@ -219,9 +228,7 @@ export class HealthProfessionalController {
     public async disassociateChildFromHealthProfessional(@request() req: Request, @response() res: Response):
         Promise<Response> {
         try {
-            const result: boolean = await this._healthProfessionalService
-                .deleteChildrenGroup(req.params.healthprofessional_id, req.params.group_id)
-            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())
+            await this._healthProfessionalService.deleteChildrenGroup(req.params.healthprofessional_id, req.params.group_id)
             return res.status(HttpStatus.NO_CONTENT).send()
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)

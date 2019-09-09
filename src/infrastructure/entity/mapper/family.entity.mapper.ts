@@ -34,20 +34,10 @@ export class FamilyEntityMapper implements IEntityMapper<Family, FamilyEntity> {
             })
             result.children = childrenTemp
         }
+        if (item.last_login) result.last_login = item.last_login
         if (item.scopes) result.scopes = item.scopes
 
         return result
-    }
-
-    /**
-     * Convert {FamilyEntity} for {Family}.
-     *
-     * @see Each attribute must be mapped only if it contains an assigned value,
-     * because at some point the attribute accessed may not exist.
-     * @param item
-     */
-    public modelEntityToModel(item: FamilyEntity): Family {
-        throw Error('Not implemented!')
     }
 
     /**
@@ -67,11 +57,15 @@ export class FamilyEntityMapper implements IEntityMapper<Family, FamilyEntity> {
         if (json.type !== undefined) result.type = json.type
         if (json.institution !== undefined) {
             if (json.institution === null) result.institution = undefined
-            else result.institution = new Institution().fromJSON(json.institution)
+            else {
+                result.institution = new Institution()
+                result.institution.id = json.institution
+            }
         }
         if (json.children !== undefined) {
             result.children = json.children.map(item => new Child().fromJSON(item))
         }
+        if (json.last_login !== undefined) result.last_login = json.last_login
         if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result

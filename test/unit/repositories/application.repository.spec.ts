@@ -46,13 +46,44 @@ describe('Repositories: Application', () => {
     })
 
     describe('create(item: Application)', () => {
-        context('when a database error occurs', () => {
-            it('should throw a RepositoryException', () => {
+        context('when the application does not have password', () => {
+            it('should return an Application without password', () => {
+                defaultApplication.password = undefined
+
                 sinon
                     .mock(modelFake)
                     .expects('create')
                     .withArgs(defaultApplication)
+                    .resolves(defaultApplication)
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(defaultApplication.id)
                     .chain('exec')
+                    .resolves(defaultApplication)
+
+                return applicationRepo.create(defaultApplication)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', defaultApplication.id)
+                        assert.propertyVal(result, 'username', defaultApplication.username)
+                        assert.isUndefined(result.password)
+                        assert.propertyVal(result, 'type', defaultApplication.type)
+                        assert.propertyVal(result, 'scopes', defaultApplication.scopes)
+                        assert.propertyVal(result, 'institution', defaultApplication.institution)
+                        assert.propertyVal(result, 'application_name', defaultApplication.application_name)
+                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                defaultApplication.password = 'application_password'
+
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(defaultApplication)
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
@@ -174,6 +205,7 @@ describe('Repositories: Application', () => {
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
                         assert.propertyVal(result, 'application_name', defaultApplication.application_name)
+                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
                     })
             })
         })
@@ -208,6 +240,7 @@ describe('Repositories: Application', () => {
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
                         assert.propertyVal(result, 'application_name', defaultApplication.application_name)
+                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
                     })
             })
         })
@@ -234,6 +267,7 @@ describe('Repositories: Application', () => {
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
                         assert.propertyVal(result, 'application_name', defaultApplication.application_name)
+                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
                     })
             })
         })
@@ -296,6 +330,7 @@ describe('Repositories: Application', () => {
                         assert.propertyVal(result, 'scopes', defaultApplication.scopes)
                         assert.propertyVal(result, 'institution', defaultApplication.institution)
                         assert.propertyVal(result, 'application_name', defaultApplication.application_name)
+                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
                     })
             })
         })
@@ -347,10 +382,10 @@ describe('Repositories: Application', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ defaultApplication ])
 
                 return applicationRepo.checkExist(defaultApplication)
                     .then(result => {
@@ -367,7 +402,7 @@ describe('Repositories: Application', () => {
                             fields: {},
                             ordination: {},
                             pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { username: defaultApplication.username, type: UserType.APPLICATION }
+                            filters: { type: UserType.APPLICATION }
                         }
                     }
                 }
@@ -378,10 +413,10 @@ describe('Repositories: Application', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ appWithoutId ])
 
                 return applicationRepo.checkExist(appWithoutId)
                     .then(result => {
@@ -409,10 +444,10 @@ describe('Repositories: Application', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(false)
+                    .resolves([])
 
                 return applicationRepo.checkExist(customApp)
                     .then(result => {
@@ -423,12 +458,11 @@ describe('Repositories: Application', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                defaultApplication.id = ''
                 queryMock.filters = { _id: defaultApplication.id, type: UserType.APPLICATION }
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',
@@ -436,6 +470,58 @@ describe('Repositories: Application', () => {
 
                 return applicationRepo.checkExist(defaultApplication)
                     .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('count()', () => {
+        context('when there is at least one application in the database', () => {
+            it('should return how many applications there are in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(2)
+
+                return applicationRepo.count()
+                    .then((countApplications: number) => {
+                        assert.equal(countApplications, 2)
+                    })
+            })
+        })
+
+        context('when there no are applications in database', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(0)
+
+                return applicationRepo.count()
+                    .then((countApplications: number) => {
+                        assert.equal(countApplications, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return applicationRepo.count()
+                    .catch (err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })

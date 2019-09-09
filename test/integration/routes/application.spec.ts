@@ -1,21 +1,22 @@
 import { expect } from 'chai'
 import { App } from '../../../src/app'
 import { Identifier } from '../../../src/di/identifiers'
-import { DI } from '../../../src/di/di'
+import { DIContainer } from '../../../src/di/di'
 import { Institution } from '../../../src/application/domain/model/institution'
 import { Application } from '../../../src/application/domain/model/application'
 import { UserType } from '../../../src/application/domain/model/user'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
-import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
-import { Container } from 'inversify'
 import { ObjectID } from 'bson'
 import { ApplicationMock } from '../../mocks/application.mock'
 import { Strings } from '../../../src/utils/strings'
+import { IDatabase } from '../../../src/infrastructure/port/database.interface'
+import { Default } from '../../../src/utils/default'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 
-const container: Container = DI.getInstance().getContainer()
-const dbConnection: IConnectionDB = container.get(Identifier.MONGODB_CONNECTION)
-const app: App = container.get(Identifier.APP)
+const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
+const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
 describe('Routes: Application', () => {
@@ -27,7 +28,8 @@ describe('Routes: Application', () => {
 
     before(async () => {
             try {
-                await dbConnection.tryConnect(0, 500)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
 
@@ -51,13 +53,45 @@ describe('Routes: Application', () => {
             await deleteAllUsers()
             await deleteAllInstitutions()
             await dbConnection.dispose()
+            await rabbitmq.dispose()
         } catch (err) {
             throw new Error('Failure on Application test: ' + err.message)
         }
     })
 
-    describe('POST /users/applications', () => {
+    describe('POST /v1/applications', () => {
+        context('when posting a new application without institution', () => {
+            it('should return status code 201 and the saved application', () => {
+
+                const body = {
+                    username: defaultApplication.username,
+                    password: 'mysecretkey',
+                    application_name: defaultApplication.application_name
+                }
+
+                return request
+                    .post('/v1/applications')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(201)
+                    .then(res => {
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql(defaultApplication.username)
+                        expect(res.body.application_name).to.eql(defaultApplication.application_name)
+                        defaultApplication.id = res.body.id
+                    })
+            })
+        })
+
         context('when posting a new application user', () => {
+            before(() => {
+                try {
+                    deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on children.physicalactivities routes test: ' + err.message)
+                }
+            })
+
             it('should return status code 201 and the saved application', () => {
 
                 const body = {
@@ -68,19 +102,14 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .post('/users/applications')
+                    .post('/v1/applications')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultApplication.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.application_name).to.eql(defaultApplication.application_name)
                         defaultApplication.id = res.body.id
                     })
@@ -97,7 +126,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .post('/users/applications')
+                    .post('/v1/applications')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -115,7 +144,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .post('/users/applications')
+                    .post('/v1/applications')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -136,7 +165,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .post('/users/applications')
+                    .post('/v1/applications')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -157,7 +186,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .post('/users/applications')
+                    .post('/v1/applications')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -169,22 +198,17 @@ describe('Routes: Application', () => {
         })
     })
 
-    describe('GET /users/applications/:application_id', () => {
+    describe('GET /applications/:application_id', () => {
         context('when get a unique application in database', () => {
             it('should return status code 200 and a application', () => {
                 return request
-                    .get(`/users/applications/${defaultApplication.id}`)
+                    .get(`/v1/applications/${defaultApplication.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultApplication.id)
                         expect(res.body.username).to.eql(defaultApplication.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.application_name).to.eql(defaultApplication.application_name)
                     })
             })
@@ -193,7 +217,7 @@ describe('Routes: Application', () => {
         context('when the application is not found', () => {
             it('should return status code 404 and info message from application not found', () => {
                 return request
-                    .get(`/users/applications/${new ObjectID()}`)
+                    .get(`/v1/applications/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -206,37 +230,31 @@ describe('Routes: Application', () => {
         context('when the application_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .get('/users/applications/123')
+                    .get('/v1/applications/123')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.APPLICATION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('PATCH /users/applications/:application_id', () => {
+    describe('PATCH /applications/:application_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and updated application', () => {
-                defaultApplication.application_name = 'newnameforapplication'
-
                 return request
-                    .patch(`/users/applications/${defaultApplication.id}`)
-                    .send({ application_name: defaultApplication.application_name })
+                    .patch(`/v1/applications/${defaultApplication.id}`)
+                    .send({ last_login: defaultApplication.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body.id).to.eql(defaultApplication.id)
                         expect(res.body.username).to.eql(defaultApplication.username)
-                        expect(res.body.institution).to.have.property('id')
-                        expect(res.body.institution.type).to.eql('Any Type')
-                        expect(res.body.institution.name).to.eql('Name Example')
-                        expect(res.body.institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body.institution.latitude).to.eql(0)
-                        expect(res.body.institution.longitude).to.eql(0)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
                         expect(res.body.application_name).to.eql(defaultApplication.application_name)
+                        expect(res.body.last_login).to.eql(defaultApplication.last_login!.toISOString())
                     })
             })
         })
@@ -256,12 +274,12 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .patch(`/users/applications/${defaultApplication.id}`)
+                    .patch(`/v1/applications/${defaultApplication.id}`)
                     .send({ username: 'acoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('A registration with the same unique data already exists!')
+                        expect(err.body.message).to.eql('Application is already registered!')
                     })
             })
         })
@@ -273,7 +291,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .patch(`/users/applications/${defaultApplication.id}`)
+                    .patch(`/v1/applications/${defaultApplication.id}`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -288,7 +306,7 @@ describe('Routes: Application', () => {
         context('when the institution provided does not exists', () => {
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/users/applications/${defaultApplication.id}`)
+                    .patch(`/v1/applications/${defaultApplication.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -302,7 +320,7 @@ describe('Routes: Application', () => {
         context('when the institution id provided was invalid', () => {
             it('should return status code 400 and message for invalid institution id', () => {
                 return request
-                    .post('/users/applications')
+                    .post('/v1/applications')
                     .send({ institution_id: '123' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -316,7 +334,7 @@ describe('Routes: Application', () => {
         context('when the application is not found', () => {
             it('should return status code 404 and info message from application not found', () => {
                 return request
-                    .patch(`/users/applications/${new ObjectID()}`)
+                    .patch(`/v1/applications/${new ObjectID()}`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(404)
@@ -330,7 +348,7 @@ describe('Routes: Application', () => {
         context('when the application_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch('/users/applications/123')
+                    .patch('/v1/applications/123')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -342,11 +360,11 @@ describe('Routes: Application', () => {
         })
     })
 
-    describe('GET /users/applications/', () => {
+    describe('GET /v1/applications/', () => {
         context('when want get all applications in database', () => {
             it('should return status code 200 and a list of applications', () => {
                 return request
-                    .get('/users/applications')
+                    .get('/v1/applications')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -354,24 +372,13 @@ describe('Routes: Application', () => {
                         expect(res.body.length).to.eql(2)
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.type).to.eql('Any Type')
-                        expect(res.body[0].institution.name).to.eql('Name Example')
-                        expect(res.body[0].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[0].institution.latitude).to.eql(0)
-                        expect(res.body[0].institution.longitude).to.eql(0)
+                        expect(res.body[0]).to.have.property('institution_id')
                         expect(res.body[0]).to.have.property('application_name')
                         expect(res.body[1]).to.have.property('id')
                         expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution')
-                        expect(res.body[1].institution).to.have.property('id')
-                        expect(res.body[1].institution.type).to.eql('Any Type')
-                        expect(res.body[1].institution.name).to.eql('Name Example')
-                        expect(res.body[1].institution.address).to.eql('221B Baker Street, St.')
-                        expect(res.body[1].institution.latitude).to.eql(0)
-                        expect(res.body[1].institution.longitude).to.eql(0)
+                        expect(res.body[1]).to.have.property('institution_id')
                         expect(res.body[1]).to.have.property('application_name')
+                        expect(res.body[1]).to.have.property('last_login')
                     })
             })
         })
@@ -389,17 +396,17 @@ describe('Routes: Application', () => {
                         createUser({
                             username: 'ihaveaunknowusername',
                             password: 'mysecretkey',
-                            application_name: defaultApplication.application_name,
+                            application_name: 'app01',
                             institution: new ObjectID(result._id),
-                            type: UserType.APPLICATION
+                            type: UserType.APPLICATION,
+                            last_login: defaultApplication.last_login
                         }).then()
                     })
                 } catch (err) {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
 
-                const url: string = '/users/applications?fields=username,institution.name,institution.address&' +
-                    '?institution.type=Home&sort=username&page=1&limit=3'
+                const url: string = '/v1/applications?application_name=app01&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -408,14 +415,11 @@ describe('Routes: Application', () => {
                     .then(res => {
                         expect(res.body).is.an.instanceOf(Array)
                         expect(res.body.length).to.eql(1)
-                        expect(res.body[0]).to.not.have.any.keys('application_name')
                         expect(res.body[0]).to.have.property('id')
                         expect(res.body[0]).to.have.property('username')
                         expect(res.body[0].username).to.eql('ihaveaunknowusername')
-                        expect(res.body[0].institution).to.not.have.any.keys('type', 'latitude', 'longitude')
-                        expect(res.body[0].institution).to.have.property('id')
-                        expect(res.body[0].institution.name).to.eql('Sherlock Neighbor')
-                        expect(res.body[0].institution.address).to.eql('221A Baker Street, St.')
+                        expect(res.body[0]).to.have.property('institution_id')
+                        expect(res.body[0]).to.have.property('last_login')
                     })
             })
         })
@@ -429,7 +433,7 @@ describe('Routes: Application', () => {
                 }
 
                 return request
-                    .get('/users/applications')
+                    .get('/v1/applications')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {

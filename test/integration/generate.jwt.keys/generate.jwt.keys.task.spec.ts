@@ -1,13 +1,11 @@
 import { expect } from 'chai'
-import { DI } from '../../../src/di/di'
+import { DIContainer } from '../../../src/di/di'
 import { Identifier } from '../../../src/di/identifiers'
-import { Container } from 'inversify'
 import { IBackgroundTask } from '../../../src/application/port/background.task.interface'
 import fs from 'fs'
 import { Default } from '../../../src/utils/default'
 
-const container: Container = DI.getInstance().getContainer()
-const generateJwtKeysTask: IBackgroundTask = container.get(Identifier.GENERATE_JWT_KEYS_TASK)
+const generateJwtKeysTask: IBackgroundTask = DIContainer.get(Identifier.GENERATE_JWT_KEYS_TASK)
 const jwt_private_key_path = process.env.JWT_PRIVATE_KEY_PATH || Default.JWT_PRIVATE_KEY_PATH
 const jwt_public_key_path = process.env.JWT_PUBLIC_KEY_PATH || Default.JWT_PUBLIC_KEY_PATH
 

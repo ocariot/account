@@ -44,9 +44,40 @@ describe('Repositories: Family', () => {
     })
 
     describe('create(item: Family)', () => {
+        context('when the Family does not have password', () => {
+            it('should return a Family without password', () => {
+                defaultFamily.password = undefined
+
+                sinon
+                    .mock(modelFake)
+                    .expects('create')
+                    .withArgs(defaultFamily)
+                    .resolves(defaultFamily)
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs(defaultFamily.id)
+                    .chain('exec')
+                    .resolves(defaultFamily)
+
+                return familyRepo.create(defaultFamily)
+                    .then(result => {
+                        assert.propertyVal(result, 'id', defaultFamily.id)
+                        assert.propertyVal(result, 'username', defaultFamily.username)
+                        assert.isUndefined(result.password)
+                        assert.propertyVal(result, 'type', defaultFamily.type)
+                        assert.propertyVal(result, 'scopes', defaultFamily.scopes)
+                        assert.propertyVal(result, 'institution', defaultFamily.institution)
+                        assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
+                    })
+            })
+        })
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
+                defaultFamily.password = 'family_password'
+
                 sinon
                     .mock(modelFake)
                     .expects('create')
@@ -171,6 +202,7 @@ describe('Repositories: Family', () => {
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
                         assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
                     })
             })
         })
@@ -205,6 +237,7 @@ describe('Repositories: Family', () => {
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
                         assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
                     })
             })
         })
@@ -267,6 +300,7 @@ describe('Repositories: Family', () => {
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
                         assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
                     })
             })
         })
@@ -332,6 +366,7 @@ describe('Repositories: Family', () => {
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
                         assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
                     })
             })
         })
@@ -366,6 +401,7 @@ describe('Repositories: Family', () => {
                         assert.propertyVal(result, 'scopes', defaultFamily.scopes)
                         assert.propertyVal(result, 'institution', defaultFamily.institution)
                         assert.propertyVal(result, 'children', defaultFamily.children)
+                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
                     })
             })
         })
@@ -419,10 +455,10 @@ describe('Repositories: Family', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ defaultFamily ])
 
                 return familyRepo.checkExist(defaultFamily)
                     .then(result => {
@@ -439,7 +475,7 @@ describe('Repositories: Family', () => {
                             fields: {},
                             ordination: {},
                             pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { username: defaultFamily.username, type: UserType.FAMILY }
+                            filters: { type: UserType.FAMILY }
                         }
                     }
                 }
@@ -450,10 +486,10 @@ describe('Repositories: Family', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(true)
+                    .resolves([ familyWithoutId ])
 
                 return familyRepo.checkExist(familyWithoutId)
                     .then(result => {
@@ -481,10 +517,10 @@ describe('Repositories: Family', () => {
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves(false)
+                    .resolves([])
 
                 return familyRepo.checkExist(customFamily)
                     .then(result => {
@@ -495,12 +531,11 @@ describe('Repositories: Family', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                defaultFamily.id = ''
                 queryMock.filters = { _id: defaultFamily.id, type: UserType.FAMILY }
 
                 sinon
                     .mock(modelFake)
-                    .expects('findOne')
+                    .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
                     .rejects({
@@ -521,6 +556,110 @@ describe('Repositories: Family', () => {
     describe('disassociateChildFromFamily()', () => {
         it('Not implemented yet.', () => {
             return
+        })
+    })
+
+    describe('count()', () => {
+        context('when there is at least one family in the database', () => {
+            it('should return how many families there are in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(2)
+
+                return familyRepo.count()
+                    .then((countFamilies: number) => {
+                        assert.equal(countFamilies, 2)
+                    })
+            })
+        })
+
+        context('when there no are families in database', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(0)
+
+                return familyRepo.count()
+                    .then((countFamilies: number) => {
+                        assert.equal(countFamilies, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('countDocuments')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return familyRepo.count()
+                    .catch (err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('countChildrenFromFamily(familyId: string)', () => {
+        context('when there is at least one children associated with the family received', () => {
+            it('should return how many children are associated with such family in the database', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultFamily.id })
+                    .chain('exec')
+                    .resolves(defaultFamily)
+
+                return familyRepo.countChildrenFromFamily(defaultFamily.id!)
+                    .then((countChildren: number) => {
+                        assert.equal(countChildren, 2)
+                    })
+            })
+        })
+
+        context('when there no are children associated with the family received', () => {
+            it('should return 0', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultFamily.id })
+                    .chain('exec')
+                    .resolves(new Family())
+
+                return familyRepo.countChildrenFromFamily(defaultFamily.id!)
+                    .then((countChildren: number) => {
+                        assert.equal(countChildren, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOne')
+                    .withArgs({ _id: defaultFamily.id })
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                               description: 'Please try again later...' })
+
+                return familyRepo.countChildrenFromFamily(defaultFamily.id!)
+                    .catch (err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
         })
     })
 })

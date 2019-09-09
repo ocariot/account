@@ -7,7 +7,7 @@ export class InstitutionRepositoryMock implements IInstitutionRepository {
         return Promise.resolve(institution.id === '507f1f77bcf86cd799439011')
     }
 
-    public count(query: any): Promise<number> {
+    public count(): Promise<number> {
         return Promise.resolve(1)
     }
 
@@ -16,7 +16,8 @@ export class InstitutionRepositoryMock implements IInstitutionRepository {
     }
 
     public delete(id: string): Promise<boolean> {
-        return Promise.resolve(id === '507f1f77bcf86cd799439012')
+        if (id === '507f1f77bcf86cd799439013') return Promise.resolve(false)
+        return Promise.resolve(true)
     }
 
     public find(query: any): Promise<Array<Institution>> {

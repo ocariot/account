@@ -19,4 +19,12 @@ export interface IInstitutionRepository extends IRepository<Institution> {
      * @throws {ValidationException | RepositoryException}
      */
     checkExist(institution: Institution): Promise<boolean>
+
+    /**
+     * Returns the total of institutions.
+     *
+     * @return {Promise<number>}
+     * @throws {RepositoryException}
+     */
+    count(): Promise<number>
 }

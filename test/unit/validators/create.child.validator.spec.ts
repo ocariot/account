@@ -1,6 +1,6 @@
 import { assert } from 'chai'
 import { CreateChildValidator } from '../../../src/application/domain/validator/create.child.validator'
-import { Child } from '../../../src/application/domain/model/child'
+import { Child, Gender } from '../../../src/application/domain/model/child'
 import { Institution } from '../../../src/application/domain/model/institution'
 import { ChildMock } from '../../mocks/child.mock'
 import { UserTypeMock } from '../../mocks/user.mock'
@@ -98,6 +98,18 @@ describe('Validators: Child', () => {
             }
         })
 
+        it('should throw an error for does not pass age', () => {
+            child.gender = 'male'
+            child.age = undefined
+
+            try {
+                CreateChildValidator.validate(child)
+            } catch (err) {
+                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.description, 'Child validation: age is required!')
+            }
+        })
+
         it('should trow an error for does not pass any of required parameters', () => {
             const emptyChild: Child = new Child()
             emptyChild.type = ''
@@ -108,6 +120,34 @@ describe('Validators: Child', () => {
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Child validation: username, ' +
                     'password, type, institution, gender, age is required!')
+            }
+        })
+    })
+
+    context('when the gender is invalid', () => {
+        it('should throw a ValidationException', () => {
+            child.gender = 'invalid_gender'
+
+            try {
+                CreateChildValidator.validate(child)
+            } catch (err) {
+                assert.equal(err.message, 'The gender provided "invalid_gender" is not supported...')
+                assert.equal(err.description, 'The names of the allowed genders are: male, female.')
+            }
+        })
+    })
+
+    context('when the age is invalid', () => {
+        it('should throw a ValidationException', () => {
+            child.gender = Gender.MALE
+            child.age = -1
+
+            try {
+                CreateChildValidator.validate(child)
+            } catch (err) {
+                assert.equal(err.message, 'Age field is invalid...')
+                assert.equal(err.description,
+                    'Child validation: The age parameter can only contain a value greater than zero.')
             }
         })
     })

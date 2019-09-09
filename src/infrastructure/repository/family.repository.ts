@@ -30,9 +30,9 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
     public create(item: Family): Promise<Family> {
         // Encrypt password
         if (item.password) item.password = this._userRepository.encryptPassword(item.password)
-        const itemNew: Family = this.mapper.transform(item)
+        const itemNew: Family = this.familyMapper.transform(item)
         return new Promise<Family>((resolve, reject) => {
-            this.Model.create(itemNew)
+            this.familyModel.create(itemNew)
                 .then((result) => {
                     // Required due to 'populate ()' routine.
                     // If there is no need for 'populate ()', the return will suffice.
@@ -40,88 +40,57 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                     query.filters = result._id
                     return resolve(this.findOne(query))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
     public find(query: IQuery): Promise<Array<Family>> {
         const q: any = query.toJSON()
-        const populate: any = [
-            { path: 'institution', select: {}, match: {} },
-            { path: 'children', populate: { path: 'institution' } }]
-
-        for (const key in q.filters) {
-            if (key.startsWith('institution.')) {
-                populate[0].match[key.split('.')[1]] = q.filters[key]
-                delete q.filters[key]
-            }
-        }
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate[0].select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children' }
 
         return new Promise<Array<Family>>((resolve, reject) => {
-            this.Model.find(q.filters)
-                .select(q.fields)
+            this.familyModel.find(q.filters)
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<Family>) => resolve(
-                    result
-                        .filter(item => item.institution)
-                        .map(item => this.mapper.transform(item))
-                ))
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .then((result: Array<Family>) => {
+                    resolve(result.map(item => this.familyMapper.transform(item)))
+                })
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
     public findOne(query: IQuery): Promise<Family> {
         const q: any = query.toJSON()
-        const populate: any = [
-            { path: 'institution', select: {} },
-            { path: 'children', populate: { path: 'institution' } }]
-
-        for (const key in q.fields) {
-            if (key.startsWith('institution.')) {
-                populate[0].select[key.split('.')[1]] = 1
-                delete q.fields[key]
-            }
-        }
+        const populate: any = { path: 'children' }
 
         return new Promise<Family>((resolve, reject) => {
-            this.Model.findOne(q.filters)
-                .select(q.fields)
+            this.familyModel.findOne(q.filters)
                 .populate(populate)
                 .exec()
                 .then((result: Family) => {
                     if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
+                    return resolve(this.familyMapper.transform(result))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
     public update(item: Family): Promise<Family> {
-        const itemUp: any = this.mapper.transform(item)
-        const populate: any = [
-            { path: 'institution', select: {} },
-            { path: 'children', populate: { path: 'institution' } }]
+        const itemUp: any = this.familyMapper.transform(item)
+        const populate: any = { path: 'children' }
 
         return new Promise<Family>((resolve, reject) => {
-            this.Model.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
+            this.familyModel.findOneAndUpdate({ _id: itemUp.id }, itemUp, { new: true })
                 .populate(populate)
                 .exec()
                 .then((result: Family) => {
                     if (!result) return resolve(undefined)
-                    return resolve(this.mapper.transform(result))
+                    return resolve(this.familyMapper.transform(result))
                 })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
+                .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
 
@@ -134,14 +103,17 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
     public checkExist(family: Family): Promise<boolean> {
         const query: Query = new Query()
         if (family.id) query.filters = { _id: family.id }
-        else query.filters = { username: family.username }
 
         query.addFilter({ type: UserType.FAMILY })
         return new Promise<boolean>((resolve, reject) => {
-            this.findOne(query)
-                .then((result: Family) => {
-                    if (result) return resolve(true)
-                    return resolve(false)
+            this.familyModel.find(query.filters)
+                .exec()
+                .then((result: Array<Family>) => {
+                    if (family.id) {
+                        if (result.length > 0) return resolve(true)
+                        return resolve(false)
+                    }
+                    return resolve(result.some(value => value.username === family.username))
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
@@ -155,6 +127,18 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                     if (err) return reject(super.mongoDBErrorListener(err))
                     return resolve(true)
                 })
+        })
+    }
+
+    public count(): Promise<number> {
+        return super.count(new Query().fromJSON({ filters: { type: UserType.FAMILY } }))
+    }
+
+    public countChildrenFromFamily(familyId: string): Promise<number> {
+        return new Promise<number>((resolve, reject) => {
+            this.findOne(new Query().fromJSON({ filters: { _id: familyId } }))
+                .then(result => resolve(result && result.children ? result.children.length : 0))
+                .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
 }

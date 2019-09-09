@@ -11,10 +11,7 @@ import { Strings } from '../../utils/strings'
 import { IUserRepository } from '../port/user.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
-import { InstitutionEvent } from '../integration-event/event/institution.event'
-import { IEventBus } from '../../infrastructure/port/event.bus.interface'
-import { IntegrationEvent } from '../integration-event/event/integration.event'
-import { IIntegrationEventRepository } from '../port/integration.event.repository.interface'
+import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 
 /**
  * Implementing Institution Service.
@@ -26,8 +23,6 @@ export class InstitutionService implements IInstitutionService {
 
     constructor(@inject(Identifier.INSTITUTION_REPOSITORY) private readonly _institutionRepository: IInstitutionRepository,
                 @inject(Identifier.USER_REPOSITORY) private readonly _userRepository: IUserRepository,
-                @inject(Identifier.INTEGRATION_EVENT_REPOSITORY) private readonly _integrationEventRepository:
-                    IIntegrationEventRepository,
                 @inject(Identifier.RABBITMQ_EVENT_BUS) private readonly _eventBus: IEventBus,
                 @inject(Identifier.LOGGER) private readonly _logger: ILogger) {
     }
@@ -55,7 +50,7 @@ export class InstitutionService implements IInstitutionService {
 
     public async getById(id: string, query: IQuery): Promise<Institution> {
         // 1. Validate id.
-        ObjectIdValidator.validate(id)
+        ObjectIdValidator.validate(id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a institution.
         query.filters = { _id: id }
@@ -64,16 +59,25 @@ export class InstitutionService implements IInstitutionService {
 
     public async update(institution: Institution): Promise<Institution> {
         // 1. Validate id.
-        if (institution.id) ObjectIdValidator.validate(institution.id)
+        if (institution.id) ObjectIdValidator.validate(institution.id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
 
-        // 2. Update a institution.
+        // 2. Checks if Institution already exists.
+        const id: string = institution.id!
+        institution.id = undefined
+
+        const institutionExist = await this._institutionRepository.checkExist(institution)
+        if (institutionExist) throw new ConflictException(Strings.INSTITUTION.ALREADY_REGISTERED)
+
+        institution.id = id
+
+        // 3. Update a institution.
         return this._institutionRepository.update(institution)
     }
 
     public async remove(id: string): Promise<boolean> {
         try {
             // 1. Validate id.
-            ObjectIdValidator.validate(id)
+            ObjectIdValidator.validate(id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
 
             // 2. Checks if Institution is associated with one or more users.
             const hasInstitution = await this._userRepository.hasInstitution(id)
@@ -88,19 +92,17 @@ export class InstitutionService implements IInstitutionService {
 
             // 5. If deleted successfully, the object is published on the message bus.
             if (wasDeleted) {
-                const event: InstitutionEvent = new InstitutionEvent('InstitutionDeleteEvent',
-                    new Date(), institutionToBeDeleted)
-                if (!(await this._eventBus.publish(event, 'institutions.delete'))) {
-                    // 6. Save Event for submission attempt later when there is connection to message channel.
-                    this.saveEvent(event)
-                } else {
-                    this._logger.info(`Institution with ID: ${institutionToBeDeleted.id} was deleted...`)
-                }
-
+                this._eventBus.bus
+                    .pubDeleteInstitution(institutionToBeDeleted)
+                    .then(() => {
+                        this._logger.info(`Institution with ID: ${institutionToBeDeleted.id} was deleted...`)
+                    })
+                    .catch((err) => {
+                        this._logger.error(`Error trying to publish event DeleteInstitution. ${err.message}`)
+                    })
                 // 5a. Returns true
                 return Promise.resolve(true)
             }
-
             // 5b. Returns false
             return Promise.resolve(false)
         } catch (err) {
@@ -108,25 +110,7 @@ export class InstitutionService implements IInstitutionService {
         }
     }
 
-    /**
-     * Saves the event to the database.
-     * Useful when it is not possible to run the event and want to perform the
-     * operation at another time.
-     * @param event
-     */
-    private saveEvent(event: IntegrationEvent<Institution>): void {
-        const saveEvent: any = event.toJSON()
-        saveEvent.__operation = 'publish'
-        if (event.event_name === 'InstitutionDeleteEvent') saveEvent.__routing_key = 'institutions.delete'
-        this._integrationEventRepository
-            .create(JSON.parse(JSON.stringify(saveEvent)))
-            .then(() => {
-                this._logger.warn(`Could not publish the event named ${event.event_name}.`
-                    .concat(` The event was saved in the database for a possible recovery.`))
-            })
-            .catch(err => {
-                this._logger.error(`There was an error trying to save the name event: ${event.event_name}.`
-                    .concat(`Error: ${err.message}. Event: ${JSON.stringify(saveEvent)}`))
-            })
+    public count(): Promise<number> {
+        return this._institutionRepository.count()
     }
 }
