@@ -88,6 +88,8 @@ import { GenerateJwtKeysTask } from '../background/task/generate.jwt.keys.task'
 import { MongoDB } from '../infrastructure/database/mongo.db'
 import { IDatabase } from '../infrastructure/port/database.interface'
 import { RabbitMQ } from '../infrastructure/eventbus/rabbitmq/rabbitmq'
+import { SubscribeEventBusTask } from '../background/task/subscribe.event.bus.task'
+import { ProviderEventBusTask } from '../background/task/provider.event.bus.task'
 
 export class IoC {
     private readonly _container: Container
@@ -231,6 +233,12 @@ export class IoC {
         this.container
             .bind<IBackgroundTask>(Identifier.GENERATE_JWT_KEYS_TASK)
             .to(GenerateJwtKeysTask).inRequestScope()
+        this.container
+            .bind<IBackgroundTask>(Identifier.SUB_EVENT_BUS_TASK)
+            .to(SubscribeEventBusTask).inRequestScope()
+        this.container
+            .bind<IBackgroundTask>(Identifier.PROVIDER_EVENT_BUS_TASK)
+            .to(ProviderEventBusTask).inRequestScope()
 
         // Log
         this.container.bind<ILogger>(Identifier.LOGGER).to(CustomLogger).inSingletonScope()
