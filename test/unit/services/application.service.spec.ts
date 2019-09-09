@@ -1,18 +1,14 @@
 import { assert } from 'chai'
 import { Application } from '../../../src/application/domain/model/application'
 import { ApplicationMock } from '../../mocks/application.mock'
-import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
-import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
 import { IConnectionFactory } from '../../../src/infrastructure/port/connection.factory.interface'
-import { ConnectionFactoryRabbitmqMock } from '../../mocks/connection.factory.rabbitmq.mock'
-import { ConnectionRabbitmqMock } from '../../mocks/connection.rabbitmq.mock'
-import { IConnectionEventBus } from '../../../src/infrastructure/port/connection.event.bus.interface'
+import { ConnectionFactoryRabbitMQMock } from '../../mocks/connection.factory.rabbitmq.mock'
 import { IApplicationRepository } from '../../../src/application/port/application.repository.interface'
 import { IApplicationService } from '../../../src/application/port/application.service.interface'
 import { ApplicationService } from '../../../src/application/service/application.service'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
-import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
-import { EventBusRabbitmqMock } from '../../mocks/event.bus.rabbitmq.mock'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
+import { RabbitMQMock } from '../../mocks/rabbitmq.mock'
 import { IInstitutionRepository } from '../../../src/application/port/institution.repository.interface'
 import { ApplicationRepositoryMock } from '../../mocks/application.repository.mock'
 import { InstitutionRepositoryMock } from '../../mocks/institution.repository.mock'
@@ -22,6 +18,7 @@ import { Strings } from '../../../src/utils/strings'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
 import { UserType } from '../../../src/application/domain/model/user'
+import { Default } from '../../../src/utils/default'
 
 describe('Services: Application', () => {
     const application: Application = new ApplicationMock()
@@ -40,21 +37,17 @@ describe('Services: Application', () => {
 
     const applicationRepo: IApplicationRepository = new ApplicationRepositoryMock()
     const institutionRepo: IInstitutionRepository = new InstitutionRepositoryMock()
-    const integrationRepo: IIntegrationEventRepository = new IntegrationEventRepositoryMock()
 
-    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitmqMock()
-    const connectionRabbitmqPub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const connectionRabbitmqSub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const eventBusRabbitmq: IEventBus = new EventBusRabbitmqMock(connectionRabbitmqPub, connectionRabbitmqSub)
+    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitMQMock()
+    const rabbitmq: IEventBus = new RabbitMQMock(connectionFactoryRabbitmq)
     const customLogger: ILogger = new CustomLoggerMock()
 
     const applicationService: IApplicationService = new ApplicationService(applicationRepo, institutionRepo,
-        integrationRepo, customLogger, eventBusRabbitmq)
+        rabbitmq, customLogger)
 
     before(async () => {
         try {
-            await connectionRabbitmqPub.tryConnect(0, 500)
-            await connectionRabbitmqSub.tryConnect(0, 500)
+            await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
         } catch (err) {
             throw new Error('Failure on ApplicationService unit test: ' + err.message)
         }
@@ -252,47 +245,8 @@ describe('Services: Application', () => {
             })
         })
 
-        context('when the Application exists in the database but there is no connection to the RabbitMQ', () => {
-            it('should return the Application that was saved', () => {
-                connectionRabbitmqPub.isConnected = false
-
-                return applicationService.update(application)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', application.id)
-                        assert.propertyVal(result, 'username', application.username)
-                        assert.propertyVal(result, 'password', application.password)
-                        assert.propertyVal(result, 'type', application.type)
-                        assert.propertyVal(result, 'scopes', application.scopes)
-                        assert.propertyVal(result, 'institution', application.institution)
-                        assert.propertyVal(result, 'application_name', application.application_name)
-                        assert.propertyVal(result, 'last_login', application.last_login)
-                    })
-            })
-        })
-
-        context('when the Application exists in the database, there is no connection to the RabbitMQ ' +
-            'but the event could not be saved', () => {
-            it('should return the Application because the current implementation does not throw an exception, ' +
-                'it just prints a log', () => {
-                application.id = '507f1f77bcf86cd799439012'           // Make mock throw an error in IntegrationEventRepository
-
-                return applicationService.update(application)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', application.id)
-                        assert.propertyVal(result, 'username', application.username)
-                        assert.propertyVal(result, 'password', application.password)
-                        assert.propertyVal(result, 'type', application.type)
-                        assert.propertyVal(result, 'scopes', application.scopes)
-                        assert.propertyVal(result, 'institution', application.institution)
-                        assert.propertyVal(result, 'application_name', application.application_name)
-                        assert.propertyVal(result, 'last_login', application.last_login)
-                    })
-            })
-        })
-
         context('when the Application does not exist in the database', () => {
             it('should return undefined', () => {
-                connectionRabbitmqPub.isConnected = true
                 application.id = '507f1f77bcf86cd799439013'         // Make mock return undefined
 
                 return applicationService.update(application)

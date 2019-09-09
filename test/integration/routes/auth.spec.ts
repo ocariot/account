@@ -2,13 +2,14 @@ import { expect } from 'chai'
 import { App } from '../../../src/app'
 import { Identifier } from '../../../src/di/identifiers'
 import { DIContainer } from '../../../src/di/di'
-import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { UserType } from '../../../src/application/domain/model/user'
 import { Admin } from '../../../src/application/domain/model/admin'
 import { IUserRepository } from '../../../src/application/port/user.repository.interface'
+import { IDatabase } from '../../../src/infrastructure/port/database.interface'
+import { Default } from '../../../src/utils/default'
 
-const dbConnection: IConnectionDB = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
 const userService: IUserRepository = DIContainer.get(Identifier.USER_REPOSITORY)
 const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
@@ -16,7 +17,7 @@ const request = require('supertest')(app.getExpress())
 describe('Routes: Auth', () => {
     before(async () => {
             try {
-                await dbConnection.tryConnect(0, 500)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
                 const item: Admin = new Admin()
                 item.username = 'admin'

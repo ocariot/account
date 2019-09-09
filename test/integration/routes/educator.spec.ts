@@ -1,5 +1,4 @@
 import { DIContainer } from '../../../src/di/di'
-import { IConnectionDB } from '../../../src/infrastructure/port/connection.db.interface'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
 import { Educator } from '../../../src/application/domain/model/educator'
@@ -15,8 +14,12 @@ import { ChildrenGroupRepoModel } from '../../../src/infrastructure/database/sch
 import { EducatorMock } from '../../mocks/educator.mock'
 import { Strings } from '../../../src/utils/strings'
 import { InstitutionMock } from '../../mocks/institution.mock'
+import { IDatabase } from '../../../src/infrastructure/port/database.interface'
+import { Default } from '../../../src/utils/default'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 
-const dbConnection: IConnectionDB = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
+const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
 const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
@@ -33,7 +36,8 @@ describe('Routes: Educator', () => {
 
     before(async () => {
             try {
-                await dbConnection.tryConnect(0, 500)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
                 await deleteAllChildrenGroups()
@@ -71,6 +75,7 @@ describe('Routes: Educator', () => {
             await deleteAllInstitutions()
             await deleteAllChildrenGroups()
             await dbConnection.dispose()
+            await rabbitmq.dispose()
         } catch (err) {
             throw new Error('Failure on Educator test: ' + err.message)
         }

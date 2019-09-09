@@ -17,15 +17,12 @@ import { FamilyRepositoryMock } from '../../mocks/family.repository.mock'
 import { IChildService } from '../../../src/application/port/child.service.interface'
 import { ChildService } from '../../../src/application/service/child.service'
 import { IConnectionFactory } from '../../../src/infrastructure/port/connection.factory.interface'
-import { ConnectionFactoryRabbitmqMock } from '../../mocks/connection.factory.rabbitmq.mock'
-import { IConnectionEventBus } from '../../../src/infrastructure/port/connection.event.bus.interface'
-import { EventBusRabbitmqMock } from '../../mocks/event.bus.rabbitmq.mock'
-import { ConnectionRabbitmqMock } from '../../mocks/connection.rabbitmq.mock'
-import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
-import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
-import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
+import { ConnectionFactoryRabbitMQMock } from '../../mocks/connection.factory.rabbitmq.mock'
+import { RabbitMQMock } from '../../mocks/rabbitmq.mock'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 import { UserType } from '../../../src/application/domain/model/user'
 import { InstitutionMock } from '../../mocks/institution.mock'
+import { Default } from '../../../src/utils/default'
 
 describe('Services: Child', () => {
     const child: Child = new ChildMock()
@@ -45,21 +42,17 @@ describe('Services: Child', () => {
     const institutionRepo: IInstitutionRepository = new InstitutionRepositoryMock()
     const childrenGroupRepo: IChildrenGroupRepository = new ChildrenGroupRepositoryMock()
     const familyRepo: IFamilyRepository = new FamilyRepositoryMock()
-    const integrationRepo: IIntegrationEventRepository = new IntegrationEventRepositoryMock()
 
-    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitmqMock()
-    const connectionRabbitmqPub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const connectionRabbitmqSub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const eventBusRabbitmq: IEventBus = new EventBusRabbitmqMock(connectionRabbitmqPub, connectionRabbitmqSub)
+    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitMQMock()
+    const rabbitmq: IEventBus = new RabbitMQMock(connectionFactoryRabbitmq)
     const customLogger: ILogger = new CustomLoggerMock()
 
     const childService: IChildService = new ChildService(childRepo, institutionRepo, childrenGroupRepo, familyRepo,
-        integrationRepo, eventBusRabbitmq, customLogger)
+        rabbitmq, customLogger)
 
     before(async () => {
         try {
-            await connectionRabbitmqPub.tryConnect(0, 500)
-            await connectionRabbitmqSub.tryConnect(0, 500)
+            await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
         } catch (err) {
             throw new Error('Failure on ChildService unit test: ' + err.message)
         }
@@ -270,52 +263,8 @@ describe('Services: Child', () => {
             })
         })
 
-        context('when the Child exists in the database but there is no connection to the RabbitMQ', () => {
-            it('should return the Child that was saved', () => {
-                connectionRabbitmqPub.isConnected = false
-                child.id = '507f1f77bcf86cd799439011'
-
-                return childService.update(child)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', child.id)
-                        assert.propertyVal(result, 'username', child.username)
-                        assert.propertyVal(result, 'password', child.password)
-                        assert.propertyVal(result, 'type', child.type)
-                        assert.propertyVal(result, 'scopes', child.scopes)
-                        assert.propertyVal(result, 'institution', child.institution)
-                        assert.propertyVal(result, 'gender', child.gender)
-                        assert.propertyVal(result, 'age', child.age)
-                        assert.propertyVal(result, 'last_login', child.last_login)
-                        assert.propertyVal(result, 'last_sync', child.last_sync)
-                    })
-            })
-        })
-
-        context('when the Child exists in the database, there is no connection to the RabbitMQ ' +
-            'but the event could not be saved', () => {
-            it('should return the Child because the current implementation does not throw an exception, ' +
-                'it just prints a log', () => {
-                child.id = '507f1f77bcf86cd799439012'           // Make mock throw an error in IntegrationEventRepository
-
-                return childService.update(child)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', child.id)
-                        assert.propertyVal(result, 'username', child.username)
-                        assert.propertyVal(result, 'password', child.password)
-                        assert.propertyVal(result, 'type', child.type)
-                        assert.propertyVal(result, 'scopes', child.scopes)
-                        assert.propertyVal(result, 'institution', child.institution)
-                        assert.propertyVal(result, 'gender', child.gender)
-                        assert.propertyVal(result, 'age', child.age)
-                        assert.propertyVal(result, 'last_login', child.last_login)
-                        assert.propertyVal(result, 'last_sync', child.last_sync)
-                    })
-            })
-        })
-
         context('when the Child does not exist in the database', () => {
             it('should return undefined', () => {
-                connectionRabbitmqPub.isConnected = true
                 child.id = '507f1f77bcf86cd799439013'         // Make mock return undefined
 
                 return childService.update(child)

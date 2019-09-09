@@ -1,13 +1,9 @@
 import { assert } from 'chai'
-import { IIntegrationEventRepository } from '../../../src/application/port/integration.event.repository.interface'
-import { IntegrationEventRepositoryMock } from '../../mocks/integration.event.repository.mock'
 import { IConnectionFactory } from '../../../src/infrastructure/port/connection.factory.interface'
-import { ConnectionFactoryRabbitmqMock } from '../../mocks/connection.factory.rabbitmq.mock'
-import { ConnectionRabbitmqMock } from '../../mocks/connection.rabbitmq.mock'
-import { IConnectionEventBus } from '../../../src/infrastructure/port/connection.event.bus.interface'
+import { ConnectionFactoryRabbitMQMock } from '../../mocks/connection.factory.rabbitmq.mock'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
-import { IEventBus } from '../../../src/infrastructure/port/event.bus.interface'
-import { EventBusRabbitmqMock } from '../../mocks/event.bus.rabbitmq.mock'
+import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
+import { RabbitMQMock } from '../../mocks/rabbitmq.mock'
 import { IInstitutionRepository } from '../../../src/application/port/institution.repository.interface'
 import { InstitutionRepositoryMock } from '../../mocks/institution.repository.mock'
 import { ILogger } from '../../../src/utils/custom.logger'
@@ -25,6 +21,7 @@ import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
 import { UserType } from '../../../src/application/domain/model/user'
 import { InstitutionMock } from '../../mocks/institution.mock'
+import { Default } from '../../../src/utils/default'
 
 describe('Services: Family', () => {
     const family: Family = new FamilyMock()
@@ -43,21 +40,16 @@ describe('Services: Family', () => {
     const familyRepo: IFamilyRepository = new FamilyRepositoryMock()
     const childRepo: IChildRepository = new ChildRepositoryMock()
     const institutionRepo: IInstitutionRepository = new InstitutionRepositoryMock()
-    const integrationRepo: IIntegrationEventRepository = new IntegrationEventRepositoryMock()
 
-    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitmqMock()
-    const connectionRabbitmqPub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const connectionRabbitmqSub: IConnectionEventBus = new ConnectionRabbitmqMock(connectionFactoryRabbitmq)
-    const eventBusRabbitmq: IEventBus = new EventBusRabbitmqMock(connectionRabbitmqPub, connectionRabbitmqSub)
+    const connectionFactoryRabbitmq: IConnectionFactory = new ConnectionFactoryRabbitMQMock()
+    const rabbitmq: IEventBus = new RabbitMQMock(connectionFactoryRabbitmq)
     const customLogger: ILogger = new CustomLoggerMock()
 
-    const familyService: IFamilyService = new FamilyService(familyRepo, childRepo, institutionRepo, integrationRepo,
-        eventBusRabbitmq, customLogger)
+    const familyService: IFamilyService = new FamilyService(familyRepo, childRepo, institutionRepo, rabbitmq, customLogger)
 
     before(async () => {
         try {
-            await connectionRabbitmqPub.tryConnect(0, 500)
-            await connectionRabbitmqSub.tryConnect(0, 500)
+            await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
         } catch (err) {
             throw new Error('Failure on FamilyService unit test: ' + err.message)
         }
@@ -271,47 +263,8 @@ describe('Services: Family', () => {
             })
         })
 
-        context('when the Family exists in the database but there is no connection to the RabbitMQ', () => {
-            it('should return the Family that was saved', () => {
-                connectionRabbitmqPub.isConnected = false
-
-                return familyService.update(family)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', family.id)
-                        assert.propertyVal(result, 'username', family.username)
-                        assert.propertyVal(result, 'password', family.password)
-                        assert.propertyVal(result, 'type', family.type)
-                        assert.propertyVal(result, 'scopes', family.scopes)
-                        assert.propertyVal(result, 'institution', family.institution)
-                        assert.propertyVal(result, 'children', family.children)
-                        assert.propertyVal(result, 'last_login', family.last_login)
-                    })
-            })
-        })
-
-        context('when the Family exists in the database, there is no connection to the RabbitMQ ' +
-            'but the event could not be saved', () => {
-            it('should return the Family because the current implementation does not throw an exception, ' +
-                'it just prints a log', () => {
-                family.id = '507f1f77bcf86cd799439012'           // Make mock throw an error in IntegrationEventRepository
-
-                return familyService.update(family)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', family.id)
-                        assert.propertyVal(result, 'username', family.username)
-                        assert.propertyVal(result, 'password', family.password)
-                        assert.propertyVal(result, 'type', family.type)
-                        assert.propertyVal(result, 'scopes', family.scopes)
-                        assert.propertyVal(result, 'institution', family.institution)
-                        assert.propertyVal(result, 'children', family.children)
-                        assert.propertyVal(result, 'last_login', family.last_login)
-                    })
-            })
-        })
-
         context('when the Family does not exist in the database', () => {
             it('should return undefined', () => {
-                connectionRabbitmqPub.isConnected = true
                 family.id = '507f1f77bcf86cd799439013'         // Make mock return undefined
 
                 return familyService.update(family)
