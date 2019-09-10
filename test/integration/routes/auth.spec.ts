@@ -18,6 +18,7 @@ describe('Routes: Auth', () => {
     before(async () => {
             try {
                 await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                await deleteAllUsers()
 
                 const item: Admin = new Admin()
                 item.username = 'admin'
@@ -84,5 +85,5 @@ describe('Routes: Auth', () => {
 })
 
 async function deleteAllUsers() {
-    return await UserRepoModel.deleteMany({})
+    return UserRepoModel.deleteMany({})
 }

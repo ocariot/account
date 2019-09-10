@@ -450,7 +450,7 @@ async function createUser(item) {
 }
 
 async function deleteAllUsers() {
-    return await UserRepoModel.deleteMany({})
+    return UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
@@ -458,5 +458,5 @@ async function createInstitution(item) {
 }
 
 async function deleteAllInstitutions() {
-    return await InstitutionRepoModel.deleteMany({})
+    return InstitutionRepoModel.deleteMany({})
 }

@@ -32,6 +32,7 @@ describe('Routes: Institution', () => {
             try {
                 await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
                 await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                await deleteAllUsers()
                 await deleteAllInstitutions()
             } catch (err) {
                 throw new Error('Failure on Institution test: ' + err.message)
@@ -41,8 +42,8 @@ describe('Routes: Institution', () => {
 
     after(async () => {
         try {
-            await deleteAllInstitutions()
             await deleteAllUsers()
+            await deleteAllInstitutions()
             await dbConnection.dispose()
             await rabbitmq.dispose()
         } catch (err) {
@@ -346,7 +347,7 @@ async function createUser(item) {
 }
 
 async function deleteAllUsers() {
-    return await UserRepoModel.deleteMany({})
+    return UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
@@ -354,5 +355,5 @@ async function createInstitution(item) {
 }
 
 async function deleteAllInstitutions() {
-    return await InstitutionRepoModel.deleteMany({})
+    return InstitutionRepoModel.deleteMany({})
 }

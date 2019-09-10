@@ -9,6 +9,7 @@ import { UserRepository } from '../../../src/infrastructure/repository/user.repo
 import { assert } from 'chai'
 import { ObjectID } from 'bson'
 import { EducatorMock } from '../../mocks/educator.mock'
+import { Query } from '../../../src/infrastructure/repository/query/query'
 
 require('sinon-mongoose')
 
@@ -96,45 +97,25 @@ describe('Repositories: Educator', () => {
     })
 
     describe('find(query: IQuery)', () => {
+        const query: Query = new Query()
+        query.ordination = new Map()
         context('when there is at least one educator that corresponds to the received parameters', () => {
             it('should return an Educator array', () => {
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
+                    .chain('populate')
+                    .withArgs({ path: 'children_groups', populate: { path: 'children' } })
                     .chain('exec')
                     .resolves(educatorsArr)
 
-                return educatorRepo.find(queryMock)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isNotEmpty(result)
-                    })
-            })
-        })
-
-        context('when there is at least one educator that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return an Educator array', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultEducator.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultEducator.id, type: UserType.EDUCATOR }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(educatorsArr)
-
-                return educatorRepo.find(customQueryMock)
+                return educatorRepo.find(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isNotEmpty(result)
@@ -144,15 +125,21 @@ describe('Repositories: Educator', () => {
 
         context('when there is no educator that corresponds to the received parameters', () => {
             it('should return an empty array', () => {
-                queryMock.filters = { _id: '507f1f77bcf86cd799439012', type: UserType.EDUCATOR }
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
+                    .chain('populate')
+                    .withArgs({ path: 'children_groups', populate: { path: 'children' } })
                     .chain('exec')
                     .resolves(new Array<EducatorMock>())
 
-                return educatorRepo.find(queryMock)
+                return educatorRepo.find(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isEmpty(result)
@@ -162,17 +149,22 @@ describe('Repositories: Educator', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                queryMock.filters = { _id: '123', type: UserType.EDUCATOR }
-
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
+                    .chain('populate')
+                    .withArgs({ path: 'children_groups', populate: { path: 'children' } })
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
-                return educatorRepo.find(queryMock)
+                return educatorRepo.find(query)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
@@ -194,41 +186,6 @@ describe('Repositories: Educator', () => {
                     .resolves(defaultEducator)
 
                 return educatorRepo.findOne(queryMock)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', defaultEducator.id)
-                        assert.propertyVal(result, 'username', defaultEducator.username)
-                        assert.propertyVal(result, 'password', defaultEducator.password)
-                        assert.propertyVal(result, 'type', defaultEducator.type)
-                        assert.propertyVal(result, 'scopes', defaultEducator.scopes)
-                        assert.propertyVal(result, 'institution', defaultEducator.institution)
-                        assert.propertyVal(result, 'children_groups', defaultEducator.children_groups)
-                        assert.propertyVal(result, 'last_login', defaultEducator.last_login)
-                    })
-            })
-        })
-
-        context('when there is an educator that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return the Educator that was found', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultEducator.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultEducator.id, type: UserType.EDUCATOR }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(defaultEducator)
-
-                return educatorRepo.findOne(customQueryMock)
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultEducator.id)
                         assert.propertyVal(result, 'username', defaultEducator.username)
@@ -354,41 +311,6 @@ describe('Repositories: Educator', () => {
                     .mock(modelFake)
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(defaultEducator)
-
-                return educatorRepo.findById(defaultEducator.id!)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', defaultEducator.id)
-                        assert.propertyVal(result, 'username', defaultEducator.username)
-                        assert.propertyVal(result, 'password', defaultEducator.password)
-                        assert.propertyVal(result, 'type', defaultEducator.type)
-                        assert.propertyVal(result, 'scopes', defaultEducator.scopes)
-                        assert.propertyVal(result, 'institution', defaultEducator.institution)
-                        assert.propertyVal(result, 'children_groups', defaultEducator.children_groups)
-                        assert.propertyVal(result, 'last_login', defaultEducator.last_login)
-                    })
-            })
-        })
-
-        context('when there is an educator that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return the Educator that was found', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultEducator.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultEducator.id, type: UserType.EDUCATOR }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
                     .resolves(defaultEducator)
 

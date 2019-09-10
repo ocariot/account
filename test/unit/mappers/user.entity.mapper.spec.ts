@@ -61,7 +61,7 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'password', userJSON.password)
                 assert.propertyVal(result, 'type', userJSON.type)
                 assert.propertyVal(result, 'scopes', userJSON.scopes)
-                assert.deepEqual(result.institution!.toJSON(), userJSON.institution)
+                assert.deepEqual(result.institution!.id, userJSON.institution)
                 assert.propertyVal(result, 'last_login', userJSON.last_login)
             })
         })

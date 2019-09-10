@@ -67,7 +67,6 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     }
 
     public async getAll(query: IQuery): Promise<Array<HealthProfessional>> {
-        query.addFilter({ type: UserType.HEALTH_PROFESSIONAL })
         return this._healthProfessionalRepository.find(query)
     }
 

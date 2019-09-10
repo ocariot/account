@@ -78,35 +78,6 @@ describe('Repositories: ChildrenGroup', () => {
             })
         })
 
-        context('when there is at least one childrenGroup that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return an ChildrenGroup array', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultChildrenGroup.user!.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultChildrenGroup.id }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(childrenGroupArr)
-
-                return childrenGroupRepo.find(customQueryMock)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isNotEmpty(result)
-                    })
-            })
-        })
-
         context('when there is no childrenGroup that corresponds to the received parameters', () => {
             it('should return an empty array', () => {
                 queryMock.filters = { _id: '507f1f77bcf86cd799439012' }
@@ -159,38 +130,6 @@ describe('Repositories: ChildrenGroup', () => {
                     .resolves(defaultChildrenGroup)
 
                 return childrenGroupRepo.findOne(queryMock)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', defaultChildrenGroup.id)
-                        assert.propertyVal(result, 'name', defaultChildrenGroup.name)
-                        assert.propertyVal(result, 'children', defaultChildrenGroup.children)
-                        assert.propertyVal(result, 'school_class', defaultChildrenGroup.school_class)
-                        assert.propertyVal(result, 'user', defaultChildrenGroup.user)
-                    })
-            })
-        })
-
-        context('when there is a childrenGroup that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return the ChildrenGroup that was found', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultChildrenGroup.user!.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultChildrenGroup.id }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(defaultChildrenGroup)
-
-                return childrenGroupRepo.findOne(customQueryMock)
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultChildrenGroup.id)
                         assert.propertyVal(result, 'name', defaultChildrenGroup.name)

@@ -603,7 +603,7 @@ async function createUser(item) {
 }
 
 async function deleteAllUsers() {
-    return await UserRepoModel.deleteMany({})
+    return UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
@@ -611,9 +611,9 @@ async function createInstitution(item) {
 }
 
 async function deleteAllInstitutions() {
-    return await InstitutionRepoModel.deleteMany({})
+    return InstitutionRepoModel.deleteMany({})
 }
 
 async function deleteAllChildrenFromFamily(id) {
-    return await UserRepoModel.updateOne({ _id: id }, { $set: { children: [] } })
+    return UserRepoModel.updateOne({ _id: id }, { $set: { children: [] } })
 }

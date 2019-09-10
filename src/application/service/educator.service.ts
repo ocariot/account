@@ -64,7 +64,6 @@ export class EducatorService implements IEducatorService {
     }
 
     public async getAll(query: IQuery): Promise<Array<Educator>> {
-        query.addFilter({ type: UserType.EDUCATOR })
         return this._educatorRepository.find(query)
     }
 

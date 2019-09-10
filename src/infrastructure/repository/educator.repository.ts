@@ -46,6 +46,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
     }
 
     public find(query: IQuery): Promise<Array<Educator>> {
+        query.addFilter({ type: UserType.EDUCATOR })
         const q: any = query.toJSON()
         const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
