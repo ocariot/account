@@ -107,7 +107,7 @@ export class UserService implements IUserService {
             }
         }
 
-        if (userDel) await this.publishDeleteEvent(user)
+        if (userDel) this.publishDeleteEvent({ id: user.id, type: user.type, username: user.username })
         return Promise.resolve(userDel)
     }
 
@@ -115,7 +115,7 @@ export class UserService implements IUserService {
         throw Error('Not implemented!')
     }
 
-    private async publishDeleteEvent(user: User): Promise<void> {
+    private publishDeleteEvent(user: any): void {
         if (user) {
             this._eventBus.bus
                 .pubDeleteUser(user)
