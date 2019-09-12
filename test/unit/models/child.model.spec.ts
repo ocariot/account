@@ -27,7 +27,8 @@ describe('Models: Child', () => {
             'environment:read',
             'missions:read',
             'gamificationprofile:read',
-            'gamificationprofile:update'
+            'gamificationprofile:update',
+            'external:sync'
         ],
         last_login: new Date(),
         last_sync: new Date()

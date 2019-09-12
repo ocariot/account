@@ -45,6 +45,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
     }
 
     public find(query: IQuery): Promise<Array<Family>> {
+        query.addFilter({ type: UserType.FAMILY })
         const q: any = query.toJSON()
         const populate: any = { path: 'children' }
 

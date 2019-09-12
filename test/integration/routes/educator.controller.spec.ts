@@ -223,8 +223,43 @@ describe('Routes: Educator', () => {
         })
     })
 
+    describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/educators/:educator_id', () => {
+        context('when the update was successful', () => {
+            before(async () => {
+                 try {
+                     await rabbitmq.dispose()
+
+                     await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on Educator test: ' + err.message)
+                }
+            })
+            it('should return status code 200 and updated educator (and show an error log about unable to send ' +
+                'UpdateEducator event)', () => {
+                return request
+                    .patch(`/v1/educators/${defaultEducator.id}`)
+                    .send({ last_login: defaultEducator.last_login })
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.id).to.eql(defaultEducator.id)
+                        expect(res.body.username).to.eql(defaultEducator.username)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.last_login).to.eql(defaultEducator.last_login!.toISOString())
+                    })
+            })
+        })
+    })
+
     describe('PATCH /v1/educators/:educator_id', () => {
         context('when the update was successful', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Educator test: ' + err.message)
+                }
+            })
             it('should return status code 200 and updated educator', () => {
                 return request
                     .patch(`/v1/educators/${defaultEducator.id}`)
@@ -719,7 +754,7 @@ async function createUser(item) {
 }
 
 async function deleteAllUsers() {
-    return await UserRepoModel.deleteMany({})
+    return UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
@@ -727,7 +762,7 @@ async function createInstitution(item) {
 }
 
 async function deleteAllInstitutions() {
-    return await InstitutionRepoModel.deleteMany({})
+    return InstitutionRepoModel.deleteMany({})
 }
 
 async function createChildrenGroup(item) {
@@ -735,5 +770,5 @@ async function createChildrenGroup(item) {
 }
 
 async function deleteAllChildrenGroups() {
-    return await ChildrenGroupRepoModel.deleteMany({})
+    return ChildrenGroupRepoModel.deleteMany({})
 }

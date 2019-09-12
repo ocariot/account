@@ -17,6 +17,7 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
         super()
         super.type = UserType.FAMILY
         super.scopes = [
+            'children:read',
             'families:read',
             'families:update',
             'institutions:read',
@@ -89,10 +90,6 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
                     this.children.map(child => {
                         child.toJSON()
                         child.type = undefined
-                        child.gender = undefined
-                        child.age = undefined
-                        child.last_login = undefined
-                        child.last_sync = undefined
                         return child
                     }) :
                     this.children

@@ -113,26 +113,6 @@ describe('Repositories: Child', () => {
             })
         })
 
-        context('when there is at least one child that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return an Child array', () => {
-                queryMock.filters = { _id: defaultChild.id, type: UserType.CHILD }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(childrenArr)
-
-                return childRepo.find(queryMock)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isNotEmpty(result)
-                    })
-            })
-        })
-
         context('when there is no child that corresponds to the received parameters', () => {
             it('should return an empty array', () => {
                 queryMock.filters = { _id: '507f1f77bcf86cd799439012', type: UserType.CHILD }
@@ -186,43 +166,6 @@ describe('Repositories: Child', () => {
                     .resolves(defaultChild)
 
                 return childRepo.findOne(queryMock)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', defaultChild.id)
-                        assert.propertyVal(result, 'username', defaultChild.username)
-                        assert.propertyVal(result, 'password', defaultChild.password)
-                        assert.propertyVal(result, 'type', defaultChild.type)
-                        assert.propertyVal(result, 'scopes', defaultChild.scopes)
-                        assert.propertyVal(result, 'institution', defaultChild.institution)
-                        assert.propertyVal(result, 'gender', defaultChild.gender)
-                        assert.propertyVal(result, 'age', defaultChild.age)
-                        assert.propertyVal(result, 'last_login', defaultChild.last_login)
-                        assert.propertyVal(result, 'last_sync', defaultChild.last_sync)
-                    })
-            })
-        })
-
-        context('when there is a child that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return the Child that was found', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultChild.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultChild.id, type: UserType.CHILD }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(defaultChild)
-
-                return childRepo.findOne(customQueryMock)
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultChild.id)
                         assert.propertyVal(result, 'username', defaultChild.username)

@@ -34,7 +34,8 @@ describe('Mappers: ChildEntity', () => {
             'environment:read',
             'missions:read',
             'gamificationprofile:read',
-            'gamificationprofile:update'
+            'gamificationprofile:update',
+            'external:sync'
         ],
         username: 'child_mock',
         password: 'child_password',

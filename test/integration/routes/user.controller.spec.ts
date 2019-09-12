@@ -181,8 +181,51 @@ describe('Routes: User', () => {
         })
     })
 
+    describe('NO CONNECTION TO RABBITMQ -> DELETE /v1/users/:user_id', () => {
+        context('when the deletion was successful', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.dispose()
+
+                    await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on User test: ' + err.message)
+                }
+            })
+            it('should return status code 204 and no content (and show an error log about unable to send ' +
+                'DeleteInstitution event)', async () => {
+                try {
+                    await createUser({
+                        username: 'acoolusername',
+                        password: 'mysecretkey',
+                        application_name: 'Any Name',
+                        institution: institution.id,
+                        type: UserType.APPLICATION
+                    }).then(user => {
+                        return request
+                            .delete(`/v1/users/${user._id}`)
+                            .set('Content-Type', 'application/json')
+                            .expect(204)
+                            .then(res => {
+                                expect(res.body).to.eql({})
+                            })
+                    })
+                } catch (err) {
+                    throw new Error('Failure on User test: ' + err.message)
+                }
+            })
+        })
+    })
+
     describe('DELETE /v1/users/:user_id', () => {
         context('when the user was successful deleted', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on User test: ' + err.message)
+                }
+            })
             it('should return status code 204 and no content for admin user', () => {
                 return request
                     .delete(`/v1/users/${defaultUser.id}`)
@@ -364,7 +407,7 @@ async function createUser(item) {
 }
 
 async function deleteAllUsers() {
-    return await UserRepoModel.deleteMany({})
+    return UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
@@ -372,5 +415,5 @@ async function createInstitution(item) {
 }
 
 async function deleteAllInstitutions() {
-    return await InstitutionRepoModel.deleteMany({})
+    return InstitutionRepoModel.deleteMany({})
 }

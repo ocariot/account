@@ -9,6 +9,7 @@ import { FamilyRepository } from '../../../src/infrastructure/repository/family.
 import { assert } from 'chai'
 import { ObjectID } from 'bson'
 import { FamilyMock } from '../../mocks/family.mock'
+import { Query } from '../../../src/infrastructure/repository/query/query'
 
 require('sinon-mongoose')
 
@@ -96,45 +97,25 @@ describe('Repositories: Family', () => {
     })
 
     describe('find(query: IQuery)', () => {
+        const query: Query = new Query()
+        query.ordination = new Map()
         context('when there is at least one family that corresponds to the received parameters', () => {
             it('should return an Family array', () => {
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
+                    .chain('populate')
+                    .withArgs({ path: 'children' })
                     .chain('exec')
                     .resolves(familiesArr)
 
-                return familyRepo.find(queryMock)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isNotEmpty(result)
-                    })
-            })
-        })
-
-        context('when there is at least one family that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return an Family array', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultFamily.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultFamily.id, type: UserType.FAMILY }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(familiesArr)
-
-                return familyRepo.find(customQueryMock)
+                return familyRepo.find(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isNotEmpty(result)
@@ -144,15 +125,21 @@ describe('Repositories: Family', () => {
 
         context('when there is no family that corresponds to the received parameters', () => {
             it('should return an empty array', () => {
-                queryMock.filters = { _id: '507f1f77bcf86cd799439012', type: UserType.FAMILY }
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
+                    .chain('populate')
+                    .withArgs({ path: 'children' })
                     .chain('exec')
                     .resolves(new Array<FamilyMock>())
 
-                return familyRepo.find(queryMock)
+                return familyRepo.find(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isEmpty(result)
@@ -162,17 +149,22 @@ describe('Repositories: Family', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                queryMock.filters = { _id: '', type: UserType.FAMILY }
-
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
+                    .chain('populate')
+                    .withArgs({ path: 'children' })
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
-                return familyRepo.find(queryMock)
+                return familyRepo.find(query)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
@@ -194,41 +186,6 @@ describe('Repositories: Family', () => {
                     .resolves(defaultFamily)
 
                 return familyRepo.findOne(queryMock)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', defaultFamily.id)
-                        assert.propertyVal(result, 'username', defaultFamily.username)
-                        assert.propertyVal(result, 'password', defaultFamily.password)
-                        assert.propertyVal(result, 'type', defaultFamily.type)
-                        assert.propertyVal(result, 'scopes', defaultFamily.scopes)
-                        assert.propertyVal(result, 'institution', defaultFamily.institution)
-                        assert.propertyVal(result, 'children', defaultFamily.children)
-                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
-                    })
-            })
-        })
-
-        context('when there is a family that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return the Family that was found', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultFamily.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultFamily.id, type: UserType.FAMILY }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(defaultFamily)
-
-                return familyRepo.findOne(customQueryMock)
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultFamily.id)
                         assert.propertyVal(result, 'username', defaultFamily.username)
@@ -354,41 +311,6 @@ describe('Repositories: Family', () => {
                     .mock(modelFake)
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(defaultFamily)
-
-                return familyRepo.findById(defaultFamily.id!)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', defaultFamily.id)
-                        assert.propertyVal(result, 'username', defaultFamily.username)
-                        assert.propertyVal(result, 'password', defaultFamily.password)
-                        assert.propertyVal(result, 'type', defaultFamily.type)
-                        assert.propertyVal(result, 'scopes', defaultFamily.scopes)
-                        assert.propertyVal(result, 'institution', defaultFamily.institution)
-                        assert.propertyVal(result, 'children', defaultFamily.children)
-                        assert.propertyVal(result, 'last_login', defaultFamily.last_login)
-                    })
-            })
-        })
-
-        context('when there is a family that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return the Family that was found', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultFamily.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultFamily.id, type: UserType.FAMILY }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
                     .resolves(defaultFamily)
 

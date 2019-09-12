@@ -241,8 +241,44 @@ describe('Routes: Application', () => {
         })
     })
 
+    describe('NO CONNECTION TO RABBITMQ -> PATCH /applications/:application_id', () => {
+        context('when the update was successful', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.dispose()
+
+                    await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on Application test: ' + err.message)
+                }
+            })
+            it('should return status code 200 and updated application (and show an error log about unable to send ' +
+                'UpdateApplication event)', () => {
+                return request
+                    .patch(`/v1/applications/${defaultApplication.id}`)
+                    .send({ last_login: defaultApplication.last_login })
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.id).to.eql(defaultApplication.id)
+                        expect(res.body.username).to.eql(defaultApplication.username)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.application_name).to.eql(defaultApplication.application_name)
+                        expect(res.body.last_login).to.eql(defaultApplication.last_login!.toISOString())
+                    })
+            })
+        })
+    })
+
     describe('PATCH /applications/:application_id', () => {
         context('when the update was successful', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Application test: ' + err.message)
+                }
+            })
             it('should return status code 200 and updated application', () => {
                 return request
                     .patch(`/v1/applications/${defaultApplication.id}`)
@@ -450,7 +486,7 @@ async function createUser(item) {
 }
 
 async function deleteAllUsers() {
-    return await UserRepoModel.deleteMany({})
+    return UserRepoModel.deleteMany({})
 }
 
 async function createInstitution(item) {
@@ -458,5 +494,5 @@ async function createInstitution(item) {
 }
 
 async function deleteAllInstitutions() {
-    return await InstitutionRepoModel.deleteMany({})
+    return InstitutionRepoModel.deleteMany({})
 }

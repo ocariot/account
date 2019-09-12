@@ -115,35 +115,6 @@ describe('Repositories: Application', () => {
             })
         })
 
-        context('when there is at least one application that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields)', () => {
-            it('should return an Application array', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultApplication.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultApplication.id, type: UserType.APPLICATION }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(applicationsArr)
-
-                return applicationRepo.find(customQueryMock)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isNotEmpty(result)
-                    })
-            })
-        })
-
         context('when there is no application that corresponds to the received parameters', () => {
             it('should return an empty array', () => {
                 queryMock.filters = { _id: '507f1f77bcf86cd799439012', type: UserType.APPLICATION }
@@ -197,41 +168,6 @@ describe('Repositories: Application', () => {
                     .resolves(defaultApplication)
 
                 return applicationRepo.findOne(queryMock)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', defaultApplication.id)
-                        assert.propertyVal(result, 'username', defaultApplication.username)
-                        assert.propertyVal(result, 'password', defaultApplication.password)
-                        assert.propertyVal(result, 'type', defaultApplication.type)
-                        assert.propertyVal(result, 'scopes', defaultApplication.scopes)
-                        assert.propertyVal(result, 'institution', defaultApplication.institution)
-                        assert.propertyVal(result, 'application_name', defaultApplication.application_name)
-                        assert.propertyVal(result, 'last_login', defaultApplication.last_login)
-                    })
-            })
-        })
-
-        context('when there is a application that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return the Application that was found', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultApplication.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultApplication.id, type: UserType.APPLICATION }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(defaultApplication)
-
-                return applicationRepo.findOne(customQueryMock)
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultApplication.id)
                         assert.propertyVal(result, 'username', defaultApplication.username)

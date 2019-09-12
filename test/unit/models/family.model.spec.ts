@@ -14,6 +14,7 @@ describe('Models: Family', () => {
         institution: new ObjectID(),
         children: new Array<Child>(),
         scopes: [
+            'children:read',
             'families:read',
             'families:update',
             'institutions:read',

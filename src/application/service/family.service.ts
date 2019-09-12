@@ -74,7 +74,6 @@ export class FamilyService implements IFamilyService {
     }
 
     public async getAll(query: IQuery): Promise<Array<Family>> {
-        query.addFilter({ type: UserType.FAMILY })
         return this._familyRepository.find(query)
     }
 

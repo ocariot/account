@@ -18,6 +18,7 @@ import { Application } from '../../application/domain/model/application'
 import { IApplicationRepository } from '../../application/port/application.repository.interface'
 import { Institution } from '../../application/domain/model/institution'
 import { IInstitutionRepository } from '../../application/port/institution.repository.interface'
+import { UserType } from '../../application/domain/model/user'
 
 @injectable()
 export class ProviderEventBusTask implements IBackgroundTask {
@@ -51,6 +52,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideChildren(async (query) => {
                 const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                _query.addFilter({ type: UserType.CHILD })
                 const result: Array<Child> = await this._childRepository.find(_query)
                 return result.map(item => item.toJSON())
             })
@@ -120,6 +122,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideApplications(async (query) => {
                 const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                _query.addFilter({ type: UserType.APPLICATION })
                 const result: Array<Application> = await this._applicationRepository.find(_query)
                 return result.map(item => item.toJSON())
             })

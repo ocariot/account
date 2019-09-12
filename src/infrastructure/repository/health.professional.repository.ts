@@ -48,6 +48,7 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
     }
 
     public find(query: IQuery): Promise<Array<HealthProfessional>> {
+        query.addFilter({ type: UserType.HEALTH_PROFESSIONAL })
         const q: any = query.toJSON()
         const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 

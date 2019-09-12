@@ -9,6 +9,7 @@ import { ObjectID } from 'bson'
 import { HealthProfessional } from '../../../src/application/domain/model/health.professional'
 import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
 import { HealthProfessionalRepository } from '../../../src/infrastructure/repository/health.professional.repository'
+import { Query } from '../../../src/infrastructure/repository/query/query'
 
 require('sinon-mongoose')
 
@@ -96,45 +97,25 @@ describe('Repositories: HealthProfessional', () => {
     })
 
     describe('find(query: IQuery)', () => {
+        const query: Query = new Query()
+        query.ordination = new Map()
         context('when there is at least one healthProfessional that corresponds to the received parameters', () => {
             it('should return an HealthProfessional array', () => {
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
+                    .chain('populate')
+                    .withArgs({ path: 'children_groups', populate: { path: 'children' } })
                     .chain('exec')
                     .resolves(healthProfessionalsArr)
 
-                return healthProfessionalRepo.find(queryMock)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isNotEmpty(result)
-                    })
-            })
-        })
-
-        context('when there is at least one healthProfessional that corresponds to the received parameters (with a ' +
-            'parameter to the populate (fields))', () => {
-            it('should return an HealthProfessional array', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultHealthProfessional.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('find')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(healthProfessionalsArr)
-
-                return healthProfessionalRepo.find(customQueryMock)
+                return healthProfessionalRepo.find(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isNotEmpty(result)
@@ -144,15 +125,21 @@ describe('Repositories: HealthProfessional', () => {
 
         context('when there is no healthProfessional that corresponds to the received parameters', () => {
             it('should return an empty array', () => {
-                queryMock.filters = { _id: '507f1f77bcf86cd799439012', type: UserType.HEALTH_PROFESSIONAL }
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
+                    .chain('populate')
+                    .withArgs({ path: 'children_groups', populate: { path: 'children' } })
                     .chain('exec')
                     .resolves(new Array<HealthProfessionalMock>())
 
-                return healthProfessionalRepo.find(queryMock)
+                return healthProfessionalRepo.find(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isEmpty(result)
@@ -162,17 +149,22 @@ describe('Repositories: HealthProfessional', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                queryMock.filters = { _id: '', type: UserType.HEALTH_PROFESSIONAL }
-
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
+                    .chain('populate')
+                    .withArgs({ path: 'children_groups', populate: { path: 'children' } })
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
-                return healthProfessionalRepo.find(queryMock)
+                return healthProfessionalRepo.find(query)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
@@ -194,41 +186,6 @@ describe('Repositories: HealthProfessional', () => {
                     .resolves(defaultHealthProfessional)
 
                 return healthProfessionalRepo.findOne(queryMock)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', defaultHealthProfessional.id)
-                        assert.propertyVal(result, 'username', defaultHealthProfessional.username)
-                        assert.propertyVal(result, 'password', defaultHealthProfessional.password)
-                        assert.propertyVal(result, 'type', defaultHealthProfessional.type)
-                        assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
-                        assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
-                        assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
-                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
-                    })
-            })
-        })
-
-        context('when there is a healthProfessional that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return the HealthProfessional that was found', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultHealthProfessional.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(customQueryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(defaultHealthProfessional)
-
-                return healthProfessionalRepo.findOne(customQueryMock)
                     .then(result => {
                         assert.propertyVal(result, 'id', defaultHealthProfessional.id)
                         assert.propertyVal(result, 'username', defaultHealthProfessional.username)
@@ -354,41 +311,6 @@ describe('Repositories: HealthProfessional', () => {
                     .mock(modelFake)
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
-                    .chain('exec')
-                    .resolves(defaultHealthProfessional)
-
-                return healthProfessionalRepo.findById(defaultHealthProfessional.id!)
-                    .then(result => {
-                        assert.propertyVal(result, 'id', defaultHealthProfessional.id)
-                        assert.propertyVal(result, 'username', defaultHealthProfessional.username)
-                        assert.propertyVal(result, 'password', defaultHealthProfessional.password)
-                        assert.propertyVal(result, 'type', defaultHealthProfessional.type)
-                        assert.propertyVal(result, 'scopes', defaultHealthProfessional.scopes)
-                        assert.propertyVal(result, 'institution', defaultHealthProfessional.institution)
-                        assert.propertyVal(result, 'children_groups', defaultHealthProfessional.children_groups)
-                        assert.propertyVal(result, 'last_login', defaultHealthProfessional.last_login)
-                    })
-            })
-        })
-
-        context('when there is a healthProfessional that corresponds to the received parameters (with a parameter to the ' +
-            'populate (fields))', () => {
-            it('should return the HealthProfessional that was found', () => {
-                const customQueryMock: any = {
-                    toJSON: () => {
-                        return {
-                            fields: { 'institution.id': defaultHealthProfessional.institution!.id },
-                            ordination: {},
-                            pagination: { page: 1, limit: 100, skip: 0 },
-                            filters: { _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
-                        }
-                    }
-                }
-
-                sinon
-                    .mock(modelFake)
-                    .expects('findOne')
-                    .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
                     .resolves(defaultHealthProfessional)
 
