@@ -1,19 +1,19 @@
 import { DIContainer } from '../../../src/di/di'
 import { Identifier } from '../../../src/di/identifiers'
 import { App } from '../../../src/app'
-import { HealthProfessional } from '../../../src/application/domain/model/health.professional'
+import { Educator } from '../../../src/application/domain/model/educator'
 import { expect } from 'chai'
 import { ObjectID } from 'bson'
 import { Institution } from '../../../src/application/domain/model/institution'
 import { UserType } from '../../../src/application/domain/model/user'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
-import { ChildrenGroupRepoModel } from '../../../src/infrastructure/database/schema/children.group.schema'
 import { Child } from '../../../src/application/domain/model/child'
 import { ChildrenGroup } from '../../../src/application/domain/model/children.group'
-import { InstitutionMock } from '../../mocks/institution.mock'
-import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
+import { ChildrenGroupRepoModel } from '../../../src/infrastructure/database/schema/children.group.schema'
+import { EducatorMock } from '../../mocks/educator.mock'
 import { Strings } from '../../../src/utils/strings'
+import { InstitutionMock } from '../../mocks/institution.mock'
 import { IDatabase } from '../../../src/infrastructure/port/database.interface'
 import { Default } from '../../../src/utils/default'
 import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
@@ -23,12 +23,12 @@ const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
 const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
-describe('Routes: HealthProfessional', () => {
+describe('Routes: Educator', () => {
     const institution: Institution = new InstitutionMock()
 
-    const defaultHealthProfessional: HealthProfessional = new HealthProfessionalMock()
-    defaultHealthProfessional.password = 'health_professional_mock'
-    defaultHealthProfessional.institution = institution
+    const defaultEducator: Educator = new EducatorMock()
+    defaultEducator.password = 'educator_password'
+    defaultEducator.institution = institution
 
     const defaultChild: Child = new Child()
     const defaultChildrenGroup: ChildrenGroup = new ChildrenGroup()
@@ -64,7 +64,7 @@ describe('Routes: HealthProfessional', () => {
                 defaultChild.id = child.id
 
             } catch (err) {
-                throw new Error('Failure on HealthProfessional test: ' + err.message)
+                throw new Error('Failure on Educator test: ' + err.message)
             }
         }
     )
@@ -77,29 +77,29 @@ describe('Routes: HealthProfessional', () => {
             await dbConnection.dispose()
             await rabbitmq.dispose()
         } catch (err) {
-            throw new Error('Failure on HealthProfessional test: ' + err.message)
+            throw new Error('Failure on Educator test: ' + err.message)
         }
     })
 
-    describe('POST /v1/healthprofessionals', () => {
-        context('when posting a new health professional user', () => {
-            it('should return status code 201 and the saved health professional', () => {
+    describe('POST /v1/educators', () => {
+        context('when posting a new educator user', () => {
+            it('should return status code 201 and the saved educator', () => {
                 const body = {
-                    username: defaultHealthProfessional.username,
-                    password: defaultHealthProfessional.password,
+                    username: defaultEducator.username,
+                    password: defaultEducator.password,
                     institution_id: institution.id
                 }
 
                 return request
-                    .post('/v1/healthprofessionals')
+                    .post('/v1/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
                     .then(res => {
                         expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql(defaultHealthProfessional.username)
+                        expect(res.body.username).to.eql(defaultEducator.username)
                         expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        defaultHealthProfessional.id = res.body.id
+                        defaultEducator.id = res.body.id
                     })
             })
         })
@@ -107,18 +107,18 @@ describe('Routes: HealthProfessional', () => {
         context('when a duplicate error occurs', () => {
             it('should return status code 409 and message info about duplicate items', () => {
                 const body = {
-                    username: defaultHealthProfessional.username,
-                    password: defaultHealthProfessional.password,
+                    username: defaultEducator.username,
+                    password: defaultEducator.password,
                     institution_id: institution.id
                 }
 
                 return request
-                    .post('/v1/healthprofessionals')
+                    .post('/v1/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.ALREADY_REGISTERED)
+                        expect(err.body.message).to.eql(Strings.EDUCATOR.ALREADY_REGISTERED)
                     })
             })
         })
@@ -129,14 +129,13 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post('/v1/healthprofessionals')
+                    .post('/v1/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Health Professional validation: username, password, ' +
-                            'institution is required!')
+                        expect(err.body.description).to.eql('Educator validation: username, password, institution is required!')
                     })
             })
         })
@@ -145,12 +144,12 @@ describe('Routes: HealthProfessional', () => {
             it('should return status code 400 and message for institution not found', () => {
                 const body = {
                     username: 'anotherusername',
-                    password: defaultHealthProfessional.password,
+                    password: defaultEducator.password,
                     institution_id: new ObjectID()
                 }
 
                 return request
-                    .post('/v1/healthprofessionals')
+                    .post('/v1/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -165,12 +164,12 @@ describe('Routes: HealthProfessional', () => {
             it('should return status code 400 and message for invalid institution id', () => {
                 const body = {
                     username: 'anotherusername',
-                    password: defaultHealthProfessional.password,
+                    password: defaultEducator.password,
                     institution_id: '123'
                 }
 
                 return request
-                    .post('/v1/children')
+                    .post('/v1/educators')
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -182,61 +181,96 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('GET /v1/healthprofessionals/:healthprofessional_id', () => {
-        context('when get a unique health professional in database', () => {
-            it('should return status code 200 and a health professional', () => {
+    describe('GET /v1/educators/:educator_id', () => {
+        context('when get a unique educator in database', () => {
+            it('should return status code 200 and a educator', () => {
                 return request
-                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .get(`/v1/educators/${defaultEducator.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultHealthProfessional.id)
-                        expect(res.body.username).to.eql(defaultHealthProfessional.username)
+                        expect(res.body.id).to.eql(defaultEducator.id)
+                        expect(res.body.username).to.eql(defaultEducator.username)
                         expect(res.body.institution_id).to.eql(institution.id!.toString())
                     })
             })
         })
 
-        context('when the health professional is not found', () => {
-            it('should return status code 404 and info message from health professional not found', () => {
+        context('when the educator is not found', () => {
+            it('should return status code 404 and info message from educator not found', () => {
                 return request
-                    .get(`/v1/healthprofessionals/${new ObjectID()}`)
+                    .get(`/v1/educators/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.NOT_FOUND)
-                        expect(err.body.description).to.eql(Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION)
+                        expect(err.body.message).to.eql(Strings.EDUCATOR.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.EDUCATOR.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
 
-        context('when the healthprofessional_id is invalid', () => {
+        context('when the educator_id is invalid', () => {
             it('should return status code 400 and message info about invalid id', () => {
                 return request
-                    .get('/v1/healthprofessionals/123')
+                    .get('/v1/educators/123')
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
     })
 
-    describe('PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
+    describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/educators/:educator_id', () => {
         context('when the update was successful', () => {
-            it('should return status code 200 and updated health professional', () => {
+            before(async () => {
+                 try {
+                     await rabbitmq.dispose()
+
+                     await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on Educator test: ' + err.message)
+                }
+            })
+            it('should return status code 200 and updated educator (and show an error log about unable to send ' +
+                'UpdateEducator event)', () => {
                 return request
-                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
-                    .send({ last_login: defaultHealthProfessional.last_login })
+                    .patch(`/v1/educators/${defaultEducator.id}`)
+                    .send({ last_login: defaultEducator.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultHealthProfessional.id)
-                        expect(res.body.username).to.eql(defaultHealthProfessional.username)
+                        expect(res.body.id).to.eql(defaultEducator.id)
+                        expect(res.body.username).to.eql(defaultEducator.username)
                         expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.last_login).to.eql(defaultHealthProfessional.last_login!.toISOString())
+                        expect(res.body.last_login).to.eql(defaultEducator.last_login!.toISOString())
+                    })
+            })
+        })
+    })
+
+    describe('PATCH /v1/educators/:educator_id', () => {
+        context('when the update was successful', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Educator test: ' + err.message)
+                }
+            })
+            it('should return status code 200 and updated educator', () => {
+                return request
+                    .patch(`/v1/educators/${defaultEducator.id}`)
+                    .send({ last_login: defaultEducator.last_login })
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.id).to.eql(defaultEducator.id)
+                        expect(res.body.username).to.eql(defaultEducator.username)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.last_login).to.eql(defaultEducator.last_login!.toISOString())
                     })
             })
         })
@@ -246,22 +280,22 @@ describe('Routes: HealthProfessional', () => {
                 try {
                     await createUser({
                         username: 'anothercoolusername',
-                        password: defaultHealthProfessional.password,
-                        type: UserType.HEALTH_PROFESSIONAL,
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
                         institution: institution.id,
                         scopes: new Array('users:read')
                     }).then()
                 } catch (err) {
-                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                    throw new Error('Failure on Educator test: ' + err.message)
                 }
 
                 return request
-                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/educators/${defaultEducator.id}`)
                     .send({ username: 'anothercoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Health Professional is already registered!')
+                        expect(err.body.message).to.eql('Educator is already registered!')
                     })
             })
         })
@@ -269,7 +303,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the institution provided does not exists', () => {
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/educators/${defaultEducator.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -283,7 +317,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the institution id provided was invalid', () => {
             it(' should return status code 400 and message for invalid institution id', () => {
                 return request
-                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/educators/${defaultEducator.id}`)
                     .send({ institution_id: '123' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -294,24 +328,24 @@ describe('Routes: HealthProfessional', () => {
             })
         })
 
-        context('when the health professional is not found', () => {
-            it('should return status code 404 and info message from health professional not found', () => {
+        context('when the educator is not found', () => {
+            it('should return status code 404 and info message from educator not found', () => {
                 return request
-                    .patch(`/v1/healthprofessionals/${new ObjectID()}`)
+                    .patch(`/v1/educators/${new ObjectID()}`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.NOT_FOUND)
-                        expect(err.body.description).to.eql(Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION)
+                        expect(err.body.message).to.eql(Strings.EDUCATOR.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.EDUCATOR.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
 
-        context('when the healthprofessional_id is invalid', () => {
+        context('when the educator_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch('/v1/healthprofessionals/123')
+                    .patch('/v1/educators/123')
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -323,7 +357,7 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('POST /v1/healthprofessionals/:healthprofessional_id/children/groups', () => {
+    describe('POST /v1/educators/:educator_id/children/groups', () => {
         context('when posting a new children group', () => {
             it('should return status code 201 and a children group', () => {
                 defaultChildrenGroup.name = 'Children Group One'
@@ -336,7 +370,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
@@ -358,14 +392,14 @@ describe('Routes: HealthProfessional', () => {
         context('when there are validation errors', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
-                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: name, Collection with ' +
-                            'children IDs is required!')
+                        expect(err.body.description).to.eql('Children Group validation: name, Collection with children ' +
+                            'IDs is required!')
                     })
             })
         })
@@ -379,7 +413,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -400,7 +434,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -411,17 +445,13 @@ describe('Routes: HealthProfessional', () => {
                     })
             })
         })
-
     })
 
-    describe('GET /v1/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
+    describe('GET /v1/educators/:educator_id/children/groups/:group_id', () => {
         context('when want get a unique children group', () => {
             it('should return status code 200 and a children group', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${defaultChildrenGroup.id}`)
-
                 return request
-                    .get(url)
+                    .get(`/v1/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -432,6 +462,7 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.children[0]).to.have.property('id')
                         expect(res.body.children[0].username).to.eql('anotherusername')
                         expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
+
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                         defaultChildrenGroup.id = res.body.id
                     })
@@ -440,10 +471,8 @@ describe('Routes: HealthProfessional', () => {
 
         context('when the children group is not found', () => {
             it('should return status code 404 and info message from children group not found', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${new ObjectID()}`)
                 return request
-                    .get(url)
+                    .get(`/v1/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -454,9 +483,9 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when the children group_id is invalid', () => {
-            it('should return status code 400 and info message from invalid ID', () => {
+            it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups/123`)
+                    .get(`/v1/educators/${defaultEducator.id}/children/groups/123`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -467,16 +496,13 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('PATCH /v1/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
+    describe('PATCH /v1/educators/:educator_id/children/groups/:group_id', () => {
         context('when the update was successful', () => {
             it('should return status code 200 and a updated children group', () => {
                 defaultChildrenGroup.school_class = '5th Grade'
 
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${defaultChildrenGroup.id}`)
-
                 return request
-                    .patch(url)
+                    .patch(`/v1/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ school_class: defaultChildrenGroup.school_class })
                     .set('Content-Type', 'application/json')
                     .expect(200)
@@ -495,25 +521,22 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when a duplicate error occurs', () => {
-            it('should return status code 409 and info message from duplicate items', async () => {
+            it('should return status code 409 and info message about duplicate items', async () => {
                 try {
                     await createChildrenGroup({
                         name: 'anothercoolname',
                         children: new Array<string | undefined>(defaultChild.id),
                         school_class: defaultChildrenGroup.school_class,
-                        user_id: defaultHealthProfessional.id
+                        user_id: defaultEducator.id
                     }).then(item => {
                         anotherChildrenGroup.id = item._id
                     })
                 } catch (err) {
-                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                    throw new Error('Failure on Educator test: ' + err.message)
                 }
 
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${defaultChildrenGroup.id}`)
-
                 return request
-                    .patch(url)
+                    .patch(`/v1/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ name: 'anothercoolname' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -525,11 +548,8 @@ describe('Routes: HealthProfessional', () => {
 
         context('when the children group was updated with a not existent child id', () => {
             it('should return status code 400 and info message for invalid child id', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${defaultChildrenGroup.id}`)
-
                 return request
-                    .patch(url)
+                    .patch(`/v1/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ children: new Array<string>('507f1f77bcf86cd799439011') })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -542,12 +562,9 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when the children group was updated with a invalid child id', () => {
-            it('should return status code 400 and info message from invalid ID.', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${defaultChildrenGroup.id}`)
-
+            it('should return status code 400 and info message from invalid id', () => {
                 return request
-                    .patch(url)
+                    .patch(`/v1/educators/${defaultEducator.id}/children/groups/${defaultChildrenGroup.id}`)
                     .send({ children: new Array<string>('123') })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -560,14 +577,11 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('DELETE /v1/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
+    describe('DELETE /v1/educators/:educator_id/children/groups/:group_id', () => {
         context('when the delete was successful', () => {
             it('should return status code 204 and no content', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${anotherChildrenGroup.id}`)
-
                 return request
-                    .delete(url)
+                    .delete(`/v1/educators/${defaultEducator.id}/children/groups/${anotherChildrenGroup.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -578,11 +592,8 @@ describe('Routes: HealthProfessional', () => {
 
         context('when the children group is not founded', () => {
             it('should return status code 404 and info message for children group not found', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${new ObjectID()}`)
-
                 return request
-                    .delete(url)
+                    .delete(`/v1/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -594,7 +605,7 @@ describe('Routes: HealthProfessional', () => {
         context('when the children group_id is invalid', () => {
             it('should return status code 400 and info message for invalid children group ID', () => {
                 return request
-                    .delete(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups/123`)
+                    .delete(`/v1/educators/${defaultEducator.id}/children/groups/123}`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -605,11 +616,11 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('GET /v1/healthprofessionals/:healthprofessional_id/children/groups', () => {
-        context('when want all children groups from healthprofessional', () => {
+    describe('GET  /v1/educators/:educator_id/children/groups', () => {
+        context('when want all children groups from educator', () => {
             it('should return status code 200 and a list of children groups', () => {
                 return request
-                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .get(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -632,11 +643,11 @@ describe('Routes: HealthProfessional', () => {
                 try {
                     await deleteAllChildrenGroups().then()
                 } catch (err) {
-                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                    throw new Error('Failure on Educator test: ' + err.message)
                 }
 
                 return request
-                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .get(`/v1/educators/${defaultEducator.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -648,11 +659,11 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('GET /v1/healthprofessionals', () => {
-        context('when want get all health professionals in database', () => {
-            it('should return status code 200 and a list of health professionals', () => {
+    describe('GET /v1/educators', () => {
+        context('when want get all educators in database', () => {
+            it('should return status code 200 and a list of educators', () => {
                 return request
-                    .get('/v1/healthprofessionals')
+                    .get('/v1/educators')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -681,18 +692,18 @@ describe('Routes: HealthProfessional', () => {
                     }).then(result => {
                         createUser({
                             username: 'ihaveauniqueusername',
-                            password: defaultHealthProfessional.password,
-                            type: UserType.HEALTH_PROFESSIONAL,
+                            password: defaultEducator.password,
+                            type: UserType.EDUCATOR,
                             institution: result._id,
                             scopes: new Array('users:read'),
-                            last_login: defaultHealthProfessional.last_login
+                            last_login: defaultEducator.last_login
                         }).then()
                     })
                 } catch (err) {
-                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                    throw new Error('Failure on Educator test: ' + err.message)
                 }
 
-                const url: string = '/v1/healthprofessionals?sort=username&page=1&limit=3'
+                const url: string = '/v1/educators?sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -712,7 +723,8 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body[2]).to.have.property('id')
                         expect(res.body[2]).to.have.property('username')
                         expect(res.body[2]).to.have.property('institution_id')
-                        expect(res.body[2]).to.have.property('children_groups')})
+                        expect(res.body[2]).to.have.property('children_groups')
+                    })
             })
         })
 
@@ -721,11 +733,11 @@ describe('Routes: HealthProfessional', () => {
                 try {
                     await deleteAllUsers().then()
                 } catch (err) {
-                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                    throw new Error('Failure on Educator test: ' + err.message)
                 }
 
                 return request
-                    .get('/v1/healthprofessionals')
+                    .get('/v1/educators')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {

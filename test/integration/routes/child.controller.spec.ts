@@ -58,8 +58,55 @@ describe('Routes: Child', () => {
         }
     })
 
+    describe('NO CONNECTION TO RABBITMQ -> POST /v1/children', () => {
+        context('when posting a new child user', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.dispose()
+
+                    await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+            it('should return status code 201 and the saved child (and show an error log about unable to send ' +
+                'SaveChild event)', () => {
+                const body = {
+                    username: defaultChild.username,
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(201)
+                    .then(res => {
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql(defaultChild.username)
+                        expect(res.body.gender).to.eql(defaultChild.gender)
+                        expect(res.body.age).to.eql(defaultChild.age)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        defaultChild.id = res.body.id
+                    })
+            })
+        })
+    })
+
     describe('POST /v1/children', () => {
         context('when posting a new child user', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
             it('should return status code 201 and the saved child', () => {
                 const body = {
                     username: defaultChild.username,
@@ -260,8 +307,46 @@ describe('Routes: Child', () => {
         })
     })
 
+    describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/children/:child_id', () => {
+        context('when the update was successful', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.dispose()
+
+                    await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+            it('should return status code 200 and updated child (and show an error log about unable to send ' +
+                'UpdateChild event)', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ last_login: defaultChild.last_login, last_sync: defaultChild.last_sync })
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.id).to.eql(defaultChild.id)
+                        expect(res.body.username).to.eql(defaultChild.username)
+                        expect(res.body.gender).to.eql(defaultChild.gender)
+                        expect(res.body.age).to.eql(defaultChild.age)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.last_login).to.eql(defaultChild.last_login!.toISOString())
+                        expect(res.body.last_sync).to.eql(defaultChild.last_sync!.toISOString())
+                    })
+            })
+        })
+    })
+
     describe('PATCH /v1/children/:child_id', () => {
         context('when the update was successful', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
             it('should return status code 200 and updated child', () => {
                 return request
                     .patch(`/v1/children/${defaultChild.id}`)

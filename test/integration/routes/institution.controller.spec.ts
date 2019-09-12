@@ -238,8 +238,50 @@ describe('Routes: Institution', () => {
         })
     })
 
+    describe('NO CONNECTION TO RABBITMQ -> DELETE /v1/institutions/:institution_id', () => {
+        context('when the deletion was successful', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.dispose()
+
+                    await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
+            })
+            it('should return status code 204 and no content (and show an error log about unable to send ' +
+                'DeleteInstitution event)', () => {
+                return request
+                    .delete(`/v1/institutions/${anotherInstitution.id}`)
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
+                    })
+            })
+        })
+    })
+
     describe('DELETE /v1/institutions/:institution_id', () => {
         context('when the deletion was successful', () => {
+            before(async () => {
+                try {
+                    await createInstitution({
+                            type: 'Any Type',
+                            name: 'Other Name',
+                            address: '221A Baker Street, St.',
+                            latitude: 0,
+                            longitude: 0
+                        }
+                    ).then(item => {
+                        anotherInstitution.id = item._id
+                    })
+
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
+            })
             it('should return status code 204 and no content', () => {
                 return request
                     .delete(`/v1/institutions/${anotherInstitution.id}`)

@@ -252,8 +252,45 @@ describe('Routes: Family', () => {
         })
     })
 
+    describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/families/:family_id', () => {
+        context('when the update was successful', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.dispose()
+
+                    await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
+            it('should return status code 200 and updated family (and show an error log about unable to send ' +
+                'UpdateFamily event)', () => {
+                return request
+                    .patch(`/v1/families/${defaultFamily.id}`)
+                    .send({ last_login: defaultFamily.last_login })
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.id).to.eql(defaultFamily.id)
+                        expect(res.body.username).to.eql(defaultFamily.username)
+                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.children).is.an.instanceof(Array)
+                        expect(res.body.children.length).is.eql(1)
+                        expect(res.body.last_login).to.eql(defaultFamily.last_login!.toISOString())
+                    })
+            })
+        })
+    })
+
     describe('PATCH /v1/families/:family_id', () => {
         context('when the update was successful', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 200 and updated family', () => {
                 return request
                     .patch(`/v1/families/${defaultFamily.id}`)
