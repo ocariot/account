@@ -20,6 +20,8 @@ describe('Mappers: HealthProfessionalEntity', () => {
         id: '1f10db551af31e3a913ebb22',
         type: 'healthprofessional',
         scopes: [
+            'children:read',
+            'children:readAll',
             'healthprofessionals:read',
             'healthprofessionals:update',
             'childrengroups:create',

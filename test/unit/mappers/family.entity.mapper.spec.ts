@@ -20,6 +20,7 @@ describe('Mappers: FamilyEntity', () => {
         id: '7cf999f68228fb5e49f1d198',
         type: 'family',
         scopes: [
+            'children:read',
             'families:read',
             'families:update',
             'institutions:read',
