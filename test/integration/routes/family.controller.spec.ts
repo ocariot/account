@@ -282,10 +282,53 @@ describe('Routes: Family', () => {
         })
     })
 
+    describe('RABBITMQ PUBLISHER -> PATCH /v1/families/:family_id', () => {
+        context('when this family is updated successfully and published to the bus', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and with the same values as the family ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subUpdateFamily(message => {
+                        expect(message.event_name).to.eql('FamilyUpdateEvent')
+                        expect(message).to.have.property('timestamp')
+                        expect(message).to.have.property('family')
+                        expect(message.family.id).to.eql(defaultFamily.id)
+                        expect(message.family.username).to.eql(defaultFamily.username)
+                        expect(message.family.institution_id).to.eql(institution.id!.toString())
+                        expect(message.family.children).is.an.instanceof(Array)
+                        expect(message.family.children.length).is.eql(1)
+                        expect(message.family.last_login).to.eql(defaultFamily.last_login!.toISOString())
+                        done()
+                    })
+                    .then(() => {
+                        request
+                            .patch(`/v1/families/${defaultFamily.id}`)
+                            .send({ last_login: defaultFamily.last_login })
+                            .set('Content-Type', 'application/json')
+                            .expect(200)
+                            .then()
+                    })
+                    .catch((err) => {
+                        done(err)
+                    })
+            })
+        })
+    })
+
     describe('PATCH /v1/families/:family_id', () => {
         context('when the update was successful', () => {
             before(async () => {
                 try {
+                    await rabbitmq.dispose()
+
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)

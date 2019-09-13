@@ -262,6 +262,53 @@ describe('Routes: Institution', () => {
         })
     })
 
+    describe('RABBITMQ PUBLISHER -> DELETE /v1/institutions/:institution_id', () => {
+        context('when the institution was deleted successfully and your ID is published on the bus', () => {
+            before(async () => {
+                try {
+                    await createInstitution({
+                            type: 'Any Type',
+                            name: 'Other Name',
+                            address: '221A Baker Street, St.',
+                            latitude: 0,
+                            longitude: 0
+                        }
+                    ).then(item => {
+                        anotherInstitution.id = item._id
+                    })
+
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Institution routes test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and that has the same ID ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subDeleteInstitution(message => {
+                        expect(message.event_name).to.eql('InstitutionDeleteEvent')
+                        expect(message).to.have.property('timestamp')
+                        expect(message).to.have.property('institution')
+                        anotherInstitution.id = message.institution.id
+                        expect(message.institution.id).to.eql(anotherInstitution.id)
+                        done()
+                    })
+                    .then(() => {
+                        request
+                            .delete(`/v1/institutions/${anotherInstitution.id}`)
+                            .set('Content-Type', 'application/json')
+                            .expect(204)
+                            .then()
+                    })
+                    .catch((err) => {
+                        done(err)
+                    })
+            })
+        })
+    })
+
     describe('DELETE /v1/institutions/:institution_id', () => {
         context('when the deletion was successful', () => {
             before(async () => {
@@ -276,6 +323,8 @@ describe('Routes: Institution', () => {
                     ).then(item => {
                         anotherInstitution.id = item._id
                     })
+
+                    await rabbitmq.dispose()
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 } catch (err) {

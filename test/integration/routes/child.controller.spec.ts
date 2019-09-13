@@ -96,11 +96,62 @@ describe('Routes: Child', () => {
         })
     })
 
+    describe('RABBITMQ PUBLISHER -> POST /v1/children', () => {
+        context('when posting a new child user and publishing it to the bus', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and with the same values as the child ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subSaveChild(message => {
+                        expect(message.event_name).to.eql('ChildSaveEvent')
+                        expect(message).to.have.property('timestamp')
+                        expect(message).to.have.property('child')
+                        defaultChild.id = message.child.id
+                        expect(message.child.id).to.eql(defaultChild.id)
+                        expect(message.child.username).to.eql(defaultChild.username)
+                        expect(message.child.gender).to.eql(defaultChild.gender)
+                        expect(message.child.age).to.eql(defaultChild.age)
+                        expect(message.child.institution_id).to.eql(institution.id!.toString())
+                        done()
+                    })
+                    .then(() => {
+                        request
+                            .post('/v1/children')
+                            .send({
+                                username: defaultChild.username,
+                                password: defaultChild.password,
+                                gender: defaultChild.gender,
+                                age: defaultChild.age,
+                                institution_id: institution.id
+                            })
+                            .set('Content-Type', 'application/json')
+                            .expect(201)
+                            .then()
+                    })
+                    .catch((err) => {
+                        done(err)
+                    })
+            })
+        })
+    })
+
     describe('POST /v1/children', () => {
         context('when posting a new child user', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+
+                    await rabbitmq.dispose()
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 } catch (err) {
@@ -338,10 +389,54 @@ describe('Routes: Child', () => {
         })
     })
 
+    describe('RABBITMQ PUBLISHER -> PATCH /v1/children/:child_id', () => {
+        context('when this child is updated successfully and published to the bus', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and with the same values as the child ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subUpdateChild(message => {
+                        expect(message.event_name).to.eql('ChildUpdateEvent')
+                        expect(message).to.have.property('timestamp')
+                        expect(message).to.have.property('child')
+                        expect(message.child.id).to.eql(defaultChild.id)
+                        expect(message.child.username).to.eql(defaultChild.username)
+                        expect(message.child.gender).to.eql(defaultChild.gender)
+                        expect(message.child.age).to.eql(defaultChild.age)
+                        expect(message.child.institution_id).to.eql(institution.id!.toString())
+                        expect(message.child.last_login).to.eql(defaultChild.last_login!.toISOString())
+                        expect(message.child.last_sync).to.eql(defaultChild.last_sync!.toISOString())
+                        done()
+                    })
+                    .then(() => {
+                        request
+                            .patch(`/v1/children/${defaultChild.id}`)
+                            .send({ last_login: defaultChild.last_login, last_sync: defaultChild.last_sync })
+                            .set('Content-Type', 'application/json')
+                            .expect(200)
+                            .then()
+                    })
+                    .catch((err) => {
+                        done(err)
+                    })
+            })
+        })
+    })
+
     describe('PATCH /v1/children/:child_id', () => {
         context('when the update was successful', () => {
             before(async () => {
                 try {
+                    await rabbitmq.dispose()
+
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)

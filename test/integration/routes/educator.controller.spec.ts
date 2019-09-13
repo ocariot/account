@@ -251,10 +251,52 @@ describe('Routes: Educator', () => {
         })
     })
 
+    describe('RABBITMQ PUBLISHER -> PATCH /v1/educators/:educator_id', () => {
+        context('when this educator is updated successfully and published to the bus', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Educator routes test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and with the same values as the educator ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subUpdateEducator(message => {
+                        expect(message.event_name).to.eql('EducatorUpdateEvent')
+                        expect(message).to.have.property('timestamp')
+                        expect(message).to.have.property('educator')
+                        expect(message.educator.id).to.eql(defaultEducator.id)
+                        expect(message.educator.username).to.eql(defaultEducator.username)
+                        expect(message.educator.institution_id).to.eql(institution.id!.toString())
+                        expect(message.educator.last_login).to.eql(defaultEducator.last_login!.toISOString())
+                        expect(message.educator.children_groups).to.be.empty
+                        done()
+                    })
+                    .then(() => {
+                        request
+                            .patch(`/v1/educators/${defaultEducator.id}`)
+                            .send({ last_login: defaultEducator.last_login })
+                            .set('Content-Type', 'application/json')
+                            .expect(200)
+                            .then()
+                    })
+                    .catch((err) => {
+                        done(err)
+                    })
+            })
+        })
+    })
+
     describe('PATCH /v1/educators/:educator_id', () => {
         context('when the update was successful', () => {
             before(async () => {
                 try {
+                    await rabbitmq.dispose()
+
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)

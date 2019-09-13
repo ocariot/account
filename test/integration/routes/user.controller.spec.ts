@@ -217,10 +217,62 @@ describe('Routes: User', () => {
         })
     })
 
+    describe('RABBITMQ PUBLISHER -> DELETE /v1/users/:user_id', () => {
+        context('when the user was deleted successfully and your ID is published on the bus', () => {
+            let userId
+
+            before(async () => {
+                try {
+                    await createUser({
+                            username: 'acoolusername',
+                            password: 'mysecretkey',
+                            application_name: 'Any Name',
+                            institution: institution.id,
+                            type: UserType.APPLICATION
+                        }
+                    ).then(user => {
+                        userId = user._id
+                    })
+
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on User routes test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and that has the same ID ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subDeleteUser(message => {
+                        expect(message.event_name).to.eql('UserDeleteEvent')
+                        expect(message).to.have.property('timestamp')
+                        expect(message).to.have.property('user')
+                        expect(message.user.id).to.eql(userId.toString())
+                        expect(message.user.type).to.eql(UserType.APPLICATION)
+                        expect(message.user).to.have.property('username')
+                        done()
+                    })
+                    .then(() => {
+                        request
+                            .delete(`/v1/users/${userId}`)
+                            .set('Content-Type', 'application/json')
+                            .expect(204)
+                            .then()
+                    })
+                    .catch((err) => {
+                        done(err)
+                    })
+            })
+        })
+    })
+
     describe('DELETE /v1/users/:user_id', () => {
         context('when the user was successful deleted', () => {
             before(async () => {
                 try {
+                    await rabbitmq.dispose()
+
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on User test: ' + err.message)

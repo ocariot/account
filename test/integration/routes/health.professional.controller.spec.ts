@@ -252,10 +252,52 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
+    describe('RABBITMQ PUBLISHER -> PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
+        context('when this health professional is updated successfully and published to the bus', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and with the same values as the health professional ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subUpdateHealthProfessional(message => {
+                        expect(message.event_name).to.eql('HealthProfessionalUpdateEvent')
+                        expect(message).to.have.property('timestamp')
+                        expect(message).to.have.property('healthprofessional')
+                        expect(message.healthprofessional.id).to.eql(defaultHealthProfessional.id)
+                        expect(message.healthprofessional.username).to.eql(defaultHealthProfessional.username)
+                        expect(message.healthprofessional.institution_id).to.eql(institution.id!.toString())
+                        expect(message.healthprofessional.last_login).to.eql(defaultHealthProfessional.last_login!.toISOString())
+                        expect(message.healthprofessional.children_groups).to.be.empty
+                        done()
+                    })
+                    .then(() => {
+                        request
+                            .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
+                            .send({ last_login: defaultHealthProfessional.last_login })
+                            .set('Content-Type', 'application/json')
+                            .expect(200)
+                            .then()
+                    })
+                    .catch((err) => {
+                        done(err)
+                    })
+            })
+        })
+    })
+
     describe('PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
         context('when the update was successful', () => {
             before(async () => {
                 try {
+                    await rabbitmq.dispose()
+
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)

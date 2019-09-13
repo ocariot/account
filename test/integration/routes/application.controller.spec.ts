@@ -270,10 +270,52 @@ describe('Routes: Application', () => {
         })
     })
 
+    describe('RABBITMQ PUBLISHER -> PATCH /applications/:application_id', () => {
+        context('when this application is updated successfully and published to the bus', () => {
+            before(async () => {
+                try {
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Application test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and with the same values as the application ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subUpdateApplication(message => {
+                        expect(message.event_name).to.eql('ApplicationUpdateEvent')
+                        expect(message).to.have.property('timestamp')
+                        expect(message).to.have.property('application')
+                        expect(message.application.id).to.eql(defaultApplication.id)
+                        expect(message.application.username).to.eql(defaultApplication.username)
+                        expect(message.application.institution_id).to.eql(institution.id!.toString())
+                        expect(message.application.application_name).to.eql(defaultApplication.application_name)
+                        expect(message.application.last_login).to.eql(defaultApplication.last_login!.toISOString())
+                        done()
+                    })
+                    .then(() => {
+                        request
+                            .patch(`/v1/applications/${defaultApplication.id}`)
+                            .send({ last_login: defaultApplication.last_login })
+                            .set('Content-Type', 'application/json')
+                            .expect(200)
+                            .then()
+                    })
+                    .catch((err) => {
+                        done(err)
+                    })
+            })
+        })
+    })
+
     describe('PATCH /applications/:application_id', () => {
         context('when the update was successful', () => {
             before(async () => {
                 try {
+                    await rabbitmq.dispose()
+
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Application test: ' + err.message)
