@@ -20,6 +20,8 @@ cache:
   directories:
     - node_modules
 before_script:
+  - sudo rabbitmqctl add_vhost ocariot
+  - sudo rabbitmqctl set_permissions -p ocariot guest ".*" ".*" ".*"
   - npm install && npm install coveralls mocha-lcov-reporter --save-dev
 script:
   - npm test
