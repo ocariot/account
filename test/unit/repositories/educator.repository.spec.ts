@@ -530,7 +530,7 @@ describe('Repositories: Educator', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs({ _id: defaultEducator.id })
+                    .withArgs({ _id: defaultEducator.id, type: UserType.EDUCATOR })
                     .chain('exec')
                     .resolves(defaultEducator)
 
@@ -546,7 +546,7 @@ describe('Repositories: Educator', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs({ _id: defaultEducator.id })
+                    .withArgs({ _id: defaultEducator.id, type: UserType.EDUCATOR })
                     .chain('exec')
                     .resolves(new Educator())
 
@@ -562,7 +562,7 @@ describe('Repositories: Educator', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs({ _id: defaultEducator.id })
+                    .withArgs({ _id: defaultEducator.id, type: UserType.EDUCATOR })
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })

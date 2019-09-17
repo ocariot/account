@@ -530,7 +530,7 @@ describe('Repositories: HealthProfessional', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs({ _id: defaultHealthProfessional.id })
+                    .withArgs({ _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL })
                     .chain('exec')
                     .resolves(defaultHealthProfessional)
 
@@ -546,7 +546,7 @@ describe('Repositories: HealthProfessional', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs({ _id: defaultHealthProfessional.id })
+                    .withArgs({ _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL })
                     .chain('exec')
                     .resolves(new HealthProfessional())
 
@@ -562,7 +562,7 @@ describe('Repositories: HealthProfessional', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs({ _id: defaultHealthProfessional.id })
+                    .withArgs({ _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL })
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })

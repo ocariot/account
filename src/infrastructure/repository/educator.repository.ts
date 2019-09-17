@@ -125,7 +125,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
     public countChildrenGroups(educatorId: string): Promise<number> {
         return new Promise<number>((resolve, reject) => {
-            this.findOne(new Query().fromJSON({ filters: { _id: educatorId } }))
+            this.findOne(new Query().fromJSON({ filters: { _id: educatorId, type: UserType.EDUCATOR } }))
                 .then(result => resolve(result && result.children_groups ? result.children_groups.length : 0))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
