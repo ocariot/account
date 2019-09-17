@@ -71,36 +71,80 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
         })
 
         context('when posting a FitbitLastSyncEvent successfully', () => {
-            let fitbitLastSync: any = {}
-            before(async () => {
-                try {
-                    const child: Child = new ChildMock()
-                    child.last_login = undefined
-                    child.last_sync = undefined
-                    childRepository.create(child).then(result => {
-                        fitbitLastSync = { child_id: result.id,
-                                           last_sync: '2018-11-19T14:40:00' }
+            it('should return an updated child with a new last_sync', (done) => {
+                const child: Child = new ChildMock()
+                child.last_login = undefined
+                child.last_sync = undefined
+                childRepository.create(child).then(childCreate => {
+                    const fitbitLastSync: any = { child_id: childCreate.id, last_sync: '2018-11-19T14:40:00' }
+                    rabbitmq.bus.pubFitbitLastSync(fitbitLastSync).then(() => {
+                        // Wait for 1000 milliseconds for the task to be executed
+                        timeout(1000).then(() => {
+                            const query: IQuery = new Query()
+                            query.addFilter({ _id: fitbitLastSync.child_id, type: UserType.CHILD })
+                            childRepository.findOne(query).then(result => {
+                                expect(result.last_sync).to.eql(new Date(fitbitLastSync.last_sync))
+                                done()
+                            })
+                        })
                     })
-                } catch (err) {
-                    throw new Error('Failure on Subscribe FitbitLastSyncEvent test: ' + err.message)
-                }
+                })
             })
-            it('should return an updated child', (done) => {
+        })
+
+        context('when posting a FitbitLastSyncEvent with an invalid fitbit parameter (invalid child_id))', () => {
+            it('should print a log referring to the wrong "fitbit" format, in this case the child_id that is not in the ' +
+                'correct format', (done) => {
+                const fitbitLastSync: any = { child_id: '5d7fb75ae48591c21a793f701',    // Invalid child_id
+                    last_sync: '2018-11-19T14:40:00' }
                 rabbitmq.bus.pubFitbitLastSync(fitbitLastSync).then(() => {
                     // Wait for 1000 milliseconds for the task to be executed
                     timeout(1000).then(() => {
-                        const query: IQuery = new Query()
-                        query.addFilter({ _id: fitbitLastSync.child_id, type: UserType.CHILD })
-                        childRepository.findOne(query).then(result => {
-                            expect(result.last_sync).to.eql(new Date(fitbitLastSync.last_sync))
-                            // As a new resource saved in the database always has a new id,
-                            // this is necessary before comparing the saved resource in the
-                            // database with the one sent to the bus.
-                            // result[0].child_id = result[0].child_id.toString()
-                            // activity.id = result[0].id
-                            // Comparing the resources
-                            // expect(result[0]).to.eql(activity)
-                            done()
+                        done()
+                    })
+                })
+            })
+        })
+
+        context('when posting a FitbitLastSyncEvent with an invalid fitbit parameter (invalid last_sync))', () => {
+            it('should print a log referring to the wrong "fitbit" format, in this case the last_sync that is not in the ' +
+                'correct format', (done) => {
+                const fitbitLastSync: any = { child_id: '5d7fb75ae48591c21a793f70',
+                    last_sync: '2018-111-19T14:40:00' }    // Invalid last_sync
+                rabbitmq.bus.pubFitbitLastSync(fitbitLastSync).then(() => {
+                    // Wait for 1000 milliseconds for the task to be executed
+                    timeout(1000).then(() => {
+                        done()
+                    })
+                })
+            })
+        })
+
+        context('when posting a FitbitLastSyncEvent successfully (without MongoDB connection, at first)', () => {
+            it('should return an updated child with a new last_sync', (done) => {
+                const child: Child = new ChildMock()
+                child.last_login = undefined
+                child.last_sync = undefined
+                childRepository.create(child).then(childCreate => {
+                    const fitbitLastSync: any = { child_id: childCreate.id, last_sync: '2018-11-19T14:40:00' }
+                    dbConnection.dispose().then(() => {
+                        rabbitmq.bus.pubFitbitLastSync(fitbitLastSync).then(() => {
+                            setTimeout(async () => {
+                                try {
+                                    await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                                } catch (err) {
+                                    console.log(err)
+                                }
+                            }, 1000)
+
+                            setTimeout(() => {
+                                const query: IQuery = new Query()
+                                query.addFilter({ _id: fitbitLastSync.child_id, type: UserType.CHILD })
+                                childRepository.findOne(query).then(result => {
+                                    expect(result.last_sync).to.eql(new Date(fitbitLastSync.last_sync))
+                                    done()
+                                })
+                            }, 2000)
                         })
                     })
                 })
