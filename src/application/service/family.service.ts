@@ -91,6 +91,9 @@ export class FamilyService implements IFamilyService {
             // 1. Validate Family parameters.
             UpdateUserValidator.validate(family)
 
+            // 1.5 Ignore last_login attributes if exists.
+            if (family.last_login) family.last_login = undefined
+
             // 2. Checks if family already exists.
             const id: string = family.id!
             family.id = undefined

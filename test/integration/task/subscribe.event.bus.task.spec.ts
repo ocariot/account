@@ -60,6 +60,14 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
      * SUBSCRIBERS
      */
     describe('SUBSCRIBE FitbitLastSyncEvent', () => {
+        before(async () => {
+            try {
+                await deleteAllInstitutions()
+                await deleteAllUsers()
+            } catch (err) {
+                throw new Error('Failure on Subscribe FitbitLastSyncEvent test: ' + err.message)
+            }
+        })
         // Delete all activities from database after each test case
         afterEach(async () => {
             try {

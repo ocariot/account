@@ -78,6 +78,9 @@ export class ApplicationService implements IApplicationService {
             // 1. Validate Application parameters.
             UpdateUserValidator.validate(application)
 
+            // 1.5 Ignore last_login attributes if exists.
+            if (application.last_login) application.last_login = undefined
+
             // 2. Checks if Application already exists.
             const id: string = application.id!
             application.id = undefined
