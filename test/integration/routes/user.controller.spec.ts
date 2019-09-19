@@ -32,8 +32,10 @@ describe('Routes: User', () => {
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                    { interval: 100 })
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                    { interval: 100, sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
                 const item = await createInstitution({
@@ -235,7 +237,7 @@ describe('Routes: User', () => {
                     })
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on User routes test: ' + err.message)
                 }
@@ -245,13 +247,17 @@ describe('Routes: User', () => {
                 'published on the bus', (done) => {
                 rabbitmq.bus
                     .subDeleteUser(message => {
-                        expect(message.event_name).to.eql('UserDeleteEvent')
-                        expect(message).to.have.property('timestamp')
-                        expect(message).to.have.property('user')
-                        expect(message.user.id).to.eql(userId.toString())
-                        expect(message.user.type).to.eql(UserType.APPLICATION)
-                        expect(message.user).to.have.property('username')
-                        done()
+                        try {
+                            expect(message.event_name).to.eql('UserDeleteEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('user')
+                            expect(message.user.id).to.eql(userId.toString())
+                            expect(message.user.type).to.eql(UserType.APPLICATION)
+                            expect(message.user).to.have.property('username')
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
                     })
                     .then(() => {
                         request
@@ -260,9 +266,7 @@ describe('Routes: User', () => {
                             .expect(204)
                             .then()
                     })
-                    .catch((err) => {
-                        done(err)
-                    })
+                    .catch(done)
             })
         })
     })
@@ -273,7 +277,8 @@ describe('Routes: User', () => {
                 try {
                     await rabbitmq.dispose()
 
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on User test: ' + err.message)
                 }

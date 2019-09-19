@@ -45,8 +45,10 @@ describe('Routes: Family', () => {
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                    { interval: 100 })
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                    { interval: 100, sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
 
@@ -286,7 +288,7 @@ describe('Routes: Family', () => {
             before(async () => {
                 try {
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
@@ -296,15 +298,19 @@ describe('Routes: Family', () => {
                 'published on the bus', (done) => {
                 rabbitmq.bus
                     .subUpdateFamily(message => {
-                        expect(message.event_name).to.eql('FamilyUpdateEvent')
-                        expect(message).to.have.property('timestamp')
-                        expect(message).to.have.property('family')
-                        expect(message.family.id).to.eql(defaultFamily.id)
-                        expect(message.family.username).to.eql(defaultFamily.username)
-                        expect(message.family.institution_id).to.eql(institution.id!.toString())
-                        expect(message.family.children).is.an.instanceof(Array)
-                        expect(message.family.children.length).is.eql(1)
-                        done()
+                        try {
+                            expect(message.event_name).to.eql('FamilyUpdateEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('family')
+                            expect(message.family.id).to.eql(defaultFamily.id)
+                            expect(message.family.username).to.eql(defaultFamily.username)
+                            expect(message.family.institution_id).to.eql(institution.id!.toString())
+                            expect(message.family.children).is.an.instanceof(Array)
+                            expect(message.family.children.length).is.eql(1)
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
                     })
                     .then(() => {
                         request
@@ -314,9 +320,7 @@ describe('Routes: Family', () => {
                             .expect(200)
                             .then()
                     })
-                    .catch((err) => {
-                        done(err)
-                    })
+                    .catch(done)
             })
         })
     })
@@ -327,7 +331,8 @@ describe('Routes: Family', () => {
                 try {
                     await rabbitmq.dispose()
 
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }

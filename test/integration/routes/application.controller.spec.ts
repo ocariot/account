@@ -28,8 +28,10 @@ describe('Routes: Application', () => {
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                    { interval: 100 })
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                    { interval: 100, sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
 
@@ -274,7 +276,7 @@ describe('Routes: Application', () => {
             before(async () => {
                 try {
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
@@ -284,14 +286,18 @@ describe('Routes: Application', () => {
                 'published on the bus', (done) => {
                 rabbitmq.bus
                     .subUpdateApplication(message => {
-                        expect(message.event_name).to.eql('ApplicationUpdateEvent')
-                        expect(message).to.have.property('timestamp')
-                        expect(message).to.have.property('application')
-                        expect(message.application.id).to.eql(defaultApplication.id)
-                        expect(message.application.username).to.eql(defaultApplication.username)
-                        expect(message.application.institution_id).to.eql(institution.id!.toString())
-                        expect(message.application.application_name).to.eql(defaultApplication.application_name)
-                        done()
+                        try {
+                            expect(message.event_name).to.eql('ApplicationUpdateEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('application')
+                            expect(message.application.id).to.eql(defaultApplication.id)
+                            expect(message.application.username).to.eql(defaultApplication.username)
+                            expect(message.application.institution_id).to.eql(institution.id!.toString())
+                            expect(message.application.application_name).to.eql(defaultApplication.application_name)
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
                     })
                     .then(() => {
                         request
@@ -301,9 +307,7 @@ describe('Routes: Application', () => {
                             .expect(200)
                             .then()
                     })
-                    .catch((err) => {
-                        done(err)
-                    })
+                    .catch(done)
             })
         })
     })
@@ -314,7 +318,8 @@ describe('Routes: Application', () => {
                 try {
                     await rabbitmq.dispose()
 
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Application test: ' + err.message)
                 }

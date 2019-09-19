@@ -30,8 +30,10 @@ describe('Routes: Institution', () => {
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                    { interval: 100 })
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                    { interval: 100, sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
             } catch (err) {
@@ -278,7 +280,7 @@ describe('Routes: Institution', () => {
                     })
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Institution routes test: ' + err.message)
                 }
@@ -288,12 +290,16 @@ describe('Routes: Institution', () => {
                 'published on the bus', (done) => {
                 rabbitmq.bus
                     .subDeleteInstitution(message => {
-                        expect(message.event_name).to.eql('InstitutionDeleteEvent')
-                        expect(message).to.have.property('timestamp')
-                        expect(message).to.have.property('institution')
-                        anotherInstitution.id = message.institution.id
-                        expect(message.institution.id).to.eql(anotherInstitution.id)
-                        done()
+                        try {
+                            expect(message.event_name).to.eql('InstitutionDeleteEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('institution')
+                            anotherInstitution.id = message.institution.id
+                            expect(message.institution.id).to.eql(anotherInstitution.id)
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
                     })
                     .then(() => {
                         request
@@ -302,9 +308,7 @@ describe('Routes: Institution', () => {
                             .expect(204)
                             .then()
                     })
-                    .catch((err) => {
-                        done(err)
-                    })
+                    .catch(done)
             })
         })
     })
@@ -326,7 +330,8 @@ describe('Routes: Institution', () => {
 
                     await rabbitmq.dispose()
 
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Institution test: ' + err.message)
                 }

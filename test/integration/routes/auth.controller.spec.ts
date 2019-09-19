@@ -17,7 +17,8 @@ const request = require('supertest')(app.getExpress())
 describe('Routes: Auth', () => {
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                    { interval: 100 })
                 await deleteAllUsers()
 
                 const item: Admin = new Admin()

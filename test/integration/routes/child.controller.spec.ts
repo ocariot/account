@@ -27,8 +27,10 @@ describe('Routes: Child', () => {
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                    { interval: 100 })
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                    { interval: 100, sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
 
@@ -103,7 +105,7 @@ describe('Routes: Child', () => {
                     await deleteAllUsers()
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
@@ -113,16 +115,20 @@ describe('Routes: Child', () => {
                 'published on the bus', (done) => {
                 rabbitmq.bus
                     .subSaveChild(message => {
-                        expect(message.event_name).to.eql('ChildSaveEvent')
-                        expect(message).to.have.property('timestamp')
-                        expect(message).to.have.property('child')
-                        defaultChild.id = message.child.id
-                        expect(message.child.id).to.eql(defaultChild.id)
-                        expect(message.child.username).to.eql(defaultChild.username)
-                        expect(message.child.gender).to.eql(defaultChild.gender)
-                        expect(message.child.age).to.eql(defaultChild.age)
-                        expect(message.child.institution_id).to.eql(institution.id!.toString())
-                        done()
+                        try {
+                            expect(message.event_name).to.eql('ChildSaveEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('child')
+                            defaultChild.id = message.child.id
+                            expect(message.child.id).to.eql(defaultChild.id)
+                            expect(message.child.username).to.eql(defaultChild.username)
+                            expect(message.child.gender).to.eql(defaultChild.gender)
+                            expect(message.child.age).to.eql(defaultChild.age)
+                            expect(message.child.institution_id).to.eql(institution.id!.toString())
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
                     })
                     .then(() => {
                         request
@@ -138,9 +144,7 @@ describe('Routes: Child', () => {
                             .expect(201)
                             .then()
                     })
-                    .catch((err) => {
-                        done(err)
-                    })
+                    .catch(done)
             })
         })
     })
@@ -153,7 +157,8 @@ describe('Routes: Child', () => {
 
                     await rabbitmq.dispose()
 
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
@@ -392,7 +397,7 @@ describe('Routes: Child', () => {
             before(async () => {
                 try {
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
@@ -402,15 +407,19 @@ describe('Routes: Child', () => {
                 'published on the bus', (done) => {
                 rabbitmq.bus
                     .subUpdateChild(message => {
-                        expect(message.event_name).to.eql('ChildUpdateEvent')
-                        expect(message).to.have.property('timestamp')
-                        expect(message).to.have.property('child')
-                        expect(message.child.id).to.eql(defaultChild.id)
-                        expect(message.child.username).to.eql(defaultChild.username)
-                        expect(message.child.gender).to.eql(defaultChild.gender)
-                        expect(message.child.age).to.eql(defaultChild.age)
-                        expect(message.child.institution_id).to.eql(institution.id!.toString())
-                        done()
+                        try {
+                            expect(message.event_name).to.eql('ChildUpdateEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('child')
+                            expect(message.child.id).to.eql(defaultChild.id)
+                            expect(message.child.username).to.eql(defaultChild.username)
+                            expect(message.child.gender).to.eql(defaultChild.gender)
+                            expect(message.child.age).to.eql(defaultChild.age)
+                            expect(message.child.institution_id).to.eql(institution.id!.toString())
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
                     })
                     .then(() => {
                         request
@@ -420,9 +429,7 @@ describe('Routes: Child', () => {
                             .expect(200)
                             .then()
                     })
-                    .catch((err) => {
-                        done(err)
-                    })
+                    .catch(done)
             })
         })
     })
@@ -433,7 +440,8 @@ describe('Routes: Child', () => {
                 try {
                     await rabbitmq.dispose()
 
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }

@@ -36,8 +36,10 @@ describe('Routes: Educator', () => {
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                    { interval: 100 })
+                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                    { interval: 100, sslOptions: { ca: [] } })
                 await deleteAllUsers()
                 await deleteAllInstitutions()
                 await deleteAllChildrenGroups()
@@ -255,7 +257,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                        { receiveFromYourself: true, sslOptions: { ca: [] } })
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Educator routes test: ' + err.message)
                 }
@@ -265,14 +267,18 @@ describe('Routes: Educator', () => {
                 'published on the bus', (done) => {
                 rabbitmq.bus
                     .subUpdateEducator(message => {
-                        expect(message.event_name).to.eql('EducatorUpdateEvent')
-                        expect(message).to.have.property('timestamp')
-                        expect(message).to.have.property('educator')
-                        expect(message.educator.id).to.eql(defaultEducator.id)
-                        expect(message.educator.username).to.eql(defaultEducator.username)
-                        expect(message.educator.institution_id).to.eql(institution.id!.toString())
-                        expect(message.educator.children_groups).to.be.empty
-                        done()
+                        try {
+                            expect(message.event_name).to.eql('EducatorUpdateEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('educator')
+                            expect(message.educator.id).to.eql(defaultEducator.id)
+                            expect(message.educator.username).to.eql(defaultEducator.username)
+                            expect(message.educator.institution_id).to.eql(institution.id!.toString())
+                            expect(message.educator.children_groups).to.be.empty
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
                     })
                     .then(() => {
                         request
@@ -282,9 +288,7 @@ describe('Routes: Educator', () => {
                             .expect(200)
                             .then()
                     })
-                    .catch((err) => {
-                        done(err)
-                    })
+                    .catch(done)
             })
         })
     })
@@ -295,7 +299,8 @@ describe('Routes: Educator', () => {
                 try {
                     await rabbitmq.dispose()
 
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, sslOptions: { ca: [] } })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
