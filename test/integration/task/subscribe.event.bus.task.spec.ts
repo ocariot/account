@@ -38,6 +38,8 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
                 { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
 
             await subscribeEventBusTask.run()
+
+            await timeout(2000)
         } catch (err) {
             throw new Error('Failure on SubscribeEventBusTask test: ' + err.message)
         }
@@ -139,7 +141,8 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
                         await dbConnection.dispose()
                         await rabbitmq.bus.pubFitbitLastSync(fitbitLastSync)
                         setTimeout(async () => {
-                            await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                            await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                                { interval: 100 })
                         }, 1000)
 
                         setTimeout(async () => {

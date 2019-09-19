@@ -17,6 +17,11 @@ const providerEventBusTask: IBackgroundTask = DIContainer.get(Identifier.PROVIDE
 const childRepository: IChildRepository = DIContainer.get(Identifier.CHILD_REPOSITORY)
 
 describe('PROVIDER EVENT BUS TASK', () => {
+    // Timeout function for control of execution
+    const timeout = (milliseconds) => {
+        return new Promise(resolve => setTimeout(resolve, milliseconds))
+    }
+
     // Start DB connection, RabbitMQ connection and ProviderEventBusTask
     before(async () => {
         try {
@@ -30,6 +35,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] }, rpcTimeout: 5000 })
 
             await providerEventBusTask.run()
+
+            await timeout(2000)
         } catch (err) {
             throw new Error('Failure on ProviderEventBusTask test: ' + err.message)
         }
@@ -181,7 +188,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 })
                 after(async () => {
                     try {
-                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                            { interval: 100 })
                         await deleteAllUsers()
                     } catch (err) {
                         throw new Error('Failure on Provider Child test: ' + err.message)
