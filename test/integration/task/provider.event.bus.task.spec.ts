@@ -53,13 +53,13 @@ describe('PROVIDER EVENT BUS TASK', () => {
      * PROVIDERS
      */
     describe('Provider Child', () => {
-        // before(async () => {
-        //     try {
-        //         await deleteAllUsers()
-        //     } catch (err) {
-        //         throw new Error('Failure on Provider Child test: ' + err.message)
-        //     }
-        // })
+        before(async () => {
+            try {
+                await deleteAllUsers()
+            } catch (err) {
+                throw new Error('Failure on Provider Child test: ' + err.message)
+            }
+        })
         context('when retrieving children through a query successfully when there is at least ' +
             'one matching child associated with the institution_id passed in the query', () => {
             // Delete all children from database after each test case
