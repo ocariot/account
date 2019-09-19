@@ -34,7 +34,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
             await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
                 { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] }, rpcTimeout: 5000 })
 
-            await providerEventBusTask.run()
+            providerEventBusTask.run()
 
             await timeout(2000)
         } catch (err) {
@@ -196,19 +196,21 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     }
                 })
                 it('should return a rpc timeout error', (done) => {
-                    dbConnection.dispose().then(async () => {
-                        try {
-                            await rabbitmq.bus.getChildren('?child_id=5a62be07d6f33400146c9b61')
-                            done(new Error('Test failed'))
-                        } catch (err) {
+                    dbConnection.dispose()
+                        .then(async () => {
                             try {
-                                expect(err.message).to.eql('rpc timed out')
-                                done()
-                            } catch (e) {
-                                done(e)
+                                await rabbitmq.bus.getChildren('?child_id=5a62be07d6f33400146c9b61')
+                                done(new Error('RPC should not function normally'))
+                            } catch (err) {
+                                try {
+                                    expect(err.message).to.eql('rpc timed out')
+                                    done()
+                                } catch (err) {
+                                    done(err)
+                                }
                             }
-                        }
-                    })
+                        })
+                        .catch(done)
                 })
             })
     })
