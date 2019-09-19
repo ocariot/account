@@ -349,7 +349,7 @@ describe('Repositories: HealthProfessional', () => {
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
                 defaultHealthProfessional.id = ''
-                queryMock.filters = { _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL }
+                queryMock.filters = { _id: '', type: UserType.HEALTH_PROFESSIONAL }
 
                 sinon
                     .mock(modelFake)
