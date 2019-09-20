@@ -81,11 +81,9 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
             }
         })
 
-        context('when posting a FitbitLastSyncEvent successfully', () => {
+        context('when receiving a FitbitLastSyncEvent successfully', () => {
             it('should return an updated child with a new last_sync', (done) => {
                 const child: Child = new ChildMock()
-                child.last_login = undefined
-                child.last_sync = undefined
                 childRepository.create(child)
                     .then(async childCreate => {
                         const fitbitLastSync: any = { child_id: childCreate.id, last_sync: '2018-11-19T14:40:00' }
@@ -102,7 +100,7 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
             })
         })
 
-        context('when posting a FitbitLastSyncEvent with an invalid fitbit parameter (invalid child_id))', () => {
+        context('when receiving a FitbitLastSyncEvent with an invalid fitbit parameter (invalid child_id))', () => {
             it('should print a log referring to the wrong "fitbit" format, in this case the child_id that is not in the ' +
                 'correct format', (done) => {
                 const fitbitLastSync: any = { child_id: '5d7fb75ae48591c21a793f701',    // Invalid child_id
@@ -116,7 +114,7 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
             })
         })
 
-        context('when posting a FitbitLastSyncEvent with an invalid fitbit parameter (invalid last_sync))', () => {
+        context('when receiving a FitbitLastSyncEvent with an invalid fitbit parameter (invalid last_sync))', () => {
             it('should print a log referring to the wrong "fitbit" format, in this case the last_sync that is not in the ' +
                 'correct format', (done) => {
                 const fitbitLastSync: any = { child_id: '5d7fb75ae48591c21a793f70',
@@ -130,11 +128,9 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
             })
         })
 
-        context('when posting a FitbitLastSyncEvent successfully (without MongoDB connection, at first)', () => {
+        context('when receiving a FitbitLastSyncEvent successfully (without MongoDB connection, at first)', () => {
             it('should return an updated child with a new last_sync', (done) => {
                 const child: Child = new ChildMock()
-                child.last_login = undefined
-                child.last_sync = undefined
                 childRepository.create(child)
                     .then(async childCreate => {
                         const fitbitLastSync: any = { child_id: childCreate.id, last_sync: '2018-11-19T14:40:00' }

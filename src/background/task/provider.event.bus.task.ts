@@ -19,6 +19,7 @@ import { IApplicationRepository } from '../../application/port/application.repos
 import { Institution } from '../../application/domain/model/institution'
 import { IInstitutionRepository } from '../../application/port/institution.repository.interface'
 import { UserType } from '../../application/domain/model/user'
+import { ObjectIdValidator } from '../../application/domain/validator/object.id.validator'
 
 @injectable()
 export class ProviderEventBusTask implements IBackgroundTask {
@@ -51,10 +52,14 @@ export class ProviderEventBusTask implements IBackgroundTask {
         // Providing child resource.
         this._eventBus.bus
             .provideChildren(async (query) => {
-                const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                _query.addFilter({ type: UserType.CHILD })
-                const result: Array<Child> = await this._childRepository.find(_query)
-                return result.map(item => item.toJSON())
+                try {
+                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    _query.addFilter({ type: UserType.CHILD })
+                    const result: Array<Child> = await this._childRepository.find(_query)
+                    return result.map(item => item.toJSON())
+                } catch (err) {
+                    return err
+                }
             })
             .then(() => this._logger.info('Child resource provided successfully!'))
             .catch((err) => this._logger.error(`Error trying to provide Child resource: ${err.message}`))
@@ -62,9 +67,13 @@ export class ProviderEventBusTask implements IBackgroundTask {
         // Providing family resource.
         this._eventBus.bus
             .provideFamilies(async (query) => {
-                const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                const result: Array<Family> = await this._familyRepository.find(_query)
-                return result.map(item => item.toJSON())
+                try {
+                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    const result: Array<Family> = await this._familyRepository.find(_query)
+                    return result.map(item => item.toJSON())
+                } catch (err) {
+                    return err
+                }
             })
             .then(() => this._logger.info('Family resource provided successfully!'))
             .catch((err) => this._logger.error(`Error trying to provide Family resource: ${err.message}`))
@@ -72,8 +81,14 @@ export class ProviderEventBusTask implements IBackgroundTask {
         // Providing family children resource.
         this._eventBus.bus
             .provideFamilyChildren(async (familyId) => {
-                const result: Family = await this._familyRepository.findById(familyId)
-                if (result.children) return result.children.map(item => item.toJSON())
+                try {
+                    ObjectIdValidator.validate(familyId)
+                    const result: Family = await this._familyRepository.findById(familyId)
+                    if (result && result.children) return result.children.map(item => item.toJSON())
+                    return []
+                } catch (err) {
+                    return err
+                }
             })
             .then(() => this._logger.info('Family Children resource provided successfully!'))
             .catch((err) => this._logger.error(`Error trying to provide Family Children resource: ${err.message}`))
@@ -81,9 +96,13 @@ export class ProviderEventBusTask implements IBackgroundTask {
         // Providing educator resource.
         this._eventBus.bus
             .provideEducators(async (query) => {
-                const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                const result: Array<Educator> = await this._educatorRepository.find(_query)
-                return result.map(item => item.toJSON())
+                try {
+                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    const result: Array<Educator> = await this._educatorRepository.find(_query)
+                    return result.map(item => item.toJSON())
+                } catch (err) {
+                    return err
+                }
             })
             .then(() => this._logger.info('Educator resource provided successfully!'))
             .catch((err) => this._logger.error(`Error trying to provide Educator resource: ${err.message}`))
@@ -91,8 +110,14 @@ export class ProviderEventBusTask implements IBackgroundTask {
         // Providing educator children group resource.
         this._eventBus.bus
             .provideEducatorChildrenGroups(async (educatorId) => {
-                const result: Educator = await this._educatorRepository.findById(educatorId)
-                if (result.children_groups) return result.children_groups.map(item => item.toJSON())
+                try {
+                    ObjectIdValidator.validate(educatorId)
+                    const result: Educator = await this._educatorRepository.findById(educatorId)
+                    if (result && result.children_groups) return result.children_groups.map(item => item.toJSON())
+                    return []
+                } catch (err) {
+                    return err
+                }
             })
             .then(() => this._logger.info('Educator ChildrenGroup resource provided successfully!'))
             .catch((err) => this._logger.error(`Error trying to provide Educator ChildrenGroup resource: ${err.message}`))
@@ -100,9 +125,13 @@ export class ProviderEventBusTask implements IBackgroundTask {
         // Providing health professional resource.
         this._eventBus.bus
             .provideHealthProfessionals(async (query) => {
-                const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                const result: Array<HealthProfessional> = await this._healthProfessionalRepository.find(_query)
-                return result.map(item => item.toJSON())
+                try {
+                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    const result: Array<HealthProfessional> = await this._healthProfessionalRepository.find(_query)
+                    return result.map(item => item.toJSON())
+                } catch (err) {
+                    return err
+                }
             })
             .then(() => this._logger.info('HealthProfessional resource provided successfully!'))
             .catch((err) => this._logger.error(`Error trying to provide HealthProfessional resource: ${err.message}`))
@@ -110,8 +139,14 @@ export class ProviderEventBusTask implements IBackgroundTask {
         // Providing health professional children group resource.
         this._eventBus.bus
             .provideHealthProfessionalChildrenGroups(async (healthProfessionalId) => {
-                const result: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
-                if (result.children_groups) return result.children_groups.map(item => item.toJSON())
+                try {
+                    ObjectIdValidator.validate(healthProfessionalId)
+                    const result: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
+                    if (result && result.children_groups) return result.children_groups.map(item => item.toJSON())
+                    return []
+                } catch (err) {
+                    return err
+                }
             })
             .then(() => this._logger.info('HealthProfessional ChildrenGroup resource provided successfully!'))
             .catch((err) => {
@@ -121,10 +156,14 @@ export class ProviderEventBusTask implements IBackgroundTask {
         // Providing application resource.
         this._eventBus.bus
             .provideApplications(async (query) => {
-                const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                _query.addFilter({ type: UserType.APPLICATION })
-                const result: Array<Application> = await this._applicationRepository.find(_query)
-                return result.map(item => item.toJSON())
+                try {
+                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    _query.addFilter({ type: UserType.APPLICATION })
+                    const result: Array<Application> = await this._applicationRepository.find(_query)
+                    return result.map(item => item.toJSON())
+                } catch (err) {
+                    return err
+                }
             })
             .then(() => this._logger.info('Application resource provided successfully!'))
             .catch((err) => this._logger.error(`Error trying to provide Application resource: ${err.message}`))
@@ -132,9 +171,13 @@ export class ProviderEventBusTask implements IBackgroundTask {
         // Providing institution resource.
         this._eventBus.bus
             .provideInstitutions(async (query) => {
-                const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                const result: Array<Institution> = await this._institutionRepository.find(_query)
-                return result.map(item => item.toJSON())
+                try {
+                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    const result: Array<Institution> = await this._institutionRepository.find(_query)
+                    return result.map(item => item.toJSON())
+                } catch (err) {
+                    return err
+                }
             })
             .then(() => this._logger.info('Institution resource provided successfully!'))
             .catch((err) => this._logger.error(`Error trying to provide Institution resource: ${err.message}`))
