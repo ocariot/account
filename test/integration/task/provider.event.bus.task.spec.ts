@@ -127,8 +127,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
             })
         })
 
-        context('when retrieving children through a query successfully when there is at least ' +
-            'one matching child', () => {
+        context('when retrieving children through a query successfully when there is at least one matching child', () => {
             before(async () => {
                 try {
                     const child1: Child = new ChildMock()
@@ -161,6 +160,41 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     child6.gender = Gender.FEMALE
                     child6.age = 7
 
+                    const userModel: any = DIContainer.get(Identifier.USER_REPO_MODEL)
+                    const child7: any = {
+                        username: 'child7',
+                        password: 'password_child7',
+                        type: 'child',
+                        institution: '5a62be07d6f33400146c9b61',
+                        gender: 'male',
+                        age: 7,
+                        created_at: '2019-01-20T00:00:00.000Z'
+                    }
+
+                    const child8: any = {
+                        username: 'child8',
+                        password: 'password_child8',
+                        type: 'child',
+                        institution: '5a62be07d6f33400146c9b62',
+                        gender: 'female',
+                        age: 7,
+                        created_at: '2019-01-30T00:00:00.000Z'
+                    }
+
+                    const child9: any = {
+                        username: 'child9',
+                        password: 'password_child9',
+                        type: 'child',
+                        institution: '5a62be07d6f33400146c9b61',
+                        gender: 'female',
+                        age: 7,
+                        created_at: '2019-01-30T00:00:00.000Z'
+                    }
+
+                    userModel.create(child7)
+                    userModel.create(child8)
+                    userModel.create(child9)
+
                     await childRepository.create(child1)
                     await childRepository.create(child2)
                     await childRepository.create(child3)
@@ -178,10 +212,10 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     throw new Error('Failure on Provider Child test: ' + err.message)
                 }
             })
-            it('should return an array with six children (regardless of association with an institution)', (done) => {
+            it('should return an array with nine children (regardless of association with an institution)', (done) => {
                 rabbitmq.bus.getChildren('')
                     .then(result => {
-                        expect(result.length).to.eql(6)
+                        expect(result.length).to.eql(9)
                         done()
                     })
                     .catch(done)
@@ -205,47 +239,47 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
-            it('should return an array with six children (query all registered children within 1 month)', (done) => {
-                rabbitmq.bus.getChildren('?start_at=2019-09-20T00:00:00.000Z&period=1m')
+            it('should return an array with three children (query all registered children within 1 month)', (done) => {
+                rabbitmq.bus.getChildren('?start_at=2019-01-20T00:00:00.000Z&period=1m')
                     .then(result => {
-                        expect(result.length).to.eql(6)
+                        expect(result.length).to.eql(3)
                         done()
                     })
                     .catch(done)
             })
 
-            it('should return an array with three children (query all registered children within 1 month in an institution)',
+            it('should return an array with two children (query all registered children within 1 month in an institution)',
                 (done) => {
-                    rabbitmq.bus.getChildren('?start_at=2019-09-20T00:00:00.000Z&period=1m&institution=5a62be07d6f33400146c9b61')
+                    rabbitmq.bus.getChildren('?start_at=2019-01-20T00:00:00.000Z&period=1m&institution=5a62be07d6f33400146c9b61')
                         .then(result => {
-                            expect(result.length).to.eql(3)
+                            expect(result.length).to.eql(2)
                             done()
                         })
                         .catch(done)
                 })
 
-            it('should return an array with three children (query all male children)', (done) => {
+            it('should return an array with four children (query all male children)', (done) => {
                 rabbitmq.bus.getChildren('?gender=male')
                     .then(result => {
-                        expect(result.length).to.eql(3)
+                        expect(result.length).to.eql(4)
                         done()
                     })
                     .catch(done)
             })
 
-            it('should return an array with two children (query all male children of an institution)', (done) => {
+            it('should return an array with three children (query all male children of an institution)', (done) => {
                 rabbitmq.bus.getChildren('?gender=male&institution=5a62be07d6f33400146c9b61')
                     .then(result => {
-                        expect(result.length).to.eql(2)
+                        expect(result.length).to.eql(3)
                         done()
                     })
                     .catch(done)
             })
 
-            it('should return an array with three children (query all female children)', (done) => {
+            it('should return an array with five children (query all female children)', (done) => {
                 rabbitmq.bus.getChildren('?gender=female')
                     .then(result => {
-                        expect(result.length).to.eql(3)
+                        expect(result.length).to.eql(5)
                         done()
                     })
                     .catch(done)
@@ -260,8 +294,26 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
-            it('should return an array with four children (query all children under 9 years)', (done) => {
+            it('should return an array with seven children (query all children under 9 years)', (done) => {
                 rabbitmq.bus.getChildren('?age=lt:9')
+                    .then(result => {
+                        expect(result.length).to.eql(7)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with three children (query all children under 9 years of an institution)', (done) => {
+                rabbitmq.bus.getChildren('?age=lt:9&institution=5a62be07d6f33400146c9b61')
+                    .then(result => {
+                        expect(result.length).to.eql(3)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with four children (query all female children under 9 years)', (done) => {
+                rabbitmq.bus.getChildren('?gender=female&age=lt:9')
                     .then(result => {
                         expect(result.length).to.eql(4)
                         done()
@@ -269,28 +321,10 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
-            it('should return an array with one child (query all children under 9 years of an institution)', (done) => {
-                rabbitmq.bus.getChildren('?age=lt:9&institution=5a62be07d6f33400146c9b61')
-                    .then(result => {
-                        expect(result.length).to.eql(1)
-                        done()
-                    })
-                    .catch(done)
-            })
-
-            it('should return an array with two children (query all female children under 9 years)', (done) => {
-                rabbitmq.bus.getChildren('?gender=female&age=lt:9')
-                    .then(result => {
-                        expect(result.length).to.eql(2)
-                        done()
-                    })
-                    .catch(done)
-            })
-
-            it('should return an array with two children (query all female children between 7 and 10 years old)', (done) => {
+            it('should return an array with four children (query all female children between 7 and 10 years old)', (done) => {
                 rabbitmq.bus.getChildren('?gender=female&age=gte:7&age=lte:10')
                     .then(result => {
-                        expect(result.length).to.eql(2)
+                        expect(result.length).to.eql(4)
                         done()
                     })
                     .catch(done)
@@ -304,6 +338,92 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         done()
                     })
                     .catch(done)
+            })
+        })
+
+        context('when trying to retrieve children through invalid query', () => {
+            before(async () => {
+                try {
+                    const child: Child = new ChildMock()
+                    child.institution!.id = '5a62be07d6f33400146c9b61'
+
+                    await childRepository.create(child)
+                } catch (err) {
+                    throw new Error('Failure on Provider Child test: ' + err.message)
+                }
+            })
+            // Delete all children from database after each test case
+            after(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Provider Child test: ' + err.message)
+                }
+            })
+            it('should return a ValidationException (query with an invalid institution id)', (done) => {
+                rabbitmq.bus.getChildren('?institution=invalidInstitutionId')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '.concat(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+
+            it('should return a ValidationException (query with an invalid number)', (done) => {
+                rabbitmq.bus.getChildren('?age=invalidAge')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '.concat('The value \'invalidAge\' of age field is not a number.'))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+
+            it('should return a ValidationException (query with an invalid date (last_login))', (done) => {
+                rabbitmq.bus.getChildren('?last_login=invalidLastLogin')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '
+                                .concat('Datetime: invalidLastLogin is not in valid ISO 8601 format.'))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+
+            it('should return a ValidationException (query with an invalid date (last_sync))', (done) => {
+                rabbitmq.bus.getChildren('?last_sync=invalidLastSync')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '
+                                .concat('Datetime: invalidLastSync is not in valid ISO 8601 format.'))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
             })
         })
 
@@ -519,6 +639,59 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         done()
                     })
                     .catch(done)
+            })
+        })
+
+        context('when trying to retrieve families through invalid query', () => {
+            before(async () => {
+                try {
+                    const family: Family = new FamilyMock()
+                    family.institution!.id = '5a62be07d6f33400146c9b61'
+
+                    await familyRepository.create(family)
+                } catch (err) {
+                    throw new Error('Failure on Provider Family test: ' + err.message)
+                }
+            })
+            // Delete all families from database after each test case
+            after(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Provider Family test: ' + err.message)
+                }
+            })
+            it('should return a ValidationException (query with an invalid institution id)', (done) => {
+                rabbitmq.bus.getFamilies('?institution=invalidInstitutionId')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '.concat(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+
+            it('should return a ValidationException (query with an invalid date (last_login))', (done) => {
+                rabbitmq.bus.getFamilies('?last_login=invalidLastLogin')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '
+                                .concat('Datetime: invalidLastLogin is not in valid ISO 8601 format.'))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
             })
         })
 
@@ -759,6 +932,59 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         done()
                     })
                     .catch(done)
+            })
+        })
+
+        context('when trying to retrieve educators through invalid query', () => {
+            before(async () => {
+                try {
+                    const educator: Educator = new EducatorMock()
+                    educator.institution!.id = '5a62be07d6f33400146c9b61'
+
+                    await educatorRepository.create(educator)
+                } catch (err) {
+                    throw new Error('Failure on Provider Educator test: ' + err.message)
+                }
+            })
+            // Delete all educators from database after each test case
+            after(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Provider Educator test: ' + err.message)
+                }
+            })
+            it('should return a ValidationException (query with an invalid institution id)', (done) => {
+                rabbitmq.bus.getEducators('?institution=invalidInstitutionId')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '.concat(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+
+            it('should return a ValidationException (query with an invalid date (last_login))', (done) => {
+                rabbitmq.bus.getEducators('?last_login=invalidLastLogin')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '
+                                .concat('Datetime: invalidLastLogin is not in valid ISO 8601 format.'))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
             })
         })
 
@@ -1005,6 +1231,59 @@ describe('PROVIDER EVENT BUS TASK', () => {
             })
         })
 
+        context('when trying to retrieve health professionals through invalid query', () => {
+            before(async () => {
+                try {
+                    const healthProfessional: HealthProfessional = new HealthProfessionalMock()
+                    healthProfessional.institution!.id = '5a62be07d6f33400146c9b61'
+
+                    await healthProfRepository.create(healthProfessional)
+                } catch (err) {
+                    throw new Error('Failure on Provider HealthProfessional test: ' + err.message)
+                }
+            })
+            // Delete all health professionals from database after each test case
+            after(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Provider HealthProfessional test: ' + err.message)
+                }
+            })
+            it('should return a ValidationException (query with an invalid institution id)', (done) => {
+                rabbitmq.bus.getHealthProfessionals('?institution=invalidInstitutionId')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '.concat(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+
+            it('should return a ValidationException (query with an invalid date (last_login))', (done) => {
+                rabbitmq.bus.getHealthProfessionals('?last_login=invalidLastLogin')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '
+                                .concat('Datetime: invalidLastLogin is not in valid ISO 8601 format.'))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+        })
+
         context('when trying to recover health professionals through a query unsuccessful (without MongoDB connection)',
             () => {
                 before(async () => {
@@ -1162,6 +1441,59 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 })
         })
 
+        context('when trying to retrieve applications through invalid query', () => {
+            before(async () => {
+                try {
+                    const application: Application = new ApplicationMock()
+                    application.institution!.id = '5a62be07d6f33400146c9b61'
+
+                    await applicationRepository.create(application)
+                } catch (err) {
+                    throw new Error('Failure on Provider Application test: ' + err.message)
+                }
+            })
+            // Delete all applications from database after each test case
+            after(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Provider Application test: ' + err.message)
+                }
+            })
+            it('should return a ValidationException (query with an invalid institution id)', (done) => {
+                rabbitmq.bus.getApplications('?institution=invalidInstitutionId')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '.concat(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+
+            it('should return a ValidationException (query with an invalid date (last_login))', (done) => {
+                rabbitmq.bus.getApplications('?last_login=invalidLastLogin')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '
+                                .concat('Datetime: invalidLastLogin is not in valid ISO 8601 format.'))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+        })
+
         context('when trying to recover applications through a query unsuccessful (without MongoDB connection)',
             () => {
                 before(async () => {
@@ -1216,7 +1548,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
         })
         context('when retrieving institutions through a query successfully', () => {
             const institution: Institution = new InstitutionMock()
-            institution.id = '5a62be07d6f33400146c9b61'
             before(async () => {
                 try {
                     const institutionCreated = await institutionRepository.create(institution)
@@ -1240,6 +1571,10 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         // Comparing the resources
                         expect(result[0].id).to.eql(institution.id)
                         expect(result[0].type).to.eql(institution.type)
+                        expect(result[0].name).to.eql(institution.name)
+                        expect(result[0].address).to.eql(institution.address)
+                        expect(result[0].latitude).to.eql(institution.latitude)
+                        expect(result[0].longitude).to.eql(institution.longitude)
                         done()
                     })
                     .catch(done)
@@ -1252,28 +1587,18 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 try {
                     const institution1: Institution = new InstitutionMock()
                     institution1.name = 'NUTES'
+                    institution1.address = 'R. Baraunas 351'
 
                     const institution2: Institution = new InstitutionMock()
                     institution2.name = 'UEPB'
+                    institution2.address = 'R. Baraunas 351'
 
                     const institution3: Institution = new InstitutionMock()
-                    institution3.name = 'NUTES/UEPB'
-
-                    const institution4: Institution = new InstitutionMock()
-                    institution4.name = 'UFCG'
-
-                    const institution5: Institution = new InstitutionMock()
-                    institution5.name = 'CCT'
-
-                    const institution6: Institution = new InstitutionMock()
-                    institution6.name = 'CIAC'
+                    institution3.type = 'Example Type'
 
                     await institutionRepository.create(institution1)
                     await institutionRepository.create(institution2)
                     await institutionRepository.create(institution3)
-                    await institutionRepository.create(institution4)
-                    await institutionRepository.create(institution5)
-                    await institutionRepository.create(institution6)
                 } catch (err) {
                     throw new Error('Failure on Provider Institution test: ' + err.message)
                 }
@@ -1285,34 +1610,104 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     throw new Error('Failure on Provider Institution test: ' + err.message)
                 }
             })
-            it('should return an array with six institutions (regardless of association with an institution)',
+            it('should return an array with three institutions (query all institutions)',
                 (done) => {
                     rabbitmq.bus.getInstitutions('')
                         .then(result => {
-                            expect(result.length).to.eql(6)
+                            expect(result.length).to.eql(3)
                             done()
                         })
                         .catch(done)
                 })
 
             it('should return an empty array (no institution matches query)', (done) => {
-                rabbitmq.bus.getInstitutions('?id=5a62be07d6f33400146c9b64')
+                rabbitmq.bus.getInstitutions('?id=5a62be07de34500146d9c544')
                     .then(result => {
                         expect(result.length).to.eql(0)
                         done()
                     })
                     .catch(done)
             })
+
+            it('should return an array with two institutions (query institutions by type)', (done) => {
+                rabbitmq.bus.getInstitutions('?type=Institute of Scientific Research')
+                    .then(result => {
+                        expect(result.length).to.eql(2)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with two institutions (query institutions by address)', (done) => {
+                rabbitmq.bus.getInstitutions('?address=R. Baraunas 351')
+                    .then(result => {
+                        expect(result.length).to.eql(2)
+                        done()
+                    })
+                    .catch(done)
+            })
+        })
+
+        context('when trying to retrieve institutions through invalid query', () => {
+            before(async () => {
+                try {
+                    const institution: Institution = new InstitutionMock()
+
+                    await institutionRepository.create(institution)
+                } catch (err) {
+                    throw new Error('Failure on Provider Institution test: ' + err.message)
+                }
+            })
+            // Delete all institutions from database after each test case
+            after(async () => {
+                try {
+                    await deleteAllInstitutions()
+                } catch (err) {
+                    throw new Error('Failure on Provider Institution test: ' + err.message)
+                }
+            })
+            it('should return a ValidationException (query with an invalid number)', (done) => {
+                rabbitmq.bus.getInstitutions('?latitude=invalidLatitude')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '
+                                .concat('The value \'invalidLatitude\' of latitude field is not a number.'))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+
+            it('should return a ValidationException (query with an invalid number))', (done) => {
+                rabbitmq.bus.getInstitutions('?longitude=invalidLongitude')
+                    .then(result => {
+                        expect(result.length).to.eql(0)
+                        done(new Error('The find method of the repository should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '
+                                .concat('The value \'invalidLongitude\' of longitude field is not a number.'))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
         })
 
         context('when trying to recover institutions through a query unsuccessful (without MongoDB connection)',
             () => {
+                const institution: Institution = new InstitutionMock()
                 before(async () => {
                     try {
-                        const institution1: Institution = new InstitutionMock()
-                        institution1.id = '5a62be07d6f33400146c9b61'
-
-                        await institutionRepository.create(institution1)
+                        const institutionCreated = await institutionRepository.create(institution)
+                        institution.id = institutionCreated.id
                     } catch (err) {
                         throw new Error('Failure on Provider Institution test: ' + err.message)
                     }
@@ -1330,7 +1725,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     dbConnection.dispose()
                         .then(async () => {
                             try {
-                                await rabbitmq.bus.getInstitutions('?id=5a62be07d6f33400146c9b61')
+                                await rabbitmq.bus.getInstitutions(`?id=${institution.id}`)
                                 done(new Error('RPC should not function normally'))
                             } catch (err) {
                                 try {
