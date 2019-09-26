@@ -83,15 +83,15 @@ describe('PROVIDER EVENT BUS TASK', () => {
      * PROVIDERS
      */
     describe('Provider Child', () => {
-        before(async () => {
-            try {
-                await deleteAllUsers()
-            } catch (err) {
-                throw new Error('Failure on Provider Child test: ' + err.message)
-            }
-        })
         context('when retrieving children through a query successfully when there is at least ' +
             'one matching child associated with the institution_id passed in the query', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Provider Child test: ' + err.message)
+                }
+            })
             // Delete all children from database after each test case
             after(async () => {
                 try {
@@ -130,6 +130,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
         context('when retrieving children through a query successfully when there is at least one matching child', () => {
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const child1: Child = new ChildMock()
                     child1.institution!.id = '5a62be07d6f33400146c9b61'
                     child1.gender = Gender.MALE
@@ -344,6 +346,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
         context('when trying to retrieve children through invalid query', () => {
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const child: Child = new ChildMock()
                     child.institution!.id = '5a62be07d6f33400146c9b61'
 
@@ -431,13 +435,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
             () => {
                 before(async () => {
                     try {
-                        const child1: Child = new ChildMock()
-                        child1.institution!.id = '5a62be07d6f33400146c9b61'
-                        const child2: Child = new ChildMock()
-                        child2.institution!.id = '5a62be07d6f33400146c9b61'
-
-                        await childRepository.create(child1)
-                        await childRepository.create(child2)
+                        await dbConnection.dispose()
                     } catch (err) {
                         throw new Error('Failure on Provider Child test: ' + err.message)
                     }
@@ -446,44 +444,35 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     try {
                         await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
                             { interval: 100 })
-                        await deleteAllUsers()
                     } catch (err) {
                         throw new Error('Failure on Provider Child test: ' + err.message)
                     }
                 })
                 it('should return a rpc timeout error', (done) => {
-                    dbConnection.dispose()
-                        .then(async () => {
+                    rabbitmq.bus.getChildren('?institution=5a62be07d6f33400146c9b61')
+                        .then(() => {
+                            done(new Error('RPC should not function normally'))
+                        })
+                        .catch((err) => {
                             try {
-                                await rabbitmq.bus.getChildren('?institution=5a62be07d6f33400146c9b61')
-                                done(new Error('RPC should not function normally'))
+                                expect(err.message).to.eql('rpc timed out')
+                                done()
                             } catch (err) {
-                                try {
-                                    expect(err.message).to.eql('rpc timed out')
-                                    done()
-                                } catch (err) {
-                                    done(err)
-                                }
+                                done(err)
                             }
                         })
-                        .catch(done)
                 })
             })
     })
 
     describe('Provider Family / Family Children', () => {
-        before(async () => {
-            try {
-                await deleteAllUsers()
-            } catch (err) {
-                throw new Error('Failure on Provider Family test: ' + err.message)
-            }
-        })
         context('when retrieving families through a query successfully', () => {
             const family: Family = new FamilyMock()
             family.institution!.id = '5a62be07d6f33400146c9b61'
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const childCreated1 = await childRepository.create(family.children![0])
                     family.children![0].id = childCreated1.id
 
@@ -579,6 +568,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
         context('when retrieving families through a query successfully when there is at least one matching family', () => {
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const family1: Family = new FamilyMock()
                     family1.institution!.id = '5a62be07d6f33400146c9b61'
 
@@ -645,6 +636,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
         context('when trying to retrieve families through invalid query', () => {
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const family: Family = new FamilyMock()
                     family.institution!.id = '5a62be07d6f33400146c9b61'
 
@@ -699,13 +692,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
             () => {
                 before(async () => {
                     try {
-                        const family1: Family = new FamilyMock()
-                        family1.institution!.id = '5a62be07d6f33400146c9b61'
-                        const family2: Family = new FamilyMock()
-                        family2.institution!.id = '5a62be07d6f33400146c9b61'
-
-                        await familyRepository.create(family1)
-                        await familyRepository.create(family2)
+                        await dbConnection.dispose()
                     } catch (err) {
                         throw new Error('Failure on Provider Family test: ' + err.message)
                     }
@@ -714,44 +701,35 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     try {
                         await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
                             { interval: 100 })
-                        await deleteAllUsers()
                     } catch (err) {
                         throw new Error('Failure on Provider Family test: ' + err.message)
                     }
                 })
                 it('should return a rpc timeout error', (done) => {
-                    dbConnection.dispose()
-                        .then(async () => {
+                    rabbitmq.bus.getFamilies('?institution=5a62be07d6f33400146c9b61')
+                        .then(() => {
+                            done(new Error('RPC should not function normally'))
+                        })
+                        .catch((err) => {
                             try {
-                                await rabbitmq.bus.getFamilies('?institution=5a62be07d6f33400146c9b61')
-                                done(new Error('RPC should not function normally'))
+                                expect(err.message).to.eql('rpc timed out')
+                                done()
                             } catch (err) {
-                                try {
-                                    expect(err.message).to.eql('rpc timed out')
-                                    done()
-                                } catch (err) {
-                                    done(err)
-                                }
+                                done(err)
                             }
                         })
-                        .catch(done)
                 })
             })
     })
 
     describe('Provider Educator / Educator ChildrenGroup', () => {
-        before(async () => {
-            try {
-                await deleteAllUsers()
-            } catch (err) {
-                throw new Error('Failure on Provider Educator test: ' + err.message)
-            }
-        })
         context('when retrieving educators through a query successfully', () => {
             const educator: Educator = new EducatorMock()
             educator.institution!.id = '5a62be07d6f33400146c9b61'
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const childCreated1 = await childRepository.create(educator.children_groups![0].children![0])
                     const childCreated2 = await childRepository.create(educator.children_groups![0].children![1])
                     educator.children_groups![0].children![0].id = childCreated1.id
@@ -872,6 +850,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
         context('when retrieving educators through a query successfully when there is at least one matching educator', () => {
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const educator1: Educator = new EducatorMock()
                     educator1.institution!.id = '5a62be07d6f33400146c9b61'
 
@@ -938,6 +918,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
         context('when trying to retrieve educators through invalid query', () => {
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const educator: Educator = new EducatorMock()
                     educator.institution!.id = '5a62be07d6f33400146c9b61'
 
@@ -992,13 +974,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
             () => {
                 before(async () => {
                     try {
-                        const educator1: Educator = new EducatorMock()
-                        educator1.institution!.id = '5a62be07d6f33400146c9b61'
-                        const educator2: Educator = new EducatorMock()
-                        educator2.institution!.id = '5a62be07d6f33400146c9b61'
-
-                        await educatorRepository.create(educator1)
-                        await educatorRepository.create(educator2)
+                        await dbConnection.dispose()
                     } catch (err) {
                         throw new Error('Failure on Provider Educator test: ' + err.message)
                     }
@@ -1007,44 +983,35 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     try {
                         await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
                             { interval: 100 })
-                        await deleteAllUsers()
                     } catch (err) {
                         throw new Error('Failure on Provider Educator test: ' + err.message)
                     }
                 })
                 it('should return a rpc timeout error', (done) => {
-                    dbConnection.dispose()
-                        .then(async () => {
+                    rabbitmq.bus.getEducators('?institution=5a62be07d6f33400146c9b61')
+                        .then(() => {
+                            done(new Error('RPC should not function normally'))
+                        })
+                        .catch((err) => {
                             try {
-                                await rabbitmq.bus.getEducators('?institution=5a62be07d6f33400146c9b61')
-                                done(new Error('RPC should not function normally'))
+                                expect(err.message).to.eql('rpc timed out')
+                                done()
                             } catch (err) {
-                                try {
-                                    expect(err.message).to.eql('rpc timed out')
-                                    done()
-                                } catch (err) {
-                                    done(err)
-                                }
+                                done(err)
                             }
                         })
-                        .catch(done)
                 })
             })
     })
 
     describe('Provider HealthProfessional / HealthProfessional ChildrenGroup', () => {
-        before(async () => {
-            try {
-                await deleteAllUsers()
-            } catch (err) {
-                throw new Error('Failure on Provider HealthProfessional test: ' + err.message)
-            }
-        })
         context('when retrieving health professionals through a query successfully', () => {
             const healthProfessional: HealthProfessional = new HealthProfessionalMock()
             healthProfessional.institution!.id = '5a62be07d6f33400146c9b61'
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const childCreated1 = await childRepository.create(healthProfessional.children_groups![0].children![0])
                     const childCreated2 = await childRepository.create(healthProfessional.children_groups![0].children![1])
                     healthProfessional.children_groups![0].children![0].id = childCreated1.id
@@ -1166,6 +1133,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
             'health professional', () => {
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const healthProfessional1: HealthProfessional = new HealthProfessionalMock()
                     healthProfessional1.institution!.id = '5a62be07d6f33400146c9b61'
 
@@ -1203,13 +1172,13 @@ describe('PROVIDER EVENT BUS TASK', () => {
             })
             it('should return an array with six health professionals (regardless of association with an institution)',
                 (done) => {
-                rabbitmq.bus.getHealthProfessionals('')
-                    .then(result => {
-                        expect(result.length).to.eql(6)
-                        done()
-                    })
-                    .catch(done)
-            })
+                    rabbitmq.bus.getHealthProfessionals('')
+                        .then(result => {
+                            expect(result.length).to.eql(6)
+                            done()
+                        })
+                        .catch(done)
+                })
 
             it('should return an empty array (no health professional matches query)', (done) => {
                 rabbitmq.bus.getHealthProfessionals('?institution=5a62be07d6f33400146c9b64')
@@ -1222,18 +1191,20 @@ describe('PROVIDER EVENT BUS TASK', () => {
 
             it('should return an array with three health professionals (query all health professionals by institution)',
                 (done) => {
-                rabbitmq.bus.getHealthProfessionals('?institution=5a62be07de34500146d9c544')
-                    .then(result => {
-                        expect(result.length).to.eql(3)
-                        done()
-                    })
-                    .catch(done)
-            })
+                    rabbitmq.bus.getHealthProfessionals('?institution=5a62be07de34500146d9c544')
+                        .then(result => {
+                            expect(result.length).to.eql(3)
+                            done()
+                        })
+                        .catch(done)
+                })
         })
 
         context('when trying to retrieve health professionals through invalid query', () => {
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const healthProfessional: HealthProfessional = new HealthProfessionalMock()
                     healthProfessional.institution!.id = '5a62be07d6f33400146c9b61'
 
@@ -1288,13 +1259,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
             () => {
                 before(async () => {
                     try {
-                        const healthProfessional1: HealthProfessional = new HealthProfessionalMock()
-                        healthProfessional1.institution!.id = '5a62be07d6f33400146c9b61'
-                        const healthProfessional2: HealthProfessional = new HealthProfessionalMock()
-                        healthProfessional2.institution!.id = '5a62be07d6f33400146c9b61'
-
-                        await healthProfRepository.create(healthProfessional1)
-                        await healthProfRepository.create(healthProfessional2)
+                        await dbConnection.dispose()
                     } catch (err) {
                         throw new Error('Failure on Provider HealthProfessional test: ' + err.message)
                     }
@@ -1303,44 +1268,35 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     try {
                         await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
                             { interval: 100 })
-                        await deleteAllUsers()
                     } catch (err) {
                         throw new Error('Failure on Provider HealthProfessional test: ' + err.message)
                     }
                 })
                 it('should return a rpc timeout error', (done) => {
-                    dbConnection.dispose()
-                        .then(async () => {
+                    rabbitmq.bus.getHealthProfessionals('?institution=5a62be07d6f33400146c9b61')
+                        .then(() => {
+                            done(new Error('RPC should not function normally'))
+                        })
+                        .catch((err) => {
                             try {
-                                await rabbitmq.bus.getHealthProfessionals('?institution=5a62be07d6f33400146c9b61')
-                                done(new Error('RPC should not function normally'))
+                                expect(err.message).to.eql('rpc timed out')
+                                done()
                             } catch (err) {
-                                try {
-                                    expect(err.message).to.eql('rpc timed out')
-                                    done()
-                                } catch (err) {
-                                    done(err)
-                                }
+                                done(err)
                             }
                         })
-                        .catch(done)
                 })
             })
     })
 
     describe('Provider Application', () => {
-        before(async () => {
-            try {
-                await deleteAllUsers()
-            } catch (err) {
-                throw new Error('Failure on Provider Application test: ' + err.message)
-            }
-        })
         context('when retrieving applications through a query successfully', () => {
             const application: Application = new ApplicationMock()
             application.institution!.id = '5a62be07d6f33400146c9b61'
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const applicationCreated = await applicationRepository.create(application)
                     application.id = applicationCreated.id
                 } catch (err) {
@@ -1376,6 +1332,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
             'application', () => {
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const application1: Application = new ApplicationMock()
                     application1.institution!.id = '5a62be07d6f33400146c9b61'
 
@@ -1444,6 +1402,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
         context('when trying to retrieve applications through invalid query', () => {
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     const application: Application = new ApplicationMock()
                     application.institution!.id = '5a62be07d6f33400146c9b61'
 
@@ -1498,13 +1458,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
             () => {
                 before(async () => {
                     try {
-                        const application1: Application = new ApplicationMock()
-                        application1.institution!.id = '5a62be07d6f33400146c9b61'
-                        const application2: Application = new ApplicationMock()
-                        application2.institution!.id = '5a62be07d6f33400146c9b61'
-
-                        await applicationRepository.create(application1)
-                        await applicationRepository.create(application2)
+                        await dbConnection.dispose()
                     } catch (err) {
                         throw new Error('Failure on Provider Application test: ' + err.message)
                     }
@@ -1513,43 +1467,34 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     try {
                         await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
                             { interval: 100 })
-                        await deleteAllUsers()
                     } catch (err) {
                         throw new Error('Failure on Provider Application test: ' + err.message)
                     }
                 })
                 it('should return a rpc timeout error', (done) => {
-                    dbConnection.dispose()
-                        .then(async () => {
+                    rabbitmq.bus.getApplications('?institution=5a62be07d6f33400146c9b61')
+                        .then(() => {
+                            done(new Error('RPC should not function normally'))
+                        })
+                        .catch((err) => {
                             try {
-                                await rabbitmq.bus.getApplications('?institution=5a62be07d6f33400146c9b61')
-                                done(new Error('RPC should not function normally'))
+                                expect(err.message).to.eql('rpc timed out')
+                                done()
                             } catch (err) {
-                                try {
-                                    expect(err.message).to.eql('rpc timed out')
-                                    done()
-                                } catch (err) {
-                                    done(err)
-                                }
+                                done(err)
                             }
                         })
-                        .catch(done)
                 })
             })
     })
 
     describe('Provider Institution', () => {
-        before(async () => {
-            try {
-                await deleteAllInstitutions()
-            } catch (err) {
-                throw new Error('Failure on Provider Institution test: ' + err.message)
-            }
-        })
         context('when retrieving institutions through a query successfully', () => {
             const institution: Institution = new InstitutionMock()
             before(async () => {
                 try {
+                    await deleteAllInstitutions()
+
                     const institutionCreated = await institutionRepository.create(institution)
                     institution.id = institutionCreated.id
                 } catch (err) {
@@ -1585,6 +1530,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
             'institution', () => {
             before(async () => {
                 try {
+                    await deleteAllInstitutions()
+
                     const institution1: Institution = new InstitutionMock()
                     institution1.name = 'NUTES'
                     institution1.address = 'R. Baraunas 351'
@@ -1651,6 +1598,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
         context('when trying to retrieve institutions through invalid query', () => {
             before(async () => {
                 try {
+                    await deleteAllInstitutions()
+
                     const institution: Institution = new InstitutionMock()
 
                     await institutionRepository.create(institution)
@@ -1703,11 +1652,9 @@ describe('PROVIDER EVENT BUS TASK', () => {
 
         context('when trying to recover institutions through a query unsuccessful (without MongoDB connection)',
             () => {
-                const institution: Institution = new InstitutionMock()
                 before(async () => {
                     try {
-                        const institutionCreated = await institutionRepository.create(institution)
-                        institution.id = institutionCreated.id
+                        await dbConnection.dispose()
                     } catch (err) {
                         throw new Error('Failure on Provider Institution test: ' + err.message)
                     }
@@ -1716,27 +1663,23 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     try {
                         await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
                             { interval: 100 })
-                        await deleteAllInstitutions()
                     } catch (err) {
                         throw new Error('Failure on Provider Institution test: ' + err.message)
                     }
                 })
                 it('should return a rpc timeout error', (done) => {
-                    dbConnection.dispose()
-                        .then(async () => {
+                    rabbitmq.bus.getInstitutions('?id=5a62be07de34500146d9c544')
+                        .then(() => {
+                            done(new Error('RPC should not function normally'))
+                        })
+                        .catch((err) => {
                             try {
-                                await rabbitmq.bus.getInstitutions(`?id=${institution.id}`)
-                                done(new Error('RPC should not function normally'))
+                                expect(err.message).to.eql('rpc timed out')
+                                done()
                             } catch (err) {
-                                try {
-                                    expect(err.message).to.eql('rpc timed out')
-                                    done()
-                                } catch (err) {
-                                    done(err)
-                                }
+                                done(err)
                             }
                         })
-                        .catch(done)
                 })
             })
     })

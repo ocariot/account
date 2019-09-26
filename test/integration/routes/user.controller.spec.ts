@@ -34,8 +34,9 @@ describe('Routes: User', () => {
             try {
                 await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
                     { interval: 100 })
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                    { interval: 100, sslOptions: { ca: [] } })
+
+                await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+
                 await deleteAllUsers()
                 await deleteAllInstitutions()
                 const item = await createInstitution({
@@ -187,9 +188,7 @@ describe('Routes: User', () => {
         context('when the deletion was successful', () => {
             before(async () => {
                 try {
-                    await rabbitmq.dispose()
-
-                    await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                //
                 } catch (err) {
                     throw new Error('Failure on User test: ' + err.message)
                 }
@@ -243,6 +242,15 @@ describe('Routes: User', () => {
                 }
             })
 
+            after(async () => {
+                try {
+                    await rabbitmq.dispose()
+                    await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on User test: ' + err.message)
+                }
+            })
+
             it('The subscriber should receive a message in the correct format and that has the same ID ' +
                 'published on the bus', (done) => {
                 rabbitmq.bus
@@ -265,6 +273,7 @@ describe('Routes: User', () => {
                             .set('Content-Type', 'application/json')
                             .expect(204)
                             .then()
+                            .catch(done)
                     })
                     .catch(done)
             })
@@ -275,10 +284,7 @@ describe('Routes: User', () => {
         context('when the user was successful deleted', () => {
             before(async () => {
                 try {
-                    await rabbitmq.dispose()
-
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                        { interval: 100, sslOptions: { ca: [] } })
+                //
                 } catch (err) {
                     throw new Error('Failure on User test: ' + err.message)
                 }

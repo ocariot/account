@@ -47,8 +47,9 @@ describe('Routes: Family', () => {
             try {
                 await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
                     { interval: 100 })
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                    { interval: 100, sslOptions: { ca: [] } })
+
+                await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+
                 await deleteAllUsers()
                 await deleteAllInstitutions()
 
@@ -258,9 +259,7 @@ describe('Routes: Family', () => {
         context('when the update was successful', () => {
             before(async () => {
                 try {
-                    await rabbitmq.dispose()
-
-                    await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                //
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
@@ -294,6 +293,15 @@ describe('Routes: Family', () => {
                 }
             })
 
+            after(async () => {
+                try {
+                    await rabbitmq.dispose()
+                    await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
+
             it('The subscriber should receive a message in the correct format and with the same values as the family ' +
                 'published on the bus', (done) => {
                 rabbitmq.bus
@@ -319,6 +327,7 @@ describe('Routes: Family', () => {
                             .set('Content-Type', 'application/json')
                             .expect(200)
                             .then()
+                            .catch(done)
                     })
                     .catch(done)
             })
@@ -329,10 +338,7 @@ describe('Routes: Family', () => {
         context('when the update was successful', () => {
             before(async () => {
                 try {
-                    await rabbitmq.dispose()
-
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
-                        { interval: 100, sslOptions: { ca: [] } })
+                //
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }

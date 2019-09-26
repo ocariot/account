@@ -84,16 +84,21 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
         context('when receiving a FitbitLastSyncEvent successfully', () => {
             it('should return an updated child with a new last_sync', (done) => {
                 const child: Child = new ChildMock()
+
                 childRepository.create(child)
                     .then(async childCreate => {
                         const fitbitLastSync: any = { child_id: childCreate.id, last_sync: '2018-11-19T14:40:00' }
                         await rabbitmq.bus.pubFitbitLastSync(fitbitLastSync)
+
                         // Wait for 2000 milliseconds for the task to be executed
                         await timeout(2000)
+
                         const query: IQuery = new Query()
                         query.addFilter({ _id: fitbitLastSync.child_id, type: UserType.CHILD })
+
                         const result = await childRepository.findOne(query)
                         expect(result.last_sync).to.eql(new Date(fitbitLastSync.last_sync))
+
                         done()
                     })
                     .catch(done)
@@ -138,14 +143,18 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
                         await rabbitmq.bus.pubFitbitLastSync(fitbitLastSync)
 
                         await timeout(1000)
+
                         await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
                             { interval: 100 })
 
                         await timeout(2000)
+
                         const query: IQuery = new Query()
                         query.addFilter({ _id: fitbitLastSync.child_id, type: UserType.CHILD })
+
                         const result = await childRepository.findOne(query)
                         expect(result.last_sync).to.eql(new Date(fitbitLastSync.last_sync))
+
                         done()
                     })
                     .catch(done)
