@@ -79,7 +79,6 @@ export class ChildService implements IChildService {
     }
 
     public async getAll(query: IQuery): Promise<Array<Child>> {
-        query.addFilter({ type: UserType.CHILD })
         return this._childRepository.find(query)
     }
 

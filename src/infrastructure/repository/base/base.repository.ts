@@ -54,6 +54,12 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         })
     }
 
+    public findByUsername(username: string, users: Array<any>): Array<T> {
+        return users.filter(elem => {
+            return elem.username.toLowerCase() === username.toLowerCase()
+        }).map(item => this.mapper.transform(item))
+    }
+
     public findOne(query: IQuery): Promise<T> {
         const q: any = query.toJSON()
         return new Promise<T>((resolve, reject) => {

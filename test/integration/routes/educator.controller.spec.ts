@@ -29,7 +29,6 @@ describe('Routes: Educator', () => {
     const institution: Institution = new InstitutionMock()
 
     const defaultEducator: Educator = new EducatorMock()
-    defaultEducator.password = 'educator_password'
     defaultEducator.institution = institution
 
     const defaultChild: Child = new ChildMock()
@@ -54,19 +53,6 @@ describe('Routes: Educator', () => {
                     longitude: 0
                 })
                 institution.id = item._id.toString()
-
-                const child = await createUser({
-                    username: 'anotherusername',
-                    password: 'mysecretkey',
-                    type: UserType.CHILD,
-                    gender: 'male',
-                    age: 11,
-                    institution: new ObjectID(institution.id),
-                    scopes: new Array('users:read')
-                }).then()
-
-                defaultChild.id = child.id.toString()
-
             } catch (err) {
                 throw new Error('Failure on Educator test: ' + err.message)
             }
@@ -208,19 +194,44 @@ describe('Routes: Educator', () => {
     })
 
     describe('GET /v1/educators/:educator_id', () => {
-        context('when get a unique educator in database', () => {
-            let result
+        context('when get an unique educator in database', () => {
+            let resultEducator
+            let resultChild
+            let resultChildrenGroup
 
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
-                    result = await createUser({
+                    resultEducator = await createUser({
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultEducator.id
+                    })
+
+                    await updateUser({
+                        id: resultEducator.id,
+                        children_groups: [resultChildrenGroup.id]
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -228,14 +239,27 @@ describe('Routes: Educator', () => {
             })
             it('should return status code 200 and a educator', () => {
                 return request
-                    .get(`/v1/educators/${result.id}`)
+                    .get(`/v1/educators/${resultEducator.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultEducator.username)
                         expect(res.body.institution_id).to.eql(institution.id)
-                        expect(res.body.children_groups.length).to.eql(0)
+                        expect(res.body.children_groups.length).to.eql(1)
+                        for (const childrenGroup of res.body.children_groups) {
+                            expect(childrenGroup).to.have.property('id')
+                            expect(childrenGroup.name).to.eql(defaultChildrenGroup.name)
+                            expect(childrenGroup.children.length).to.eql(1)
+                            for (const child of childrenGroup.children) {
+                                expect(child).to.have.property('id')
+                                expect(child.username).to.eql(defaultChild.username)
+                                expect(child.institution_id).to.eql(institution.id)
+                                expect(child.gender).to.eql(defaultChild.gender)
+                                expect(child.age).to.eql(defaultChild.age)
+                            }
+                            expect(childrenGroup.school_class).to.eql(defaultChildrenGroup.school_class)
+                        }
                     })
             })
         })
@@ -297,7 +321,7 @@ describe('Routes: Educator', () => {
                 'UpdateEducator event)', () => {
                 return request
                     .patch(`/v1/educators/${result.id}`)
-                    .send({ username: 'new_username' })
+                    .send({ username: 'new_username', last_login: defaultEducator.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -529,6 +553,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultChild = await createUser({
                         username: defaultChild.username,
@@ -567,11 +592,13 @@ describe('Routes: Educator', () => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.name).to.eql(defaultChildrenGroup.name)
                         expect(res.body.children.length).to.eql(1)
-                        expect(res.body.children[0]).to.have.property('id')
-                        expect(res.body.children[0].username).to.eql(defaultChild.username)
-                        expect(res.body.children[0].institution_id).to.eql(institution.id)
-                        expect(res.body.children[0].gender).to.eql(defaultChild.gender)
-                        expect(res.body.children[0].age).to.eql(defaultChild.age)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                     })
             })
@@ -584,6 +611,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -637,6 +665,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     result = await createUser({
                         username: defaultEducator.username,
@@ -669,6 +698,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     result = await createUser({
                         username: defaultEducator.username,
@@ -707,6 +737,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     result = await createUser({
                         username: defaultEducator.username,
@@ -741,7 +772,7 @@ describe('Routes: Educator', () => {
     })
 
     describe('GET /v1/educators/:educator_id/children/groups/:group_id', () => {
-        context('when want get a unique children group', () => {
+        context('when want get an unique children group', () => {
             let resultEducator
             let resultChild
             let resultChildrenGroup
@@ -749,6 +780,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -792,11 +824,13 @@ describe('Routes: Educator', () => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.name).to.eql(defaultChildrenGroup.name)
                         expect(res.body.children.length).to.eql(1)
-                        expect(res.body.children[0]).to.have.property('id')
-                        expect(res.body.children[0].username).to.eql(defaultChild.username)
-                        expect(res.body.children[0].institution_id).to.eql(institution.id)
-                        expect(res.body.children[0].gender).to.eql(defaultChild.gender)
-                        expect(res.body.children[0].age).to.eql(defaultChild.age)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                     })
             })
@@ -806,6 +840,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
@@ -845,6 +880,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -874,7 +910,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 200 and a updated children group', () => {
+            it('should return status code 200 and an updated children group', () => {
                 return request
                     .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
                     .send({ school_class: '5th Grade' })
@@ -884,11 +920,13 @@ describe('Routes: Educator', () => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.name).to.eql(defaultChildrenGroup.name)
                         expect(res.body.children.length).to.eql(1)
-                        expect(res.body.children[0]).to.have.property('id')
-                        expect(res.body.children[0].username).to.eql(defaultChild.username)
-                        expect(res.body.children[0].institution_id).to.eql(institution.id)
-                        expect(res.body.children[0].gender).to.eql(defaultChild.gender)
-                        expect(res.body.children[0].age).to.eql(defaultChild.age)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                         expect(res.body.school_class).to.eql('5th Grade')
                     })
             })
@@ -902,6 +940,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -958,6 +997,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -1001,7 +1041,7 @@ describe('Routes: Educator', () => {
             })
         })
 
-        context('when the children group was updated with a invalid child id', () => {
+        context('when the children group was updated with an invalid child id', () => {
             let resultEducator
             let resultChild
             let resultChildrenGroup
@@ -1009,6 +1049,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -1062,6 +1103,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -1108,6 +1150,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -1155,6 +1198,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -1227,6 +1271,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -1295,6 +1340,7 @@ describe('Routes: Educator', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
@@ -1307,13 +1353,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 200 and a empty array', async () => {
-                try {
-                    await deleteAllChildrenGroups().then()
-                } catch (err) {
-                    throw new Error('Failure on Educator test: ' + err.message)
-                }
-
+            it('should return status code 200 and an empty array', async () => {
                 return request
                     .get(`/v1/educators/${resultEducator.id}/children/groups`)
                     .set('Content-Type', 'application/json')
@@ -1328,11 +1368,27 @@ describe('Routes: Educator', () => {
 
     describe('GET /v1/educators', () => {
         context('when want get all educators in database', () => {
+            let resultChild
+            let resultEducator
+            let resultEducator2
+            let resultChildrenGroup
+            let resultChildrenGroup2
+
             before(async () => {
                 try {
                     await deleteAllUsers()
 
-                    await createUser({
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultEducator = await createUser({
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
@@ -1340,12 +1396,36 @@ describe('Routes: Educator', () => {
                         scopes: new Array('users:read')
                     })
 
-                    await createUser({
-                        username: 'other_username',
+                    resultEducator2 = await createUser({
+                        username: 'other_educator',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultEducator.id
+                    })
+
+                    resultChildrenGroup2 = await createChildrenGroup({
+                        name: 'other_children_group_name',
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultEducator2.id
+                    })
+
+                    await updateUser({
+                        id: resultEducator.id,
+                        children_groups: [resultChildrenGroup.id]
+                    })
+
+                    await updateUser({
+                        id: resultEducator2.id,
+                        children_groups: [resultChildrenGroup2.id]
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -1363,12 +1443,29 @@ describe('Routes: Educator', () => {
                             expect(educator).to.have.property('username')
                             expect(educator).to.have.property('institution_id')
                             expect(educator).to.have.property('children_groups')
+                            for (const childrenGroup of educator.children_groups) {
+                                expect(childrenGroup).to.have.property('id')
+                                expect(childrenGroup).to.have.property('name')
+                                expect(childrenGroup).to.have.property('children')
+                                for (const child of childrenGroup.children) {
+                                    expect(child).to.have.property('id')
+                                    expect(child).to.have.property('username')
+                                    expect(child).to.have.property('institution_id')
+                                    expect(child).to.have.property('gender')
+                                    expect(child).to.have.property('age')
+                                }
+                                expect(childrenGroup).to.have.property('school_class')
+                            }
                         }
                     })
             })
         })
 
         context('when use query strings', () => {
+            let resultEducator
+            let resultChild
+            let resultChildrenGroup
+
             before(async () => {
                 try {
                     await deleteAllUsers()
@@ -1381,37 +1478,73 @@ describe('Routes: Educator', () => {
                         scopes: new Array('users:read')
                     })
 
-                    await createUser({
-                        username: 'other_username',
+                    resultEducator = await createUser({
+                        username: 'other_educator',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultEducator.id
+                    })
+
+
+                    await updateUser({
+                        id: resultEducator.id,
+                        children_groups: [resultChildrenGroup.id]
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
             it('should return the result as required in query', async () => {
-                const url: string = '/v1/educators?sort=username&page=1&limit=3'
+                const url: string = '/v1/educators?username=other_educator&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.length).to.eql(2)
+                        expect(res.body.length).to.eql(1)
                         for (const educator of res.body) {
                             expect(educator).to.have.property('id')
-                            expect(educator).to.have.property('username')
-                            expect(educator).to.have.property('institution_id')
-                            expect(educator).to.have.property('children_groups')
+                            expect(educator.username).to.eql('other_educator')
+                            expect(educator.institution_id).to.eql(institution.id)
+                            expect(educator.children_groups.length).to.eql(1)
+                            for (const childrenGroup of educator.children_groups) {
+                                expect(childrenGroup).to.have.property('id')
+                                expect(childrenGroup.name).to.eql(defaultChildrenGroup.name)
+                                expect(childrenGroup.children.length).to.eql(1)
+                                for (const child of childrenGroup.children) {
+                                    expect(child).to.have.property('id')
+                                    expect(child.username).to.eql(defaultChild.username)
+                                    expect(child.institution_id).to.eql(institution.id)
+                                    expect(child.gender).to.eql(defaultChild.gender)
+                                    expect(child.age).to.eql(defaultChild.age)
+                                }
+                                expect(childrenGroup.school_class).to.eql(defaultChildrenGroup.school_class)
+                            }
                         }
                     })
             })
         })
 
-        context('when there are no institutions in database', () => {
+        context('when there are no educators in database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
@@ -1419,7 +1552,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 200 and a empty array', async () => {
+            it('should return status code 200 and an empty array', async () => {
                 return request
                     .get('/v1/educators')
                     .set('Content-Type', 'application/json')

@@ -18,7 +18,6 @@ import { Application } from '../../application/domain/model/application'
 import { IApplicationRepository } from '../../application/port/application.repository.interface'
 import { Institution } from '../../application/domain/model/institution'
 import { IInstitutionRepository } from '../../application/port/institution.repository.interface'
-import { UserType } from '../../application/domain/model/user'
 import { ObjectIdValidator } from '../../application/domain/validator/object.id.validator'
 
 @injectable()
@@ -54,7 +53,6 @@ export class ProviderEventBusTask implements IBackgroundTask {
             .provideChildren(async (query) => {
                 try {
                     const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                    _query.addFilter({ type: UserType.CHILD })
                     const result: Array<Child> = await this._childRepository.find(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -158,7 +156,6 @@ export class ProviderEventBusTask implements IBackgroundTask {
             .provideApplications(async (query) => {
                 try {
                     const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                    _query.addFilter({ type: UserType.APPLICATION })
                     const result: Array<Application> = await this._applicationRepository.find(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {

@@ -10,6 +10,8 @@ import { Identifier } from '../../di/identifiers'
 import { Query } from './query/query'
 import { ValidationException } from '../../application/domain/exception/validation.exception'
 import { IUserRepository } from '../../application/port/user.repository.interface'
+import { IQuery } from '../../application/port/query.interface'
+
 // import { IQuery } from '../../application/port/query.interface'
 
 /**
@@ -43,6 +45,30 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                     return resolve(super.findOne(query))
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
+        })
+    }
+
+    public find(query: IQuery): Promise<Array<Child>> {
+        query.addFilter({ type: UserType.CHILD })
+        const q: any = query.toJSON()
+
+        let usernameFilter: string
+        if (q.filters.username) {
+            usernameFilter = q.filters.username
+            delete q.filters.username
+        }
+
+        return new Promise<Array<Child>>((resolve, reject) => {
+            this.Model.find(q.filters)
+                .sort(q.ordination)
+                .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
+                .limit(Number(q.pagination.limit))
+                .exec() // execute query
+                .then((result: Array<Child>) => {
+                    if (usernameFilter) return resolve(super.findByUsername(usernameFilter, result))
+                    resolve(result.map(item => this.mapper.transform(item)))
+                })
+                .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
 

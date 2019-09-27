@@ -43,6 +43,10 @@ export class ChildrenGroupRepositoryMock implements IChildrenGroupRepository {
         return Promise.resolve(childrenGroupArr)
     }
 
+    public findByUsername(username: string, users: Array<any>): Array<ChildrenGroup> {
+        return new Array<ChildrenGroup>()
+    }
+
     public findOne(query: any): Promise<ChildrenGroup> {
         const id: string = query.filters._id
         if (id === '507f1f77bcf86cd799439011') {

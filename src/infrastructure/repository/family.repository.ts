@@ -49,6 +49,12 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
         const q: any = query.toJSON()
         const populate: any = { path: 'children' }
 
+        let usernameFilter: string
+        if (q.filters.username) {
+            usernameFilter = q.filters.username
+            delete q.filters.username
+        }
+
         return new Promise<Array<Family>>((resolve, reject) => {
             this.familyModel.find(q.filters)
                 .sort(q.ordination)
@@ -57,6 +63,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                 .populate(populate)
                 .exec()
                 .then((result: Array<Family>) => {
+                    if (usernameFilter) return resolve(super.findByUsername(usernameFilter, result))
                     resolve(result.map(item => this.familyMapper.transform(item)))
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))

@@ -23,7 +23,6 @@ describe('Routes: Child', () => {
     const institution: Institution = new Institution()
 
     const defaultChild: Child = new ChildMock()
-    defaultChild.password = 'child_password'
 
     before(async () => {
             try {
@@ -338,7 +337,7 @@ describe('Routes: Child', () => {
     })
 
     describe('GET /v1/children/:child_id', () => {
-        context('when get a unique child in database', () => {
+        context('when get an unique child in database', () => {
             let result
 
             before(async () => {
@@ -432,7 +431,8 @@ describe('Routes: Child', () => {
                 'UpdateChild event)', () => {
                 return request
                     .patch(`/v1/children/${result.id}`)
-                    .send({ username: 'new_username' })
+                    .send({ username: 'new_username',
+                                  last_login: defaultChild.last_login, last_sync: defaultChild.last_sync })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -562,7 +562,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: institution.id,
+                        institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
                     })
 
@@ -691,7 +691,7 @@ describe('Routes: Child', () => {
                     })
 
                     await createUser({
-                        username: 'other_username',
+                        username: 'other_child',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
@@ -737,7 +737,7 @@ describe('Routes: Child', () => {
                     })
 
                     await createUser({
-                        username: defaultChild.username,
+                        username: 'IHAVEAUSERNAME',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
@@ -750,7 +750,7 @@ describe('Routes: Child', () => {
                 }
             })
             it('should return the result as required in query', async () => {
-                const url = '/v1/children?age=lte:11&sort=age,username&page=1&limit=3'
+                const url = '/v1/children?username=ihaveausername&sort=username&page=1&limit=3'
                 return request
                     .get(url)
                     .set('Content-Type', 'application/json')
@@ -758,9 +758,9 @@ describe('Routes: Child', () => {
                     .then(res => {
                         expect(res.body.length).to.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0].username).to.eql(defaultChild.username)
+                        expect(res.body[0].username).to.eql('IHAVEAUSERNAME')
                         expect(res.body[0].institution_id).to.eql(institution.id)
-                        expect(res.body[0].age).to.eql(10)
+                        expect(res.body[0].age).to.eql(12)
                         expect(res.body[0].gender).to.eql(defaultChild.gender)
                     })
             })

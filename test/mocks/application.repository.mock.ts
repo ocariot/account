@@ -31,6 +31,10 @@ export class ApplicationRepositoryMock implements IApplicationRepository {
         return Promise.resolve(applicationArr)
     }
 
+    public findByUsername(username: string, users: Array<any>): Array<Application> {
+        return new Array<Application>()
+    }
+
     public findOne(query: any): Promise<Application> {
         const id: string = query.filters._id
         if (id === '507f1f77bcf86cd799439011') {

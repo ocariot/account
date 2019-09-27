@@ -47,7 +47,7 @@ describe('Routes: User', () => {
                     longitude: 0
                 })
 
-                institution.id = item._id
+                institution.id = item._id.toString()
 
                 const user = await userRepository.create(defaultUser)
                 defaultUser.id = user.id
@@ -186,54 +186,48 @@ describe('Routes: User', () => {
 
     describe('NO CONNECTION TO RABBITMQ -> DELETE /v1/users/:user_id', () => {
         context('when the deletion was successful', () => {
+            let resultUser
+
             before(async () => {
                 try {
-                //
+                    resultUser = await createUser({
+                        username: 'acoolusername',
+                        password: 'mysecretkey',
+                        application_name: 'Any Name',
+                        institution: institution.id,
+                        type: UserType.APPLICATION
+                    })
                 } catch (err) {
                     throw new Error('Failure on User test: ' + err.message)
                 }
             })
             it('should return status code 204 and no content (and show an error log about unable to send ' +
                 'DeleteInstitution event)', async () => {
-                try {
-                    await createUser({
-                        username: 'acoolusername',
-                        password: 'mysecretkey',
-                        application_name: 'Any Name',
-                        institution: institution.id,
-                        type: UserType.APPLICATION
-                    }).then(user => {
-                        return request
-                            .delete(`/v1/users/${user._id}`)
-                            .set('Content-Type', 'application/json')
-                            .expect(204)
-                            .then(res => {
-                                expect(res.body).to.eql({})
-                            })
+                return request
+                    .delete(`/v1/users/${resultUser.id}`)
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
                     })
-                } catch (err) {
-                    throw new Error('Failure on User test: ' + err.message)
-                }
             })
         })
     })
 
     describe('RABBITMQ PUBLISHER -> DELETE /v1/users/:user_id', () => {
         context('when the user was deleted successfully and your ID is published on the bus', () => {
-            let userId
+            let resultUser
 
             before(async () => {
                 try {
-                    await createUser({
+                    resultUser = await createUser({
                             username: 'acoolusername',
                             password: 'mysecretkey',
                             application_name: 'Any Name',
                             institution: institution.id,
                             type: UserType.APPLICATION
                         }
-                    ).then(user => {
-                        userId = user._id
-                    })
+                    )
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
                         { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
@@ -259,9 +253,9 @@ describe('Routes: User', () => {
                             expect(message.event_name).to.eql('UserDeleteEvent')
                             expect(message).to.have.property('timestamp')
                             expect(message).to.have.property('user')
-                            expect(message.user.id).to.eql(userId.toString())
+                            expect(message.user).to.have.property('id')
                             expect(message.user.type).to.eql(UserType.APPLICATION)
-                            expect(message.user).to.have.property('username')
+                            expect(message.user.username).to.eql('acoolusername')
                             done()
                         } catch (err) {
                             done(err)
@@ -269,7 +263,7 @@ describe('Routes: User', () => {
                     })
                     .then(() => {
                         request
-                            .delete(`/v1/users/${userId}`)
+                            .delete(`/v1/users/${resultUser.id}`)
                             .set('Content-Type', 'application/json')
                             .expect(204)
                             .then()
@@ -282,13 +276,6 @@ describe('Routes: User', () => {
 
     describe('DELETE /v1/users/:user_id', () => {
         context('when the user was successful deleted', () => {
-            before(async () => {
-                try {
-                //
-                } catch (err) {
-                    throw new Error('Failure on User test: ' + err.message)
-                }
-            })
             it('should return status code 204 and no content for admin user', () => {
                 return request
                     .delete(`/v1/users/${defaultUser.id}`)
@@ -466,7 +453,7 @@ describe('Routes: User', () => {
 })
 
 async function createUser(item) {
-    return await UserRepoModel.create(item)
+    return UserRepoModel.create(item)
 }
 
 async function deleteAllUsers() {
@@ -474,7 +461,7 @@ async function deleteAllUsers() {
 }
 
 async function createInstitution(item) {
-    return await InstitutionRepoModel.create(item)
+    return InstitutionRepoModel.create(item)
 }
 
 async function deleteAllInstitutions() {

@@ -11,6 +11,7 @@ import { Strings } from '../../../src/utils/strings'
 import { IDatabase } from '../../../src/infrastructure/port/database.interface'
 import { Default } from '../../../src/utils/default'
 import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
+import { InstitutionMock } from '../../mocks/institution.mock'
 
 const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
 const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
@@ -19,14 +20,7 @@ const request = require('supertest')(app.getExpress())
 
 describe('Routes: Institution', () => {
 
-    const defaultInstitution: Institution = new Institution()
-    defaultInstitution.type = 'Any Type'
-    defaultInstitution.name = 'Name Example'
-    defaultInstitution.address = '221B Baker Street, St.'
-    defaultInstitution.latitude = 0
-    defaultInstitution.longitude = 0
-
-    const anotherInstitution: Institution = new Institution()
+    const defaultInstitution: Institution = new InstitutionMock()
 
     before(async () => {
             try {
@@ -56,13 +50,20 @@ describe('Routes: Institution', () => {
 
     describe('POST /v1/institutions', () => {
         context('when posting a new institution', () => {
+            before(async () => {
+                try {
+                    await deleteAllInstitutions()
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
+            })
             it('should return status code 201 and the saved institution', () => {
                 const body = {
-                    type: 'Any Type',
-                    name: 'Name Example',
-                    address: '221B Baker Street, St.',
-                    latitude: 0,
-                    longitude: 0
+                    type: defaultInstitution.type,
+                    name: defaultInstitution.name,
+                    address: defaultInstitution.address,
+                    latitude: defaultInstitution.latitude,
+                    longitude: defaultInstitution.longitude
                 }
 
                 return request
@@ -77,19 +78,34 @@ describe('Routes: Institution', () => {
                         expect(res.body.address).to.eql(defaultInstitution.address)
                         expect(res.body.latitude).to.eql(defaultInstitution.latitude)
                         expect(res.body.longitude).to.eql(defaultInstitution.longitude)
-                        defaultInstitution.id = res.body.id
                     })
             })
         })
 
         context('when a duplicate error occurs', () => {
+            before(async () => {
+                try {
+                    await deleteAllInstitutions()
+
+                    await createInstitution({
+                        type: defaultInstitution.type,
+                        name: defaultInstitution.name,
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
+            })
+
             it('should return status code 409 and info message about duplicate items', () => {
                 const body = {
-                    type: 'Any Type',
-                    name: 'Name Example',
-                    address: '221B Baker Street, St.',
-                    latitude: 0,
-                    longitude: 0
+                    type: defaultInstitution.type,
+                    name: defaultInstitution.name,
+                    address: defaultInstitution.address,
+                    latitude: defaultInstitution.latitude,
+                    longitude: defaultInstitution.longitude
                 }
 
                 return request
@@ -105,8 +121,7 @@ describe('Routes: Institution', () => {
 
         context('when a validation error occurs', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
-                const body = {
-                }
+                const body = {}
 
                 return request
                     .post('/v1/institutions')
@@ -122,13 +137,31 @@ describe('Routes: Institution', () => {
     })
 
     describe('GET /v1/institutions/:institution_id', () => {
-        context('when get a unique institution in database', () => {
-            it('should return status code 200 and a institution', () => {
+        context('when get an unique institution in database', () => {
+            let resultInstitution
+
+            before(async () => {
+                try {
+                    await deleteAllInstitutions()
+
+                    resultInstitution = await createInstitution({
+                        type: defaultInstitution.type,
+                        name: defaultInstitution.name,
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
+            })
+            it('should return status code 200 and an institution', () => {
                 return request
-                    .get(`/v1/institutions/${defaultInstitution.id}`)
+                    .get(`/v1/institutions/${resultInstitution.id}`)
                     .set('Content-Type', 'application/json')
+                    .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultInstitution.id)
+                        expect(res.body).to.have.property('id')
                         expect(res.body.type).to.eql(defaultInstitution.type)
                         expect(res.body.name).to.eql(defaultInstitution.name)
                         expect(res.body.address).to.eql(defaultInstitution.address)
@@ -143,6 +176,7 @@ describe('Routes: Institution', () => {
                 return request
                     .get(`/v1/institutions/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
+                    .expect(404)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.INSTITUTION.NOT_FOUND)
                         expect(err.body.description).to.eql(Strings.INSTITUTION.NOT_FOUND_DESCRIPTION)
@@ -150,11 +184,12 @@ describe('Routes: Institution', () => {
             })
         })
 
-        context('when the institution is in invalid format', () => {
+        context('when the institution id is in invalid format', () => {
             it('should return status code 400 and info message from invalid ID format', () => {
                 return request
                     .get('/v1/institutions/123')
                     .set('Content-Type', 'application/json')
+                    .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
@@ -165,17 +200,32 @@ describe('Routes: Institution', () => {
 
     describe('PATCH /v1/institutions/:institution_id', () => {
         context('when the update was successful', () => {
-            it('should return status code 200 and a updated institution', () => {
-                defaultInstitution.type = 'Another Cool Type'
+            let resultInstitution
 
+            before(async () => {
+                try {
+                    await deleteAllInstitutions()
+
+                    resultInstitution = await createInstitution({
+                        type: defaultInstitution.type,
+                        name: defaultInstitution.name,
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
+            })
+            it('should return status code 200 and an updated institution', () => {
                 return request
-                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .patch(`/v1/institutions/${resultInstitution.id}`)
                     .send({ type: 'Another Cool Type' })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultInstitution.id)
-                        expect(res.body.type).to.eql(defaultInstitution.type)
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.type).to.eql('Another Cool Type')
                         expect(res.body.name).to.eql(defaultInstitution.name)
                         expect(res.body.address).to.eql(defaultInstitution.address)
                         expect(res.body.latitude).to.eql(defaultInstitution.latitude)
@@ -185,8 +235,20 @@ describe('Routes: Institution', () => {
         })
 
         context('when a duplication error occurs', () => {
-            it('should return status code 409 and info message from duplicate items', async () => {
+            let resultInstitution
+
+            before(async () => {
                 try {
+                    await deleteAllInstitutions()
+
+                    resultInstitution = await createInstitution({
+                        type: defaultInstitution.type,
+                        name: defaultInstitution.name,
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+
                     await createInstitution({
                             type: 'Any Type',
                             name: 'Other Name',
@@ -194,15 +256,14 @@ describe('Routes: Institution', () => {
                             latitude: 0,
                             longitude: 0
                         }
-                    ).then(item => {
-                        anotherInstitution.id = item._id
-                    })
+                    )
                 } catch (err) {
                     throw new Error('Failure on Institution test: ' + err.message)
                 }
-
+            })
+            it('should return status code 409 and info message from duplicate items', async () => {
                 return request
-                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .patch(`/v1/institutions/${resultInstitution.id}`)
                     .send({ name: 'Other Name' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
@@ -213,6 +274,13 @@ describe('Routes: Institution', () => {
         })
 
         context('when the institution is not found', () => {
+            before(async () => {
+                try {
+                    await deleteAllInstitutions()
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
+            })
             it('should return status code 404 and info message from institution not found', () => {
                 return request
                     .patch(`/v1/institutions/${new ObjectID()}`)
@@ -243,9 +311,19 @@ describe('Routes: Institution', () => {
 
     describe('NO CONNECTION TO RABBITMQ -> DELETE /v1/institutions/:institution_id', () => {
         context('when the deletion was successful', () => {
+            let resultInstitution
+
             before(async () => {
                 try {
-                //
+                    await deleteAllInstitutions()
+
+                    resultInstitution = await createInstitution({
+                        type: defaultInstitution.type,
+                        name: defaultInstitution.name,
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
                 } catch (err) {
                     throw new Error('Failure on Institution test: ' + err.message)
                 }
@@ -253,7 +331,7 @@ describe('Routes: Institution', () => {
             it('should return status code 204 and no content (and show an error log about unable to send ' +
                 'DeleteInstitution event)', () => {
                 return request
-                    .delete(`/v1/institutions/${anotherInstitution.id}`)
+                    .delete(`/v1/institutions/${resultInstitution.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -265,23 +343,24 @@ describe('Routes: Institution', () => {
 
     describe('RABBITMQ PUBLISHER -> DELETE /v1/institutions/:institution_id', () => {
         context('when the institution was deleted successfully and your ID is published on the bus', () => {
+            let resultInstitution
+
             before(async () => {
                 try {
-                    await createInstitution({
-                            type: 'Any Type',
-                            name: 'Other Name',
-                            address: '221A Baker Street, St.',
-                            latitude: 0,
-                            longitude: 0
-                        }
-                    ).then(item => {
-                        anotherInstitution.id = item._id
+                    await deleteAllInstitutions()
+
+                    resultInstitution = await createInstitution({
+                        type: defaultInstitution.type,
+                        name: defaultInstitution.name,
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
                     })
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
                         { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
                 } catch (err) {
-                    throw new Error('Failure on Institution routes test: ' + err.message)
+                    throw new Error('Failure on Institution test: ' + err.message)
                 }
             })
 
@@ -302,8 +381,7 @@ describe('Routes: Institution', () => {
                             expect(message.event_name).to.eql('InstitutionDeleteEvent')
                             expect(message).to.have.property('timestamp')
                             expect(message).to.have.property('institution')
-                            anotherInstitution.id = message.institution.id
-                            expect(message.institution.id).to.eql(anotherInstitution.id)
+                            expect(message.institution).to.have.property('id')
                             done()
                         } catch (err) {
                             done(err)
@@ -311,7 +389,7 @@ describe('Routes: Institution', () => {
                     })
                     .then(() => {
                         request
-                            .delete(`/v1/institutions/${anotherInstitution.id}`)
+                            .delete(`/v1/institutions/${resultInstitution.id}`)
                             .set('Content-Type', 'application/json')
                             .expect(204)
                             .then()
@@ -324,17 +402,18 @@ describe('Routes: Institution', () => {
 
     describe('DELETE /v1/institutions/:institution_id', () => {
         context('when the deletion was successful', () => {
+            let resultInstitution
+
             before(async () => {
                 try {
-                    await createInstitution({
-                            type: 'Any Type',
-                            name: 'Other Name',
-                            address: '221A Baker Street, St.',
-                            latitude: 0,
-                            longitude: 0
-                        }
-                    ).then(item => {
-                        anotherInstitution.id = item._id
+                    await deleteAllInstitutions()
+
+                    resultInstitution = await createInstitution({
+                        type: defaultInstitution.type,
+                        name: defaultInstitution.name,
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
                     })
                 } catch (err) {
                     throw new Error('Failure on Institution test: ' + err.message)
@@ -342,7 +421,7 @@ describe('Routes: Institution', () => {
             })
             it('should return status code 204 and no content', () => {
                 return request
-                    .delete(`/v1/institutions/${anotherInstitution.id}`)
+                    .delete(`/v1/institutions/${resultInstitution.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -352,23 +431,37 @@ describe('Routes: Institution', () => {
         })
 
         context('when the institution was associated with an user', () => {
-            it('should return status code 400 and info message from existent association', async () => {
+            let resultInstitution
+
+            before(async () => {
                 try {
+                    await deleteAllUsers()
+                    await deleteAllInstitutions()
+
+                    resultInstitution = await createInstitution({
+                        type: defaultInstitution.type,
+                        name: defaultInstitution.name,
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+
                     await createUser({
-                        username: 'anothercoolusername',
-                        password: 'mysecretkey',
+                        username: 'child_username',
+                        password: 'child_password',
                         type: UserType.CHILD,
                         gender: 'male',
                         age: 11,
-                        institution: defaultInstitution.id,
+                        institution: new ObjectID(resultInstitution.id),
                         scopes: new Array('users:read')
-                    }).then()
+                    })
                 } catch (err) {
                     throw new Error('Failure on Institution test: ' + err.message)
                 }
-
+            })
+            it('should return status code 400 and info message from existent association', async () => {
                 return request
-                    .delete(`/v1/institutions/${defaultInstitution.id}`)
+                    .delete(`/v1/institutions/${resultInstitution.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -405,31 +498,57 @@ describe('Routes: Institution', () => {
 
     describe('GET /v1/institutions', () => {
         context('when want get all institutions in database', () => {
-            it('should return status coe 200 and a list of institutions', () => {
+            before(async () => {
+                try {
+                    await deleteAllInstitutions()
+
+                    await createInstitution({
+                        type: defaultInstitution.type,
+                        name: defaultInstitution.name,
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+
+                    await createInstitution({
+                        type: defaultInstitution.type,
+                        name: 'other_institution',
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
+            })
+            it('should return status code 200 and a list of institutions', () => {
                 return request
                     .get('/v1/institutions')
                     .set('Content-Type', 'application/json')
+                    .expect(200)
                     .then(res => {
-                        expect(res.body).is.instanceof(Array)
-                        expect(res.body.length).is.eql(1)
-                        expect(res.body[0].id).to.eql(defaultInstitution.id)
-                        expect(res.body[0].type).to.eql(defaultInstitution.type)
-                        expect(res.body[0].name).to.eql(defaultInstitution.name)
-                        expect(res.body[0].address).to.eql(defaultInstitution.address)
-                        expect(res.body[0].latitude).to.eql(defaultInstitution.latitude)
-                        expect(res.body[0].longitude).to.eql(defaultInstitution.longitude)
+                        expect(res.body.length).is.eql(2)
+                        for (const institution of res.body) {
+                            expect(institution).to.have.property('id')
+                            expect(institution).to.have.property('type')
+                            expect(institution).to.have.property('name')
+                            expect(institution).to.have.property('address')
+                            expect(institution).to.have.property('latitude')
+                            expect(institution).to.have.property('longitude')
+                        }
                     })
             })
         })
 
-        context('when does not have users in database', () => {
-            it('should return status code 200 and a empty array', async () => {
+        context('when does not have institutions in database', () => {
+            before(async () => {
                 try {
-                    await deleteAllInstitutions().then()
+                    await deleteAllInstitutions()
                 } catch (err) {
                     throw new Error('Failure on Institution test: ' + err.message)
                 }
-
+            })
+            it('should return status code 200 and an empty array', async () => {
                 return request
                     .get('/v1/institutions')
                     .set('Content-Type', 'application/json')
@@ -443,7 +562,7 @@ describe('Routes: Institution', () => {
 })
 
 async function createUser(item) {
-    return await UserRepoModel.create(item)
+    return UserRepoModel.create(item)
 }
 
 async function deleteAllUsers() {
@@ -451,7 +570,7 @@ async function deleteAllUsers() {
 }
 
 async function createInstitution(item) {
-    return await InstitutionRepoModel.create(item)
+    return InstitutionRepoModel.create(item)
 }
 
 async function deleteAllInstitutions() {

@@ -29,7 +29,6 @@ describe('Routes: HealthProfessional', () => {
     const institution: Institution = new InstitutionMock()
 
     const defaultHealthProfessional: HealthProfessional = new HealthProfessionalMock()
-    defaultHealthProfessional.password = 'health_professional_mock'
     defaultHealthProfessional.institution = institution
 
     const defaultChild: Child = new ChildMock()
@@ -54,19 +53,6 @@ describe('Routes: HealthProfessional', () => {
                     longitude: 0
                 })
                 institution.id = item._id.toString()
-
-                const child = await createUser({
-                    username: 'anotherusername',
-                    password: 'mysecretkey',
-                    type: UserType.CHILD,
-                    gender: 'male',
-                    age: 11,
-                    institution: new ObjectID(institution.id),
-                    scopes: new Array('users:read')
-                }).then()
-
-                defaultChild.id = child.id.toString()
-
             } catch (err) {
                 throw new Error('Failure on HealthProfessional test: ' + err.message)
             }
@@ -209,19 +195,44 @@ describe('Routes: HealthProfessional', () => {
     })
 
     describe('GET /v1/healthprofessionals/:healthprofessional_id', () => {
-        context('when get a unique health professional in database', () => {
-            let result
+        context('when get an unique health professional in database', () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
 
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
-                    result = await createUser({
+                    resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
                         institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional.id,
+                        children_groups: [resultChildrenGroup.id]
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -229,14 +240,27 @@ describe('Routes: HealthProfessional', () => {
             })
             it('should return status code 200 and a health professional', () => {
                 return request
-                    .get(`/v1/healthprofessionals/${result.id}`)
+                    .get(`/v1/healthprofessionals/${resultHealthProfessional.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultHealthProfessional.username)
                         expect(res.body.institution_id).to.eql(institution.id)
-                        expect(res.body.children_groups.length).to.eql(0)
+                        expect(res.body.children_groups.length).to.eql(1)
+                        for (const childrenGroup of res.body.children_groups) {
+                            expect(childrenGroup).to.have.property('id')
+                            expect(childrenGroup.name).to.eql(defaultChildrenGroup.name)
+                            expect(childrenGroup.children.length).to.eql(1)
+                            for (const child of childrenGroup.children) {
+                                expect(child).to.have.property('id')
+                                expect(child.username).to.eql(defaultChild.username)
+                                expect(child.institution_id).to.eql(institution.id)
+                                expect(child.gender).to.eql(defaultChild.gender)
+                                expect(child.age).to.eql(defaultChild.age)
+                            }
+                            expect(childrenGroup.school_class).to.eql(defaultChildrenGroup.school_class)
+                        }
                     })
             })
         })
@@ -298,7 +322,7 @@ describe('Routes: HealthProfessional', () => {
                 'UpdateHealthProfessional event)', () => {
                 return request
                     .patch(`/v1/healthprofessionals/${result.id}`)
-                    .send({ username: 'new_username' })
+                    .send({ username: 'new_username', last_login: defaultHealthProfessional.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -530,6 +554,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultChild = await createUser({
                         username: defaultChild.username,
@@ -568,11 +593,13 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.name).to.eql(defaultChildrenGroup.name)
                         expect(res.body.children.length).to.eql(1)
-                        expect(res.body.children[0]).to.have.property('id')
-                        expect(res.body.children[0].username).to.eql(defaultChild.username)
-                        expect(res.body.children[0].institution_id).to.eql(institution.id)
-                        expect(res.body.children[0].gender).to.eql(defaultChild.gender)
-                        expect(res.body.children[0].age).to.eql(defaultChild.age)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                     })
             })
@@ -585,6 +612,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -638,6 +666,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     result = await createUser({
                         username: defaultHealthProfessional.username,
@@ -664,12 +693,13 @@ describe('Routes: HealthProfessional', () => {
             })
         })
 
-        context('when the children id(ids) is invalid', () => {
+        context('when the children id(ids) is (are) invalid', () => {
             let result
 
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     result = await createUser({
                         username: defaultHealthProfessional.username,
@@ -708,6 +738,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     result = await createUser({
                         username: defaultHealthProfessional.username,
@@ -739,11 +770,10 @@ describe('Routes: HealthProfessional', () => {
                     })
             })
         })
-
     })
 
     describe('GET /v1/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
-        context('when want get a unique children group', () => {
+        context('when want get an unique children group', () => {
             let resultHealthProfessional
             let resultChild
             let resultChildrenGroup
@@ -751,6 +781,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -797,11 +828,13 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.name).to.eql(defaultChildrenGroup.name)
                         expect(res.body.children.length).to.eql(1)
-                        expect(res.body.children[0]).to.have.property('id')
-                        expect(res.body.children[0].username).to.eql(defaultChild.username)
-                        expect(res.body.children[0].institution_id).to.eql(institution.id)
-                        expect(res.body.children[0].gender).to.eql(defaultChild.gender)
-                        expect(res.body.children[0].age).to.eql(defaultChild.age)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                     })
             })
@@ -811,6 +844,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
@@ -852,6 +886,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -881,7 +916,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 200 and a updated children group', () => {
+            it('should return status code 200 and an updated children group', () => {
                 const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
                     .concat(`children/groups/${resultChildrenGroup.id}`)
 
@@ -894,11 +929,13 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.name).to.eql(defaultChildrenGroup.name)
                         expect(res.body.children.length).to.eql(1)
-                        expect(res.body.children[0]).to.have.property('id')
-                        expect(res.body.children[0].username).to.eql(defaultChild.username)
-                        expect(res.body.children[0].institution_id).to.eql(institution.id)
-                        expect(res.body.children[0].gender).to.eql(defaultChild.gender)
-                        expect(res.body.children[0].age).to.eql(defaultChild.age)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                         expect(res.body.school_class).to.eql('5th Grade')
                     })
             })
@@ -912,6 +949,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -971,6 +1009,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -1017,7 +1056,7 @@ describe('Routes: HealthProfessional', () => {
             })
         })
 
-        context('when the children group was updated with a invalid child id', () => {
+        context('when the children group was updated with an invalid child id', () => {
             let resultHealthProfessional
             let resultChild
             let resultChildrenGroup
@@ -1025,6 +1064,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -1081,6 +1121,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -1130,6 +1171,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -1180,6 +1222,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -1252,6 +1295,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -1321,6 +1365,7 @@ describe('Routes: HealthProfessional', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
+                    await deleteAllChildrenGroups()
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
@@ -1333,7 +1378,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 200 and a empty array', async () => {
+            it('should return status code 200 and an empty array', async () => {
                 return request
                     .get(`/v1/healthprofessionals/${resultHealthProfessional.id}/children/groups`)
                     .set('Content-Type', 'application/json')
@@ -1348,11 +1393,27 @@ describe('Routes: HealthProfessional', () => {
 
     describe('GET /v1/healthprofessionals', () => {
         context('when want get all health professionals in database', () => {
+            let resultChild
+            let resultHealthProfessional
+            let resultHealthProfessional2
+            let resultChildrenGroup
+            let resultChildrenGroup2
+
             before(async () => {
                 try {
                     await deleteAllUsers()
 
-                    await createUser({
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
@@ -1360,12 +1421,36 @@ describe('Routes: HealthProfessional', () => {
                         scopes: new Array('users:read')
                     })
 
-                    await createUser({
-                        username: 'other_username',
+                    resultHealthProfessional2 = await createUser({
+                        username: 'other_health_professional',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
                         institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+                    resultChildrenGroup2 = await createChildrenGroup({
+                        name: 'other_children_group_name',
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional2.id
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional.id,
+                        children_groups: [resultChildrenGroup.id]
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional2.id,
+                        children_groups: [resultChildrenGroup2.id]
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -1383,12 +1468,29 @@ describe('Routes: HealthProfessional', () => {
                             expect(healthProf).to.have.property('username')
                             expect(healthProf).to.have.property('institution_id')
                             expect(healthProf).to.have.property('children_groups')
+                            for (const childrenGroup of healthProf.children_groups) {
+                                expect(childrenGroup).to.have.property('id')
+                                expect(childrenGroup).to.have.property('name')
+                                expect(childrenGroup).to.have.property('children')
+                                for (const child of childrenGroup.children) {
+                                    expect(child).to.have.property('id')
+                                    expect(child).to.have.property('username')
+                                    expect(child).to.have.property('institution_id')
+                                    expect(child).to.have.property('gender')
+                                    expect(child).to.have.property('age')
+                                }
+                                expect(childrenGroup).to.have.property('school_class')
+                            }
                         }
                     })
             })
         })
 
         context('when use query strings', () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
+
             before(async () => {
                 try {
                     await deleteAllUsers()
@@ -1401,37 +1503,73 @@ describe('Routes: HealthProfessional', () => {
                         scopes: new Array('users:read')
                     })
 
-                    await createUser({
-                        username: 'other_username',
+                    resultHealthProfessional = await createUser({
+                        username: 'other_health_professional',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
                         institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+
+                    await updateUser({
+                        id: resultHealthProfessional.id,
+                        children_groups: [resultChildrenGroup.id]
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
             it('should return the result as required in query', async () => {
-                const url: string = '/v1/healthprofessionals?sort=username&page=1&limit=3'
+                const url: string = '/v1/healthprofessionals?username=other_health_professional&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.length).to.eql(2)
+                        expect(res.body.length).to.eql(1)
                         for (const healthProf of res.body) {
                             expect(healthProf).to.have.property('id')
-                            expect(healthProf).to.have.property('username')
-                            expect(healthProf).to.have.property('institution_id')
-                            expect(healthProf).to.have.property('children_groups')
+                            expect(healthProf.username).to.eql('other_health_professional')
+                            expect(healthProf.institution_id).to.eql(institution.id)
+                            expect(healthProf.children_groups.length).to.eql(1)
+                            for (const childrenGroup of healthProf.children_groups) {
+                                expect(childrenGroup).to.have.property('id')
+                                expect(childrenGroup.name).to.eql(defaultChildrenGroup.name)
+                                expect(childrenGroup.children.length).to.eql(1)
+                                for (const child of childrenGroup.children) {
+                                    expect(child).to.have.property('id')
+                                    expect(child.username).to.eql(defaultChild.username)
+                                    expect(child.institution_id).to.eql(institution.id)
+                                    expect(child.gender).to.eql(defaultChild.gender)
+                                    expect(child.age).to.eql(defaultChild.age)
+                                }
+                                expect(childrenGroup.school_class).to.eql(defaultChildrenGroup.school_class)
+                            }
                         }
                     })
             })
         })
 
-        context('when there are no institutions in database', () => {
+        context('when there are no health professionals in database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
@@ -1439,7 +1577,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 200 and a empty array', async () => {
+            it('should return status code 200 and an empty array', async () => {
                 return request
                     .get('/v1/healthprofessionals')
                     .set('Content-Type', 'application/json')

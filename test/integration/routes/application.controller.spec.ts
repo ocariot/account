@@ -24,7 +24,6 @@ describe('Routes: Application', () => {
     const institution: Institution = new Institution()
 
     const defaultApplication: Application = new ApplicationMock()
-    defaultApplication.password = 'application_password'
 
     before(async () => {
             try {
@@ -220,7 +219,7 @@ describe('Routes: Application', () => {
     })
 
     describe('GET /applications/:application_id', () => {
-        context('when get a unique application in database', () => {
+        context('when get an unique application in database', () => {
             let result
             before(async () => {
                 try {
@@ -237,7 +236,7 @@ describe('Routes: Application', () => {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
             })
-            it('should return status code 200 and a application', () => {
+            it('should return status code 200 and an application', () => {
                 return request
                     .get(`/v1/applications/${result.id}`)
                     .set('Content-Type', 'application/json')
@@ -308,7 +307,7 @@ describe('Routes: Application', () => {
                 'UpdateApplication event)', () => {
                 return request
                     .patch(`/v1/applications/${result.id}`)
-                    .send({ username: 'new_username' })
+                    .send({ username: 'new_username', last_login: defaultApplication.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -554,7 +553,7 @@ describe('Routes: Application', () => {
                     })
 
                     await createUser({
-                        username: 'other_username',
+                        username: 'other_application',
                         password: 'mysecretkey',
                         application_name: defaultApplication.application_name,
                         institution: new ObjectID(institution.id),
@@ -596,19 +595,18 @@ describe('Routes: Application', () => {
                     })
 
                     await createUser({
-                        username: defaultApplication.username,
+                        username: 'other_application',
                         password: 'mysecretkey',
                         application_name: 'app02',
                         institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION,
-                        last_login: defaultApplication.last_login
+                        type: UserType.APPLICATION
                     })
                 } catch (err) {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
             })
             it('should return the result as required in query', async () => {
-                const url: string = '/v1/applications?application_name=app01&sort=username&page=1&limit=3'
+                const url: string = '/v1/applications?username=other_application&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -617,9 +615,9 @@ describe('Routes: Application', () => {
                     .then(res => {
                         expect(res.body.length).to.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0].username).to.eql(defaultApplication.username)
+                        expect(res.body[0].username).to.eql('other_application')
                         expect(res.body[0].institution_id).to.eql(institution.id)
-                        expect(res.body[0].last_login).to.eql(defaultApplication.last_login!.toISOString())
+                        expect(res.body[0].application_name).to.eql('app02')
                     })
             })
         })

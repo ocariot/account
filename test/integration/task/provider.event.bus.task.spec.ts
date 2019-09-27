@@ -108,12 +108,8 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .then(async () => {
                         const result = await rabbitmq.bus.getChildren('?institution=5a62be07d6f33400146c9b61')
                         expect(result.length).to.eql(1)
-                        // As a new resource saved in the database always has a new id,
-                        // this is necessary before comparing the saved resource in the
-                        // database with the one sent to the bus.
-                        child.id = result[0].id
                         // Comparing the resources
-                        expect(result[0].id).to.eql(child.id)
+                        expect(result[0]).to.have.property('id')
                         expect(result[0].username).to.eql(child.username)
                         expect(result[0].type).to.eql(child.type)
                         expect(result[0].institution_id).to.eql(child.institution!.id)

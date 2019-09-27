@@ -10,6 +10,7 @@ import { UserRepository } from '../../../src/infrastructure/repository/user.repo
 import { EntityMapperMock } from '../../mocks/entity.mapper.mock'
 import { ObjectID } from 'bson'
 import { ApplicationMock } from '../../mocks/application.mock'
+import { Query } from '../../../src/infrastructure/repository/query/query'
 
 require('sinon-mongoose')
 
@@ -97,17 +98,24 @@ describe('Repositories: Application', () => {
     })
 
     describe('find(query: IQuery)', () => {
+        const query: Query = new Query()
+        query.ordination = new Map()
         context('when there is at least one application that corresponds to the received parameters', () => {
             it('should return an Application array', () => {
 
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
                     .chain('exec')
                     .resolves(applicationsArr)
 
-                return applicationRepo.find(queryMock)
+                return applicationRepo.find(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isNotEmpty(result)
@@ -122,11 +130,16 @@ describe('Repositories: Application', () => {
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
                     .chain('exec')
                     .resolves(new Array<ApplicationMock>())
 
-                return applicationRepo.find(queryMock)
+                return applicationRepo.find(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isEmpty(result)
@@ -141,12 +154,17 @@ describe('Repositories: Application', () => {
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
-                return applicationRepo.find(queryMock)
+                return applicationRepo.find(query)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')

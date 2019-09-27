@@ -43,6 +43,10 @@ export class FamilyRepositoryMock implements IFamilyRepository {
         return Promise.resolve(familyArr)
     }
 
+    public findByUsername(username: string, users: Array<any>): Array<Family> {
+        return new Array<Family>()
+    }
+
     public findById(familyId: string): Promise<Family> {
         if (familyId === '507f1f77bcf86cd799439011') {
             const family: Family = new FamilyMock()

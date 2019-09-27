@@ -52,6 +52,12 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
         const q: any = query.toJSON()
         const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
+        let usernameFilter: string
+        if (q.filters.username) {
+            usernameFilter = q.filters.username
+            delete q.filters.username
+        }
+
         return new Promise<Array<HealthProfessional>>((resolve, reject) => {
             this.healthProfessionalModel.find(q.filters)
                 .sort(q.ordination)
@@ -59,8 +65,10 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<HealthProfessional>) =>
-                    resolve(result.map(item => this.healthProfessionalMapper.transform(item))))
+                .then((result: Array<HealthProfessional>) => {
+                    if (usernameFilter) return resolve(super.findByUsername(usernameFilter, result))
+                    resolve(result.map(item => this.healthProfessionalMapper.transform(item)))
+                })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }

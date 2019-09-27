@@ -60,7 +60,6 @@ export class ApplicationService implements IApplicationService {
     }
 
     public async getAll(query: IQuery): Promise<Array<Application>> {
-        query.addFilter({ type: UserType.APPLICATION })
         return this._applicationRepository.find(query)
     }
 

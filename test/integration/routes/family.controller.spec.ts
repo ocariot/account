@@ -8,8 +8,6 @@ import { Institution } from '../../../src/application/domain/model/institution'
 import { UserType } from '../../../src/application/domain/model/user'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
-import { Child } from '../../../src/application/domain/model/child'
-import { IChildService } from '../../../src/application/port/child.service.interface'
 import { FamilyMock } from '../../mocks/family.mock'
 import { InstitutionMock } from '../../mocks/institution.mock'
 import { ChildMock } from '../../mocks/child.mock'
@@ -20,7 +18,6 @@ import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 
 const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
 const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
-const childService: IChildService = DIContainer.get(Identifier.CHILD_SERVICE)
 const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
 
@@ -31,17 +28,10 @@ describe('Routes: Family', () => {
     defaultFamily.password = 'family_password'
     defaultFamily.institution = institution
 
-    const child = new ChildMock()
-    child.username = 'anothercoolusername'
-    child.password = 'child_password'
-    child.gender = 'male'
-    child.age = 11
-    child.type = UserType.CHILD
-    child.institution = institution
+    const defaultChild = new ChildMock()
+    defaultChild.institution = institution
 
     const otherChild = new ChildMock()
-
-    const anotherChild = new Child()
 
     before(async () => {
             try {
@@ -60,11 +50,7 @@ describe('Routes: Family', () => {
                     latitude: 0,
                     longitude: 0
                 })
-                institution.id = item._id
-
-                const savedChild = await childService.add(child)
-                child.id = savedChild.id
-                defaultFamily.children = new Array<Child>(savedChild)
+                institution.id = item._id.toString()
             } catch (err) {
                 throw new Error('Failure on Family test: ' + err.message)
             }
@@ -83,7 +69,62 @@ describe('Routes: Family', () => {
     })
 
     describe('POST /v1/families', () => {
+        context('when posting a new family user', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
+            it('should return status code 201 and the saved family', () => {
+                const body = {
+                    username: defaultFamily.username,
+                    password: defaultFamily.password,
+                    children: [result.id],
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/families')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(201)
+                    .then(res => {
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql(defaultFamily.username)
+                        expect(res.body.institution_id).to.eql(institution.id)
+                        expect(res.body.children.length).is.eql(1)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                            expect(child.institution_id).to.eql(institution.id)
+                        }
+                    })
+            })
+        })
         context('when posting a new family user with unregistered children', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 400 and an info message about the unregistered children', () => {
                 const body = {
                     username: defaultFamily.username,
@@ -105,37 +146,39 @@ describe('Routes: Family', () => {
             })
         })
 
-        context('when posting a new family user', () => {
-            it('should return status code 201 and the saved family', () => {
-                const body = {
-                    username: defaultFamily.username,
-                    password: defaultFamily.password,
-                    children: [child.id],
-                    institution_id: institution.id
-                }
-
-                return request
-                    .post('/v1/families')
-                    .send(body)
-                    .set('Content-Type', 'application/json')
-                    .expect(201)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.children).is.an.instanceof(Array)
-                        expect(res.body.children.length).is.eql(1)
-                        defaultFamily.id = res.body.id
-                    })
-            })
-        })
-
         context('when a duplicate error occurs', () => {
+            let resultChild
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 409 and message info about duplicate items', () => {
                 const body = {
                     username: defaultFamily.username,
                     password: defaultFamily.password,
-                    children: [child.id],
+                    children: [resultChild.id],
                     institution_id: institution.id
                 }
 
@@ -169,11 +212,30 @@ describe('Routes: Family', () => {
         })
 
         context('when the institution provided does not exists', () => {
+            let resultChild
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 400 and message for institution not found', () => {
                 const body = {
                     username: 'anotherusername',
                     password: defaultFamily.password,
-                    children: [child.id],
+                    children: [resultChild.id],
                     institution_id: new ObjectID()
                 }
 
@@ -194,7 +256,7 @@ describe('Routes: Family', () => {
                 const body = {
                     username: 'anotherusername',
                     password: defaultFamily.password,
-                    children: [child.id],
+                    children: [defaultChild.id],
                     institution_id: '123'
                 }
 
@@ -212,23 +274,65 @@ describe('Routes: Family', () => {
     })
 
     describe('GET /v1/families/:family_id', () => {
-        context('when get a unique family in database', () => {
+        context('when get an unique family in database', () => {
+            let resultChild
+            let resultFamily
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 200 and a family', () => {
                 return request
-                    .get(`/v1/families/${defaultFamily.id}`)
+                    .get(`/v1/families/${resultFamily.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultFamily.id)
+                        expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.children).is.an.instanceof(Array)
+                        expect(res.body.institution_id).to.eql(institution.id)
                         expect(res.body.children.length).is.eql(1)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                     })
             })
         })
 
         context('when the family is not found', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 404 and info message from family not found', () => {
                 return request
                     .get(`/v1/families/${new ObjectID()}`)
@@ -257,9 +361,31 @@ describe('Routes: Family', () => {
 
     describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/families/:family_id', () => {
         context('when the update was successful', () => {
+            let resultChild
+            let resultFamily
+
             before(async () => {
                 try {
-                //
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
@@ -267,16 +393,22 @@ describe('Routes: Family', () => {
             it('should return status code 200 and updated family (and show an error log about unable to send ' +
                 'UpdateFamily event)', () => {
                 return request
-                    .patch(`/v1/families/${defaultFamily.id}`)
-                    .send({ last_login: defaultFamily.last_login })
+                    .patch(`/v1/families/${resultFamily.id}`)
+                    .send({ username: 'new_username', last_login: defaultFamily.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultFamily.id)
-                        expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.children).is.an.instanceof(Array)
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql('new_username')
+                        expect(res.body.institution_id).to.eql(institution.id)
                         expect(res.body.children.length).is.eql(1)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                     })
             })
         })
@@ -284,8 +416,32 @@ describe('Routes: Family', () => {
 
     describe('RABBITMQ PUBLISHER -> PATCH /v1/families/:family_id', () => {
         context('when this family is updated successfully and published to the bus', () => {
+            let resultChild
+            let resultFamily
+
             before(async () => {
                 try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
                         { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
                 } catch (err) {
@@ -310,11 +466,17 @@ describe('Routes: Family', () => {
                             expect(message.event_name).to.eql('FamilyUpdateEvent')
                             expect(message).to.have.property('timestamp')
                             expect(message).to.have.property('family')
-                            expect(message.family.id).to.eql(defaultFamily.id)
-                            expect(message.family.username).to.eql(defaultFamily.username)
-                            expect(message.family.institution_id).to.eql(institution.id!.toString())
-                            expect(message.family.children).is.an.instanceof(Array)
+                            expect(message.family).to.have.property('id')
+                            expect(message.family.username).to.eql('new_username')
+                            expect(message.family.institution_id).to.eql(institution.id)
                             expect(message.family.children.length).is.eql(1)
+                            for (const child of message.family.children) {
+                                expect(child).to.have.property('id')
+                                expect(child.username).to.eql(defaultChild.username)
+                                expect(child.institution_id).to.eql(institution.id)
+                                expect(child.gender).to.eql(defaultChild.gender)
+                                expect(child.age).to.eql(defaultChild.age)
+                            }
                             done()
                         } catch (err) {
                             done(err)
@@ -322,8 +484,8 @@ describe('Routes: Family', () => {
                     })
                     .then(() => {
                         request
-                            .patch(`/v1/families/${defaultFamily.id}`)
-                            .send({ last_login: defaultFamily.last_login })
+                            .patch(`/v1/families/${resultFamily.id}`)
+                            .send({ username: 'new_username' })
                             .set('Content-Type', 'application/json')
                             .expect(200)
                             .then()
@@ -336,50 +498,123 @@ describe('Routes: Family', () => {
 
     describe('PATCH /v1/families/:family_id', () => {
         context('when the update was successful', () => {
+            let resultChild
+            let resultFamily
+
             before(async () => {
                 try {
-                //
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
             })
             it('should return status code 200 and updated family', () => {
                 return request
-                    .patch(`/v1/families/${defaultFamily.id}`)
-                    .send({ last_login: defaultFamily.last_login })
+                    .patch(`/v1/families/${resultFamily.id}`)
+                    .send({ username: 'new_username' })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultFamily.id)
-                        expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.children).is.an.instanceof(Array)
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql('new_username')
+                        expect(res.body.institution_id).to.eql(institution.id)
                         expect(res.body.children.length).is.eql(1)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                     })
             })
         })
 
         context('when a duplication error occurs', () => {
-            it('should return status code 409 and info message from duplicate value', async () => {
+            let resultChild
+            let resultFamily
+
+            before(async () => {
                 try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
                     await createUser({
                         username: 'acoolusername',
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
-                        institution: institution.id,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
                         scopes: new Array('users:read')
-                    }).then()
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
-
+            })
+            it('should return status code 409 and info message from duplicate value', async () => {
                 return request
-                    .patch(`/v1/families/${defaultFamily.id}`)
+                    .patch(`/v1/families/${resultFamily.id}`)
                     .send({ username: 'acoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
                         expect(err.body.message).to.eql('Family is already registered!')
+                    })
+            })
+        })
+
+        context('when a validation error occurs', () => {
+            it('should return status code 400 and message info about missing or invalid parameters', () => {
+                const body = {
+                    password: 'mysecretkey'
+                }
+
+                return request
+                    .patch(`/v1/families/${defaultFamily.id}`)
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('This parameter could not be updated.')
+                        expect(err.body.description).to.eql('A specific route to update user password already exists.' +
+                            `Access: PATCH /users/${defaultFamily.id}/password to update your password.`)
                     })
             })
         })
@@ -443,36 +678,100 @@ describe('Routes: Family', () => {
 
     describe('POST /v1/families/:family_id/children/:child_id', () => {
         context('when want associate a child with a family', () => {
+            let resultChild
+            let resultChild2
+            let resultFamily
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChild2 = await createUser({
+                        username: 'ihaveauniqueusername',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 200 and a family', async () => {
-                anotherChild.username = 'ihaveauniqueusername'
-                anotherChild.password = 'mysecretkey'
-                anotherChild.gender = 'male'
-                anotherChild.age = 11
-                anotherChild.type = UserType.CHILD
-                anotherChild.institution = institution
-
-                await childService.add(anotherChild).then(item => {
-                    anotherChild.id = item.id
-                })
-
                 return request
-                    .post(`/v1/families/${defaultFamily.id}/children/${anotherChild.id}`)
+                    .post(`/v1/families/${resultFamily.id}/children/${resultChild2.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultFamily.id)
+                        expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultFamily.username)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.children).is.an.instanceof(Array)
+                        expect(res.body.institution_id).to.eql(institution.id)
                         expect(res.body.children.length).is.eql(2)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child).to.have.property('username')
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                     })
             })
         })
 
         context('when the child id does not exists', () => {
+            let resultChild
+            let resultFamily
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 400 and info message from invalid child ID', () => {
                 return request
-                    .post(`/v1/families/${defaultFamily.id}/children/${new ObjectID()}`)
+                    .post(`/v1/families/${resultFamily.id}/children/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -497,9 +796,38 @@ describe('Routes: Family', () => {
 
     describe('DELETE /v1/families/:family_id/children/:child_id', () => {
         context('when want disassociate a child from a family', () => {
+            let resultChild
+            let resultFamily
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 204 and no content', () => {
                 return request
-                    .delete(`/v1/families/${defaultFamily.id}/children/${anotherChild.id}`)
+                    .delete(`/v1/families/${resultFamily.id}/children/${resultChild.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -509,9 +837,38 @@ describe('Routes: Family', () => {
         })
 
         context('when the child id does not exists', () => {
+            let resultChild
+            let resultFamily
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 204 and no content, even the child id does not exists', () => {
                 return request
-                    .delete(`/v1/families/${defaultFamily.id}/children/${new ObjectID()}`)
+                    .delete(`/v1/families/${resultFamily.id}/children/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(204)
                     .then(res => {
@@ -536,37 +893,88 @@ describe('Routes: Family', () => {
 
     describe('GET /v1/families/:family_id/children', () => {
         context('when want get all children from family', () => {
+            let resultChild
+            let resultChild2
+            let resultFamily
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChild2 = await createUser({
+                        username: 'ihaveauniqueusername',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id, resultChild2.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 200 and the family children', () => {
                 return request
-                    .get(`/v1/families/${defaultFamily.id}/children`)
+                    .get(`/v1/families/${resultFamily.id}/children`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceof(Array)
-                        expect(res.body.length).is.eql(1)
-                        expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0].username).to.eql('anothercoolusername')
-                        expect(res.body[0].institution_id).to.eql(institution.id!.toString())
-                        expect(res.body[0].age).to.eql(11)
-                        expect(res.body[0].gender).to.eql('male')
+                        expect(res.body.length).is.eql(2)
+                        for (const child of res.body) {
+                            expect(child).to.have.property('id')
+                            expect(child).to.have.property('username')
+                            expect(child).to.have.property('institution_id')
+                            expect(child).to.have.property('gender')
+                            expect(child).to.have.property('age')
+                        }
                     })
             })
         })
 
-        context('when there no are children groups associated with an user', () => {
-            it('should return status code 200 and empty array', async () => {
+        context('when there no are children associated with a family', () => {
+            let resultFamily
+
+            before(async () => {
                 try {
-                    await deleteAllChildrenFromFamily(defaultFamily.id)
+                    await deleteAllUsers()
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
-
-                request
-                    .get(`/v1/families/${defaultFamily.id}/children`)
+            })
+            it('should return status code 200 and empty array', async () => {
+                return request
+                    .get(`/v1/families/${resultFamily.id}/children`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceof(Array)
                         expect(res.body.length).is.eql(0)
                     })
 
@@ -602,82 +1010,146 @@ describe('Routes: Family', () => {
 
     describe('GET /v1/families', () => {
         context('when want get all families in database', () => {
+            let resultChild
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'other_family',
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
             it('should return status code 200 and a list of users', () => {
                 return request
                     .get('/v1/families')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceOf(Array)
                         expect(res.body.length).to.eql(2)
-                        expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution_id')
-                        expect(res.body[1]).to.have.property('id')
-                        expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution_id')
+                        for (const family of res.body) {
+                            expect(family).to.have.property('id')
+                            expect(family).to.have.property('username')
+                            expect(family).to.have.property('institution_id')
+                            expect(family).to.have.property('children')
+                            for (const child of family.children) {
+                                expect(child).to.have.property('id')
+                                expect(child).to.have.property('username')
+                                expect(child).to.have.property('institution_id')
+                                expect(child).to.have.property('gender')
+                                expect(child).to.have.property('age')
+                            }
+                        }
                     })
             })
         })
 
         context('when use query strings', () => {
-            it('should return the result as required in query', async () => {
+            let resultChild
+
+            before(async () => {
                 try {
-                    await createInstitution({
-                        type: 'University',
-                        name: 'UEPB',
-                        address: '221B Baker Street, St.',
-                        latitude: 0,
-                        longitude: 0
-                    }).then(result => {
-                        createUser({
-                            username: 'myusernameisunique',
-                            password: defaultFamily.password,
-                            type: UserType.FAMILY,
-                            institution: result._id,
-                            scopes: new Array('users:read'),
-                            last_login: defaultFamily.last_login
-                        }).then()
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'myusernameisunique',
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
-
-                const url: string = '/v1/families?sort=username&page=1&limit=3'
+            })
+            it('should return the result as required in query', async () => {
+                const url: string = '/v1/families?username=myusernameisunique&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceOf(Array)
-                        expect(res.body.length).to.eql(3)
-                        expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution_id')
-                        expect(res.body[0]).to.have.property('children')
-                        expect(res.body[1]).to.have.property('id')
-                        expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution_id')
-                        expect(res.body[1]).to.have.property('children')
+                        expect(res.body.length).to.eql(1)
+                        for (const family of res.body) {
+                            expect(family).to.have.property('id')
+                            expect(family.username).to.eql('myusernameisunique')
+                            expect(family.institution_id).to.eql(institution.id)
+                            expect(family.children.length).to.eql(1)
+                            for (const child of family.children) {
+                                expect(child).to.have.property('id')
+                                expect(child.username).to.eql(defaultChild.username)
+                                expect(child.institution_id).to.eql(institution.id)
+                                expect(child.gender).to.eql(defaultChild.gender)
+                                expect(child.age).to.eql(defaultChild.age)
+                            }
+                        }
                     })
             })
         })
 
-        context('when there are no institutions in database', () => {
-            it('should return status code 200 and a empty array', async () => {
+        context('when there are no families in database', () => {
+            before(async () => {
                 try {
-                    await deleteAllUsers().then()
+                    await deleteAllUsers()
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
+            })
 
+            it('should return status code 200 and an empty array', async () => {
                 return request
                     .get('/v1/families')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceOf(Array)
                         expect(res.body.length).to.eql(0)
                     })
             })
@@ -694,13 +1166,9 @@ async function deleteAllUsers() {
 }
 
 async function createInstitution(item) {
-    return await InstitutionRepoModel.create(item)
+    return InstitutionRepoModel.create(item)
 }
 
 async function deleteAllInstitutions() {
     return InstitutionRepoModel.deleteMany({})
-}
-
-async function deleteAllChildrenFromFamily(id) {
-    return UserRepoModel.updateOne({ _id: id }, { $set: { children: [] } })
 }
