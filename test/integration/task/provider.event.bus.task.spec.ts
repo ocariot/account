@@ -129,31 +129,37 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     await deleteAllUsers()
 
                     const child1: Child = new ChildMock()
+                    child1.username = 'child_mock1'
                     child1.institution!.id = '5a62be07d6f33400146c9b61'
                     child1.gender = Gender.MALE
                     child1.age = 8
 
                     const child2: Child = new ChildMock()
+                    child2.username = 'child_mock2'
                     child2.institution!.id = '5a62be07d6f33400146c9b61'
                     child2.gender = Gender.FEMALE
                     child2.age = 9
 
                     const child3: Child = new ChildMock()
+                    child3.username = 'child_mock3'
                     child3.institution!.id = '5a62be07d6f33400146c9b61'
                     child3.gender = Gender.MALE
                     child3.age = 10
 
                     const child4: Child = new ChildMock()
+                    child4.username = 'child_mock4'
                     child4.institution!.id = '5a62be07de34500146d9c544'
                     child4.gender = Gender.FEMALE
                     child4.age = 6
 
                     const child5: Child = new ChildMock()
+                    child5.username = 'child_mock5'
                     child5.institution!.id = '5a62be07de34500146d9c544'
                     child5.gender = Gender.MALE
                     child5.age = 7
 
                     const child6: Child = new ChildMock()
+                    child6.username = 'child_mock6'
                     child6.institution!.id = '5a62be07de34500146d9c544'
                     child6.gender = Gender.FEMALE
                     child6.age = 7
@@ -236,6 +242,46 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     })
                     .catch(done)
             })
+
+            it('should return an array with six children (query all children who have a certain string at the ' +
+                'beginning of their username)', (done) => {
+                rabbitmq.bus.getChildren('?username=child_*')
+                    .then(result => {
+                        expect(result.length).to.eql(6)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with one child (query all children who have a certain string at the ' +
+                'end of their username)', (done) => {
+                rabbitmq.bus.getChildren('?username=*8')
+                    .then(result => {
+                        expect(result.length).to.eql(1)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with nine children (query all children who have a particular string anywhere ' +
+                'in their username)', (done) => {
+                rabbitmq.bus.getChildren('?username=*child*')
+                    .then(result => {
+                        expect(result.length).to.eql(9)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with one child (query child who has username exactly the same as the given string)',
+                (done) => {
+                    rabbitmq.bus.getChildren('?username=child7')
+                        .then(result => {
+                            expect(result.length).to.eql(1)
+                            done()
+                        })
+                        .catch(done)
+                })
 
             it('should return an array with three children (query all registered children within 1 month)', (done) => {
                 rabbitmq.bus.getChildren('?start_at=2019-01-20T00:00:00.000Z&period=1m')
@@ -567,21 +613,27 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     await deleteAllUsers()
 
                     const family1: Family = new FamilyMock()
+                    family1.username = 'family_mock1'
                     family1.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const family2: Family = new FamilyMock()
+                    family2.username = 'family2'
                     family2.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const family3: Family = new FamilyMock()
+                    family3.username = 'family3'
                     family3.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const family4: Family = new FamilyMock()
+                    family4.username = 'family_mock4'
                     family4.institution!.id = '5a62be07de34500146d9c544'
 
                     const family5: Family = new FamilyMock()
+                    family5.username = 'other_family'
                     family5.institution!.id = '5a62be07de34500146d9c544'
 
                     const family6: Family = new FamilyMock()
+                    family6.username = 'other_family2'
                     family6.institution!.id = '5a62be07de34500146d9c544'
 
                     await familyRepository.create(family1)
@@ -627,6 +679,46 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     })
                     .catch(done)
             })
+
+            it('should return an array with two families (query all families who have a certain string at the ' +
+                'beginning of their username)', (done) => {
+                rabbitmq.bus.getFamilies('?username=other_*')
+                    .then(result => {
+                        expect(result.length).to.eql(2)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with two families (query all families who have a certain string at the ' +
+                'end of their username)', (done) => {
+                rabbitmq.bus.getFamilies('?username=*family2')
+                    .then(result => {
+                        expect(result.length).to.eql(2)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with six families (query all families who have a particular string anywhere ' +
+                'in their username)', (done) => {
+                rabbitmq.bus.getFamilies('?username=*family*')
+                    .then(result => {
+                        expect(result.length).to.eql(6)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with one family (query family who has username exactly the same as the given string)',
+                (done) => {
+                    rabbitmq.bus.getFamilies('?username=family3')
+                        .then(result => {
+                            expect(result.length).to.eql(1)
+                            done()
+                        })
+                        .catch(done)
+                })
         })
 
         context('when trying to retrieve families through invalid query', () => {
@@ -849,21 +941,27 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     await deleteAllUsers()
 
                     const educator1: Educator = new EducatorMock()
+                    educator1.username = 'educator1'
                     educator1.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const educator2: Educator = new EducatorMock()
+                    educator2.username = 'educator2'
                     educator2.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const educator3: Educator = new EducatorMock()
+                    educator3.username = 'educator3'
                     educator3.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const educator4: Educator = new EducatorMock()
+                    educator4.username = 'educator4'
                     educator4.institution!.id = '5a62be07de34500146d9c544'
 
                     const educator5: Educator = new EducatorMock()
+                    educator5.username = 'other_educator1'
                     educator5.institution!.id = '5a62be07de34500146d9c544'
 
                     const educator6: Educator = new EducatorMock()
+                    educator6.username = 'other_educator2'
                     educator6.institution!.id = '5a62be07de34500146d9c544'
 
                     await educatorRepository.create(educator1)
@@ -909,6 +1007,46 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     })
                     .catch(done)
             })
+
+            it('should return an array with two educators (query all educators who have a certain string at the ' +
+                'beginning of their username)', (done) => {
+                rabbitmq.bus.getEducators('?username=other_*')
+                    .then(result => {
+                        expect(result.length).to.eql(2)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with two educators (query all educators who have a certain string at the ' +
+                'end of their username)', (done) => {
+                rabbitmq.bus.getEducators('?username=*educator2')
+                    .then(result => {
+                        expect(result.length).to.eql(2)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with six educators (query all educators who have a particular string anywhere ' +
+                'in their username)', (done) => {
+                rabbitmq.bus.getEducators('?username=*educator*')
+                    .then(result => {
+                        expect(result.length).to.eql(6)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with one educator (query educator who has username exactly the same as the given string)',
+                (done) => {
+                    rabbitmq.bus.getEducators('?username=educator1')
+                        .then(result => {
+                            expect(result.length).to.eql(1)
+                            done()
+                        })
+                        .catch(done)
+                })
         })
 
         context('when trying to retrieve educators through invalid query', () => {
@@ -1132,21 +1270,27 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     await deleteAllUsers()
 
                     const healthProfessional1: HealthProfessional = new HealthProfessionalMock()
+                    healthProfessional1.username = 'health_professional1'
                     healthProfessional1.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const healthProfessional2: HealthProfessional = new HealthProfessionalMock()
+                    healthProfessional2.username = 'new_health_professional'
                     healthProfessional2.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const healthProfessional3: HealthProfessional = new HealthProfessionalMock()
+                    healthProfessional3.username = 'other_health_professional'
                     healthProfessional3.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const healthProfessional4: HealthProfessional = new HealthProfessionalMock()
+                    healthProfessional4.username = 'health_professional2'
                     healthProfessional4.institution!.id = '5a62be07de34500146d9c544'
 
                     const healthProfessional5: HealthProfessional = new HealthProfessionalMock()
+                    healthProfessional5.username = 'health_professional3'
                     healthProfessional5.institution!.id = '5a62be07de34500146d9c544'
 
                     const healthProfessional6: HealthProfessional = new HealthProfessionalMock()
+                    healthProfessional6.username = 'health_professional4'
                     healthProfessional6.institution!.id = '5a62be07de34500146d9c544'
 
                     await healthProfRepository.create(healthProfessional1)
@@ -1194,6 +1338,46 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         })
                         .catch(done)
                 })
+
+            it('should return an array with one health professional (query all health professionals ' +
+                'who have a certain string at the beginning of their username)', (done) => {
+                rabbitmq.bus.getHealthProfessionals('?username=new_*')
+                    .then(result => {
+                        expect(result.length).to.eql(1)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with two health professionals (query all health professionals ' +
+                'who have a certain string at the end of their username)', (done) => {
+                rabbitmq.bus.getHealthProfessionals('?username=*professional')
+                    .then(result => {
+                        expect(result.length).to.eql(2)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with six health professionals (query all health professionals ' +
+                'who have a particular string anywhere in their username)', (done) => {
+                rabbitmq.bus.getHealthProfessionals('?username=*health_professional*')
+                    .then(result => {
+                        expect(result.length).to.eql(6)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with one health professional (query health professional ' +
+                'who has username exactly the same as the given string)', (done) => {
+                rabbitmq.bus.getHealthProfessionals('?username=health_professional2')
+                    .then(result => {
+                        expect(result.length).to.eql(1)
+                        done()
+                    })
+                    .catch(done)
+            })
         })
 
         context('when trying to retrieve health professionals through invalid query', () => {
@@ -1331,21 +1515,27 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     await deleteAllUsers()
 
                     const application1: Application = new ApplicationMock()
+                    application1.username = 'other_application1'
                     application1.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const application2: Application = new ApplicationMock()
+                    application2.username = 'application1'
                     application2.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const application3: Application = new ApplicationMock()
+                    application3.username = 'other_application2'
                     application3.institution!.id = '5a62be07d6f33400146c9b61'
 
                     const application4: Application = new ApplicationMock()
+                    application4.username = 'application2'
                     application4.institution!.id = '5a62be07de34500146d9c544'
 
                     const application5: Application = new ApplicationMock()
+                    application5.username = 'application3'
                     application5.institution!.id = '5a62be07de34500146d9c544'
 
                     const application6: Application = new ApplicationMock()
+                    application6.username = 'application4'
                     application6.institution!.id = '5a62be07de34500146d9c544'
 
                     await applicationRepository.create(application1)
@@ -1393,6 +1583,46 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         })
                         .catch(done)
                 })
+
+            it('should return an array with two applications (query all applications ' +
+                'who have a certain string at the beginning of their username)', (done) => {
+                rabbitmq.bus.getApplications('?username=other_*')
+                    .then(result => {
+                        expect(result.length).to.eql(2)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with two applications (query all applications ' +
+                'who have a certain string at the end of their username)', (done) => {
+                rabbitmq.bus.getApplications('?username=*application1')
+                    .then(result => {
+                        expect(result.length).to.eql(2)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with six applications (query all applications ' +
+                'who have a particular string anywhere in their username)', (done) => {
+                rabbitmq.bus.getApplications('?username=*application*')
+                    .then(result => {
+                        expect(result.length).to.eql(6)
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an array with one application (query application ' +
+                'who has username exactly the same as the given string)', (done) => {
+                rabbitmq.bus.getApplications('?username=application3')
+                    .then(result => {
+                        expect(result.length).to.eql(1)
+                        done()
+                    })
+                    .catch(done)
+            })
         })
 
         context('when trying to retrieve applications through invalid query', () => {

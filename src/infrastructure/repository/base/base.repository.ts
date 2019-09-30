@@ -54,9 +54,13 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         })
     }
 
-    public findByUsername(username: string, users: Array<any>): Array<T> {
+    public findByUsername(username: any, users: Array<any>): Array<T> {
+        let regExpUsername: RegExp
+        if (username.$regex) regExpUsername = new RegExp(username.$regex, 'i')
+
         return users.filter(elem => {
-            return elem.username.toLowerCase() === username.toLowerCase()
+            if (regExpUsername) return regExpUsername.test(elem.username)
+            return elem.username.toString().toLowerCase() === username.toString().toLowerCase()
         }).map(item => this.mapper.transform(item))
     }
 
