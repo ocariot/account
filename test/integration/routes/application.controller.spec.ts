@@ -74,7 +74,7 @@ describe('Routes: Application', () => {
                 const body = {
                     username: defaultApplication.username,
                     password: 'mysecretkey',
-                    application_name: defaultApplication.application_name,
+                    application_name: defaultApplication.application_name
                 }
 
                 return request
@@ -284,42 +284,6 @@ describe('Routes: Application', () => {
         })
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> PATCH /applications/:application_id', () => {
-        context('when the update was successful', () => {
-            let result
-
-            before(async () => {
-                try {
-                    await deleteAllUsers()
-
-                    result = await createUser({
-                        username: defaultApplication.username,
-                        password: 'mysecretkey',
-                        application_name: defaultApplication.application_name,
-                        institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION
-                    })
-                } catch (err) {
-                    throw new Error('Failure on Application test: ' + err.message)
-                }
-            })
-            it('should return status code 200 and updated application (and show an error log about unable to send ' +
-                'UpdateApplication event)', () => {
-                return request
-                    .patch(`/v1/applications/${result.id}`)
-                    .send({ username: 'new_username', last_login: defaultApplication.last_login })
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql('new_username')
-                        expect(res.body.institution_id).to.eql(institution.id)
-                        expect(res.body.application_name).to.eql(defaultApplication.application_name)
-                    })
-            })
-        })
-    })
-
     describe('RABBITMQ PUBLISHER -> PATCH /applications/:application_id', () => {
         context('when this application is updated successfully and published to the bus', () => {
             let result
@@ -384,7 +348,7 @@ describe('Routes: Application', () => {
     })
 
     describe('PATCH /applications/:application_id', () => {
-        context('when the update was successful', () => {
+        context('when the update was successful (and there is no connection to RabbitMQ)', () => {
             let result
 
             before(async () => {
@@ -402,19 +366,20 @@ describe('Routes: Application', () => {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
             })
-            it('should return status code 200 and updated application', () => {
-                return request
-                    .patch(`/v1/applications/${result.id}`)
-                    .send({ username: 'other_username' })
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql('other_username')
-                        expect(res.body.institution_id).to.eql(institution.id)
-                        expect(res.body.application_name).to.eql(defaultApplication.application_name)
-                    })
-            })
+            it('should return status code 200 and updated application (and show an error log about unable to send ' +
+                'UpdateApplication event)', () => {
+                    return request
+                        .patch(`/v1/applications/${result.id}`)
+                        .send({ username: 'other_username', last_login: defaultApplication.last_login })
+                        .set('Content-Type', 'application/json')
+                        .expect(200)
+                        .then(res => {
+                            expect(res.body).to.have.property('id')
+                            expect(res.body.username).to.eql('other_username')
+                            expect(res.body.institution_id).to.eql(institution.id)
+                            expect(res.body.application_name).to.eql(defaultApplication.application_name)
+                        })
+                })
         })
 
         context('when a duplication error occurs', () => {

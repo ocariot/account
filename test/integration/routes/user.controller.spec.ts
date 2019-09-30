@@ -184,36 +184,6 @@ describe('Routes: User', () => {
         })
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> DELETE /v1/users/:user_id', () => {
-        context('when the deletion was successful', () => {
-            let resultUser
-
-            before(async () => {
-                try {
-                    resultUser = await createUser({
-                        username: 'acoolusername',
-                        password: 'mysecretkey',
-                        application_name: 'Any Name',
-                        institution: institution.id,
-                        type: UserType.APPLICATION
-                    })
-                } catch (err) {
-                    throw new Error('Failure on User test: ' + err.message)
-                }
-            })
-            it('should return status code 204 and no content (and show an error log about unable to send ' +
-                'DeleteInstitution event)', async () => {
-                return request
-                    .delete(`/v1/users/${resultUser.id}`)
-                    .set('Content-Type', 'application/json')
-                    .expect(204)
-                    .then(res => {
-                        expect(res.body).to.eql({})
-                    })
-            })
-        })
-    })
-
     describe('RABBITMQ PUBLISHER -> DELETE /v1/users/:user_id', () => {
         context('when the user was deleted successfully and your ID is published on the bus', () => {
             let resultUser
@@ -275,8 +245,9 @@ describe('Routes: User', () => {
     })
 
     describe('DELETE /v1/users/:user_id', () => {
-        context('when the user was successful deleted', () => {
-            it('should return status code 204 and no content for admin user', () => {
+        context('when the user was successful deleted (and there is no connection to RabbitMQ)', () => {
+            it('should return status code 204 and no content for admin user (and show an error log about unable to send ' +
+                'DeleteUser event)', () => {
                 return request
                     .delete(`/v1/users/${defaultUser.id}`)
                     .set('Content-Type', 'application/json')

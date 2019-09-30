@@ -137,8 +137,7 @@ describe('Routes: Educator', () => {
 
         context('when a validation error occurs', () => {
             it('should return status code 400 and message info about missing or invalid parameters', () => {
-                const body = {
-                }
+                const body = {}
 
                 return request
                     .post('/v1/educators')
@@ -209,7 +208,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
 
                     resultChild = await createUser({
@@ -298,42 +297,6 @@ describe('Routes: Educator', () => {
         })
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/educators/:educator_id', () => {
-        context('when the update was successful', () => {
-            let result
-
-            before(async () => {
-                 try {
-                     await deleteAllUsers()
-
-                     result = await createUser({
-                         username: defaultEducator.username,
-                         password: defaultEducator.password,
-                         type: UserType.EDUCATOR,
-                         institution: new ObjectID(institution.id),
-                         scopes: new Array('users:read')
-                     })
-                } catch (err) {
-                    throw new Error('Failure on Educator test: ' + err.message)
-                }
-            })
-            it('should return status code 200 and updated educator (and show an error log about unable to send ' +
-                'UpdateEducator event)', () => {
-                return request
-                    .patch(`/v1/educators/${result.id}`)
-                    .send({ username: 'new_username', last_login: defaultEducator.last_login })
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql('new_username')
-                        expect(res.body.institution_id).to.eql(institution.id)
-                        expect(res.body.children_groups.length).to.eql(0)
-                    })
-            })
-        })
-    })
-
     describe('RABBITMQ PUBLISHER -> PATCH /v1/educators/:educator_id', () => {
         context('when this educator is updated successfully and published to the bus', () => {
             let result
@@ -398,7 +361,7 @@ describe('Routes: Educator', () => {
     })
 
     describe('PATCH /v1/educators/:educator_id', () => {
-        context('when the update was successful', () => {
+        context('when the update was successful (and there is no connection to RabbitMQ)', () => {
             let result
 
             before(async () => {
@@ -416,19 +379,20 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 200 and updated educator', () => {
-                return request
-                    .patch(`/v1/educators/${result.id}`)
-                    .send({ username: 'other_username' })
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql('other_username')
-                        expect(res.body.institution_id).to.eql(institution.id)
-                        expect(res.body.children_groups.length).to.eql(0)
-                    })
-            })
+            it('should return status code 200 and updated educator (and show an error log about unable to send ' +
+                'UpdateEducator event)', () => {
+                    return request
+                        .patch(`/v1/educators/${result.id}`)
+                        .send({ username: 'other_username', last_login: defaultEducator.last_login })
+                        .set('Content-Type', 'application/json')
+                        .expect(200)
+                        .then(res => {
+                            expect(res.body).to.have.property('id')
+                            expect(res.body.username).to.eql('other_username')
+                            expect(res.body.institution_id).to.eql(institution.id)
+                            expect(res.body.children_groups.length).to.eql(0)
+                        })
+                })
         })
 
         context('when a duplication error occurs', () => {
@@ -787,7 +751,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
 
                     resultChild = await createUser({
@@ -887,7 +851,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
 
                     resultChild = await createUser({
@@ -947,7 +911,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
 
                     resultChild = await createUser({
@@ -1004,7 +968,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
 
                     resultChild = await createUser({
@@ -1056,7 +1020,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
 
                     resultChild = await createUser({
@@ -1110,7 +1074,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
 
                     resultChild = await createUser({
@@ -1157,7 +1121,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -1205,7 +1169,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
 
                     resultChild = await createUser({
@@ -1278,7 +1242,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
 
                     resultChild = await createUser({
@@ -1347,7 +1311,7 @@ describe('Routes: Educator', () => {
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        scopes: new Array('users:read')
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)

@@ -309,38 +309,6 @@ describe('Routes: Institution', () => {
         })
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> DELETE /v1/institutions/:institution_id', () => {
-        context('when the deletion was successful', () => {
-            let resultInstitution
-
-            before(async () => {
-                try {
-                    await deleteAllInstitutions()
-
-                    resultInstitution = await createInstitution({
-                        type: defaultInstitution.type,
-                        name: defaultInstitution.name,
-                        address: defaultInstitution.address,
-                        latitude: defaultInstitution.latitude,
-                        longitude: defaultInstitution.longitude
-                    })
-                } catch (err) {
-                    throw new Error('Failure on Institution test: ' + err.message)
-                }
-            })
-            it('should return status code 204 and no content (and show an error log about unable to send ' +
-                'DeleteInstitution event)', () => {
-                return request
-                    .delete(`/v1/institutions/${resultInstitution.id}`)
-                    .set('Content-Type', 'application/json')
-                    .expect(204)
-                    .then(res => {
-                        expect(res.body).to.eql({})
-                    })
-            })
-        })
-    })
-
     describe('RABBITMQ PUBLISHER -> DELETE /v1/institutions/:institution_id', () => {
         context('when the institution was deleted successfully and your ID is published on the bus', () => {
             let resultInstitution
@@ -401,7 +369,7 @@ describe('Routes: Institution', () => {
     })
 
     describe('DELETE /v1/institutions/:institution_id', () => {
-        context('when the deletion was successful', () => {
+        context('when the deletion was successful (and there is no connection to RabbitMQ)', () => {
             let resultInstitution
 
             before(async () => {
@@ -419,7 +387,8 @@ describe('Routes: Institution', () => {
                     throw new Error('Failure on Institution test: ' + err.message)
                 }
             })
-            it('should return status code 204 and no content', () => {
+            it('should return status code 204 and no content (and show an error log about unable to send ' +
+                'DeleteInstitution event)', () => {
                 return request
                     .delete(`/v1/institutions/${resultInstitution.id}`)
                     .set('Content-Type', 'application/json')

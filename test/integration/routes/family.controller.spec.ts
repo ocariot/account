@@ -129,7 +129,7 @@ describe('Routes: Family', () => {
                 const body = {
                     username: defaultFamily.username,
                     password: defaultFamily.password,
-                    children: [ otherChild ],
+                    children: [otherChild],
                     institution_id: institution.id
                 }
 
@@ -195,8 +195,7 @@ describe('Routes: Family', () => {
 
         context('when a validation error occurs', () => {
             it('should return status code 400 and message info about missing or invalid parameters', () => {
-                const body = {
-                }
+                const body = {}
 
                 return request
                     .post('/v1/families')
@@ -359,61 +358,6 @@ describe('Routes: Family', () => {
         })
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/families/:family_id', () => {
-        context('when the update was successful', () => {
-            let resultChild
-            let resultFamily
-
-            before(async () => {
-                try {
-                    await deleteAllUsers()
-
-                    resultChild = await createUser({
-                        username: defaultChild.username,
-                        password: defaultChild.password,
-                        type: UserType.CHILD,
-                        gender: defaultChild.gender,
-                        age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
-
-                    resultFamily = await createUser({
-                        username: defaultFamily.username,
-                        password: defaultFamily.password,
-                        type: UserType.FAMILY,
-                        institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
-                    })
-                } catch (err) {
-                    throw new Error('Failure on Family test: ' + err.message)
-                }
-            })
-            it('should return status code 200 and updated family (and show an error log about unable to send ' +
-                'UpdateFamily event)', () => {
-                return request
-                    .patch(`/v1/families/${resultFamily.id}`)
-                    .send({ username: 'new_username', last_login: defaultFamily.last_login })
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql('new_username')
-                        expect(res.body.institution_id).to.eql(institution.id)
-                        expect(res.body.children.length).is.eql(1)
-                        for (const child of res.body.children) {
-                            expect(child).to.have.property('id')
-                            expect(child.username).to.eql(defaultChild.username)
-                            expect(child.institution_id).to.eql(institution.id)
-                            expect(child.gender).to.eql(defaultChild.gender)
-                            expect(child.age).to.eql(defaultChild.age)
-                        }
-                    })
-            })
-        })
-    })
-
     describe('RABBITMQ PUBLISHER -> PATCH /v1/families/:family_id', () => {
         context('when this family is updated successfully and published to the bus', () => {
             let resultChild
@@ -497,7 +441,7 @@ describe('Routes: Family', () => {
     })
 
     describe('PATCH /v1/families/:family_id', () => {
-        context('when the update was successful', () => {
+        context('when the update was successful (and there is no connection to RabbitMQ)', () => {
             let resultChild
             let resultFamily
 
@@ -527,26 +471,27 @@ describe('Routes: Family', () => {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
             })
-            it('should return status code 200 and updated family', () => {
-                return request
-                    .patch(`/v1/families/${resultFamily.id}`)
-                    .send({ username: 'new_username' })
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql('new_username')
-                        expect(res.body.institution_id).to.eql(institution.id)
-                        expect(res.body.children.length).is.eql(1)
-                        for (const child of res.body.children) {
-                            expect(child).to.have.property('id')
-                            expect(child.username).to.eql(defaultChild.username)
-                            expect(child.institution_id).to.eql(institution.id)
-                            expect(child.gender).to.eql(defaultChild.gender)
-                            expect(child.age).to.eql(defaultChild.age)
-                        }
-                    })
-            })
+            it('should return status code 200 and updated family (and show an error log about unable to send ' +
+                'UpdateFamily event)', () => {
+                    return request
+                        .patch(`/v1/families/${resultFamily.id}`)
+                        .send({ username: 'new_username', last_login: defaultFamily.last_login })
+                        .set('Content-Type', 'application/json')
+                        .expect(200)
+                        .then(res => {
+                            expect(res.body).to.have.property('id')
+                            expect(res.body.username).to.eql('new_username')
+                            expect(res.body.institution_id).to.eql(institution.id)
+                            expect(res.body.children.length).is.eql(1)
+                            for (const child of res.body.children) {
+                                expect(child).to.have.property('id')
+                                expect(child.username).to.eql(defaultChild.username)
+                                expect(child.institution_id).to.eql(institution.id)
+                                expect(child.gender).to.eql(defaultChild.gender)
+                                expect(child.age).to.eql(defaultChild.age)
+                            }
+                        })
+                })
         })
 
         context('when a duplication error occurs', () => {

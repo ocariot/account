@@ -60,41 +60,6 @@ describe('Routes: Child', () => {
         }
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> POST /v1/children', () => {
-        context('when posting a new child user', () => {
-            before(async () => {
-                try {
-                    await deleteAllUsers()
-                } catch (err) {
-                    throw new Error('Failure on Child test: ' + err.message)
-                }
-            })
-            it('should return status code 201 and the saved child (and show an error log about unable to send ' +
-                'SaveChild event)', () => {
-                const body = {
-                    username: defaultChild.username,
-                    password: defaultChild.password,
-                    gender: defaultChild.gender,
-                    age: defaultChild.age,
-                    institution_id: institution.id
-                }
-
-                return request
-                    .post('/v1/children')
-                    .send(body)
-                    .set('Content-Type', 'application/json')
-                    .expect(201)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql(defaultChild.username)
-                        expect(res.body.gender).to.eql(defaultChild.gender)
-                        expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body.institution_id).to.eql(institution.id)
-                    })
-            })
-        })
-    })
-
     describe('RABBITMQ PUBLISHER -> POST /v1/children', () => {
         context('when posting a new child user and publishing it to the bus', () => {
             before(async () => {
@@ -113,7 +78,7 @@ describe('Routes: Child', () => {
                     await rabbitmq.dispose()
                     await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
                 } catch (err) {
-                    throw new Error('Failure on Application test: ' + err.message)
+                    throw new Error('Failure on Child test: ' + err.message)
                 }
             })
 
@@ -156,7 +121,7 @@ describe('Routes: Child', () => {
     })
 
     describe('POST /v1/children', () => {
-        context('when posting a new child user', () => {
+        context('when posting a new child user (and there is no connection to RabbitMQ)', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
@@ -164,7 +129,8 @@ describe('Routes: Child', () => {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
             })
-            it('should return status code 201 and the saved child', () => {
+            it('should return status code 201 and the saved child (and show an error log about unable to send ' +
+                'SaveChild event)', () => {
                 const body = {
                     username: defaultChild.username,
                     password: defaultChild.password,
@@ -406,46 +372,6 @@ describe('Routes: Child', () => {
         })
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/children/:child_id', () => {
-        context('when the update was successful', () => {
-            let result
-
-            before(async () => {
-                try {
-                    await deleteAllUsers()
-
-                    result = await createUser({
-                        username: defaultChild.username,
-                        password: defaultChild.password,
-                        type: UserType.CHILD,
-                        gender: defaultChild.gender,
-                        age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
-                } catch (err) {
-                    throw new Error('Failure on Child test: ' + err.message)
-                }
-            })
-            it('should return status code 200 and updated child (and show an error log about unable to send ' +
-                'UpdateChild event)', () => {
-                return request
-                    .patch(`/v1/children/${result.id}`)
-                    .send({ username: 'new_username',
-                                  last_login: defaultChild.last_login, last_sync: defaultChild.last_sync })
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql('new_username')
-                        expect(res.body.gender).to.eql(defaultChild.gender)
-                        expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body.institution_id).to.eql(institution.id)
-                    })
-            })
-        })
-    })
-
     describe('RABBITMQ PUBLISHER -> PATCH /v1/children/:child_id', () => {
         context('when this child is updated successfully and published to the bus', () => {
             let result
@@ -513,7 +439,7 @@ describe('Routes: Child', () => {
     })
 
     describe('PATCH /v1/children/:child_id', () => {
-        context('when the update was successful', () => {
+        context('when the update was successful (and there is no connection to RabbitMQ)', () => {
             let result
 
             before(async () => {
@@ -533,10 +459,12 @@ describe('Routes: Child', () => {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
             })
-            it('should return status code 200 and updated child', () => {
+            it('should return status code 200 and updated child (and show an error log about unable to send ' +
+                'UpdateChild event)', () => {
                 return request
                     .patch(`/v1/children/${result.id}`)
-                    .send({ username: 'other_username' })
+                    .send({ username: 'other_username', last_login: defaultChild.last_login,
+                                  last_sync: defaultChild.last_sync })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {

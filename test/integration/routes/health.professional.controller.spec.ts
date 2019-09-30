@@ -299,42 +299,6 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
-        context('when the update was successful', () => {
-            let result
-
-            before(async () => {
-                try {
-                    await deleteAllUsers()
-
-                    result = await createUser({
-                        username: defaultHealthProfessional.username,
-                        password: defaultHealthProfessional.password,
-                        type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
-                } catch (err) {
-                    throw new Error('Failure on HealthProfessional test: ' + err.message)
-                }
-            })
-            it('should return status code 200 and updated health professional (and show an error log about unable to send ' +
-                'UpdateHealthProfessional event)', () => {
-                return request
-                    .patch(`/v1/healthprofessionals/${result.id}`)
-                    .send({ username: 'new_username', last_login: defaultHealthProfessional.last_login })
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql('new_username')
-                        expect(res.body.institution_id).to.eql(institution.id)
-                        expect(res.body.children_groups.length).to.eql(0)
-                    })
-            })
-        })
-    })
-
     describe('RABBITMQ PUBLISHER -> PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
         context('when this health professional is updated successfully and published to the bus', () => {
             let result
@@ -399,7 +363,7 @@ describe('Routes: HealthProfessional', () => {
     })
 
     describe('PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
-        context('when the update was successful', () => {
+        context('when the update was successful (and there is no connection to RabbitMQ)', () => {
             let result
 
             before(async () => {
@@ -417,10 +381,11 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 200 and updated health professional', () => {
+            it('should return status code 200 and updated health professional (and show an error log about unable to send ' +
+                'UpdateHealthProfessional event)', () => {
                 return request
                     .patch(`/v1/healthprofessionals/${result.id}`)
-                    .send({ username: 'other_username' })
+                    .send({ username: 'other_username', last_login: defaultHealthProfessional.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
