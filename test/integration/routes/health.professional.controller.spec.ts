@@ -363,7 +363,7 @@ describe('Routes: HealthProfessional', () => {
     })
 
     describe('PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
-        context('when the update was successful (and there is no connection to RabbitMQ)', () => {
+        context('when the update was successful (there is no connection to RabbitMQ)', () => {
             let result
 
             before(async () => {

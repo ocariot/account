@@ -121,7 +121,7 @@ describe('Routes: Child', () => {
     })
 
     describe('POST /v1/children', () => {
-        context('when posting a new child user (and there is no connection to RabbitMQ)', () => {
+        context('when posting a new child user (there is no connection to RabbitMQ)', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
@@ -439,7 +439,7 @@ describe('Routes: Child', () => {
     })
 
     describe('PATCH /v1/children/:child_id', () => {
-        context('when the update was successful (and there is no connection to RabbitMQ)', () => {
+        context('when the update was successful (there is no connection to RabbitMQ)', () => {
             let result
 
             before(async () => {

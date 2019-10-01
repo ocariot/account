@@ -369,7 +369,7 @@ describe('Routes: Institution', () => {
     })
 
     describe('DELETE /v1/institutions/:institution_id', () => {
-        context('when the deletion was successful (and there is no connection to RabbitMQ)', () => {
+        context('when the deletion was successful (there is no connection to RabbitMQ)', () => {
             let resultInstitution
 
             before(async () => {

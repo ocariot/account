@@ -441,7 +441,7 @@ describe('Routes: Family', () => {
     })
 
     describe('PATCH /v1/families/:family_id', () => {
-        context('when the update was successful (and there is no connection to RabbitMQ)', () => {
+        context('when the update was successful (there is no connection to RabbitMQ)', () => {
             let resultChild
             let resultFamily
 

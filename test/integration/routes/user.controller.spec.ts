@@ -245,7 +245,7 @@ describe('Routes: User', () => {
     })
 
     describe('DELETE /v1/users/:user_id', () => {
-        context('when the user was successful deleted (and there is no connection to RabbitMQ)', () => {
+        context('when the user was successful deleted (there is no connection to RabbitMQ)', () => {
             it('should return status code 204 and no content for admin user (and show an error log about unable to send ' +
                 'DeleteUser event)', () => {
                 return request

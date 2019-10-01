@@ -348,7 +348,7 @@ describe('Routes: Application', () => {
     })
 
     describe('PATCH /applications/:application_id', () => {
-        context('when the update was successful (and there is no connection to RabbitMQ)', () => {
+        context('when the update was successful (there is no connection to RabbitMQ)', () => {
             let result
 
             before(async () => {
