@@ -507,7 +507,7 @@ describe('Routes: Child', () => {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
             })
-            it('should return status code 409 and info message from duplicate value', async () => {
+            it('should return status code 409 and info message from duplicate value', () => {
                 return request
                     .patch(`/v1/children/${result.id}`)
                     .send({ username: 'anothercoolusername' })
@@ -677,7 +677,7 @@ describe('Routes: Child', () => {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', async () => {
+            it('should return the result as required in query', () => {
                 const url = '/v1/children?username=ihaveausername&sort=username&page=1&limit=3'
                 return request
                     .get(url)
@@ -694,13 +694,14 @@ describe('Routes: Child', () => {
             })
         })
         context('when there are no children in database', () => {
-            it('should return status code 200 and an empty array', async () => {
+            before(async () => {
                 try {
                     await deleteAllUsers()
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
-
+            })
+            it('should return status code 200 and an empty array', () => {
                 return request
                     .get('/v1/children')
                     .set('Content-Type', 'application/json')

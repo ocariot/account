@@ -98,9 +98,9 @@ describe('App', () => {
 })
 
 async function createInstitution(item) {
-    return await InstitutionRepoModel.create(item)
+    return InstitutionRepoModel.create(item)
 }
 
 async function deleteAllInstitutions() {
-    return await InstitutionRepoModel.deleteMany({})
+    return InstitutionRepoModel.deleteMany({})
 }

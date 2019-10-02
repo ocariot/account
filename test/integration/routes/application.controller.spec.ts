@@ -218,7 +218,7 @@ describe('Routes: Application', () => {
         })
     })
 
-    describe('GET /applications/:application_id', () => {
+    describe('GET /v1/applications/:application_id', () => {
         context('when get an unique application in database', () => {
             let result
             before(async () => {
@@ -284,7 +284,7 @@ describe('Routes: Application', () => {
         })
     })
 
-    describe('RABBITMQ PUBLISHER -> PATCH /applications/:application_id', () => {
+    describe('RABBITMQ PUBLISHER -> PATCH /v1/applications/:application_id', () => {
         context('when this application is updated successfully and published to the bus', () => {
             let result
 
@@ -347,7 +347,7 @@ describe('Routes: Application', () => {
         })
     })
 
-    describe('PATCH /applications/:application_id', () => {
+    describe('PATCH /v1/applications/:application_id', () => {
         context('when the update was successful (there is no connection to RabbitMQ)', () => {
             let result
 
@@ -368,18 +368,18 @@ describe('Routes: Application', () => {
             })
             it('should return status code 200 and updated application (and show an error log about unable to send ' +
                 'UpdateApplication event)', () => {
-                    return request
-                        .patch(`/v1/applications/${result.id}`)
-                        .send({ username: 'other_username', last_login: defaultApplication.last_login })
-                        .set('Content-Type', 'application/json')
-                        .expect(200)
-                        .then(res => {
-                            expect(res.body).to.have.property('id')
-                            expect(res.body.username).to.eql('other_username')
-                            expect(res.body.institution_id).to.eql(institution.id)
-                            expect(res.body.application_name).to.eql(defaultApplication.application_name)
-                        })
-                })
+                return request
+                    .patch(`/v1/applications/${result.id}`)
+                    .send({ username: 'other_username', last_login: defaultApplication.last_login })
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql('other_username')
+                        expect(res.body.institution_id).to.eql(institution.id)
+                        expect(res.body.application_name).to.eql(defaultApplication.application_name)
+                    })
+            })
         })
 
         context('when a duplication error occurs', () => {
@@ -408,7 +408,7 @@ describe('Routes: Application', () => {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
             })
-            it('should return status code 409 and info message from duplicate value', async () => {
+            it('should return status code 409 and info message from duplicate value', () => {
                 return request
                     .patch(`/v1/applications/${result.id}`)
                     .send({ username: 'acoolusername' })
@@ -514,13 +514,30 @@ describe('Routes: Application', () => {
                         password: 'mysecretkey',
                         application_name: defaultApplication.application_name,
                         institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION
+                        type: UserType.APPLICATION,
+                        last_login: defaultApplication.last_login
                     })
 
                     await createUser({
                         username: 'other_application',
                         password: 'mysecretkey',
-                        application_name: defaultApplication.application_name,
+                        application_name: 'app02',
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
+
+                    await createUser({
+                        username: 'new_application',
+                        password: 'mysecretkey',
+                        application_name: 'app03',
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
+
+                    await createUser({
+                        username: 'application1',
+                        password: 'mysecretkey',
+                        application_name: 'app04',
                         institution: new ObjectID(institution.id),
                         type: UserType.APPLICATION
                     })
@@ -545,7 +562,8 @@ describe('Routes: Application', () => {
             })
         })
 
-        context('when use query strings', () => {
+        context('when use query strings (query application who has username exactly the same as the given string)',
+            () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
@@ -566,12 +584,28 @@ describe('Routes: Application', () => {
                         institution: new ObjectID(institution.id),
                         type: UserType.APPLICATION
                     })
+
+                    await createUser({
+                        username: 'new_application',
+                        password: 'mysecretkey',
+                        application_name: 'app03',
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
+
+                    await createUser({
+                        username: 'application1',
+                        password: 'mysecretkey',
+                        application_name: 'app04',
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
                 } catch (err) {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', async () => {
-                const url: string = '/v1/applications?username=other_application&sort=username&page=1&limit=3'
+            it('should return the result as required in query', () => {
+                const url: string = '/v1/applications?username=other_application&sort=username&page=1&limit=4'
 
                 return request
                     .get(url)
@@ -588,13 +622,14 @@ describe('Routes: Application', () => {
         })
 
         context('when there are no applications in database', () => {
-            it('should return status code 200 and an empty array', async () => {
+            before(async () => {
                 try {
                     await deleteAllUsers()
                 } catch (err) {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
-
+            })
+            it('should return status code 200 and an empty array', () => {
                 return request
                     .get('/v1/applications')
                     .set('Content-Type', 'application/json')

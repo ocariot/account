@@ -381,18 +381,18 @@ describe('Routes: Educator', () => {
             })
             it('should return status code 200 and updated educator (and show an error log about unable to send ' +
                 'UpdateEducator event)', () => {
-                    return request
-                        .patch(`/v1/educators/${result.id}`)
-                        .send({ username: 'other_username', last_login: defaultEducator.last_login })
-                        .set('Content-Type', 'application/json')
-                        .expect(200)
-                        .then(res => {
-                            expect(res.body).to.have.property('id')
-                            expect(res.body.username).to.eql('other_username')
-                            expect(res.body.institution_id).to.eql(institution.id)
-                            expect(res.body.children_groups.length).to.eql(0)
-                        })
-                })
+                return request
+                    .patch(`/v1/educators/${result.id}`)
+                    .send({ username: 'other_username', last_login: defaultEducator.last_login })
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql('other_username')
+                        expect(res.body.institution_id).to.eql(institution.id)
+                        expect(res.body.children_groups.length).to.eql(0)
+                    })
+            })
         })
 
         context('when a duplication error occurs', () => {
@@ -421,7 +421,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 409 and info message from duplicate value', async () => {
+            it('should return status code 409 and info message from duplicate value', () => {
                 return request
                     .patch(`/v1/educators/${result.id}`)
                     .send({ username: 'anothercoolusername' })
@@ -467,7 +467,7 @@ describe('Routes: Educator', () => {
         })
 
         context('when the institution id provided was invalid', () => {
-            it(' should return status code 400 and message for invalid institution id', () => {
+            it('should return status code 400 and message for invalid institution id', () => {
                 return request
                     .patch(`/v1/educators/${defaultEducator.id}`)
                     .send({ institution_id: '123' })
@@ -941,7 +941,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 409 and info message about duplicate items', async () => {
+            it('should return status code 409 and info message about duplicate items', () => {
                 return request
                     .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
                     .send({ name: 'anothercoolname' })
@@ -1317,7 +1317,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 200 and an empty array', async () => {
+            it('should return status code 200 and an empty array', () => {
                 return request
                     .get(`/v1/educators/${resultEducator.id}/children/groups`)
                     .set('Content-Type', 'application/json')
@@ -1476,7 +1476,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', async () => {
+            it('should return the result as required in query', () => {
                 const url: string = '/v1/educators?username=other_educator&sort=username&page=1&limit=3'
 
                 return request
@@ -1516,7 +1516,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 200 and an empty array', async () => {
+            it('should return status code 200 and an empty array', () => {
                 return request
                     .get('/v1/educators')
                     .set('Content-Type', 'application/json')

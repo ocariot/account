@@ -261,7 +261,7 @@ describe('Routes: Institution', () => {
                     throw new Error('Failure on Institution test: ' + err.message)
                 }
             })
-            it('should return status code 409 and info message from duplicate items', async () => {
+            it('should return status code 409 and info message from duplicate items', () => {
                 return request
                     .patch(`/v1/institutions/${resultInstitution.id}`)
                     .send({ name: 'Other Name' })
@@ -428,7 +428,7 @@ describe('Routes: Institution', () => {
                     throw new Error('Failure on Institution test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from existent association', async () => {
+            it('should return status code 400 and info message from existent association', () => {
                 return request
                     .delete(`/v1/institutions/${resultInstitution.id}`)
                     .set('Content-Type', 'application/json')
@@ -517,7 +517,7 @@ describe('Routes: Institution', () => {
                     throw new Error('Failure on Institution test: ' + err.message)
                 }
             })
-            it('should return status code 200 and an empty array', async () => {
+            it('should return status code 200 and an empty array', () => {
                 return request
                     .get('/v1/institutions')
                     .set('Content-Type', 'application/json')

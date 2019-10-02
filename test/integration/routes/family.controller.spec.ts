@@ -533,7 +533,7 @@ describe('Routes: Family', () => {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
             })
-            it('should return status code 409 and info message from duplicate value', async () => {
+            it('should return status code 409 and info message from duplicate value', () => {
                 return request
                     .patch(`/v1/families/${resultFamily.id}`)
                     .send({ username: 'acoolusername' })
@@ -663,7 +663,7 @@ describe('Routes: Family', () => {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
             })
-            it('should return status code 200 and a family', async () => {
+            it('should return status code 200 and a family', () => {
                 return request
                     .post(`/v1/families/${resultFamily.id}/children/${resultChild2.id}`)
                     .set('Content-Type', 'application/json')
@@ -914,7 +914,7 @@ describe('Routes: Family', () => {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
             })
-            it('should return status code 200 and empty array', async () => {
+            it('should return status code 200 and empty array', () => {
                 return request
                     .get(`/v1/families/${resultFamily.id}/children`)
                     .set('Content-Type', 'application/json')
@@ -1054,7 +1054,7 @@ describe('Routes: Family', () => {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', async () => {
+            it('should return the result as required in query', () => {
                 const url: string = '/v1/families?username=myusernameisunique&sort=username&page=1&limit=3'
 
                 return request
@@ -1089,7 +1089,7 @@ describe('Routes: Family', () => {
                 }
             })
 
-            it('should return status code 200 and an empty array', async () => {
+            it('should return status code 200 and an empty array', () => {
                 return request
                     .get('/v1/families')
                     .set('Content-Type', 'application/json')

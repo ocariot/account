@@ -423,7 +423,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 409 and info message from duplicate value', async () => {
+            it('should return status code 409 and info message from duplicate value', () => {
                 return request
                     .patch(`/v1/healthprofessionals/${result.id}`)
                     .send({ username: 'anothercoolusername' })
@@ -469,7 +469,7 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when the institution id provided was invalid', () => {
-            it(' should return status code 400 and message for invalid institution id', () => {
+            it('should return status code 400 and message for invalid institution id', () => {
                 return request
                     .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
                     .send({ institution_id: '123' })
@@ -951,7 +951,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 409 and info message from duplicate items', async () => {
+            it('should return status code 409 and info message from duplicate items', () => {
                 const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
                     .concat(`children/groups/${resultChildrenGroup.id}`)
 
@@ -1343,7 +1343,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 200 and an empty array', async () => {
+            it('should return status code 200 and an empty array', () => {
                 return request
                     .get(`/v1/healthprofessionals/${resultHealthProfessional.id}/children/groups`)
                     .set('Content-Type', 'application/json')
@@ -1493,7 +1493,6 @@ describe('Routes: HealthProfessional', () => {
                         user_id: resultHealthProfessional.id
                     })
 
-
                     await updateUser({
                         id: resultHealthProfessional.id,
                         children_groups: [resultChildrenGroup.id]
@@ -1502,7 +1501,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', async () => {
+            it('should return the result as required in query', () => {
                 const url: string = '/v1/healthprofessionals?username=other_health_professional&sort=username&page=1&limit=3'
 
                 return request
@@ -1542,7 +1541,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 200 and an empty array', async () => {
+            it('should return status code 200 and an empty array', () => {
                 return request
                     .get('/v1/healthprofessionals')
                     .set('Content-Type', 'application/json')
