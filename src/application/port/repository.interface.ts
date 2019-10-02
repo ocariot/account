@@ -27,6 +27,16 @@ export interface IRepository<T> {
     find(query: IQuery): Promise<Array<T>>
 
     /**
+     * List items according to parameter values.
+     *
+     * @param username Defines the username to be used in search.
+     * @param users Defines the user array to be used in search.
+     * @return { Array<T>}
+     * @throws {RepositoryException}
+     */
+    findByUsername(username: string, users: Array<any>): Array<T>
+
+    /**
      * Retrieves an item according to the parameter.
      *
      * @param query Defines object to be used for queries.

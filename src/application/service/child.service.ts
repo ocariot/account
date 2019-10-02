@@ -79,7 +79,6 @@ export class ChildService implements IChildService {
     }
 
     public async getAll(query: IQuery): Promise<Array<Child>> {
-        query.addFilter({ type: UserType.CHILD })
         return this._childRepository.find(query)
     }
 
@@ -96,6 +95,10 @@ export class ChildService implements IChildService {
         try {
             // 1. Validate Child parameters.
             UpdateUserValidator.validate(child)
+
+            // 1.5 Ignore last_login and last_sync attributes if exists.
+            if (child.last_login) child.last_login = undefined
+            if (child.last_sync) child.last_sync = undefined
 
             // 2. Checks if child already exists.
             const id: string = child.id!

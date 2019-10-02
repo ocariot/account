@@ -60,7 +60,6 @@ export class ApplicationService implements IApplicationService {
     }
 
     public async getAll(query: IQuery): Promise<Array<Application>> {
-        query.addFilter({ type: UserType.APPLICATION })
         return this._applicationRepository.find(query)
     }
 
@@ -77,6 +76,9 @@ export class ApplicationService implements IApplicationService {
         try {
             // 1. Validate Application parameters.
             UpdateUserValidator.validate(application)
+
+            // 1.5 Ignore last_login attributes if exists.
+            if (application.last_login) application.last_login = undefined
 
             // 2. Checks if Application already exists.
             const id: string = application.id!

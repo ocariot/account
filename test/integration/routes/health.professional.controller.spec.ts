@@ -17,6 +17,8 @@ import { Strings } from '../../../src/utils/strings'
 import { IDatabase } from '../../../src/infrastructure/port/database.interface'
 import { Default } from '../../../src/utils/default'
 import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
+import { ChildMock } from '../../mocks/child.mock'
+import { ChildrenGroupMock } from '../../mocks/children.group.mock'
 
 const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
 const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
@@ -27,17 +29,18 @@ describe('Routes: HealthProfessional', () => {
     const institution: Institution = new InstitutionMock()
 
     const defaultHealthProfessional: HealthProfessional = new HealthProfessionalMock()
-    defaultHealthProfessional.password = 'health_professional_mock'
     defaultHealthProfessional.institution = institution
 
-    const defaultChild: Child = new Child()
-    const defaultChildrenGroup: ChildrenGroup = new ChildrenGroup()
-    const anotherChildrenGroup: ChildrenGroup = new ChildrenGroup()
+    const defaultChild: Child = new ChildMock()
+    const defaultChildrenGroup: ChildrenGroup = new ChildrenGroupMock()
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                    { interval: 100 })
+
+                await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+
                 await deleteAllUsers()
                 await deleteAllInstitutions()
                 await deleteAllChildrenGroups()
@@ -49,20 +52,7 @@ describe('Routes: HealthProfessional', () => {
                     latitude: 0,
                     longitude: 0
                 })
-                institution.id = item._id
-
-                const child = await createUser({
-                    username: 'anotherusername',
-                    password: 'mysecretkey',
-                    type: UserType.CHILD,
-                    gender: 'male',
-                    age: 11,
-                    institution: institution.id,
-                    scopes: new Array('users:read')
-                }).then()
-
-                defaultChild.id = child.id
-
+                institution.id = item._id.toString()
             } catch (err) {
                 throw new Error('Failure on HealthProfessional test: ' + err.message)
             }
@@ -83,6 +73,13 @@ describe('Routes: HealthProfessional', () => {
 
     describe('POST /v1/healthprofessionals', () => {
         context('when posting a new health professional user', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 201 and the saved health professional', () => {
                 const body = {
                     username: defaultHealthProfessional.username,
@@ -98,13 +95,28 @@ describe('Routes: HealthProfessional', () => {
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultHealthProfessional.username)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        defaultHealthProfessional.id = res.body.id
+                        expect(res.body.institution_id).to.eql(institution.id)
+                        expect(res.body.children_groups.length).to.eql(0)
                     })
             })
         })
 
         context('when a duplicate error occurs', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 409 and message info about duplicate items', () => {
                 const body = {
                     username: defaultHealthProfessional.username,
@@ -183,21 +195,84 @@ describe('Routes: HealthProfessional', () => {
     })
 
     describe('GET /v1/healthprofessionals/:healthprofessional_id', () => {
-        context('when get a unique health professional in database', () => {
+        context('when get an unique health professional in database', () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional.id,
+                        children_groups: [resultChildrenGroup.id]
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 200 and a health professional', () => {
                 return request
-                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .get(`/v1/healthprofessionals/${resultHealthProfessional.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultHealthProfessional.id)
+                        expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultHealthProfessional.username)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.institution_id).to.eql(institution.id)
+                        expect(res.body.children_groups.length).to.eql(1)
+                        for (const childrenGroup of res.body.children_groups) {
+                            expect(childrenGroup).to.have.property('id')
+                            expect(childrenGroup.name).to.eql(defaultChildrenGroup.name)
+                            expect(childrenGroup.children.length).to.eql(1)
+                            for (const child of childrenGroup.children) {
+                                expect(child).to.have.property('id')
+                                expect(child.username).to.eql(defaultChild.username)
+                                expect(child.institution_id).to.eql(institution.id)
+                                expect(child.gender).to.eql(defaultChild.gender)
+                                expect(child.age).to.eql(defaultChild.age)
+                            }
+                            expect(childrenGroup.school_class).to.eql(defaultChildrenGroup.school_class)
+                        }
                     })
             })
         })
 
         context('when the health professional is not found', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 404 and info message from health professional not found', () => {
                 return request
                     .get(`/v1/healthprofessionals/${new ObjectID()}`)
@@ -224,13 +299,84 @@ describe('Routes: HealthProfessional', () => {
         })
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
-        context('when the update was successful', () => {
+    describe('RABBITMQ PUBLISHER -> PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
+        context('when this health professional is updated successfully and published to the bus', () => {
+            let result
+
             before(async () => {
                 try {
-                    await rabbitmq.dispose()
+                    await deleteAllUsers()
 
+                    result = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
+
+            after(async () => {
+                try {
+                    await rabbitmq.dispose()
                     await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and with the same values as the health professional ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subUpdateHealthProfessional(message => {
+                        try {
+                            expect(message.event_name).to.eql('HealthProfessionalUpdateEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('healthprofessional')
+                            expect(message.healthprofessional).to.have.property('id')
+                            expect(message.healthprofessional.username).to.eql('new_username')
+                            expect(message.healthprofessional.institution_id).to.eql(institution.id)
+                            expect(message.healthprofessional.children_groups.length).to.eql(0)
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+                    .then(() => {
+                        request
+                            .patch(`/v1/healthprofessionals/${result.id}`)
+                            .send({ username: 'new_username' })
+                            .set('Content-Type', 'application/json')
+                            .expect(200)
+                            .then()
+                            .catch(done)
+                    })
+                    .catch(done)
+            })
+        })
+    })
+
+    describe('PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
+        context('when the update was successful (there is no connection to RabbitMQ)', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
@@ -238,65 +384,72 @@ describe('Routes: HealthProfessional', () => {
             it('should return status code 200 and updated health professional (and show an error log about unable to send ' +
                 'UpdateHealthProfessional event)', () => {
                 return request
-                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
-                    .send({ last_login: defaultHealthProfessional.last_login })
+                    .patch(`/v1/healthprofessionals/${result.id}`)
+                    .send({ username: 'other_username', last_login: defaultHealthProfessional.last_login })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultHealthProfessional.id)
-                        expect(res.body.username).to.eql(defaultHealthProfessional.username)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.last_login).to.eql(defaultHealthProfessional.last_login!.toISOString())
-                    })
-            })
-        })
-    })
-
-    describe('PATCH /v1/healthprofessionals/:healthprofessional_id', () => {
-        context('when the update was successful', () => {
-            before(async () => {
-                try {
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
-                } catch (err) {
-                    throw new Error('Failure on HealthProfessional test: ' + err.message)
-                }
-            })
-            it('should return status code 200 and updated health professional', () => {
-                return request
-                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
-                    .send({ last_login: defaultHealthProfessional.last_login })
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body.id).to.eql(defaultHealthProfessional.id)
-                        expect(res.body.username).to.eql(defaultHealthProfessional.username)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.last_login).to.eql(defaultHealthProfessional.last_login!.toISOString())
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql('other_username')
+                        expect(res.body.institution_id).to.eql(institution.id)
+                        expect(res.body.children_groups.length).to.eql(0)
                     })
             })
         })
 
         context('when a duplication error occurs', () => {
-            it('should return status code 409 and info message from duplicate value', async () => {
+            let result
+
+            before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     await createUser({
                         username: 'anothercoolusername',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: institution.id,
+                        institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
-                    }).then()
+                    })
+
+                    result = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
-
+            })
+            it('should return status code 409 and info message from duplicate value', async () => {
                 return request
-                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/healthprofessionals/${result.id}`)
                     .send({ username: 'anothercoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
                         expect(err.body.message).to.eql('Health Professional is already registered!')
+                    })
+            })
+        })
+
+        context('when a validation error occurs', () => {
+            it('should return status code 400 and message info about missing or invalid parameters', () => {
+                const body = {
+                    password: 'mysecretkey'
+                }
+
+                return request
+                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('This parameter could not be updated.')
+                        expect(err.body.description).to.eql('A specific route to update user password already exists.' +
+                            `Access: PATCH /users/${defaultHealthProfessional.id}/password to update your password.`)
                     })
             })
         })
@@ -360,40 +513,140 @@ describe('Routes: HealthProfessional', () => {
 
     describe('POST /v1/healthprofessionals/:healthprofessional_id/children/groups', () => {
         context('when posting a new children group', () => {
-            it('should return status code 201 and a children group', () => {
-                defaultChildrenGroup.name = 'Children Group One'
-                defaultChildrenGroup.school_class = '3th Grade'
+            let resultHealthProfessional
+            let resultChild
 
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
+            it('should return status code 201 and a children group', () => {
                 const body = {
                     name: defaultChildrenGroup.name,
-                    children: new Array<string | undefined>(defaultChild.id),
+                    children: new Array<string | undefined>(resultChild.id),
                     school_class: defaultChildrenGroup.school_class
                 }
 
                 return request
-                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/healthprofessionals/${resultHealthProfessional.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(201)
                     .then(res => {
                         expect(res.body).to.have.property('id')
-                        expect(res.body.name).to.eql(body.name)
-                        expect(res.body.children).is.an.instanceof(Array)
+                        expect(res.body.name).to.eql(defaultChildrenGroup.name)
                         expect(res.body.children.length).to.eql(1)
-                        expect(res.body.children[0]).to.have.property('id')
-                        expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.school_class).to.eql(body.school_class)
-                        defaultChildrenGroup.id = res.body.id
-                        defaultChildrenGroup.children = res.body.children
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
+                        expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
+                    })
+            })
+        })
+
+        context('when a duplicate error occurs', () => {
+            let resultHealthProfessional
+            let resultChild
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
+            it('should return status code 409 and info message about duplicate items', () => {
+                const body = {
+                    name: defaultChildrenGroup.name,
+                    children: new Array<string | undefined>(resultChild.id),
+                    school_class: defaultChildrenGroup.school_class
+                }
+
+                return request
+                    .post(`/v1/healthprofessionals/${resultHealthProfessional.id}/children/groups`)
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(409)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.ALREADY_REGISTERED)
                     })
             })
         })
 
         context('when there are validation errors', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    result = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
-                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/healthprofessionals/${result.id}/children/groups`)
                     .send({})
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -405,7 +658,25 @@ describe('Routes: HealthProfessional', () => {
             })
         })
 
-        context('when the children id(ids) is invalid', () => {
+        context('when the children id(ids) is (are) invalid', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    result = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 400 and info message from invalid ID', () => {
                 const body = {
                     name: 'Children Group One',
@@ -414,7 +685,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/healthprofessionals/${result.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -427,6 +698,24 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when the children id(ids) does not exists in database', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    result = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 400 and info message from invalid ID', () => {
                 const body = {
                     name: 'Children Group Two',
@@ -435,7 +724,7 @@ describe('Routes: HealthProfessional', () => {
                 }
 
                 return request
-                    .post(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .post(`/v1/healthprofessionals/${result.id}/children/groups`)
                     .send(body)
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -446,14 +735,55 @@ describe('Routes: HealthProfessional', () => {
                     })
             })
         })
-
     })
 
     describe('GET /v1/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
-        context('when want get a unique children group', () => {
+        context('when want get an unique children group', () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional.id,
+                        children_groups: new Array(resultChildrenGroup.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 200 and a children group', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${defaultChildrenGroup.id}`)
+                const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
+                    .concat(`children/groups/${resultChildrenGroup.id}`)
 
                 return request
                     .get(url)
@@ -462,18 +792,28 @@ describe('Routes: HealthProfessional', () => {
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.name).to.eql(defaultChildrenGroup.name)
-                        expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).to.eql(1)
-                        expect(res.body.children[0]).to.have.property('id')
-                        expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
-                        defaultChildrenGroup.id = res.body.id
                     })
             })
         })
 
         context('when the children group is not found', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 404 and info message from children group not found', () => {
                 const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
                     .concat(`children/groups/${new ObjectID()}`)
@@ -504,48 +844,116 @@ describe('Routes: HealthProfessional', () => {
 
     describe('PATCH /v1/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when the update was successful', () => {
-            it('should return status code 200 and a updated children group', () => {
-                defaultChildrenGroup.school_class = '5th Grade'
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
 
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${defaultChildrenGroup.id}`)
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
+            it('should return status code 200 and an updated children group', () => {
+                const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
+                    .concat(`children/groups/${resultChildrenGroup.id}`)
 
                 return request
                     .patch(url)
-                    .send({ school_class: defaultChildrenGroup.school_class })
+                    .send({ school_class: '5th Grade' })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
                         expect(res.body).to.have.property('id')
                         expect(res.body.name).to.eql(defaultChildrenGroup.name)
-                        expect(res.body.children).is.an.instanceof(Array)
                         expect(res.body.children.length).to.eql(1)
-                        expect(res.body.children[0]).to.have.property('id')
-                        expect(res.body.children[0].username).to.eql('anotherusername')
-                        expect(res.body.children[0].institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
-                        defaultChildrenGroup.id = res.body.id
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
+                        expect(res.body.school_class).to.eql('5th Grade')
                     })
             })
         })
 
         context('when a duplicate error occurs', () => {
-            it('should return status code 409 and info message from duplicate items', async () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
+
+            before(async () => {
                 try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
                     await createChildrenGroup({
                         name: 'anothercoolname',
                         children: new Array<string | undefined>(defaultChild.id),
                         school_class: defaultChildrenGroup.school_class,
-                        user_id: defaultHealthProfessional.id
-                    }).then(item => {
-                        anotherChildrenGroup.id = item._id
+                        user_id: resultHealthProfessional.id
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
-
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${defaultChildrenGroup.id}`)
+            })
+            it('should return status code 409 and info message from duplicate items', async () => {
+                const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
+                    .concat(`children/groups/${resultChildrenGroup.id}`)
 
                 return request
                     .patch(url)
@@ -559,9 +967,46 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when the children group was updated with a not existent child id', () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 400 and info message for invalid child id', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${defaultChildrenGroup.id}`)
+                const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
+                    .concat(`children/groups/${resultChildrenGroup.id}`)
 
                 return request
                     .patch(url)
@@ -576,10 +1021,47 @@ describe('Routes: HealthProfessional', () => {
             })
         })
 
-        context('when the children group was updated with a invalid child id', () => {
+        context('when the children group was updated with an invalid child id', () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 400 and info message from invalid ID.', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${defaultChildrenGroup.id}`)
+                const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
+                    .concat(`children/groups/${resultChildrenGroup.id}`)
 
                 return request
                     .patch(url)
@@ -597,9 +1079,46 @@ describe('Routes: HealthProfessional', () => {
 
     describe('DELETE /v1/healthprofessionals/:healthprofessional_id/children/groups/:group_id', () => {
         context('when the delete was successful', () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 204 and no content', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
-                    .concat(`children/groups/${anotherChildrenGroup.id}`)
+                const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
+                    .concat(`children/groups/${resultChildrenGroup.id}`)
 
                 return request
                     .delete(url)
@@ -612,8 +1131,26 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when the children group is not founded', () => {
+            let resultHealthProfessional
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 404 and info message for children group not found', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
                     .concat(`children/groups/${new ObjectID()}`)
 
                 return request
@@ -642,40 +1179,176 @@ describe('Routes: HealthProfessional', () => {
 
     describe('GET /v1/healthprofessionals/:healthprofessional_id/children/groups', () => {
         context('when want all children groups from healthprofessional', () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
+            let resultChildrenGroup2
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+                    resultChildrenGroup2 = await createChildrenGroup({
+                        name: 'other_children_group_name',
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional.id,
+                        children_groups: [resultChildrenGroup.id, resultChildrenGroup2.id]
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 200 and a list of children groups', () => {
                 return request
-                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .get(`/v1/healthprofessionals/${resultHealthProfessional.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).to.be.an.instanceof(Array)
+                        expect(res.body.length).to.eql(2)
+                        for (const childrenGroup of res.body) {
+                            expect(childrenGroup).to.have.property('id')
+                            expect(childrenGroup).to.have.property('name')
+                            expect(childrenGroup.children.length).to.eql(1)
+                            expect(childrenGroup.children[0]).to.have.property('id')
+                            expect(childrenGroup.children[0].username).to.eql(defaultChild.username)
+                            expect(childrenGroup.children[0].institution_id).to.eql(institution.id)
+                            expect(childrenGroup.children[0].gender).to.eql(defaultChild.gender)
+                            expect(childrenGroup.children[0].age).to.eql(defaultChild.age)
+                            expect(childrenGroup).to.have.property('school_class')
+                        }
+                    })
+            })
+        })
+
+        context('when use query strings', () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
+            let resultChildrenGroup2
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+                    resultChildrenGroup2 = await createChildrenGroup({
+                        name: 'other_children_group_name',
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional.id,
+                        children_groups: [resultChildrenGroup.id, resultChildrenGroup2.id]
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
+            it('should return the result as required in query', () => {
+                const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
+                    .concat(`children/groups?name=other_children_group_name&sort=name&page=1&limit=3`)
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
                         expect(res.body.length).to.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0].name).to.eql(defaultChildrenGroup.name)
-                        expect(res.body[0].children).is.an.instanceof(Array)
+                        expect(res.body[0].name).to.eql('other_children_group_name')
                         expect(res.body[0].children.length).to.eql(1)
                         expect(res.body[0].children[0]).to.have.property('id')
-                        expect(res.body[0].children[0].username).to.eql('anotherusername')
-                        expect(res.body[0].children[0].institution_id).to.eql(institution.id!.toString())
+                        expect(res.body[0].children[0].username).to.eql(defaultChild.username)
+                        expect(res.body[0].children[0].institution_id).to.eql(institution.id)
+                        expect(res.body[0].children[0].gender).to.eql(defaultChild.gender)
+                        expect(res.body[0].children[0].age).to.eql(defaultChild.age)
                         expect(res.body[0].school_class).to.eql(defaultChildrenGroup.school_class)
                     })
             })
         })
 
-        context('when there no are children groups associated witn an user', () => {
-            it('should return status code 200 and a empty array', async () => {
+        context('when there no are children groups associated with an user', () => {
+            let resultHealthProfessional
+
+            before(async () => {
                 try {
-                    await deleteAllChildrenGroups().then()
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
-
+            })
+            it('should return status code 200 and an empty array', async () => {
                 return request
-                    .get(`/v1/healthprofessionals/${defaultHealthProfessional.id}/children/groups`)
+                    .get(`/v1/healthprofessionals/${resultHealthProfessional.id}/children/groups`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).to.be.an.instanceof(Array)
                         expect(res.body.length).to.eql(0)
                     })
 
@@ -685,86 +1358,196 @@ describe('Routes: HealthProfessional', () => {
 
     describe('GET /v1/healthprofessionals', () => {
         context('when want get all health professionals in database', () => {
+            let resultChild
+            let resultHealthProfessional
+            let resultHealthProfessional2
+            let resultChildrenGroup
+            let resultChildrenGroup2
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultHealthProfessional2 = await createUser({
+                        username: 'other_health_professional',
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+                    resultChildrenGroup2 = await createChildrenGroup({
+                        name: 'other_children_group_name',
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional2.id
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional.id,
+                        children_groups: [resultChildrenGroup.id]
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional2.id,
+                        children_groups: [resultChildrenGroup2.id]
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 200 and a list of health professionals', () => {
                 return request
                     .get('/v1/healthprofessionals')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceOf(Array)
                         expect(res.body.length).to.eql(2)
-                        expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution_id')
-                        expect(res.body[1]).to.have.property('id')
-                        expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution_id')
-                        expect(res.body[1]).to.have.property('last_login')
+                        for (const healthProf of res.body) {
+                            expect(healthProf).to.have.property('id')
+                            expect(healthProf).to.have.property('username')
+                            expect(healthProf).to.have.property('institution_id')
+                            expect(healthProf).to.have.property('children_groups')
+                            for (const childrenGroup of healthProf.children_groups) {
+                                expect(childrenGroup).to.have.property('id')
+                                expect(childrenGroup).to.have.property('name')
+                                expect(childrenGroup).to.have.property('children')
+                                for (const child of childrenGroup.children) {
+                                    expect(child).to.have.property('id')
+                                    expect(child).to.have.property('username')
+                                    expect(child).to.have.property('institution_id')
+                                    expect(child).to.have.property('gender')
+                                    expect(child).to.have.property('age')
+                                }
+                                expect(childrenGroup).to.have.property('school_class')
+                            }
+                        }
                     })
             })
         })
 
         context('when use query strings', () => {
-            it('should return the result as required in query', async () => {
+            let resultHealthProfessional
+            let resultChild
+            let resultChildrenGroup
+
+            before(async () => {
                 try {
-                    await createInstitution({
-                        type: 'University',
-                        name: 'UEPB',
-                        address: '221B Baker Street, St.',
-                        latitude: 0,
-                        longitude: 0
-                    }).then(result => {
-                        createUser({
-                            username: 'ihaveauniqueusername',
-                            password: defaultHealthProfessional.password,
-                            type: UserType.HEALTH_PROFESSIONAL,
-                            institution: result._id,
-                            scopes: new Array('users:read'),
-                            last_login: defaultHealthProfessional.last_login
-                        }).then()
+                    await deleteAllUsers()
+
+                    await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultHealthProfessional = await createUser({
+                        username: 'other_health_professional',
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional.id
+                    })
+
+
+                    await updateUser({
+                        id: resultHealthProfessional.id,
+                        children_groups: [resultChildrenGroup.id]
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
-
-                const url: string = '/v1/healthprofessionals?sort=username&page=1&limit=3'
+            })
+            it('should return the result as required in query', async () => {
+                const url: string = '/v1/healthprofessionals?username=other_health_professional&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceOf(Array)
-                        expect(res.body.length).to.eql(3)
-                        expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution_id')
-                        expect(res.body[0]).to.have.property('children_groups')
-                        expect(res.body[1]).to.have.property('id')
-                        expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution_id')
-                        expect(res.body[1]).to.have.property('children_groups')
-                        expect(res.body[2]).to.have.property('id')
-                        expect(res.body[2]).to.have.property('username')
-                        expect(res.body[2]).to.have.property('institution_id')
-                        expect(res.body[2]).to.have.property('children_groups')})
+                        expect(res.body.length).to.eql(1)
+                        for (const healthProf of res.body) {
+                            expect(healthProf).to.have.property('id')
+                            expect(healthProf.username).to.eql('other_health_professional')
+                            expect(healthProf.institution_id).to.eql(institution.id)
+                            expect(healthProf.children_groups.length).to.eql(1)
+                            for (const childrenGroup of healthProf.children_groups) {
+                                expect(childrenGroup).to.have.property('id')
+                                expect(childrenGroup.name).to.eql(defaultChildrenGroup.name)
+                                expect(childrenGroup.children.length).to.eql(1)
+                                for (const child of childrenGroup.children) {
+                                    expect(child).to.have.property('id')
+                                    expect(child.username).to.eql(defaultChild.username)
+                                    expect(child.institution_id).to.eql(institution.id)
+                                    expect(child.gender).to.eql(defaultChild.gender)
+                                    expect(child.age).to.eql(defaultChild.age)
+                                }
+                                expect(childrenGroup.school_class).to.eql(defaultChildrenGroup.school_class)
+                            }
+                        }
+                    })
             })
         })
 
-        context('when there are no institutions in database', () => {
-            it('should return status code 200 and a empty array', async () => {
+        context('when there are no health professionals in database', () => {
+            before(async () => {
                 try {
-                    await deleteAllUsers().then()
+                    await deleteAllUsers()
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
-
+            })
+            it('should return status code 200 and an empty array', async () => {
                 return request
                     .get('/v1/healthprofessionals')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceOf(Array)
                         expect(res.body.length).to.eql(0)
                     })
             })
@@ -773,7 +1556,11 @@ describe('Routes: HealthProfessional', () => {
 })
 
 async function createUser(item) {
-    return await UserRepoModel.create(item)
+    return UserRepoModel.create(item)
+}
+
+async function updateUser(item) {
+    return UserRepoModel.findOneAndUpdate({ _id: item.id }, item, { new: true })
 }
 
 async function deleteAllUsers() {
@@ -781,7 +1568,7 @@ async function deleteAllUsers() {
 }
 
 async function createInstitution(item) {
-    return await InstitutionRepoModel.create(item)
+    return InstitutionRepoModel.create(item)
 }
 
 async function deleteAllInstitutions() {
@@ -789,7 +1576,7 @@ async function deleteAllInstitutions() {
 }
 
 async function createChildrenGroup(item) {
-    return await ChildrenGroupRepoModel.create(item)
+    return ChildrenGroupRepoModel.create(item)
 }
 
 async function deleteAllChildrenGroups() {

@@ -84,6 +84,9 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             // 1. Validate Health Professional parameters.
             UpdateUserValidator.validate(healthProfessional)
 
+            // 1.5 Ignore last_login attributes if exists.
+            if (healthProfessional.last_login) healthProfessional.last_login = undefined
+
             // 2. Checks if Health Professional already exists.
             const id: string = healthProfessional.id!
             healthProfessional.id = undefined

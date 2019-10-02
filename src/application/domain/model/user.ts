@@ -104,7 +104,7 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
         }
         if (json.last_login !== undefined && !(json.last_login instanceof Date)) {
             this.last_login = this.convertDatetimeString(json.last_login)
-        } else {
+        } else if (json.last_login !== undefined && json.last_login instanceof Date) {
             this.last_login = json.last_login
         }
         if (json.scope !== undefined) this.scopes = json.scope

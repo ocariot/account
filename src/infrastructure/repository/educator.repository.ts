@@ -50,6 +50,12 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
         const q: any = query.toJSON()
         const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
+        let usernameFilter: string
+        if (q.filters.username) {
+            usernameFilter = q.filters.username
+            delete q.filters.username
+        }
+
         return new Promise<Array<Educator>>((resolve, reject) => {
             this.educatorModel.find(q.filters)
                 .sort(q.ordination)
@@ -57,7 +63,10 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                 .limit(Number(q.pagination.limit))
                 .populate(populate)
                 .exec()
-                .then((result: Array<Educator>) => resolve(result.map(item => this.educatorMapper.transform(item))))
+                .then((result: Array<Educator>) => {
+                    if (usernameFilter) return resolve(super.findByUsername(usernameFilter, result))
+                    resolve(result.map(item => this.educatorMapper.transform(item)))
+                })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
         })
     }
@@ -125,7 +134,7 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
 
     public countChildrenGroups(educatorId: string): Promise<number> {
         return new Promise<number>((resolve, reject) => {
-            this.findOne(new Query().fromJSON({ filters: { _id: educatorId } }))
+            this.findOne(new Query().fromJSON({ filters: { _id: educatorId, type: UserType.EDUCATOR } }))
                 .then(result => resolve(result && result.children_groups ? result.children_groups.length : 0))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })

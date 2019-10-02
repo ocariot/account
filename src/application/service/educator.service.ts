@@ -81,6 +81,9 @@ export class EducatorService implements IEducatorService {
             // 1. Validate Educator parameters.
             UpdateUserValidator.validate(educator)
 
+            // 1.5 Ignore last_login attributes if exists.
+            if (educator.last_login) educator.last_login = undefined
+
             // 2. Checks if Educator already exists.
             const id: string = educator.id!
             educator.id = undefined

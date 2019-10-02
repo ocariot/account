@@ -23,12 +23,14 @@ describe('Routes: Child', () => {
     const institution: Institution = new Institution()
 
     const defaultChild: Child = new ChildMock()
-    defaultChild.password = 'child_password'
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                    { interval: 100 })
+
+                await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+
                 await deleteAllUsers()
                 await deleteAllInstitutions()
 
@@ -39,7 +41,7 @@ describe('Routes: Child', () => {
                     latitude: 0,
                     longitude: 0
                 })
-                institution.id = item._id
+                institution.id = item._id.toString()
 
             } catch (err) {
                 throw new Error('Failure on Child test: ' + err.message)
@@ -58,13 +60,71 @@ describe('Routes: Child', () => {
         }
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> POST /v1/children', () => {
-        context('when posting a new child user', () => {
+    describe('RABBITMQ PUBLISHER -> POST /v1/children', () => {
+        context('when posting a new child user and publishing it to the bus', () => {
             before(async () => {
                 try {
-                    await rabbitmq.dispose()
+                    await deleteAllUsers()
 
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            after(async () => {
+                try {
+                    await rabbitmq.dispose()
                     await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and with the same values as the child ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subSaveChild(message => {
+                        try {
+                            expect(message.event_name).to.eql('ChildSaveEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('child')
+                            expect(message.child).to.have.property('id')
+                            expect(message.child.username).to.eql(defaultChild.username)
+                            expect(message.child.gender).to.eql(defaultChild.gender)
+                            expect(message.child.age).to.eql(defaultChild.age)
+                            expect(message.child.institution_id).to.eql(institution.id)
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+                    .then(() => {
+                        request
+                            .post('/v1/children')
+                            .send({
+                                username: defaultChild.username,
+                                password: defaultChild.password,
+                                gender: defaultChild.gender,
+                                age: defaultChild.age,
+                                institution_id: institution.id
+                            })
+                            .set('Content-Type', 'application/json')
+                            .expect(201)
+                            .then()
+                            .catch(done)
+                    })
+                    .catch(done)
+            })
+        })
+    })
+
+    describe('POST /v1/children', () => {
+        context('when posting a new child user (there is no connection to RabbitMQ)', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
@@ -89,50 +149,29 @@ describe('Routes: Child', () => {
                         expect(res.body.username).to.eql(defaultChild.username)
                         expect(res.body.gender).to.eql(defaultChild.gender)
                         expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        defaultChild.id = res.body.id
-                    })
-            })
-        })
-    })
-
-    describe('POST /v1/children', () => {
-        context('when posting a new child user', () => {
-            before(async () => {
-                try {
-                    await deleteAllUsers()
-
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
-                } catch (err) {
-                    throw new Error('Failure on Child test: ' + err.message)
-                }
-            })
-            it('should return status code 201 and the saved child', () => {
-                const body = {
-                    username: defaultChild.username,
-                    password: defaultChild.password,
-                    gender: defaultChild.gender,
-                    age: defaultChild.age,
-                    institution_id: institution.id
-                }
-
-                return request
-                    .post('/v1/children')
-                    .send(body)
-                    .set('Content-Type', 'application/json')
-                    .expect(201)
-                    .then(res => {
-                        expect(res.body).to.have.property('id')
-                        expect(res.body.username).to.eql(defaultChild.username)
-                        expect(res.body.gender).to.eql(defaultChild.gender)
-                        expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        defaultChild.id = res.body.id
+                        expect(res.body.institution_id).to.eql(institution.id)
                     })
             })
         })
 
         context('when a duplicate error occurs', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
             it('should return status code 409 and message info about duplicate items', () => {
                 const body = {
                     username: defaultChild.username,
@@ -264,23 +303,49 @@ describe('Routes: Child', () => {
     })
 
     describe('GET /v1/children/:child_id', () => {
-        context('when get a unique child in database', () => {
+        context('when get an unique child in database', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
             it('should return status code 200 and a child', () => {
                 return request
-                    .get(`/v1/children/${defaultChild.id}`)
+                    .get(`/v1/children/${result.id}`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultChild.id)
+                        expect(res.body).to.have.property('id')
                         expect(res.body.username).to.eql(defaultChild.username)
                         expect(res.body.gender).to.eql(defaultChild.gender)
                         expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
+                        expect(res.body.institution_id).to.eql(institution.id)
                     })
             })
         })
 
         context('when the child is not found', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
             it('should return status code 404 and info message from child not found', () => {
                 return request
                     .get(`/v1/children/${new ObjectID()}`)
@@ -307,13 +372,89 @@ describe('Routes: Child', () => {
         })
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> PATCH /v1/children/:child_id', () => {
-        context('when the update was successful', () => {
+    describe('RABBITMQ PUBLISHER -> PATCH /v1/children/:child_id', () => {
+        context('when this child is updated successfully and published to the bus', () => {
+            let result
+
             before(async () => {
                 try {
-                    await rabbitmq.dispose()
+                    await deleteAllUsers()
 
+                    result = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            after(async () => {
+                try {
+                    await rabbitmq.dispose()
                     await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            it('The subscriber should receive a message in the correct format and with the same values as the child ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subUpdateChild(message => {
+                        try {
+                            expect(message.event_name).to.eql('ChildUpdateEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('child')
+                            expect(message.child).to.have.property('id')
+                            expect(message.child.username).to.eql('new_username')
+                            expect(message.child.gender).to.eql(defaultChild.gender)
+                            expect(message.child.age).to.eql(defaultChild.age)
+                            expect(message.child.institution_id).to.eql(institution.id)
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+                    .then(() => {
+                        request
+                            .patch(`/v1/children/${result.id}`)
+                            .send({ username: 'new_username' })
+                            .set('Content-Type', 'application/json')
+                            .expect(200)
+                            .then()
+                            .catch(done)
+                    })
+                    .catch(done)
+            })
+        })
+    })
+
+    describe('PATCH /v1/children/:child_id', () => {
+        context('when the update was successful (there is no connection to RabbitMQ)', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
@@ -321,73 +462,78 @@ describe('Routes: Child', () => {
             it('should return status code 200 and updated child (and show an error log about unable to send ' +
                 'UpdateChild event)', () => {
                 return request
-                    .patch(`/v1/children/${defaultChild.id}`)
-                    .send({ last_login: defaultChild.last_login, last_sync: defaultChild.last_sync })
+                    .patch(`/v1/children/${result.id}`)
+                    .send({ username: 'other_username', last_login: defaultChild.last_login,
+                                  last_sync: defaultChild.last_sync })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.id).to.eql(defaultChild.id)
-                        expect(res.body.username).to.eql(defaultChild.username)
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql('other_username')
                         expect(res.body.gender).to.eql(defaultChild.gender)
                         expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.last_login).to.eql(defaultChild.last_login!.toISOString())
-                        expect(res.body.last_sync).to.eql(defaultChild.last_sync!.toISOString())
-                    })
-            })
-        })
-    })
-
-    describe('PATCH /v1/children/:child_id', () => {
-        context('when the update was successful', () => {
-            before(async () => {
-                try {
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
-                } catch (err) {
-                    throw new Error('Failure on Child test: ' + err.message)
-                }
-            })
-            it('should return status code 200 and updated child', () => {
-                return request
-                    .patch(`/v1/children/${defaultChild.id}`)
-                    .send({ last_login: defaultChild.last_login, last_sync: defaultChild.last_sync })
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body.id).to.eql(defaultChild.id)
-                        expect(res.body.username).to.eql(defaultChild.username)
-                        expect(res.body.gender).to.eql(defaultChild.gender)
-                        expect(res.body.age).to.eql(defaultChild.age)
-                        expect(res.body.institution_id).to.eql(institution.id!.toString())
-                        expect(res.body.last_login).to.eql(defaultChild.last_login!.toISOString())
-                        expect(res.body.last_sync).to.eql(defaultChild.last_sync!.toISOString())
+                        expect(res.body.institution_id).to.eql(institution.id)
                     })
             })
         })
 
         context('when a duplication error occurs', () => {
-            it('should return status code 409 and info message from duplicate value', async () => {
+            let result
+
+            before(async () => {
                 try {
+                    await deleteAllUsers()
+
                     await createUser({
                         username: 'anothercoolusername',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: institution.id,
+                        institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
-                    }).then()
+                    })
+
+                    result = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
-
+            })
+            it('should return status code 409 and info message from duplicate value', async () => {
                 return request
-                    .patch(`/v1/children/${defaultChild.id}`)
+                    .patch(`/v1/children/${result.id}`)
                     .send({ username: 'anothercoolusername' })
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
                         expect(err.body.message).to.eql('Child is already registered!')
+                    })
+            })
+        })
+
+        context('when a validation error occurs', () => {
+            it('should return status code 400 and message info about missing or invalid parameters', () => {
+                const body = {
+                    password: 'mysecretkey'
+                }
+
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('This parameter could not be updated.')
+                        expect(err.body.description).to.eql('A specific route to update user password already exists.' +
+                            `Access: PATCH /users/${defaultChild.id}/password to update your password.`)
                     })
             })
         })
@@ -421,6 +567,13 @@ describe('Routes: Child', () => {
         })
 
         context('when the child is not found', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
             it('should return status code 404 and info message from child not found', () => {
                 return request
                     .patch(`/v1/children/${new ObjectID()}`)
@@ -451,87 +604,99 @@ describe('Routes: Child', () => {
 
     describe('GET /v1/children', () => {
         context('when want get all children in database', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'other_child',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
             it('should return status code 200 and a list of children', () => {
                 return request
                     .get('/v1/children')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceOf(Array)
                         expect(res.body.length).to.eql(2)
-                        expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution_id')
-                        expect(res.body[0]).to.have.property('age')
-                        expect(res.body[0]).to.have.property('gender')
-                        expect(res.body[1]).to.have.property('id')
-                        expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution_id')
-                        expect(res.body[1]).to.have.property('age')
-                        expect(res.body[1]).to.have.property('gender')
-                        expect(res.body[1]).to.have.property('last_login')
-                        expect(res.body[1]).to.have.property('last_sync')
+                        for (const child of res.body) {
+                            expect(child).to.have.property('id')
+                            expect(child).to.have.property('username')
+                            expect(child).to.have.property('institution_id')
+                            expect(child).to.have.property('age')
+                            expect(child).to.have.property('gender')
+                        }
                     })
             })
         })
 
-        context(' when use query strings', () => {
-            it('should return the result as required in query', async () => {
+        context('when use query strings', () => {
+            before(async () => {
                 try {
-                    await createInstitution({
-                        type: 'School',
-                        name: 'UEPB Kids',
-                        address: '221A Baker Street, St.',
-                        latitude: 1,
-                        longitude: 1
-                    }).then(result => {
-                        createUser({
-                            username: 'ihaveauniqueusername',
-                            password: defaultChild.password,
-                            type: UserType.CHILD,
-                            gender: defaultChild.gender,
-                            age: 10,
-                            institution: result._id,
-                            scopes: new Array('users:read'),
-                            last_login: defaultChild.last_login,
-                            last_sync: defaultChild.last_sync
-                        }).then()
+                    await deleteAllUsers()
+
+                    await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: 10,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'IHAVEAUSERNAME',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: 12,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
                     })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
-
-                const url = '/v1/children?age=lte:11&sort=age,username' +
-                    '&page=1&limit=3'
+            })
+            it('should return the result as required in query', async () => {
+                const url = '/v1/children?username=ihaveausername&sort=username&page=1&limit=3'
                 return request
                     .get(url)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceOf(Array)
-                        expect(res.body.length).to.eql(3)
+                        expect(res.body.length).to.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0]).to.have.property('username')
-                        expect(res.body[0]).to.have.property('institution_id')
-                        expect(res.body[0]).to.have.property('age')
-                        expect(res.body[0]).to.have.property('gender')
-                        expect(res.body[1]).to.have.property('id')
-                        expect(res.body[1]).to.have.property('username')
-                        expect(res.body[1]).to.have.property('institution_id')
-                        expect(res.body[1]).to.have.property('age')
-                        expect(res.body[1]).to.have.property('gender')
-                        expect(res.body[2]).to.have.property('id')
-                        expect(res.body[2]).to.have.property('username')
-                        expect(res.body[2]).to.have.property('institution_id')
-                        expect(res.body[2]).to.have.property('age')
-                        expect(res.body[2]).to.have.property('gender')
+                        expect(res.body[0].username).to.eql('IHAVEAUSERNAME')
+                        expect(res.body[0].institution_id).to.eql(institution.id)
+                        expect(res.body[0].age).to.eql(12)
+                        expect(res.body[0].gender).to.eql(defaultChild.gender)
                     })
             })
         })
         context('when there are no children in database', () => {
-            it('should return status code 200 and a empty array', async () => {
+            it('should return status code 200 and an empty array', async () => {
                 try {
-                    await deleteAllUsers().then()
+                    await deleteAllUsers()
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
@@ -541,7 +706,6 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body).is.an.instanceOf(Array)
                         expect(res.body.length).to.eql(0)
                     })
             })
@@ -550,7 +714,7 @@ describe('Routes: Child', () => {
 })
 
 async function createUser(item) {
-    return await UserRepoModel.create(item)
+    return UserRepoModel.create(item)
 }
 
 async function deleteAllUsers() {
@@ -558,7 +722,7 @@ async function deleteAllUsers() {
 }
 
 async function createInstitution(item) {
-    return await InstitutionRepoModel.create(item)
+    return InstitutionRepoModel.create(item)
 }
 
 async function deleteAllInstitutions() {

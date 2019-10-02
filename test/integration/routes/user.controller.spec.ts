@@ -32,8 +32,11 @@ describe('Routes: User', () => {
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                    { interval: 100 })
+
+                await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
+
                 await deleteAllUsers()
                 await deleteAllInstitutions()
                 const item = await createInstitution({
@@ -44,7 +47,7 @@ describe('Routes: User', () => {
                     longitude: 0
                 })
 
-                institution.id = item._id
+                institution.id = item._id.toString()
 
                 const user = await userRepository.create(defaultUser)
                 defaultUser.id = user.id
@@ -181,52 +184,70 @@ describe('Routes: User', () => {
         })
     })
 
-    describe('NO CONNECTION TO RABBITMQ -> DELETE /v1/users/:user_id', () => {
-        context('when the deletion was successful', () => {
+    describe('RABBITMQ PUBLISHER -> DELETE /v1/users/:user_id', () => {
+        context('when the user was deleted successfully and your ID is published on the bus', () => {
+            let resultUser
+
             before(async () => {
                 try {
-                    await rabbitmq.dispose()
+                    resultUser = await createUser({
+                            username: 'acoolusername',
+                            password: 'mysecretkey',
+                            application_name: 'Any Name',
+                            institution: institution.id,
+                            type: UserType.APPLICATION
+                        }
+                    )
 
+                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
+                        { interval: 100, receiveFromYourself: true, sslOptions: { ca: [] } })
+                } catch (err) {
+                    throw new Error('Failure on User routes test: ' + err.message)
+                }
+            })
+
+            after(async () => {
+                try {
+                    await rabbitmq.dispose()
                     await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
                 } catch (err) {
                     throw new Error('Failure on User test: ' + err.message)
                 }
             })
-            it('should return status code 204 and no content (and show an error log about unable to send ' +
-                'DeleteInstitution event)', async () => {
-                try {
-                    await createUser({
-                        username: 'acoolusername',
-                        password: 'mysecretkey',
-                        application_name: 'Any Name',
-                        institution: institution.id,
-                        type: UserType.APPLICATION
-                    }).then(user => {
-                        return request
-                            .delete(`/v1/users/${user._id}`)
+
+            it('The subscriber should receive a message in the correct format and that has the same ID ' +
+                'published on the bus', (done) => {
+                rabbitmq.bus
+                    .subDeleteUser(message => {
+                        try {
+                            expect(message.event_name).to.eql('UserDeleteEvent')
+                            expect(message).to.have.property('timestamp')
+                            expect(message).to.have.property('user')
+                            expect(message.user).to.have.property('id')
+                            expect(message.user.type).to.eql(UserType.APPLICATION)
+                            expect(message.user.username).to.eql('acoolusername')
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+                    .then(() => {
+                        request
+                            .delete(`/v1/users/${resultUser.id}`)
                             .set('Content-Type', 'application/json')
                             .expect(204)
-                            .then(res => {
-                                expect(res.body).to.eql({})
-                            })
+                            .then()
+                            .catch(done)
                     })
-                } catch (err) {
-                    throw new Error('Failure on User test: ' + err.message)
-                }
+                    .catch(done)
             })
         })
     })
 
     describe('DELETE /v1/users/:user_id', () => {
-        context('when the user was successful deleted', () => {
-            before(async () => {
-                try {
-                    await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI, { sslOptions: { ca: [] } })
-                } catch (err) {
-                    throw new Error('Failure on User test: ' + err.message)
-                }
-            })
-            it('should return status code 204 and no content for admin user', () => {
+        context('when the user was successful deleted (there is no connection to RabbitMQ)', () => {
+            it('should return status code 204 and no content for admin user (and show an error log about unable to send ' +
+                'DeleteUser event)', () => {
                 return request
                     .delete(`/v1/users/${defaultUser.id}`)
                     .set('Content-Type', 'application/json')
@@ -403,7 +424,7 @@ describe('Routes: User', () => {
 })
 
 async function createUser(item) {
-    return await UserRepoModel.create(item)
+    return UserRepoModel.create(item)
 }
 
 async function deleteAllUsers() {
@@ -411,7 +432,7 @@ async function deleteAllUsers() {
 }
 
 async function createInstitution(item) {
-    return await InstitutionRepoModel.create(item)
+    return InstitutionRepoModel.create(item)
 }
 
 async function deleteAllInstitutions() {

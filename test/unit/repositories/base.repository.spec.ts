@@ -11,6 +11,7 @@ import { IEntityMapper } from '../../../src/infrastructure/port/entity.mapper.in
 import { ILogger } from '../../../src/utils/custom.logger'
 import { Entity } from '../../../src/application/domain/model/entity'
 import { UserMock, UserTypeMock } from '../../mocks/user.mock'
+import { Strings } from '../../../src/utils/strings'
 
 require('sinon-mongoose')
 
@@ -184,9 +185,9 @@ describe('Repositories: Base', () => {
             return repo.findOne(customQueryMock)
                 .then(user => {
                     user = user.toJSON()
-                    assert.propertyVal(user, 'id', user.id)
-                    assert.propertyVal(user, 'username', user.username)
-                    assert.propertyVal(user, 'type', user.type)
+                    assert.propertyVal(user, 'id', defaultUser.id)
+                    assert.propertyVal(user, 'username', defaultUser.username)
+                    assert.propertyVal(user, 'type', defaultUser.type)
                     assert.deepPropertyVal(user, 'institution_id', defaultUser.institution!.id)
                     assert.propertyVal(user, 'last_login', defaultUser.last_login)
                 })
@@ -241,9 +242,9 @@ describe('Repositories: Base', () => {
             return repo.update(defaultUser)
                 .then(user => {
                     user = user.toJSON()
-                    assert.propertyVal(user, 'id', user.id)
-                    assert.propertyVal(user, 'username', user.username)
-                    assert.propertyVal(user, 'type', user.type)
+                    assert.propertyVal(user, 'id', defaultUser.id)
+                    assert.propertyVal(user, 'username', defaultUser.username)
+                    assert.propertyVal(user, 'type', defaultUser.type)
                     assert.deepPropertyVal(user, 'institution_id', defaultUser.institution!.id)
                     assert.propertyVal(user, 'last_login', defaultUser.last_login)
                 })
@@ -280,7 +281,8 @@ describe('Repositories: Base', () => {
 
                 return repo.update(invalidUser)
                     .catch((err: any) => {
-                        assert.propertyVal(err, 'message', 'The given ID is in invalid format.')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
 
@@ -338,7 +340,8 @@ describe('Repositories: Base', () => {
 
                 return repo.delete(invalidId)
                     .catch((err: any) => {
-                        assert.propertyVal(err, 'message', 'The given ID is in invalid format.')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })

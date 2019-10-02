@@ -8,6 +8,7 @@ import { IEntityMapper } from '../../port/entity.mapper.interface'
 import { IQuery } from '../../../application/port/query.interface'
 import { ILogger } from '../../../utils/custom.logger'
 import { Query } from '../query/query'
+import { Strings } from '../../../utils/strings'
 
 /**
  * Base implementation of the repository.
@@ -51,6 +52,16 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
                 .then((result: Array<TModel>) => resolve(result.map(item => this.mapper.transform(item))))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
+    }
+
+    public findByUsername(username: any, users: Array<any>): Array<T> {
+        let regExpUsername: RegExp
+        if (username.$regex) regExpUsername = new RegExp(username.$regex, 'i')
+
+        return users.filter(elem => {
+            if (regExpUsername) return regExpUsername.test(elem.username)
+            return elem.username.toString().toLowerCase() === username.toString().toLowerCase()
+        }).map(item => this.mapper.transform(item))
     }
 
     public findOne(query: IQuery): Promise<T> {
@@ -105,8 +116,20 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
             if (err.name === 'ValidationError') {
                 return new ValidationException('Required fields were not provided!', err.message)
             } else if (err.name === 'CastError' || new RegExp(/(invalid format)/i).test(err)) {
-                return new ValidationException('The given ID is in invalid format.',
-                    'A 12 bytes hexadecimal ID similar to this')
+                if (err.name === 'CastError' && err.kind) {
+                    if (err.kind === 'date') {
+                        return new ValidationException(`Datetime: ${err.value} is not in valid ISO 8601 format.`,
+                            'Date must be in the format: yyyy-MM-dd\'T\'HH:mm:ssZ')
+                    } else if (err.kind === 'ObjectId') {
+                        return new ValidationException(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
+                            Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    } else if (err.kind === 'number') {
+                        return new ValidationException(`The value \'${err.value}\' of ${err.path} field is not a number.`)
+                    }
+                    return new ValidationException(`The value \'${err.value}\' of ${err.path} field is invalid.`)
+                }
+                return new ValidationException(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
+                    Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
             } else if (err.name === 'MongoError' && err.code === 11000) {
                 return new ConflictException('A registration with the same unique data already exists!')
             } else if (err.name === 'ObjectParameterError') {

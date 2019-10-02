@@ -152,30 +152,6 @@ describe('Repositories: User', () => {
                     })
             })
         })
-
-        context('when a database error occurs in resetPassword method', () => {
-            it('should throw a RepositoryException', () => {
-                sinon
-                    .mock(userModelFake)
-                    .expects('findOne')
-                    .withArgs({ _id: otherUser.id })
-                    .chain('exec')
-                    .resolves(defaultUser)
-                sinon
-                    .mock(userModelFake)
-                    .expects('findOneAndUpdate')
-                    .withArgs({ _id: otherUser.id })
-                    .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
-
-                return userRepo.changePassword(otherUser.id!, otherUser.password!, 'new_password')
-                    .catch(err => {
-                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
-                        assert.propertyVal(err, 'description', 'Please try again later...')
-                    })
-            })
-        })
     })
 
     describe('resetPassword(userId: string, new_password: string)', () => {

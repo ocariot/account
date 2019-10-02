@@ -35,7 +35,7 @@ export const fitbitLastSyncEventHandler = async (event: any) => {
         await childRepository.update(childUp)
 
         // 3. If got here, it's because the action was successful.
-        logger.info(`Action for event ${event.event_name} successfully held!`)
+        logger.info(`Action for event ${event.event_name} associated with child with ID: ${childId} successfully held!`)
     } catch (err) {
         logger.warn(`An error occurred while attempting `
             .concat(`perform the operation with the ${event.event_name} name event. ${err.message}`)

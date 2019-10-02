@@ -9,6 +9,7 @@ import { ChildMock } from '../../mocks/child.mock'
 import { assert } from 'chai'
 import { UserType } from '../../../src/application/domain/model/user'
 import { ObjectID } from 'bson'
+import { Query } from '../../../src/infrastructure/repository/query/query'
 
 require('sinon-mongoose')
 
@@ -96,16 +97,23 @@ describe('Repositories: Child', () => {
     })
 
     describe('find(query: IQuery)', () => {
+        const query: Query = new Query()
+        query.ordination = new Map()
         context('when there is at least one child that corresponds to the received parameters', () => {
             it('should return an Child array', () => {
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
                     .chain('exec')
                     .resolves(childrenArr)
 
-                return childRepo.find(queryMock)
+                return childRepo.find(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isNotEmpty(result)
@@ -120,11 +128,16 @@ describe('Repositories: Child', () => {
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
                     .chain('exec')
                     .resolves(new Array<ChildMock>())
 
-                return childRepo.find(queryMock)
+                return childRepo.find(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isEmpty(result)
@@ -139,12 +152,17 @@ describe('Repositories: Child', () => {
                 sinon
                     .mock(modelFake)
                     .expects('find')
-                    .withArgs(queryMock.toJSON().filters)
+                    .chain('sort')
+                    .withArgs({})
+                    .chain('skip')
+                    .withArgs(0)
+                    .chain('limit')
+                    .withArgs(query.pagination.limit)
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
-                return childRepo.find(queryMock)
+                return childRepo.find(query)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
