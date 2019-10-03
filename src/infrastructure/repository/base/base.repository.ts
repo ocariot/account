@@ -9,6 +9,7 @@ import { IQuery } from '../../../application/port/query.interface'
 import { ILogger } from '../../../utils/custom.logger'
 import { Query } from '../query/query'
 import { Strings } from '../../../utils/strings'
+import { UserType } from '../../../application/domain/model/user'
 
 /**
  * Base implementation of the repository.
@@ -54,14 +55,47 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         })
     }
 
-    public findByUsername(username: any, users: Array<any>): Array<T> {
-        let regExpUsername: RegExp
-        if (username.$regex) regExpUsername = new RegExp(username.$regex, 'i')
+    public findAll(query: IQuery): Promise<Array<T>> {
+        const q: any = query.toJSON()
+        const populate: any = this.buildPopulateByUserType(q.filters.type)
 
-        return users.filter(elem => {
-            if (regExpUsername) return regExpUsername.test(elem.username)
-            return elem.username.toString().toLowerCase() === username.toString().toLowerCase()
-        }).map(item => this.mapper.transform(item))
+        // Checks if you have username in filters
+        let usernameFilter: any
+        const limit: number = q.pagination.limit
+        if (q.filters.username) {
+            usernameFilter = q.filters.username
+            q.pagination.limit = Number.MAX_SAFE_INTEGER
+            delete q.filters.username
+        }
+
+        // Checks if you have username in ordination/sort
+        let usernameOrder: string
+        if (q.ordination.username) {
+            usernameOrder = q.ordination.username
+            delete q.ordination.username
+        }
+
+        return new Promise<Array<T>>(async (resolve, reject) => {
+            try {
+                let users: Array<any> = await this.findPopulate(q, populate)
+                if (!usernameFilter && !usernameOrder) {
+                    return resolve(users.map(item => this.mapper.transform(item)))
+                }
+
+                if (usernameFilter) users = this.applyFilterByUsername(usernameFilter, users)
+
+                if (usernameOrder) {
+                    if (usernameOrder === 'asc') users.sort(this.compareAsc)
+                    else users.sort(this.compareDesc)
+                }
+
+                if (users.length > limit) users = users.slice(0, limit)
+
+                return resolve(users.map(item => this.mapper.transform(item)))
+            } catch (err) {
+                return reject(err)
+            }
+        })
     }
 
     public findOne(query: IQuery): Promise<T> {
@@ -138,5 +172,56 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         }
         return new RepositoryException('An internal error has occurred in the database!',
             'Please try again later...')
+    }
+
+    private findPopulate(q: any, populate?: any): Promise<Array<T>> {
+        return new Promise<Array<T>>((resolve, reject) => {
+            this.Model.find(q.filters)
+                .sort(q.ordination)
+                .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
+                .limit(Number(q.pagination.limit))
+                .populate(populate)
+                .exec() // execute query
+                .then(resolve)
+                .catch(err => reject(this.mongoDBErrorListener(err)))
+        })
+    }
+
+    private applyFilterByUsername(username: any, items: Array<T>): Array<T> {
+        let regExpUsername: RegExp
+        if (username.$regex) regExpUsername = new RegExp(username.$regex, 'i')
+        return items
+            .filter((elem: any) => {
+                if (regExpUsername) return regExpUsername.test(elem.username)
+                return elem.username.toString().toLowerCase() === username.toString().toLowerCase()
+            })
+    }
+
+    private compareAsc(previous: any, next: any): number {
+        if (previous.username > next.username) return 1
+        if (previous.username < next.username) return -1
+        return 0
+    }
+
+    private compareDesc(previous: any, next: any): number {
+        if (previous.username > next.username) return -1
+        if (previous.username < next.username) return 1
+        return 0
+    }
+
+    /**
+     * Check user type for mounting populate object.
+     * @param userType
+     * @return object | undefined
+     */
+    private buildPopulateByUserType(userType: string): object | undefined {
+        if (userType === UserType.FAMILY) return { path: 'children' }
+        if (userType === UserType.EDUCATOR || userType === UserType.HEALTH_PROFESSIONAL) {
+            return {
+                path: 'children_groups',
+                populate: { path: 'children' }
+            }
+        }
+        return undefined
     }
 }

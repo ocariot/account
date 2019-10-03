@@ -17,5 +17,4 @@ export class AuthRepositoryMock implements IAuthRepository {
                'FbWFpbCI6Impyb2NrZXRAZXhhbXBsZS5jb20iLCJSb2xlIjpbIk1hbmFnZXIiLCJQcm9qZWN0IEFkbWluaXN0cmF0b3IiXX0.8O3oPX1B' +
                'DTvRbuvofW6PPSLyolNkjYzoD7xzykGtcQk'
     }
-
 }

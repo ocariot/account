@@ -95,7 +95,7 @@ export class Query implements IQuery {
         if (json.sort || json.ordination) {
             const __ordination: Map<string, string> = new Map()
             Object.keys((json.sort || json.ordination))
-                .reduce((prev, elem) => __ordination.set(elem, (json.sort[elem] || json.ordination[elem])), {})
+                .reduce((prev, elem) => __ordination.set(elem, (json.sort ? json.sort[elem] : json.ordination[elem])), {})
             this.ordination = __ordination
         }
 

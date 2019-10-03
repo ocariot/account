@@ -67,7 +67,10 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     }
 
     public async getAll(query: IQuery): Promise<Array<HealthProfessional>> {
-        return this._healthProfessionalRepository.find(query)
+        // The repository findAll() method applies specific logic because of filters with the username.
+        // This is necessary because the username is saved encrypted in the database.
+        // Otherwise, the find() method would suffice.
+        return this._healthProfessionalRepository.findAll(query)
     }
 
     public async getById(id: string, query: IQuery): Promise<HealthProfessional> {

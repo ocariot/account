@@ -7,6 +7,7 @@ import { Query } from './query/query'
 import { Institution } from '../../application/domain/model/institution'
 import { InstitutionEntity } from '../entity/institution.entity'
 import { IInstitutionRepository } from '../../application/port/institution.repository.interface'
+import { IQuery } from '../../application/port/query.interface'
 
 /**
  * Implementation of the institution repository.
@@ -42,5 +43,9 @@ export class InstitutionRepository extends BaseRepository<Institution, Instituti
 
     public count(): Promise<number> {
         return super.count(new Query())
+    }
+
+    public findAll(query: IQuery): Promise<Institution[]> {
+        throw new Error('Method not implemented.')
     }
 }

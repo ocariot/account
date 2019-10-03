@@ -32,10 +32,6 @@ export class InstitutionRepositoryMock implements IInstitutionRepository {
         return Promise.resolve(institutionArr)
     }
 
-    public findByUsername(username: string, users: Array<any>): Array<Institution> {
-        return new Array<Institution>()
-    }
-
     public findOne(query: any): Promise<Institution> {
         const id: string = query.filters._id
         if (id === '507f1f77bcf86cd799439011') {
@@ -51,4 +47,7 @@ export class InstitutionRepositoryMock implements IInstitutionRepository {
         return Promise.resolve(undefined!)
     }
 
+    public findAll(query: any): Promise<Array<Institution>> {
+        return this.find(query)
+    }
 }

@@ -109,4 +109,8 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
                 })
         })
     }
+
+    public findAll(query: IQuery): Promise<ChildrenGroup[]> {
+        throw new Error('Method not implemented.')
+    }
 }

@@ -31,10 +31,6 @@ export class ApplicationRepositoryMock implements IApplicationRepository {
         return Promise.resolve(applicationArr)
     }
 
-    public findByUsername(username: string, users: Array<any>): Array<Application> {
-        return new Array<Application>()
-    }
-
     public findOne(query: any): Promise<Application> {
         const id: string = query.filters._id
         if (id === '507f1f77bcf86cd799439011') {
@@ -47,5 +43,9 @@ export class ApplicationRepositoryMock implements IApplicationRepository {
     public update(application: Application): Promise<Application> {
         if (application.id === '507f1f77bcf86cd799439013') return Promise.resolve(undefined!)
         return Promise.resolve(application)
+    }
+
+    public findAll(query: any): Promise<Array<Application>> {
+        return this.find(query)
     }
 }

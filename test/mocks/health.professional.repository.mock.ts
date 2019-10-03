@@ -35,10 +35,6 @@ export class HealthProfessionalRepositoryMock implements IHealthProfessionalRepo
         return Promise.resolve(healthProfessionalsArr)
     }
 
-    public findByUsername(username: string, users: Array<any>): Array<HealthProfessional> {
-        return new Array<HealthProfessional>()
-    }
-
     public findById(healthProfessionalId: string): Promise<HealthProfessional> {
         if (healthProfessionalId === '507f1f77bcf86cd799439011') {
             const healthProfessional: HealthProfessional = new HealthProfessionalMock()
@@ -63,4 +59,7 @@ export class HealthProfessionalRepositoryMock implements IHealthProfessionalRepo
         return Promise.resolve(healthProfessional)
     }
 
+    public findAll(query: any): Promise<Array<HealthProfessional>> {
+        return this.find(query)
+    }
 }

@@ -48,28 +48,9 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
         })
     }
 
-    public find(query: IQuery): Promise<Array<Child>> {
+    public findAll(query: IQuery): Promise<Array<Child>> {
         query.addFilter({ type: UserType.CHILD })
-        const q: any = query.toJSON()
-
-        let usernameFilter: string
-        if (q.filters.username) {
-            usernameFilter = q.filters.username
-            delete q.filters.username
-        }
-
-        return new Promise<Array<Child>>((resolve, reject) => {
-            this.Model.find(q.filters)
-                .sort(q.ordination)
-                .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
-                .limit(Number(q.pagination.limit))
-                .exec() // execute query
-                .then((result: Array<Child>) => {
-                    if (usernameFilter) return resolve(super.findByUsername(usernameFilter, result))
-                    resolve(result.map(item => this.mapper.transform(item)))
-                })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
-        })
+        return super.findAll(query)
     }
 
     public checkExist(children: Child | Array<Child>): Promise<boolean | ValidationException> {
@@ -100,7 +81,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                 })
             } else {
                 query.filters = { type: UserType.CHILD }
-                if (children.id) query.addFilter( { _id: children.id })
+                if (children.id) query.addFilter({ _id: children.id })
 
                 this.childModel.find(query.filters)
                     .exec()

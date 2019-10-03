@@ -44,30 +44,9 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
         })
     }
 
-    public find(query: IQuery): Promise<Array<Family>> {
+    public findAll(query: IQuery): Promise<Family[]> {
         query.addFilter({ type: UserType.FAMILY })
-        const q: any = query.toJSON()
-        const populate: any = { path: 'children' }
-
-        let usernameFilter: string
-        if (q.filters.username) {
-            usernameFilter = q.filters.username
-            delete q.filters.username
-        }
-
-        return new Promise<Array<Family>>((resolve, reject) => {
-            this.familyModel.find(q.filters)
-                .sort(q.ordination)
-                .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
-                .limit(Number(q.pagination.limit))
-                .populate(populate)
-                .exec()
-                .then((result: Array<Family>) => {
-                    if (usernameFilter) return resolve(super.findByUsername(usernameFilter, result))
-                    resolve(result.map(item => this.familyMapper.transform(item)))
-                })
-                .catch(err => reject(super.mongoDBErrorListener(err)))
-        })
+        return super.findAll(query)
     }
 
     public findOne(query: IQuery): Promise<Family> {

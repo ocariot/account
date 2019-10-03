@@ -76,10 +76,6 @@ export class UserRepositoryMock implements IUserRepository {
         return Promise.resolve(childrenArr)
     }
 
-    public findByUsername(username: string, users: Array<any>): Array<User> {
-        return new Array<User>()
-    }
-
     public findOne(query: any): Promise<User> {
         const id: string = query.filters._id
         if (id === '507f1f77bcf86cd799439011') {
@@ -97,5 +93,9 @@ export class UserRepositoryMock implements IUserRepository {
     public updateLastLogin(username: string): Promise<boolean> {
         if (username) return Promise.resolve(true)
         return Promise.resolve(false)
+    }
+
+    public findAll(query: any): Promise<Array<User>> {
+        return this.find(query)
     }
 }

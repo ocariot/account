@@ -551,7 +551,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.length).to.eql(2)
+                        expect(res.body.length).to.eql(4)
                         for (const application of res.body) {
                             expect(application).to.have.property('id')
                             expect(application).to.have.property('username')
@@ -569,34 +569,33 @@ describe('Routes: Application', () => {
                     await deleteAllUsers()
 
                     await createUser({
-                        username: defaultApplication.username,
+                        username: 'APP0002',
                         password: 'mysecretkey',
-                        application_name: 'app01',
-                        institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION,
-                        last_login: defaultApplication.last_login
-                    })
-
-                    await createUser({
-                        username: 'other_application',
-                        password: 'mysecretkey',
-                        application_name: 'app02',
+                        application_name: 'Scale',
                         institution: new ObjectID(institution.id),
                         type: UserType.APPLICATION
                     })
 
                     await createUser({
-                        username: 'new_application',
+                        username: 'APP0003',
                         password: 'mysecretkey',
-                        application_name: 'app03',
+                        application_name: 'Raspberry Pi 4',
                         institution: new ObjectID(institution.id),
                         type: UserType.APPLICATION
                     })
 
                     await createUser({
-                        username: 'application1',
+                        username: 'APP0004',
                         password: 'mysecretkey',
-                        application_name: 'app04',
+                        application_name: 'Raspberry Pi 2',
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
+
+                    await createUser({
+                        username: 'APP0001',
+                        password: 'mysecretkey',
+                        application_name: 'Raspberry Pi 3 b+',
                         institution: new ObjectID(institution.id),
                         type: UserType.APPLICATION
                     })
@@ -605,7 +604,7 @@ describe('Routes: Application', () => {
                 }
             })
             it('should return the result as required in query', () => {
-                const url: string = '/v1/applications?username=other_application&sort=username&page=1&limit=4'
+                const url: string = '/v1/applications?username=APP0*&sort=username&limit=1'
 
                 return request
                     .get(url)
@@ -614,9 +613,9 @@ describe('Routes: Application', () => {
                     .then(res => {
                         expect(res.body.length).to.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0].username).to.eql('other_application')
+                        expect(res.body[0].username).to.eql('APP0001')
                         expect(res.body[0].institution_id).to.eql(institution.id)
-                        expect(res.body[0].application_name).to.eql('app02')
+                        expect(res.body[0].application_name).to.eql('Raspberry Pi 3 b+')
                     })
             })
         })

@@ -40,10 +40,6 @@ export class ChildRepositoryMock implements IChildRepository {
         return Promise.resolve(childrenArr)
     }
 
-    public findByUsername(username: string, users: Array<any>): Array<Child> {
-        return new Array<Child>()
-    }
-
     public findOne(query: any): Promise<Child> {
         const id: string = query.filters._id
         if (id === '507f1f77bcf86cd799439011') {
@@ -58,4 +54,7 @@ export class ChildRepositoryMock implements IChildRepository {
         return Promise.resolve(child)
     }
 
+    public findAll(query: any): Promise<Array<Child>> {
+        return this.find(query)
+    }
 }

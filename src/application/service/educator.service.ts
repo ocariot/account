@@ -64,7 +64,10 @@ export class EducatorService implements IEducatorService {
     }
 
     public async getAll(query: IQuery): Promise<Array<Educator>> {
-        return this._educatorRepository.find(query)
+        // The repository findAll() method applies specific logic because of filters with the username.
+        // This is necessary because the username is saved encrypted in the database.
+        // Otherwise, the find() method would suffice.
+        return this._educatorRepository.findAll(query)
     }
 
     public async getById(id: string, query: IQuery): Promise<Educator> {

@@ -84,8 +84,10 @@ describe('Repositories: Family', () => {
                     .expects('create')
                     .withArgs(defaultFamily)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return familyRepo.create(defaultFamily)
                     .catch(err => {
@@ -110,8 +112,6 @@ describe('Repositories: Family', () => {
                     .withArgs(0)
                     .chain('limit')
                     .withArgs(query.pagination.limit)
-                    .chain('populate')
-                    .withArgs({ path: 'children' })
                     .chain('exec')
                     .resolves(familiesArr)
 
@@ -134,8 +134,6 @@ describe('Repositories: Family', () => {
                     .withArgs(0)
                     .chain('limit')
                     .withArgs(query.pagination.limit)
-                    .chain('populate')
-                    .withArgs({ path: 'children' })
                     .chain('exec')
                     .resolves(new Array<FamilyMock>())
 
@@ -158,11 +156,11 @@ describe('Repositories: Family', () => {
                     .withArgs(0)
                     .chain('limit')
                     .withArgs(query.pagination.limit)
-                    .chain('populate')
-                    .withArgs({ path: 'children' })
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return familyRepo.find(query)
                     .catch(err => {
@@ -226,8 +224,10 @@ describe('Repositories: Family', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return familyRepo.findOne(queryMock)
                     .catch(err => {
@@ -289,8 +289,10 @@ describe('Repositories: Family', () => {
                     .expects('findOneAndUpdate')
                     .withArgs({ _id: defaultFamily.id }, defaultFamily, { new: true })
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                        description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return familyRepo.update(defaultFamily)
                     .catch((err) => {
@@ -356,8 +358,10 @@ describe('Repositories: Family', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return familyRepo.findById(defaultFamily.id!)
                     .catch(err => {
@@ -380,7 +384,7 @@ describe('Repositories: Family', () => {
                     .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves([ defaultFamily ])
+                    .resolves([defaultFamily])
 
                 return familyRepo.checkExist(defaultFamily)
                     .then(result => {
@@ -411,7 +415,7 @@ describe('Repositories: Family', () => {
                     .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves([ familyWithoutId ])
+                    .resolves([familyWithoutId])
 
                 return familyRepo.checkExist(familyWithoutId)
                     .then(result => {
@@ -521,11 +525,13 @@ describe('Repositories: Family', () => {
                     .expects('countDocuments')
                     .withArgs()
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return familyRepo.count()
-                    .catch (err => {
+                    .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })
@@ -573,11 +579,13 @@ describe('Repositories: Family', () => {
                     .expects('findOne')
                     .withArgs({ _id: defaultFamily.id })
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return familyRepo.countChildrenFromFamily(defaultFamily.id!)
-                    .catch (err => {
+                    .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })

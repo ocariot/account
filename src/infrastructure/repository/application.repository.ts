@@ -47,28 +47,9 @@ export class ApplicationRepository extends BaseRepository<Application, Applicati
         })
     }
 
-    public find(query: IQuery): Promise<Array<Application>> {
+    public findAll(query: IQuery): Promise<Array<Application>> {
         query.addFilter({ type: UserType.APPLICATION })
-        const q: any = query.toJSON()
-
-        let usernameFilter: string
-        if (q.filters.username) {
-            usernameFilter = q.filters.username
-            delete q.filters.username
-        }
-
-        return new Promise<Array<Application>>((resolve, reject) => {
-            this.Model.find(q.filters)
-                .sort(q.ordination)
-                .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
-                .limit(Number(q.pagination.limit))
-                .exec() // execute query
-                .then((result: Array<Application>) => {
-                    if (usernameFilter) return resolve(super.findByUsername(usernameFilter, result))
-                    resolve(result.map(item => this.mapper.transform(item)))
-                })
-                .catch(err => reject(this.mongoDBErrorListener(err)))
-        })
+        return super.findAll(query)
     }
 
     public checkExist(application: Application): Promise<boolean> {

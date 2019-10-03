@@ -59,8 +59,11 @@ export class ApplicationService implements IApplicationService {
         return this._applicationRepository.create(application)
     }
 
-    public async getAll(query: IQuery): Promise<Array<Application>> {
-        return this._applicationRepository.find(query)
+    public getAll(query: IQuery): Promise<Array<Application>> {
+        // The repository findAll() method applies specific logic because of filters with the username.
+        // This is necessary because the username is saved encrypted in the database.
+        // Otherwise, the find() method would suffice.
+        return this._applicationRepository.findAll(query)
     }
 
     public async getById(id: string, query: IQuery): Promise<Application> {

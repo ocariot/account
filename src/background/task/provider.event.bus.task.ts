@@ -53,7 +53,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
             .provideChildren(async (query) => {
                 try {
                     const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                    const result: Array<Child> = await this._childRepository.find(_query)
+                    const result: Array<Child> = await this._childRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
                     return err
@@ -67,7 +67,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
             .provideFamilies(async (query) => {
                 try {
                     const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                    const result: Array<Family> = await this._familyRepository.find(_query)
+                    const result: Array<Family> = await this._familyRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
                     return err
@@ -96,7 +96,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
             .provideEducators(async (query) => {
                 try {
                     const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                    const result: Array<Educator> = await this._educatorRepository.find(_query)
+                    const result: Array<Educator> = await this._educatorRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
                     return err
@@ -125,7 +125,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
             .provideHealthProfessionals(async (query) => {
                 try {
                     const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                    const result: Array<HealthProfessional> = await this._healthProfessionalRepository.find(_query)
+                    const result: Array<HealthProfessional> = await this._healthProfessionalRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
                     return err
@@ -156,7 +156,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
             .provideApplications(async (query) => {
                 try {
                     const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
-                    const result: Array<Application> = await this._applicationRepository.find(_query)
+                    const result: Array<Application> = await this._applicationRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
                     return err

@@ -47,30 +47,9 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
         })
     }
 
-    public find(query: IQuery): Promise<Array<HealthProfessional>> {
+    public findAll(query: IQuery): Promise<HealthProfessional[]> {
         query.addFilter({ type: UserType.HEALTH_PROFESSIONAL })
-        const q: any = query.toJSON()
-        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
-
-        let usernameFilter: string
-        if (q.filters.username) {
-            usernameFilter = q.filters.username
-            delete q.filters.username
-        }
-
-        return new Promise<Array<HealthProfessional>>((resolve, reject) => {
-            this.healthProfessionalModel.find(q.filters)
-                .sort(q.ordination)
-                .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
-                .limit(Number(q.pagination.limit))
-                .populate(populate)
-                .exec()
-                .then((result: Array<HealthProfessional>) => {
-                    if (usernameFilter) return resolve(super.findByUsername(usernameFilter, result))
-                    resolve(result.map(item => this.healthProfessionalMapper.transform(item)))
-                })
-                .catch(err => reject(super.mongoDBErrorListener(err)))
-        })
+        return super.findAll(query)
     }
 
     public findOne(query: IQuery): Promise<HealthProfessional> {
@@ -136,7 +115,12 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
 
     public countChildrenGroups(healthProfessionalId: string): Promise<number> {
         return new Promise<number>((resolve, reject) => {
-            this.findOne(new Query().fromJSON({ filters: { _id: healthProfessionalId, type: UserType.HEALTH_PROFESSIONAL } }))
+            this.findOne(new Query().fromJSON({
+                filters: {
+                    _id: healthProfessionalId,
+                    type: UserType.HEALTH_PROFESSIONAL
+                }
+            }))
                 .then(result => resolve(result && result.children_groups ? result.children_groups.length : 0))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })

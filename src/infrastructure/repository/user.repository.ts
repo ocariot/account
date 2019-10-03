@@ -19,7 +19,6 @@ import { ValidationException } from '../../application/domain/exception/validati
  */
 @injectable()
 export class UserRepository extends BaseRepository<User, UserEntity> implements IUserRepository {
-
     constructor(
         @inject(Identifier.USER_REPO_MODEL) readonly userModel: any,
         @inject(Identifier.USER_ENTITY_MAPPER) readonly userMapper: IEntityMapper<User, UserEntity>,
@@ -111,5 +110,9 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
                 .then(result => resolve(!!result))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
+    }
+
+    public findAll(query: IQuery): Promise<User[]> {
+        throw new Error('Method not implemented.')
     }
 }

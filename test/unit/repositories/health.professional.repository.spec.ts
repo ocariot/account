@@ -110,8 +110,6 @@ describe('Repositories: HealthProfessional', () => {
                     .withArgs(0)
                     .chain('limit')
                     .withArgs(query.pagination.limit)
-                    .chain('populate')
-                    .withArgs({ path: 'children_groups', populate: { path: 'children' } })
                     .chain('exec')
                     .resolves(healthProfessionalsArr)
 
@@ -134,8 +132,6 @@ describe('Repositories: HealthProfessional', () => {
                     .withArgs(0)
                     .chain('limit')
                     .withArgs(query.pagination.limit)
-                    .chain('populate')
-                    .withArgs({ path: 'children_groups', populate: { path: 'children' } })
                     .chain('exec')
                     .resolves(new Array<HealthProfessionalMock>())
 
@@ -158,8 +154,6 @@ describe('Repositories: HealthProfessional', () => {
                     .withArgs(0)
                     .chain('limit')
                     .withArgs(query.pagination.limit)
-                    .chain('populate')
-                    .withArgs({ path: 'children_groups', populate: { path: 'children' } })
                     .chain('exec')
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
