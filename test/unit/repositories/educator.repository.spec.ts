@@ -96,7 +96,7 @@ describe('Repositories: Educator', () => {
         })
     })
 
-    describe('find(query: IQuery)', () => {
+    describe('findAll(query: IQuery)', () => {
         const query: Query = new Query()
         query.ordination = new Map()
         context('when there is at least one educator that corresponds to the received parameters', () => {
@@ -113,7 +113,7 @@ describe('Repositories: Educator', () => {
                     .chain('exec')
                     .resolves(educatorsArr)
 
-                return educatorRepo.find(query)
+                return educatorRepo.findAll(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isNotEmpty(result)
@@ -135,7 +135,7 @@ describe('Repositories: Educator', () => {
                     .chain('exec')
                     .resolves(new Array<EducatorMock>())
 
-                return educatorRepo.find(query)
+                return educatorRepo.findAll(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isEmpty(result)
@@ -158,7 +158,7 @@ describe('Repositories: Educator', () => {
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
-                return educatorRepo.find(query)
+                return educatorRepo.findAll(query)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')

@@ -609,7 +609,7 @@ describe('Routes: Child', () => {
                     await deleteAllUsers()
 
                     await createUser({
-                        username: defaultChild.username,
+                        username: 'BR0002',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
@@ -619,7 +619,27 @@ describe('Routes: Child', () => {
                     })
 
                     await createUser({
-                        username: 'other_child',
+                        username: 'BR0003',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'EU0001',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'BR0001',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
@@ -637,13 +657,13 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.length).to.eql(2)
+                        expect(res.body.length).to.eql(4)
                         for (const child of res.body) {
                             expect(child).to.have.property('id')
                             expect(child).to.have.property('username')
                             expect(child).to.have.property('institution_id')
-                            expect(child).to.have.property('age')
                             expect(child).to.have.property('gender')
+                            expect(child).to.have.property('age')
                         }
                     })
             })
@@ -655,21 +675,41 @@ describe('Routes: Child', () => {
                     await deleteAllUsers()
 
                     await createUser({
-                        username: defaultChild.username,
+                        username: 'BR0002',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
-                        age: 10,
+                        age: defaultChild.age,
                         institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
                     })
 
                     await createUser({
-                        username: 'IHAVEAUSERNAME',
+                        username: 'BR0003',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
-                        age: 12,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'EU0001',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'BR0001',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
                         institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
                     })
@@ -677,8 +717,9 @@ describe('Routes: Child', () => {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', () => {
-                const url = '/v1/children?username=ihaveausername&sort=username&page=1&limit=3'
+            it('should return the result as required in query (query all children who have a certain string at the ' +
+                'beginning of their username)', () => {
+                const url = '/v1/children?username=EU*&sort=username&page=1&limit=3'
                 return request
                     .get(url)
                     .set('Content-Type', 'application/json')
@@ -686,13 +727,81 @@ describe('Routes: Child', () => {
                     .then(res => {
                         expect(res.body.length).to.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0].username).to.eql('IHAVEAUSERNAME')
+                        expect(res.body[0].username).to.eql('EU0001')
                         expect(res.body[0].institution_id).to.eql(institution.id)
-                        expect(res.body[0].age).to.eql(12)
                         expect(res.body[0].gender).to.eql(defaultChild.gender)
+                        expect(res.body[0].age).to.eql(defaultChild.age)
+                    })
+            })
+
+            it('should return the result as required in query (query all children who have a certain string at the ' +
+                'end of their username)', () => {
+                const url = '/v1/children?username=*2&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(1)
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0].username).to.eql('BR0002')
+                        expect(res.body[0].institution_id).to.eql(institution.id)
+                        expect(res.body[0].gender).to.eql(defaultChild.gender)
+                        expect(res.body[0].age).to.eql(defaultChild.age)
+                    })
+            })
+
+            it('should return the result as required in query (query all children who have a particular string anywhere ' +
+                'in their username)', () => {
+                const url = '/v1/children?username=*BR*&sort=-username&page=1&limit=2'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(2)
+                        // Tests if the ordination was applied correctly
+                        expect(res.body[0].username).to.eql('BR0003')
+                        expect(res.body[1].username).to.eql('BR0002')
+                        for (const child of res.body) {
+                            expect(child).to.have.property('id')
+                            expect(child).to.have.property('username')
+                            expect(child).to.have.property('institution_id')
+                            expect(child).to.have.property('gender')
+                            expect(child).to.have.property('age')
+                        }
+                    })
+            })
+
+            it('should return the result as required in query (query child who has username exactly the same as the ' +
+                'given string)', () => {
+                const url = '/v1/children?username=BR0003&sort=username&page=1&limit=2'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(1)
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0].username).to.eql('BR0003')
+                        expect(res.body[0].institution_id).to.eql(institution.id)
+                        expect(res.body[0].gender).to.eql(defaultChild.gender)
+                        expect(res.body[0].age).to.eql(defaultChild.age)
+                    })
+            })
+
+            it('should return an empty array (when not find any child)', () => {
+                const url = '/v1/children?username=*PB*&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
                     })
             })
         })
+
         context('when there are no children in database', () => {
             before(async () => {
                 try {

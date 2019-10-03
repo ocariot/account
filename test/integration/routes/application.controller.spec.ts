@@ -510,34 +510,33 @@ describe('Routes: Application', () => {
                     await deleteAllUsers()
 
                     await createUser({
-                        username: defaultApplication.username,
+                        username: 'APP0002',
                         password: 'mysecretkey',
-                        application_name: defaultApplication.application_name,
-                        institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION,
-                        last_login: defaultApplication.last_login
-                    })
-
-                    await createUser({
-                        username: 'other_application',
-                        password: 'mysecretkey',
-                        application_name: 'app02',
+                        application_name: 'Scale',
                         institution: new ObjectID(institution.id),
                         type: UserType.APPLICATION
                     })
 
                     await createUser({
-                        username: 'new_application',
+                        username: 'APP0003',
                         password: 'mysecretkey',
-                        application_name: 'app03',
+                        application_name: 'Raspberry Pi 4',
                         institution: new ObjectID(institution.id),
                         type: UserType.APPLICATION
                     })
 
                     await createUser({
-                        username: 'application1',
+                        username: 'APP0004',
                         password: 'mysecretkey',
-                        application_name: 'app04',
+                        application_name: 'Raspberry Pi 2',
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
+
+                    await createUser({
+                        username: 'APP0001',
+                        password: 'mysecretkey',
+                        application_name: 'Raspberry Pi 3 b+',
                         institution: new ObjectID(institution.id),
                         type: UserType.APPLICATION
                     })
@@ -562,8 +561,7 @@ describe('Routes: Application', () => {
             })
         })
 
-        context('when use query strings (query application who has username exactly the same as the given string)',
-            () => {
+        context('when use query strings and find users in the database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
@@ -603,8 +601,9 @@ describe('Routes: Application', () => {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', () => {
-                const url: string = '/v1/applications?username=APP0*&sort=username&limit=1'
+            it('should return the result as required in query (query application who has username exactly ' +
+                'the same as the given string)', () => {
+                const url: string = '/v1/applications?username=APP0004&sort=username&limit=3'
 
                 return request
                     .get(url)
@@ -613,9 +612,20 @@ describe('Routes: Application', () => {
                     .then(res => {
                         expect(res.body.length).to.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0].username).to.eql('APP0001')
+                        expect(res.body[0].username).to.eql('APP0004')
                         expect(res.body[0].institution_id).to.eql(institution.id)
-                        expect(res.body[0].application_name).to.eql('Raspberry Pi 3 b+')
+                        expect(res.body[0].application_name).to.eql('Raspberry Pi 2')
+                    })
+            })
+
+            it('should return an empty array (when not find any application)', () => {
+                const url = '/v1/applications?username=*PB*&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
                     })
             })
         })

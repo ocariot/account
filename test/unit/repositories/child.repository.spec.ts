@@ -96,7 +96,7 @@ describe('Repositories: Child', () => {
         })
     })
 
-    describe('find(query: IQuery)', () => {
+    describe('findAll(query: IQuery)', () => {
         const query: Query = new Query()
         query.ordination = new Map()
         context('when there is at least one child that corresponds to the received parameters', () => {
@@ -113,7 +113,7 @@ describe('Repositories: Child', () => {
                     .chain('exec')
                     .resolves(childrenArr)
 
-                return childRepo.find(query)
+                return childRepo.findAll(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isNotEmpty(result)
@@ -137,7 +137,7 @@ describe('Repositories: Child', () => {
                     .chain('exec')
                     .resolves(new Array<ChildMock>())
 
-                return childRepo.find(query)
+                return childRepo.findAll(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isEmpty(result)
@@ -162,7 +162,7 @@ describe('Repositories: Child', () => {
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
-                return childRepo.find(query)
+                return childRepo.findAll(query)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
