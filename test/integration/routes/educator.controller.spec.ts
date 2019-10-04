@@ -1353,7 +1353,7 @@ describe('Routes: Educator', () => {
                     })
 
                     resultEducator = await createUser({
-                        username: defaultEducator.username,
+                        username: 'EDUBR0001',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
@@ -1361,7 +1361,7 @@ describe('Routes: Educator', () => {
                     })
 
                     resultEducator2 = await createUser({
-                        username: 'other_educator',
+                        username: 'EDUBR0002',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
@@ -1426,29 +1426,15 @@ describe('Routes: Educator', () => {
         })
 
         context('when use query strings', () => {
-            let resultEducator
             let resultChild
+            let resultEducator
+            let resultEducator2
             let resultChildrenGroup
+            let resultChildrenGroup2
 
             before(async () => {
                 try {
                     await deleteAllUsers()
-
-                    await createUser({
-                        username: defaultEducator.username,
-                        password: defaultEducator.password,
-                        type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
-
-                    resultEducator = await createUser({
-                        username: 'other_educator',
-                        password: defaultEducator.password,
-                        type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
 
                     resultChild = await createUser({
                         username: defaultChild.username,
@@ -1460,6 +1446,22 @@ describe('Routes: Educator', () => {
                         scopes: new Array('users:read')
                     })
 
+                    resultEducator = await createUser({
+                        username: 'EDUBR0001',
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultEducator2 = await createUser({
+                        username: 'EDUBR0002',
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
                     resultChildrenGroup = await createChildrenGroup({
                         name: defaultChildrenGroup.name,
                         children: new Array<string | undefined>(resultChild.id),
@@ -1467,17 +1469,29 @@ describe('Routes: Educator', () => {
                         user_id: resultEducator.id
                     })
 
+                    resultChildrenGroup2 = await createChildrenGroup({
+                        name: 'other_children_group_name',
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultEducator2.id
+                    })
 
                     await updateUser({
                         id: resultEducator.id,
                         children_groups: [resultChildrenGroup.id]
                     })
+
+                    await updateUser({
+                        id: resultEducator2.id,
+                        children_groups: [resultChildrenGroup2.id]
+                    })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', () => {
-                const url: string = '/v1/educators?username=other_educator&sort=username&page=1&limit=3'
+            it('should return the result as required in query (query the educator that has username exactly ' +
+                'the same as the given string)', () => {
+                const url: string = '/v1/educators?username=EDUBR0002&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -1487,12 +1501,12 @@ describe('Routes: Educator', () => {
                         expect(res.body.length).to.eql(1)
                         for (const educator of res.body) {
                             expect(educator).to.have.property('id')
-                            expect(educator.username).to.eql('other_educator')
+                            expect(educator.username).to.eql('EDUBR0002')
                             expect(educator.institution_id).to.eql(institution.id)
                             expect(educator.children_groups.length).to.eql(1)
                             for (const childrenGroup of educator.children_groups) {
                                 expect(childrenGroup).to.have.property('id')
-                                expect(childrenGroup.name).to.eql(defaultChildrenGroup.name)
+                                expect(childrenGroup.name).to.eql('other_children_group_name')
                                 expect(childrenGroup.children.length).to.eql(1)
                                 for (const child of childrenGroup.children) {
                                     expect(child).to.have.property('id')
@@ -1506,9 +1520,20 @@ describe('Routes: Educator', () => {
                         }
                     })
             })
+
+            it('should return an empty array (when not find any educator)', () => {
+                const url = '/v1/educators?username=*PB*&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
+                    })
+            })
         })
 
-        context('when there are no educators in database', () => {
+        context('when there are no educators in the database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()

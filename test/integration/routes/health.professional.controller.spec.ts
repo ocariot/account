@@ -1379,7 +1379,7 @@ describe('Routes: HealthProfessional', () => {
                     })
 
                     resultHealthProfessional = await createUser({
-                        username: defaultHealthProfessional.username,
+                        username: 'HPROFBR0001',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
                         institution: new ObjectID(institution.id),
@@ -1387,7 +1387,7 @@ describe('Routes: HealthProfessional', () => {
                     })
 
                     resultHealthProfessional2 = await createUser({
-                        username: 'other_health_professional',
+                        username: 'HPROFBR0002',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
                         institution: new ObjectID(institution.id),
@@ -1452,29 +1452,15 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when use query strings', () => {
-            let resultHealthProfessional
             let resultChild
+            let resultHealthProfessional
+            let resultHealthProfessional2
             let resultChildrenGroup
+            let resultChildrenGroup2
 
             before(async () => {
                 try {
                     await deleteAllUsers()
-
-                    await createUser({
-                        username: defaultHealthProfessional.username,
-                        password: defaultHealthProfessional.password,
-                        type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
-
-                    resultHealthProfessional = await createUser({
-                        username: 'other_health_professional',
-                        password: defaultHealthProfessional.password,
-                        type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
 
                     resultChild = await createUser({
                         username: defaultChild.username,
@@ -1486,6 +1472,22 @@ describe('Routes: HealthProfessional', () => {
                         scopes: new Array('users:read')
                     })
 
+                    resultHealthProfessional = await createUser({
+                        username: 'HPROFBR0001',
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultHealthProfessional2 = await createUser({
+                        username: 'HPROFBR0002',
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
                     resultChildrenGroup = await createChildrenGroup({
                         name: defaultChildrenGroup.name,
                         children: new Array<string | undefined>(resultChild.id),
@@ -1493,16 +1495,29 @@ describe('Routes: HealthProfessional', () => {
                         user_id: resultHealthProfessional.id
                     })
 
+                    resultChildrenGroup2 = await createChildrenGroup({
+                        name: 'other_children_group_name',
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional2.id
+                    })
+
                     await updateUser({
                         id: resultHealthProfessional.id,
                         children_groups: [resultChildrenGroup.id]
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional2.id,
+                        children_groups: [resultChildrenGroup2.id]
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', () => {
-                const url: string = '/v1/healthprofessionals?username=other_health_professional&sort=username&page=1&limit=3'
+            it('should return the result as required in query (query the health professional that has username exactly ' +
+                'the same as the given string)', () => {
+                const url: string = '/v1/healthprofessionals?username=HPROFBR0002&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -1512,12 +1527,12 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.length).to.eql(1)
                         for (const healthProf of res.body) {
                             expect(healthProf).to.have.property('id')
-                            expect(healthProf.username).to.eql('other_health_professional')
+                            expect(healthProf.username).to.eql('HPROFBR0002')
                             expect(healthProf.institution_id).to.eql(institution.id)
                             expect(healthProf.children_groups.length).to.eql(1)
                             for (const childrenGroup of healthProf.children_groups) {
                                 expect(childrenGroup).to.have.property('id')
-                                expect(childrenGroup.name).to.eql(defaultChildrenGroup.name)
+                                expect(childrenGroup.name).to.eql('other_children_group_name')
                                 expect(childrenGroup.children.length).to.eql(1)
                                 for (const child of childrenGroup.children) {
                                     expect(child).to.have.property('id')
@@ -1531,9 +1546,20 @@ describe('Routes: HealthProfessional', () => {
                         }
                     })
             })
+
+            it('should return an empty array (when not find any health professional)', () => {
+                const url = '/v1/healthprofessionals?username=*PB*&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
+                    })
+            })
         })
 
-        context('when there are no health professionals in database', () => {
+        context('when there are no health professionals in the database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()

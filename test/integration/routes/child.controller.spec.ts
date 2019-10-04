@@ -463,8 +463,10 @@ describe('Routes: Child', () => {
                 'UpdateChild event)', () => {
                 return request
                     .patch(`/v1/children/${result.id}`)
-                    .send({ username: 'other_username', last_login: defaultChild.last_login,
-                                  last_sync: defaultChild.last_sync })
+                    .send({
+                        username: 'other_username', last_login: defaultChild.last_login,
+                        last_sync: defaultChild.last_sync
+                    })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -717,8 +719,8 @@ describe('Routes: Child', () => {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
             })
-            it('should return the result as required in query (query all children who have a certain string at the ' +
-                'beginning of their username)', () => {
+            it('should return the result as required in query (query a maximum of three children who have a certain ' +
+                'string at the beginning of their username)', () => {
                 const url = '/v1/children?username=EU*&sort=username&page=1&limit=3'
                 return request
                     .get(url)
@@ -734,8 +736,8 @@ describe('Routes: Child', () => {
                     })
             })
 
-            it('should return the result as required in query (query all children who have a certain string at the ' +
-                'end of their username)', () => {
+            it('should return the result as required in query (query a maximum of three children who have a certain ' +
+                'string at the end of their username)', () => {
                 const url = '/v1/children?username=*2&sort=username&page=1&limit=3'
                 return request
                     .get(url)
@@ -751,8 +753,8 @@ describe('Routes: Child', () => {
                     })
             })
 
-            it('should return the result as required in query (query all children who have a particular string anywhere ' +
-                'in their username)', () => {
+            it('should return the result as required in query (query a maximum of two children who have a particular ' +
+                'string anywhere in their username, sorted in descending order by this username)', () => {
                 const url = '/v1/children?username=*BR*&sort=-username&page=1&limit=2'
                 return request
                     .get(url)
@@ -773,7 +775,7 @@ describe('Routes: Child', () => {
                     })
             })
 
-            it('should return the result as required in query (query child who has username exactly the same as the ' +
+            it('should return the result as required in query (query the child that has username exactly the same as the ' +
                 'given string)', () => {
                 const url = '/v1/children?username=BR0003&sort=username&page=1&limit=2'
                 return request
@@ -802,7 +804,7 @@ describe('Routes: Child', () => {
             })
         })
 
-        context('when there are no children in database', () => {
+        context('when there are no children in the database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()

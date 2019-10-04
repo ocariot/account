@@ -601,7 +601,7 @@ describe('Routes: Application', () => {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
             })
-            it('should return the result as required in query (query application who has username exactly ' +
+            it('should return the result as required in query (query the application that has username exactly ' +
                 'the same as the given string)', () => {
                 const url: string = '/v1/applications?username=APP0004&sort=username&limit=3'
 
@@ -630,7 +630,7 @@ describe('Routes: Application', () => {
             })
         })
 
-        context('when there are no applications in database', () => {
+        context('when there are no applications in the database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()

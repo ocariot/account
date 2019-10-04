@@ -473,7 +473,7 @@ describe('Routes: Institution', () => {
 
                     await createInstitution({
                         type: defaultInstitution.type,
-                        name: defaultInstitution.name,
+                        name: 'INSTBR0001',
                         address: defaultInstitution.address,
                         latitude: defaultInstitution.latitude,
                         longitude: defaultInstitution.longitude
@@ -481,7 +481,7 @@ describe('Routes: Institution', () => {
 
                     await createInstitution({
                         type: defaultInstitution.type,
-                        name: 'other_institution',
+                        name: 'INSTBR0002',
                         address: defaultInstitution.address,
                         latitude: defaultInstitution.latitude,
                         longitude: defaultInstitution.longitude
@@ -509,7 +509,63 @@ describe('Routes: Institution', () => {
             })
         })
 
-        context('when does not have institutions in database', () => {
+        context('when use query strings', () => {
+            before(async () => {
+                try {
+                    await deleteAllInstitutions()
+
+                    await createInstitution({
+                        type: 'School Institution',
+                        name: 'INSTBR0001',
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+
+                    await createInstitution({
+                        type: defaultInstitution.type,
+                        name: 'INSTBR0002',
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
+            })
+            it('should return the result as required in query (query the institutions that has name exactly ' +
+                'the same as the given string)', () => {
+                const url: string = '/v1/institutions?name=INSTBR0001&sort=username&limit=3'
+
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(1)
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0].type).to.eql('School Institution')
+                        expect(res.body[0].name).to.eql('INSTBR0001')
+                        expect(res.body[0].address).to.eql(defaultInstitution.address)
+                        expect(res.body[0].latitude).to.eql(defaultInstitution.latitude)
+                        expect(res.body[0].longitude).to.eql(defaultInstitution.longitude)
+                    })
+            })
+
+            it('should return an empty array (when not find any institution)', () => {
+                const url: string = '/v1/institutions?name=*PB*&sort=username&limit=3'
+
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
+                    })
+            })
+        })
+
+        context('when there are no institutions in the database', () => {
             before(async () => {
                 try {
                     await deleteAllInstitutions()
@@ -522,8 +578,7 @@ describe('Routes: Institution', () => {
                     .get('/v1/institutions')
                     .set('Content-Type', 'application/json')
                     .then(res => {
-                        expect(res.body).is.instanceof(Array)
-                        expect(res.body.length).is.eql(0)
+                        expect(res.body.length).to.eql(0)
                     })
             })
         })

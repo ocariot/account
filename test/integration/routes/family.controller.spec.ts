@@ -972,7 +972,7 @@ describe('Routes: Family', () => {
                     })
 
                     await createUser({
-                        username: defaultFamily.username,
+                        username: 'FAMBR0001',
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
@@ -981,7 +981,7 @@ describe('Routes: Family', () => {
                     })
 
                     await createUser({
-                        username: 'other_family',
+                        username: 'FAMBR0002',
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
@@ -1034,7 +1034,7 @@ describe('Routes: Family', () => {
                     })
 
                     await createUser({
-                        username: defaultFamily.username,
+                        username: 'FAMBR0001',
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
@@ -1043,7 +1043,7 @@ describe('Routes: Family', () => {
                     })
 
                     await createUser({
-                        username: 'myusernameisunique',
+                        username: 'FAMBR0002',
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
@@ -1054,8 +1054,9 @@ describe('Routes: Family', () => {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', () => {
-                const url: string = '/v1/families?username=myusernameisunique&sort=username&page=1&limit=3'
+            it('should return the result as required in query (query the family that has username exactly ' +
+                'the same as the given string)', () => {
+                const url: string = '/v1/families?username=FAMBR0001&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -1065,7 +1066,7 @@ describe('Routes: Family', () => {
                         expect(res.body.length).to.eql(1)
                         for (const family of res.body) {
                             expect(family).to.have.property('id')
-                            expect(family.username).to.eql('myusernameisunique')
+                            expect(family.username).to.eql('FAMBR0001')
                             expect(family.institution_id).to.eql(institution.id)
                             expect(family.children.length).to.eql(1)
                             for (const child of family.children) {
@@ -1078,9 +1079,20 @@ describe('Routes: Family', () => {
                         }
                     })
             })
+
+            it('should return an empty array (when not find any family)', () => {
+                const url = '/v1/families?username=*PB*&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
+                    })
+            })
         })
 
-        context('when there are no families in database', () => {
+        context('when there are no families in the database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
