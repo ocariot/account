@@ -13,10 +13,10 @@ import { HealthProfessional } from '../domain/model/health.professional'
 import { CreateHealthProfessionalValidator } from '../domain/validator/create.health.professional.validator'
 import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
-import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { UpdateHealthProfessionalValidator } from '../domain/validator/update.health.professional.validator'
 
 /**
  * Implementing Health Professional Service.
@@ -85,7 +85,7 @@ export class HealthProfessionalService implements IHealthProfessionalService {
     public async update(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
         try {
             // 1. Validate Health Professional parameters.
-            UpdateUserValidator.validate(healthProfessional)
+            UpdateHealthProfessionalValidator.validate(healthProfessional)
 
             // 1.5 Ignore last_login attributes if exists.
             if (healthProfessional.last_login) healthProfessional.last_login = undefined

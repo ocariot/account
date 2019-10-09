@@ -1,25 +1,29 @@
 import { ValidationException } from '../exception/validation.exception'
-import { ChildrenGroup } from '../model/children.group'
+import { UpdateUserValidator } from './update.user.validator'
+import { Family } from '../model/family'
 import { ObjectIdValidator } from './object.id.validator'
 import { Strings } from '../../../utils/strings'
 
-export class CreateChildrenGroupValidator {
-    public static validate(childrenGroup: ChildrenGroup): void | ValidationException {
+export class UpdateFamilyValidator {
+    public static validate(family: Family): void | ValidationException {
         const fields: Array<string> = []
         const invalid_ids: Array<string> = []
 
-        // validate null
-        if (childrenGroup.name === undefined) fields.push('name')
-        else if (childrenGroup.name.length === 0) {
-            throw new ValidationException('ChildrenGroup name field is invalid...',
-                'ChildrenGroup name must be at least one character.')
+        try {
+            UpdateUserValidator.validate(family)
+        } catch (err) {
+            if (err.message === 'USER_ID_INVALID') {
+                throw new ValidationException(Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT,
+                    Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+            } else if (err.message === 'INSTITUTION_ID_INVALID') {
+                throw new ValidationException(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT,
+                    Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+            }
+            throw err
         }
-        if (!childrenGroup.user || !childrenGroup.user.id) fields.push('user')
-        else ObjectIdValidator.validate(childrenGroup.user.id)
-        if (!childrenGroup.children || !childrenGroup.children.length) {
-            fields.push('Collection with children IDs')
-        } else {
-            childrenGroup.children.forEach(child => {
+
+        if (family.children && family.children.length > 0) {
+            family.children.forEach(child => {
                 if (!child.id) {
                     fields.push('Collection with children IDs (ID can not be empty)')
                 } else {
@@ -34,11 +38,11 @@ export class CreateChildrenGroupValidator {
 
         if (invalid_ids.length > 0) {
             throw new ValidationException(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC,
-                'Children Group validation: Invalid children attribute. '
+                'Family validation: Invalid children attribute. '
                     .concat(Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT).concat(invalid_ids.join(', ')))
         } else if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
-                'Children Group validation: '.concat(fields.join(', ')).concat(' is required!'))
+                'Family validation: '.concat(fields.join(', ')).concat(' is required!'))
         }
     }
 }

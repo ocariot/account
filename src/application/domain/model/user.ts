@@ -28,7 +28,7 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
     }
 
     set username(value: string | undefined) {
-        this._username = value
+        this._username = value ? value.trim() : value
     }
 
     get password(): string | undefined {

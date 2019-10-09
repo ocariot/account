@@ -20,7 +20,7 @@ describe('Validators: Family', () => {
 
     context('when the educator was incomplete', () => {
         it('should throw an error for does not pass username', () => {
-            family.username = ''
+            family.username = undefined
 
             try {
                 CreateFamilyValidator.validate(family)

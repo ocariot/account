@@ -18,7 +18,7 @@ describe('Validators: Educator', () => {
 
     context('when the educator was incomplete', () => {
         it('should throw an error for does not pass username', () => {
-            educator.username = ''
+            educator.username = undefined
 
             try {
                 CreateEducatorValidator.validate(educator)

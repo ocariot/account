@@ -6,8 +6,16 @@ export class CreateInstitutionValidator {
         const fields: Array<string> = []
 
         // validate null
-        if (!institution.name) fields.push('name')
-        if (!institution.type) fields.push('type')
+        if (institution.name === undefined) fields.push('name')
+        else if (institution.name.length === 0) {
+            throw new ValidationException('Institution name field is invalid...',
+                'Institution name must be at least one character.')
+        }
+        if (institution.type === undefined) fields.push('type')
+        else if (institution.type.length === 0) {
+            throw new ValidationException('Institution type field is invalid...',
+                'Institution type must be at least one character.')
+        }
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',

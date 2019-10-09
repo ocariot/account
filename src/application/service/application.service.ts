@@ -11,9 +11,9 @@ import { Application } from '../domain/model/application'
 import { CreateApplicationValidator } from '../domain/validator/create.application.validator'
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
-import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { UpdateApplicationValidator } from '../domain/validator/update.application.validator'
 
 /**
  * Implementation of the service for user of type Application.
@@ -78,7 +78,7 @@ export class ApplicationService implements IApplicationService {
     public async update(application: Application): Promise<Application> {
         try {
             // 1. Validate Application parameters.
-            UpdateUserValidator.validate(application)
+            UpdateApplicationValidator.validate(application)
 
             // 1.5 Ignore last_login attributes if exists.
             if (application.last_login) application.last_login = undefined

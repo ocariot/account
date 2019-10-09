@@ -1,17 +1,21 @@
 import { ValidationException } from '../exception/validation.exception'
 import { Family } from '../model/family'
 import { ObjectIdValidator } from './object.id.validator'
+import { CreateUserValidator } from './create.user.validator'
+import { Strings } from '../../../utils/strings'
 
 export class CreateFamilyValidator {
     public static validate(family: Family): void | ValidationException {
         const fields: Array<string> = []
+        const invalid_ids: Array<string> = []
 
-        // validate null
-        if (!family.username) fields.push('username')
-        if (!family.password) fields.push('password')
-        if (!family.type) fields.push('type')
-        if (!family.institution || !family.institution.id) fields.push('institution')
-        else ObjectIdValidator.validate(family.institution.id)
+        try {
+            CreateUserValidator.validate(family)
+        } catch (err) {
+            if (err.message !== 'REQUIRED_FIELDS') throw err
+            fields.push(err.description.split(','))
+        }
+
         if (!family.children || !family.children.length) {
             fields.push('Collection with children IDs')
         } else {
@@ -19,12 +23,20 @@ export class CreateFamilyValidator {
                 if (!child.id) {
                     fields.push('Collection with children IDs (ID can not be empty)')
                 } else {
-                    ObjectIdValidator.validate(child.id)
+                    try {
+                        ObjectIdValidator.validate(child.id)
+                    } catch (err) {
+                        invalid_ids.push(child.id)
+                    }
                 }
             })
         }
 
-        if (fields.length > 0) {
+        if (invalid_ids.length > 0) {
+            throw new ValidationException(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC,
+                'Family validation: Invalid children attribute. '
+                    .concat(Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT).concat(invalid_ids.join(', ')))
+        } else if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
                 'Family validation: '.concat(fields.join(', ')).concat(' is required!'))
         }

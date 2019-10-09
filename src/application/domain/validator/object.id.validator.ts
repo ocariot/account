@@ -1,5 +1,5 @@
-import { ValidationException } from '../exception/validation.exception'
 import { Strings } from '../../../utils/strings'
+import { ValidationException } from '../exception/validation.exception'
 
 export class ObjectIdValidator {
     public static validate(uuid: string, message?: string): void | ValidationException {

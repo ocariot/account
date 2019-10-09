@@ -187,7 +187,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -476,7 +476,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -504,7 +504,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -677,10 +677,10 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid ID', () => {
+            it('should return status code 400 and info message from invalid IDs', () => {
                 const body = {
                     name: 'Children Group One',
-                    children: new Array<string | undefined>('123'),
+                    children: new Array<string | undefined>('123', '123a'),
                     school_class: '3th Grade'
                 }
 
@@ -690,9 +690,9 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: Collection with children IDs ' +
-                            '(ID can not be empty) is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        expect(err.body.description).to.eql('Children Group validation: ' +
+                            'Invalid children attribute. The following set of IDs is not in valid format: 123, 123a')
                     })
             })
         })
@@ -716,7 +716,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid ID', () => {
+            it('should return status code 400 and info message from invalid IDs', () => {
                 const body = {
                     name: 'Children Group Two',
                     children: new Array<string | undefined>('507f1f77bcf86cd799439011'),
@@ -1059,19 +1059,19 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid ID.', () => {
+            it('should return status code 400 and info message from invalid IDs', () => {
                 const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
                     .concat(`children/groups/${resultChildrenGroup.id}`)
 
                 return request
                     .patch(url)
-                    .send({ children: new Array<string>('123') })
+                    .send({ children: new Array<string>('123', '123a') })
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: Collection with children IDs ' +
-                            '(ID can not be empty) is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        expect(err.body.description).to.eql('Children Group validation: ' +
+                            'Invalid children attribute. The following set of IDs is not in valid format: 123, 123a')
                     })
             })
         })

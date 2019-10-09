@@ -19,7 +19,7 @@ describe('Validators: Child', () => {
 
     context('when the child was incomplete', () => {
         it('should throw an error for does not pass username', () => {
-            child.username = ''
+            child.username = undefined
 
             try {
                 CreateChildValidator.validate(child)
@@ -147,7 +147,7 @@ describe('Validators: Child', () => {
             } catch (err) {
                 assert.equal(err.message, 'Age field is invalid...')
                 assert.equal(err.description,
-                    'Child validation: The age parameter can only contain a value greater than zero.')
+                    'Child validation: The age parameter can only contain a value greater than zero!')
             }
         })
     })

@@ -2,7 +2,6 @@ import { UpdateUserValidator } from '../../../src/application/domain/validator/u
 import { User } from '../../../src/application/domain/model/user'
 import { ObjectID } from 'bson'
 import { assert } from 'chai'
-import { Strings } from '../../../src/utils/strings'
 import { InstitutionMock } from '../../mocks/institution.mock'
 
 describe('Validators: UpdateUser', () => {
@@ -31,8 +30,7 @@ describe('Validators: UpdateUser', () => {
                 user.id = '123'
                 UpdateUserValidator.validate(user)
             } catch (err) {
-                assert.equal(err.message, Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
-                assert.equal(err.description, Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                assert.equal(err.message, 'USER_ID_INVALID')
             }
         })
     })
@@ -43,8 +41,7 @@ describe('Validators: UpdateUser', () => {
                 user.institution!.id = '123'
                 UpdateUserValidator.validate(user)
             } catch (err) {
-                assert.equal(err.message, Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
-                assert.equal(err.description, Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                assert.equal(err.message, 'USER_ID_INVALID')
             }
         })
     })

@@ -99,7 +99,6 @@ describe('Routes: Application', () => {
                 }
             })
             it('should return status code 201 and the saved application', () => {
-
                 const body = {
                     username: defaultApplication.username,
                     password: 'mysecretkey',
@@ -159,6 +158,27 @@ describe('Routes: Application', () => {
         context('when a validation error occurs', () => {
             it('should return status code 400 and message info about missing or invalid  parameters', () => {
                 const body = {
+                    username: defaultApplication.username,
+                    password: 'mysecretkey',
+                    application_name: '',
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/applications')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Application name field is invalid...')
+                        expect(err.body.description).to.eql('Application name must be at least one character.')
+                    })
+            })
+        })
+
+        context('when a validation error occurs (application_name is invalid)', () => {
+            it('should return status code 400 and message info about the invalid application_name parameters', () => {
+                const body = {
                     password: 'mysecretkey',
                     application_name: defaultApplication.application_name
                 }
@@ -211,7 +231,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -461,7 +481,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -488,6 +508,20 @@ describe('Routes: Application', () => {
             })
         })
 
+        context('when the application_name is invalid', () => {
+            it('should return status code 400 and info message from invalid application_name', () => {
+                return request
+                    .patch(`/v1/applications/${defaultApplication.id}`)
+                    .send({ application_name: ''})
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Application name field is invalid...')
+                        expect(err.body.description).to.eql('Application name must be at least one character.')
+                    })
+            })
+        })
+
         context('when the application_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
@@ -496,7 +530,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.APPLICATION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })

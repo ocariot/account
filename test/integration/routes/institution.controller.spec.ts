@@ -134,6 +134,50 @@ describe('Routes: Institution', () => {
                     })
             })
         })
+
+        context('when a validation error occurs (institution name is invalid)', () => {
+            it('should return status code 400 and info message from invalid name', () => {
+                const body = {
+                    type: defaultInstitution.type,
+                    name: '',
+                    address: defaultInstitution.address,
+                    latitude: defaultInstitution.latitude,
+                    longitude: defaultInstitution.longitude
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Institution name field is invalid...')
+                        expect(err.body.description).to.eql('Institution name must be at least one character.')
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution type is invalid)', () => {
+            it('should return status code 400 and info message from invalid type', () => {
+                const body = {
+                    type: '',
+                    name: defaultInstitution.name,
+                    address: defaultInstitution.address,
+                    latitude: defaultInstitution.latitude,
+                    longitude: defaultInstitution.longitude
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Institution type field is invalid...')
+                        expect(err.body.description).to.eql('Institution type must be at least one character.')
+                    })
+            })
+        })
     })
 
     describe('GET /v1/institutions/:institution_id', () => {
@@ -304,6 +348,34 @@ describe('Routes: Institution', () => {
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+
+        context('when the institution name is invalid', () => {
+            it('should return status code 400 and info message from invalid name', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ name: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Institution name field is invalid...')
+                        expect(err.body.description).to.eql('Institution name must be at least one character.')
+                    })
+            })
+        })
+
+        context('when the institution type is invalid', () => {
+            it('should return status code 400 and info message from invalid type', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ type: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Institution type field is invalid...')
+                        expect(err.body.description).to.eql('Institution type must be at least one character.')
                     })
             })
         })

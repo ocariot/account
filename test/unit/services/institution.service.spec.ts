@@ -76,8 +76,8 @@ describe('Services: Institution', () => {
 
         context('when the Institution is incorrect (missing fields)', () => {
             it('should throw a ValidationException', () => {
-                incorrectInstitution.name = ''      // Make mock throw an exception
-                incorrectInstitution.type = ''
+                incorrectInstitution.name = undefined      // Make mock throw an exception
+                incorrectInstitution.type = undefined
 
                 return institutionService.add(incorrectInstitution)
                     .catch(err => {

@@ -124,7 +124,7 @@ describe('Services: Child', () => {
 
                 return childService.add(child)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -146,6 +146,9 @@ describe('Services: Child', () => {
         })
 
         context('when the Child is incorrect (the age is invalid)', () => {
+            after(() => {
+                child.age = 9
+            })
             it('should throw a ValidationException', () => {
                 child.gender = Gender.MALE
                 child.age = -1
@@ -154,7 +157,7 @@ describe('Services: Child', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'Age field is invalid...')
                         assert.propertyVal(err, 'description',
-                            'Child validation: The age parameter can only contain a value greater than zero.')
+                            'Child validation: The age parameter can only contain a value greater than zero!')
                     })
             })
         })
@@ -280,7 +283,7 @@ describe('Services: Child', () => {
 
                 return childService.update(incorrectChild)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -294,7 +297,7 @@ describe('Services: Child', () => {
 
                 return childService.update(incorrectChild)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })

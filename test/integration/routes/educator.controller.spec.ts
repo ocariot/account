@@ -185,7 +185,7 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -474,7 +474,7 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -502,7 +502,7 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -656,6 +656,55 @@ describe('Routes: Educator', () => {
             })
         })
 
+        context('when the ChildrenGroup name is invalid', () => {
+            let resultEducator
+            let resultChild
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultEducator = await createUser({
+                        username: defaultEducator.username,
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Educator test: ' + err.message)
+                }
+            })
+            it('should return status code 400 and info message from invalid ChildrenGroup name', () => {
+                const body = {
+                    name: '',
+                    children: new Array<string | undefined>(resultChild.id),
+                    school_class: '3th Grade'
+                }
+
+                return request
+                    .post(`/v1/educators/${resultEducator.id}/children/groups`)
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('ChildrenGroup name field is invalid...')
+                        expect(err.body.description).to.eql('ChildrenGroup name must be at least one character.')
+                    })
+            })
+        })
+
         context('when the children id (ids) is (are) invalid', () => {
             let result
 
@@ -675,10 +724,10 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid ID', () => {
+            it('should return status code 400 and info message from invalid IDs', () => {
                 const body = {
                     name: 'Children Group One',
-                    children: new Array<string | undefined>('123'),
+                    children: new Array<string | undefined>('123', '123a'),
                     school_class: '3th Grade'
                 }
 
@@ -688,9 +737,9 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: Collection with children IDs ' +
-                            '(ID can not be empty) is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        expect(err.body.description).to.eql('Children Group validation: ' +
+                            'Invalid children attribute. The following set of IDs is not in valid format: 123, 123a')
                     })
             })
         })
@@ -714,7 +763,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid ID', () => {
+            it('should return status code 400 and info message from invalid IDs', () => {
                 const body = {
                     name: 'Children Group Two',
                     children: new Array<string | undefined>('507f1f77bcf86cd799439011'),
@@ -1005,6 +1054,57 @@ describe('Routes: Educator', () => {
             })
         })
 
+        context('when the children group was updated with an invalid name', () => {
+            let resultEducator
+            let resultChild
+            let resultChildrenGroup
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultEducator = await createUser({
+                        username: defaultEducator.username,
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultEducator.id
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Educator test: ' + err.message)
+                }
+            })
+            it('should return status code 400 and info message from invalid name', () => {
+                return request
+                    .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
+                    .send({ name: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('ChildrenGroup name field is invalid...')
+                        expect(err.body.description).to.eql('ChildrenGroup name must be at least one character.')
+                    })
+            })
+        })
+
         context('when the children group was updated with an invalid child id', () => {
             let resultEducator
             let resultChild
@@ -1043,16 +1143,16 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid id', () => {
+            it('should return status code 400 and info message from invalid ids', () => {
                 return request
                     .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
-                    .send({ children: new Array<string>('123') })
+                    .send({ children: new Array<string>('123', '123a') })
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: Collection with children IDs ' +
-                            '(ID can not be empty) is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        expect(err.body.description).to.eql('Children Group validation: ' +
+                            'Invalid children attribute. The following set of IDs is not in valid format: 123, 123a')
                     })
             })
         })

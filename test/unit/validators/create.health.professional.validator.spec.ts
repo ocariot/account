@@ -18,7 +18,7 @@ describe('Validators: HealthProfessional', () => {
 
     context('when the health professional was incomplete', () => {
         it('should throw an error for does not pass username', () => {
-            healthProfessional.username = ''
+            healthProfessional.username = undefined
 
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)

@@ -13,10 +13,10 @@ import { Educator } from '../domain/model/educator'
 import { CreateEducatorValidator } from '../domain/validator/create.educator.validator'
 import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
-import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { UpdateEducatorValidator } from '../domain/validator/update.educator.validator'
 
 /**
  * Implementing educator Service.
@@ -82,7 +82,7 @@ export class EducatorService implements IEducatorService {
     public async update(educator: Educator): Promise<Educator> {
         try {
             // 1. Validate Educator parameters.
-            UpdateUserValidator.validate(educator)
+            UpdateEducatorValidator.validate(educator)
 
             // 1.5 Ignore last_login attributes if exists.
             if (educator.last_login) educator.last_login = undefined

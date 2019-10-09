@@ -15,7 +15,7 @@ describe('Validators: Institution', () => {
 
     context('when the institution was incomplete', () => {
         it('should throw an error for does not pass name', () => {
-            institution.name = ''
+            institution.name = undefined
 
             try {
                 CreateInstitutionValidator.validate(institution)
@@ -27,7 +27,7 @@ describe('Validators: Institution', () => {
 
         it('should throw an error for does not pass type', () => {
             institution.name = 'institution'
-            institution.type = ''
+            institution.type = undefined
 
             try {
                 CreateInstitutionValidator.validate(institution)
@@ -38,7 +38,7 @@ describe('Validators: Institution', () => {
         })
 
         it('should throw an error for does not pass any of required parameters', () => {
-            institution.name = ''
+            institution.name = undefined
 
             try {
                 CreateInstitutionValidator.validate(institution)

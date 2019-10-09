@@ -17,7 +17,7 @@ describe('Validators: Application', () => {
 
     context('when the application was incomplete', () => {
         it('should throw an error for does not pass username', () => {
-            app.username = ''
+            app.username = undefined
 
             try {
                 CreateApplicationValidator.validate(app)
@@ -53,7 +53,7 @@ describe('Validators: Application', () => {
 
         it('should throw an error for does not pass application name', () => {
             app.type = UserTypeMock.APPLICATION
-            app.application_name = ''
+            app.application_name = undefined
 
             try {
                 CreateApplicationValidator.validate(app)
@@ -65,14 +65,13 @@ describe('Validators: Application', () => {
 
         it('should trow an error for does not pass any of required parameters', () => {
             const emptyApp: Application = new Application()
-            emptyApp.type = ''
 
             try {
                 CreateApplicationValidator.validate(emptyApp)
             } catch (err) {
                 assert.equal(err.message, 'Required fields were not provided...')
                 assert.equal(err.description, 'Application validation: username, ' +
-                    'password, type, application_name is required!')
+                    'password, application_name is required!')
             }
         })
     })

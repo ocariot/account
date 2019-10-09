@@ -233,7 +233,6 @@ describe('Routes: Child', () => {
 
         context('when the institution id provided was invalid', () => {
             it('should return status code 400 and message for invalid institution id', () => {
-
                 const body = {
                     username: 'anotherusername',
                     password: defaultChild.password,
@@ -248,15 +247,36 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
 
-        context('when the gender provided was invalid', () => {
-            it('should return status code 400 and message for invalid gender', () => {
+        context('when the name provided is invalid', () => {
+            it('should return status code 400 and message for invalid name', () => {
+                const body = {
+                    username: '',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id
+                }
 
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Username field is invalid...')
+                        expect(err.body.description).to.eql('Username must be at least one character.')
+                    })
+            })
+        })
+
+        context('when the gender provided is invalid', () => {
+            it('should return status code 400 and message for invalid gender', () => {
                 const body = {
                     username: 'anotherusername',
                     password: defaultChild.password,
@@ -277,8 +297,32 @@ describe('Routes: Child', () => {
             })
         })
 
-        context('when the age provided was invalid', () => {
-            it('should return status code 400 and message for invalid gender', () => {
+        context('when the age provided is invalid', () => {
+            it('should return status code 400 and message for invalid age', () => {
+
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: `${defaultChild.age}a`,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Age field is invalid...')
+                        expect(err.body.description).to.eql(
+                            'Child validation: The value provided is not a valid number!')
+                    })
+            })
+        })
+
+        context('when the age provided is negative', () => {
+            it('should return status code 400 and message for invalid age', () => {
 
                 const body = {
                     username: 'anotherusername',
@@ -296,7 +340,7 @@ describe('Routes: Child', () => {
                     .then(err => {
                         expect(err.body.message).to.eql('Age field is invalid...')
                         expect(err.body.description).to.eql(
-                            'Child validation: The age parameter can only contain a value greater than zero.')
+                            'Child validation: The age parameter can only contain a value greater than zero!')
                     })
             })
         })
@@ -562,7 +606,7 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -597,8 +641,81 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+
+        context('when the username is invalid', () => {
+            it('should return status code 400 and info message from invalid username', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ username: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Username field is invalid...')
+                        expect(err.body.description).to.eql('Username must be at least one character.')
+                    })
+            })
+        })
+
+        context('when the gender is invalid', () => {
+            it('should return status code 400 and info message from invalid age', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ gender: 'invalidGender' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('The gender provided "invalidGender" is not supported...')
+                        expect(err.body.description).to.eql('The names of the allowed genders are: male, female.')
+                    })
+            })
+        })
+
+        context('when the age is negative', () => {
+            it('should return status code 400 and info message from invalid age', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ age: -1 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Age field is invalid...')
+                        expect(err.body.description).to.eql('Child validation: ' +
+                            'The age parameter can only contain a value greater than zero!')
+                    })
+            })
+        })
+
+        context('when the age is invalid', () => {
+            it('should return status code 400 and info message from invalid age', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ age: `${defaultChild.age}a` })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Age field is invalid...')
+                        expect(err.body.description).to.eql('Child validation: ' +
+                            'The value provided is not a valid number!')
+                    })
+            })
+        })
+
+        context('when the age is negative', () => {
+            it('should return status code 400 and info message from invalid age', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ age: -1 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Age field is invalid...')
+                        expect(err.body.description).to.eql('Child validation: ' +
+                            'The age parameter can only contain a value greater than zero!')
                     })
             })
         })

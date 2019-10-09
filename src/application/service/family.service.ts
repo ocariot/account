@@ -13,9 +13,9 @@ import { IChildRepository } from '../port/child.repository.interface'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { Strings } from '../../utils/strings'
 import { UserType } from '../domain/model/user'
-import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { UpdateFamilyValidator } from '../domain/validator/update.family.validator'
 
 /**
  * Implementing family Service.
@@ -92,7 +92,7 @@ export class FamilyService implements IFamilyService {
     public async update(family: Family): Promise<Family> {
         try {
             // 1. Validate Family parameters.
-            UpdateUserValidator.validate(family)
+            UpdateFamilyValidator.validate(family)
 
             // 1.5 Ignore last_login attributes if exists.
             if (family.last_login) family.last_login = undefined

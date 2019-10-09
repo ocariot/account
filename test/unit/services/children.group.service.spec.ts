@@ -127,8 +127,10 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
-                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        assert.propertyVal(err, 'description', 'Children Group validation: ' +
+                            'Invalid children attribute. ' +
+                            'The following set of IDs is not in valid format: 507f1f77bcf86cd7994390111')
                     })
             })
         })
@@ -264,8 +266,10 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.update(incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
-                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        assert.propertyVal(err, 'description',
+                            'Children Group validation: Invalid children attribute. ' +
+                            'The following set of IDs is not in valid format: 507f1f77bcf86cd7994390111')
                     })
             })
         })
