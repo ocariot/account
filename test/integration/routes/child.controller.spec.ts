@@ -804,7 +804,7 @@ describe('Routes: Child', () => {
                     })
 
                     await createUser({
-                        username: 'BR0003',
+                        username: 'br0003',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
@@ -880,7 +880,7 @@ describe('Routes: Child', () => {
                     .then(res => {
                         expect(res.body.length).to.eql(2)
                         // Tests if the ordination was applied correctly
-                        expect(res.body[0].username).to.eql('BR0003')
+                        expect(res.body[0].username).to.eql('br0003')
                         expect(res.body[1].username).to.eql('BR0002')
                         for (const child of res.body) {
                             expect(child).to.have.property('id')
