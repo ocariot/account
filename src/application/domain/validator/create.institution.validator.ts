@@ -9,12 +9,12 @@ export class CreateInstitutionValidator {
         if (institution.name === undefined) fields.push('name')
         else if (institution.name.length === 0) {
             throw new ValidationException('Institution name field is invalid...',
-                'Institution name must be at least one character.')
+                'Institution name must have at least one character.')
         }
         if (institution.type === undefined) fields.push('type')
         else if (institution.type.length === 0) {
             throw new ValidationException('Institution type field is invalid...',
-                'Institution type must be at least one character.')
+                'Institution type must have at least one character.')
         }
 
         if (fields.length > 0) {

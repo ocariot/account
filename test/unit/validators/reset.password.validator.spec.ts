@@ -12,7 +12,7 @@ describe('Validators: UpdatePassword', () => {
     context('when does not pass new password', () => {
         it('should throw an error for does not pass old password', () => {
             try {
-                ResetPasswordValidator.validate('')
+                ResetPasswordValidator.validate(undefined!)
             } catch (err) {
                 assert.equal(err.message, 'Required field not provided...')
                 assert.equal(err.description, 'Reset password validation failed: new_password is required!')

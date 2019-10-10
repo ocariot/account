@@ -270,7 +270,7 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Username field is invalid...')
-                        expect(err.body.description).to.eql('Username must be at least one character.')
+                        expect(err.body.description).to.eql('Username must have at least one character.')
                     })
             })
         })
@@ -560,7 +560,7 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Child is already registered!')
+                        expect(err.body.message).to.eql(Strings.CHILD.ALREADY_REGISTERED)
                     })
             })
         })
@@ -656,7 +656,7 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Username field is invalid...')
-                        expect(err.body.description).to.eql('Username must be at least one character.')
+                        expect(err.body.description).to.eql('Username must have at least one character.')
                     })
             })
         })

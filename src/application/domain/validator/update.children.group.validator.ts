@@ -8,9 +8,10 @@ export class UpdateChildrenGroupValidator {
         const fields: Array<string> = []
         const invalid_ids: Array<string> = []
 
+        if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
         if (childrenGroup.name !== undefined && childrenGroup.name.length === 0) {
             throw new ValidationException('ChildrenGroup name field is invalid...',
-                'ChildrenGroup name must be at least one character.')
+                'ChildrenGroup name must have at least one character.')
         }
         if (childrenGroup.children && childrenGroup.children.length > 0) {
             childrenGroup.children.forEach(child => {

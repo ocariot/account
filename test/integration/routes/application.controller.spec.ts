@@ -171,7 +171,7 @@ describe('Routes: Application', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Application name field is invalid...')
-                        expect(err.body.description).to.eql('Application name must be at least one character.')
+                        expect(err.body.description).to.eql('Application name must have at least one character.')
                     })
             })
         })
@@ -435,7 +435,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Application is already registered!')
+                        expect(err.body.message).to.eql(Strings.APPLICATION.ALREADY_REGISTERED)
                     })
             })
         })
@@ -517,7 +517,7 @@ describe('Routes: Application', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Application name field is invalid...')
-                        expect(err.body.description).to.eql('Application name must be at least one character.')
+                        expect(err.body.description).to.eql('Application name must have at least one character.')
                     })
             })
         })

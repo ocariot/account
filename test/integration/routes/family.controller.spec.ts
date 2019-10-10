@@ -141,7 +141,7 @@ describe('Routes: Family', () => {
                     .then(err => {
                         expect(err.body.code).to.eql(400)
                         expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(otherChild.id))
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(otherChild.id))
                     })
             })
         })
@@ -570,7 +570,7 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Family is already registered!')
+                        expect(err.body.message).to.eql(Strings.FAMILY.ALREADY_REGISTERED)
                     })
             })
         })
@@ -690,6 +690,50 @@ describe('Routes: Family', () => {
                         expect(err.body.message).to.eql('Required fields were not provided...')
                         expect(err.body.description).to.eql('Family validation: ' +
                             'Collection with children IDs (ID can not be empty) is required!')
+                    })
+            })
+        })
+
+        context('when the family was updated with a not existent child id', () => {
+            let resultChild
+            let resultFamily
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
+            it('should return status code 400 and info message from invalid ids)', () => {
+                return request
+                    .patch(`/v1/families/${resultFamily.id}`)
+                    .send({ children: new Array<string>('5a62be07de34500146d9c544') })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER
+                            .concat('5a62be07de34500146d9c544'))
                     })
             })
         })

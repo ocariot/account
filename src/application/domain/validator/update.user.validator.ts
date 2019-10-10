@@ -14,7 +14,7 @@ export class UpdateUserValidator {
         }
         if (user.username !== undefined && user.username.length === 0) {
             throw new ValidationException('Username field is invalid...',
-                'Username must be at least one character.')
+                'Username must have at least one character.')
         }
         if (user.institution && user.institution.id) {
             try {

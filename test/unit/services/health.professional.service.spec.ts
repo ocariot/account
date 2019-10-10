@@ -412,7 +412,7 @@ describe('Services: HealthProfessional', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
                         assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
-                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
+                            .concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -675,7 +675,7 @@ describe('Services: HealthProfessional', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
                         assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
-                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
+                            .concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })

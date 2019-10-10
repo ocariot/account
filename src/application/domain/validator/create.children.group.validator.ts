@@ -12,7 +12,7 @@ export class CreateChildrenGroupValidator {
         if (childrenGroup.name === undefined) fields.push('name')
         else if (childrenGroup.name.length === 0) {
             throw new ValidationException('ChildrenGroup name field is invalid...',
-                'ChildrenGroup name must be at least one character.')
+                'ChildrenGroup name must have at least one character.')
         }
         if (!childrenGroup.user || !childrenGroup.user.id) fields.push('user')
         else ObjectIdValidator.validate(childrenGroup.user.id)

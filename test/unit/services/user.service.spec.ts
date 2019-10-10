@@ -120,7 +120,7 @@ describe('Services: User', () => {
         context('when the "oldPassword" and "newPassword" parameters are missing', () => {
             it('should throw a ValidationException', () => {
                 user.id = '507f1f77bcf86cd799439011'
-                return userService.changePassword(user.id!, '', '')
+                return userService.changePassword(user.id!, undefined!, undefined!)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'Required fields were not provided...')
                         assert.propertyVal(err, 'description', 'Change password validation failed: old_password, ' +
@@ -157,7 +157,7 @@ describe('Services: User', () => {
         context('when the "oldPassword" and "newPassword" parameters are missing', () => {
             it('should throw a ValidationException', () => {
                 user.id = '507f1f77bcf86cd799439011'
-                return userService.resetPassword(user.id!, '')
+                return userService.resetPassword(user.id!, undefined!)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'Required field not provided...')
                         assert.propertyVal(err, 'description', 'Reset password validation failed: ' +

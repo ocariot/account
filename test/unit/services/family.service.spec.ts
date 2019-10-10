@@ -100,7 +100,7 @@ describe('Services: Family', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
                         assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
-                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
+                            .concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -322,7 +322,7 @@ describe('Services: Family', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
                         assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
-                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
+                            .concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })

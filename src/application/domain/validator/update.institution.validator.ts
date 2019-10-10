@@ -8,11 +8,11 @@ export class UpdateInstitutionValidator {
         if (institution.id) ObjectIdValidator.validate(institution.id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
         if (institution.name !== undefined && institution.name.length === 0) {
             throw new ValidationException('Institution name field is invalid...',
-                'Institution name must be at least one character.')
+                'Institution name must have at least one character.')
         }
         if (institution.type !== undefined && institution.type.length === 0) {
             throw new ValidationException('Institution type field is invalid...',
-                'Institution type must be at least one character.')
+                'Institution type must have at least one character.')
         }
     }
 }

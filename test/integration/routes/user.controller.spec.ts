@@ -82,7 +82,7 @@ describe('Routes: User', () => {
             })
         })
 
-        context('when there are validation errors', () => {
+        context('when there are validation errors (missing parameters)', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
                     .put(`/v1/users/${defaultUser.id}/password`)
@@ -93,6 +93,34 @@ describe('Routes: User', () => {
                         expect(err.body.message).to.eql('Required fields were not provided...')
                         expect(err.body.description).to.eql('Change password validation failed: old_password, ' +
                             'new_password is required!')
+                    })
+            })
+        })
+
+        context('when there are validation errors (old_password is invalid)', () => {
+            it('should return status code 400 and info message from invalid old_password', () => {
+                return request
+                    .put(`/v1/users/${defaultUser.id}/password`)
+                    .send({ old_password: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Old password field is invalid...')
+                        expect(err.body.description).to.eql('The old password must have at least one character.')
+                    })
+            })
+        })
+
+        context('when there are validation errors (new_password is invalid)', () => {
+            it('should return status code 400 and info message from invalid new_password', () => {
+                return request
+                    .put(`/v1/users/${defaultUser.id}/password`)
+                    .send({ new_password: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('New password field is invalid...')
+                        expect(err.body.description).to.eql('The new password must have at least one character.')
                     })
             })
         })
@@ -154,7 +182,7 @@ describe('Routes: User', () => {
             })
         })
 
-        context('when there are validation errors', () => {
+        context('when there are validation errors (missing parameters)', () => {
             it('should return status code 400 and info message from invalid or missing parameters', () => {
                 return request
                     .post(`/v1/users/${defaultUser.id}/reset-password`)
@@ -165,6 +193,20 @@ describe('Routes: User', () => {
                         expect(err.body.message).to.eql('Required field not provided...')
                         expect(err.body.description).to.eql('Reset password validation failed: ' +
                             'new_password is required!')
+                    })
+            })
+        })
+
+        context('when there are validation errors (new_password is invalid)', () => {
+            it('should return status code 400 and info message from invalid new_password', () => {
+                return request
+                    .post(`/v1/users/${defaultUser.id}/reset-password`)
+                    .send({ new_password: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('New password field is invalid...')
+                        expect(err.body.description).to.eql('The new password must have at least one character.')
                     })
             })
         })

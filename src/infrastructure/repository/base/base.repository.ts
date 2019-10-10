@@ -198,14 +198,14 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
     }
 
     private compareAsc(previous: any, next: any): number {
-        if (previous.username > next.username) return 1
-        if (previous.username < next.username) return -1
+        if (previous.username.toLowerCase() > next.username.toLowerCase()) return 1
+        if (previous.username.toLowerCase() < next.username.toLowerCase()) return -1
         return 0
     }
 
     private compareDesc(previous: any, next: any): number {
-        if (previous.username > next.username) return -1
-        if (previous.username < next.username) return 1
+        if (previous.username.toLowerCase() > next.username.toLowerCase()) return -1
+        if (previous.username.toLowerCase() < next.username.toLowerCase()) return 1
         return 0
     }
 

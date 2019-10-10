@@ -6,7 +6,11 @@ export class ResetPasswordValidator {
         const fields: Array<string> = []
 
         // validate null
-        if (!new_password) fields.push('new_password')
+        if (new_password === undefined) fields.push('new_password')
+        else if (new_password.length === 0) {
+            throw new ValidationException('New password field is invalid...',
+                'The new password must have at least one character.')
+        }
 
         if (fields.length > 0) {
             throw new ValidationException('Required field not provided...',

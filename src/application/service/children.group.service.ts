@@ -42,7 +42,7 @@ export class ChildrenGroupService implements IChildrenGroupService {
                 if (checkChildrenExist instanceof ValidationException) {
                     throw new ValidationException(
                         Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
+                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(checkChildrenExist.message)
                     )
                 }
             }
@@ -84,7 +84,7 @@ export class ChildrenGroupService implements IChildrenGroupService {
                 if (checkChildrenExist instanceof ValidationException) {
                     throw new ValidationException(
                         Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
+                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(checkChildrenExist.message)
                     )
                 }
             }

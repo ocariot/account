@@ -6,8 +6,17 @@ export class UpdatePasswordValidator {
         const fields: Array<string> = []
 
         // validate null
-        if (!old_password) fields.push('old_password')
-        if (!new_password) fields.push('new_password')
+        if (old_password === undefined) fields.push('old_password')
+        else if (old_password.length === 0) {
+            throw new ValidationException('Old password field is invalid...',
+                'The old password must have at least one character.')
+        }
+
+        if (new_password === undefined) fields.push('new_password')
+        else if (new_password.length === 0) {
+            throw new ValidationException('New password field is invalid...',
+                'The new password must have at least one character.')
+        }
 
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',

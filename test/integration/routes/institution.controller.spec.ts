@@ -152,7 +152,7 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Institution name field is invalid...')
-                        expect(err.body.description).to.eql('Institution name must be at least one character.')
+                        expect(err.body.description).to.eql('Institution name must have at least one character.')
                     })
             })
         })
@@ -174,7 +174,7 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Institution type field is invalid...')
-                        expect(err.body.description).to.eql('Institution type must be at least one character.')
+                        expect(err.body.description).to.eql('Institution type must have at least one character.')
                     })
             })
         })
@@ -361,7 +361,7 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Institution name field is invalid...')
-                        expect(err.body.description).to.eql('Institution name must be at least one character.')
+                        expect(err.body.description).to.eql('Institution name must have at least one character.')
                     })
             })
         })
@@ -375,7 +375,7 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Institution type field is invalid...')
-                        expect(err.body.description).to.eql('Institution type must be at least one character.')
+                        expect(err.body.description).to.eql('Institution type must have at least one character.')
                     })
             })
         })

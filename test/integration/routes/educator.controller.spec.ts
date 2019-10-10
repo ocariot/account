@@ -428,7 +428,7 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Educator is already registered!')
+                        expect(err.body.message).to.eql(Strings.EDUCATOR.ALREADY_REGISTERED)
                     })
             })
         })
@@ -700,7 +700,7 @@ describe('Routes: Educator', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('ChildrenGroup name field is invalid...')
-                        expect(err.body.description).to.eql('ChildrenGroup name must be at least one character.')
+                        expect(err.body.description).to.eql('ChildrenGroup name must have at least one character.')
                     })
             })
         })
@@ -777,7 +777,7 @@ describe('Routes: Educator', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ')
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER
                             .concat('507f1f77bcf86cd799439011'))
                     })
             })
@@ -997,7 +997,7 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Children Group is already registered!')
+                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.ALREADY_REGISTERED)
                     })
             })
         })
@@ -1048,7 +1048,7 @@ describe('Routes: Educator', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ')
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER
                             .concat('507f1f77bcf86cd799439011'))
                     })
             })
@@ -1100,7 +1100,7 @@ describe('Routes: Educator', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('ChildrenGroup name field is invalid...')
-                        expect(err.body.description).to.eql('ChildrenGroup name must be at least one character.')
+                        expect(err.body.description).to.eql('ChildrenGroup name must have at least one character.')
                     })
             })
         })

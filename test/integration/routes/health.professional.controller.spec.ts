@@ -430,7 +430,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Health Professional is already registered!')
+                        expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.ALREADY_REGISTERED)
                     })
             })
         })
@@ -730,7 +730,7 @@ describe('Routes: HealthProfessional', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ')
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER
                             .concat('507f1f77bcf86cd799439011'))
                     })
             })
@@ -961,7 +961,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Children Group is already registered!')
+                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.ALREADY_REGISTERED)
                     })
             })
         })
@@ -1015,7 +1015,7 @@ describe('Routes: HealthProfessional', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ')
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER
                             .concat('507f1f77bcf86cd799439011'))
                     })
             })

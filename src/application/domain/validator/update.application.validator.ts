@@ -20,7 +20,7 @@ export class UpdateApplicationValidator {
 
         if (application.application_name !== undefined && application.application_name.length === 0) {
             throw new ValidationException('Application name field is invalid...',
-                'Application name must be at least one character.')
+                'Application name must have at least one character.')
         }
     }
 }

@@ -16,7 +16,7 @@ export class CreateApplicationValidator {
         if (application.application_name === undefined) fields.push('application_name')
         else if (application.application_name.length === 0) {
             throw new ValidationException('Application name field is invalid...',
-                'Application name must be at least one character.')
+                'Application name must have at least one character.')
         }
         if (fields.length > 0) {
             throw new ValidationException('Required fields were not provided...',
