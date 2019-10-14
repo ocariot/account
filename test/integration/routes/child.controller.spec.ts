@@ -894,7 +894,7 @@ describe('Routes: Child', () => {
 
             it('should return the result as required in query (query the child that has username exactly the same as the ' +
                 'given string)', () => {
-                const url = '/v1/children?username=BR0003&sort=username&page=1&limit=2'
+                const url = '/v1/children?username=br0003&sort=username&page=1&limit=2'
                 return request
                     .get(url)
                     .set('Content-Type', 'application/json')
@@ -902,7 +902,7 @@ describe('Routes: Child', () => {
                     .then(res => {
                         expect(res.body.length).to.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0].username).to.eql('BR0003')
+                        expect(res.body[0].username).to.eql('br0003')
                         expect(res.body[0].institution_id).to.eql(institution.id)
                         expect(res.body[0].gender).to.eql(defaultChild.gender)
                         expect(res.body[0].age).to.eql(defaultChild.age)
