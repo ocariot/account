@@ -546,7 +546,7 @@ describe('Routes: Application', () => {
                     await createUser({
                         username: 'APP0002',
                         password: 'mysecretkey',
-                        application_name: 'Scale',
+                        application_name: 'Default_application',
                         institution: new ObjectID(institution.id),
                         type: UserType.APPLICATION
                     })
@@ -554,37 +554,38 @@ describe('Routes: Application', () => {
                     await createUser({
                         username: 'APP0003',
                         password: 'mysecretkey',
-                        application_name: 'Raspberry Pi 4',
+                        application_name: 'another_application',
                         institution: new ObjectID(institution.id),
                         type: UserType.APPLICATION
                     })
 
-                    await createUser({
-                        username: 'APP0004',
-                        password: 'mysecretkey',
-                        application_name: 'Raspberry Pi 2',
-                        institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION
-                    })
-
-                    await createUser({
-                        username: 'APP0001',
-                        password: 'mysecretkey',
-                        application_name: 'Raspberry Pi 3 b+',
-                        institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION
-                    })
+                    // await createUser({
+                    //     username: 'APP0004',
+                    //     password: 'mysecretkey',
+                    //     application_name: 'Raspberry Pi 2',
+                    //     institution: new ObjectID(institution.id),
+                    //     type: UserType.APPLICATION
+                    // })
+                    //
+                    // await createUser({
+                    //     username: 'APP0001',
+                    //     password: 'mysecretkey',
+                    //     application_name: 'Raspberry Pi 3 b+',
+                    //     institution: new ObjectID(institution.id),
+                    //     type: UserType.APPLICATION
+                    // })
                 } catch (err) {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
             })
             it('should return status code 200 and a list of applications', () => {
                 return request
-                    .get('/v1/applications')
+                    .get('/v1/applications?sort=application_name')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.length).to.eql(4)
+                        console.log(res.body)
+                        expect(res.body.length).to.eql(2)
                         for (const application of res.body) {
                             expect(application).to.have.property('id')
                             expect(application).to.have.property('username')

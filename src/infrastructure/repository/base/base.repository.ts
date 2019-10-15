@@ -46,6 +46,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         const q: any = query.toJSON()
         return new Promise<Array<T>>((resolve, reject) => {
             this.Model.find(q.filters)
+                .collation({ locale: 'en', caseLevel: true, numericOrdering: true, strength: 2 })
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -177,6 +178,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
     private findPopulate(q: any, populate?: any): Promise<Array<T>> {
         return new Promise<Array<T>>((resolve, reject) => {
             this.Model.find(q.filters)
+                .collation({ locale: 'en', caseLevel: true, numericOrdering: true, strength: 2 })
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
