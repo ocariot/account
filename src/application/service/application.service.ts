@@ -10,7 +10,6 @@ import { IApplicationRepository } from '../port/application.repository.interface
 import { Application } from '../domain/model/application'
 import { CreateApplicationValidator } from '../domain/validator/create.application.validator'
 import { Strings } from '../../utils/strings'
-import { UserType } from '../domain/model/user'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 import { UpdateApplicationValidator } from '../domain/validator/update.application.validator'
@@ -71,7 +70,6 @@ export class ApplicationService implements IApplicationService {
         ObjectIdValidator.validate(id, Strings.APPLICATION.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a application.
-        query.addFilter({ _id: id, type: UserType.APPLICATION })
         return this._applicationRepository.findOne(query)
     }
 

@@ -6,7 +6,6 @@ import { ConflictException } from '../domain/exception/conflict.exception'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
 import { Strings } from '../../utils/strings'
-import { UserType } from '../domain/model/user'
 import { IEducatorService } from '../port/educator.service.interface'
 import { IEducatorRepository } from '../port/educator.repository.interface'
 import { Educator } from '../domain/model/educator'
@@ -75,7 +74,6 @@ export class EducatorService implements IEducatorService {
         ObjectIdValidator.validate(id, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a educator.
-        query.addFilter({ _id: id, type: UserType.EDUCATOR })
         return this._educatorRepository.findOne(query)
     }
 
@@ -187,7 +185,6 @@ export class EducatorService implements IEducatorService {
             }
 
             // 3. Retrieves children groups by educator id.
-            query.addFilter({ user_id: educatorId })
             return this._childrenGroupService.getAll(query)
         } catch (err) {
             return Promise.reject(err)

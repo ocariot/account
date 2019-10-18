@@ -12,7 +12,6 @@ import { Child } from '../domain/model/child'
 import { IChildRepository } from '../port/child.repository.interface'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { Strings } from '../../utils/strings'
-import { UserType } from '../domain/model/user'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 import { UpdateFamilyValidator } from '../domain/validator/update.family.validator'
@@ -85,7 +84,6 @@ export class FamilyService implements IFamilyService {
         ObjectIdValidator.validate(id, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Find a family.
-        query.addFilter({ _id: id, type: UserType.FAMILY })
         return this._familyRepository.findOne(query)
     }
 
@@ -163,8 +161,6 @@ export class FamilyService implements IFamilyService {
         ObjectIdValidator.validate(familyId, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get all children from family.
-        query.addFilter({ _id: familyId, type: UserType.FAMILY })
-
         try {
             const family: Family = await this._familyRepository.findById(familyId)
             if (!family) return Promise.resolve(undefined)

@@ -6,7 +6,6 @@ import { ConflictException } from '../domain/exception/conflict.exception'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
 import { Strings } from '../../utils/strings'
-import { UserType } from '../domain/model/user'
 import { IHealthProfessionalService } from '../port/health.professional.service.interface'
 import { IHealthProfessionalRepository } from '../port/health.professional.repository.interface'
 import { HealthProfessional } from '../domain/model/health.professional'
@@ -78,7 +77,6 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         ObjectIdValidator.validate(id, Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Find a health professional.
-        query.addFilter({ _id: id, type: UserType.HEALTH_PROFESSIONAL })
         return this._healthProfessionalRepository.findOne(query)
     }
 
@@ -192,7 +190,6 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             }
 
             // 3. Retrieves children groups by health professional id.
-            query.addFilter({ user_id: healthProfessionalId })
             return this._childrenGroupService.getAll(query)
         } catch (err) {
             return Promise.reject(err)

@@ -54,7 +54,6 @@ export class InstitutionService implements IInstitutionService {
         ObjectIdValidator.validate(id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a institution.
-        query.filters = { _id: id }
         return this._institutionRepository.findOne(query)
     }
 

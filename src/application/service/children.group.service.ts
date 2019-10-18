@@ -59,7 +59,6 @@ export class ChildrenGroupService implements IChildrenGroupService {
     }
 
     public async getById(id: string, query: IQuery): Promise<ChildrenGroup> {
-        query.filters = ({ _id: id })
         return this._childrenGroupRepository.findOne(query)
     }
 

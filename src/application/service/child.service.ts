@@ -10,7 +10,6 @@ import { ConflictException } from '../domain/exception/conflict.exception'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
 import { Strings } from '../../utils/strings'
-import { UserType } from '../domain/model/user'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 import { IFamilyRepository } from '../port/family.repository.interface'
@@ -90,7 +89,6 @@ export class ChildService implements IChildService {
         ObjectIdValidator.validate(id, Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a child.
-        query.addFilter({ _id: id, type: UserType.CHILD })
         return this._childRepository.findOne(query)
     }
 

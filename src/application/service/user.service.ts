@@ -62,16 +62,11 @@ export class UserService implements IUserService {
     }
 
     public async getAll(query: IQuery): Promise<Array<User>> {
-        return this._userRepository.find(query)
+        throw Error('Not implemented!')
     }
 
     public async getById(id: string, query: IQuery): Promise<User> {
-        // 1. Validate id.
-        ObjectIdValidator.validate(id, Strings.USER.PARAM_ID_NOT_VALID_FORMAT)
-
-        // 2. Get a user.
-        query.addFilter({ _id: id })
-        return this._userRepository.findOne(query)
+        throw Error('Not implemented!')
     }
 
     public async remove(id: string): Promise<boolean> {

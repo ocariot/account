@@ -38,8 +38,6 @@ import { ApplicationService } from '../../../src/application/service/application
 import { IApplicationRepository } from '../../../src/application/port/application.repository.interface'
 import { ApplicationRepositoryMock } from '../../mocks/application.repository.mock'
 import { Strings } from '../../../src/utils/strings'
-import { IQuery } from '../../../src/application/port/query.interface'
-import { Query } from '../../../src/infrastructure/repository/query/query'
 import { Default } from '../../../src/utils/default'
 
 describe('Services: User', () => {
@@ -162,83 +160,6 @@ describe('Services: User', () => {
                         assert.propertyVal(err, 'message', 'Required field not provided...')
                         assert.propertyVal(err, 'description', 'Reset password validation failed: ' +
                             'new_password is required!')
-                    })
-            })
-        })
-    })
-
-    /**
-     * Method "getAll(query: IQuery)"
-     */
-    describe('getAll(query: IQuery)', () => {
-        context('when there is at least one user object in the database that matches the query filters', () => {
-            it('should return an User array', () => {
-                const query: IQuery = new Query()
-                query.filters = { _id: user.id }
-
-                return userService.getAll(query)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isNotEmpty(result)
-                    })
-            })
-        })
-
-        context('when there is no user object in the database that matches the query filters', () => {
-            it('should return an empty array', () => {
-                user.id = '507f1f77bcf86cd799439012'         // Make mock return an empty array
-                const query: IQuery = new Query()
-                query.filters = { _id: user.id }
-
-                return userService.getAll(query)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isEmpty(result)
-                    })
-            })
-        })
-    })
-
-    /**
-     * Method "getById(id: string, query: IQuery)"
-     */
-    describe('getById(id: string, query: IQuery)', () => {
-        context('when there is an user with the received parameters', () => {
-            it('should return the User that was found', () => {
-                user.id = '507f1f77bcf86cd799439011'         // Make mock return a Family
-                const query: IQuery = new Query()
-                query.filters = { _id: user.id }
-
-                return userService.getById(user.id, query)
-                    .then(result => {
-                        assert(result, 'result must not be undefined')
-                    })
-            })
-        })
-
-        context('when there is no user with the received parameters', () => {
-            it('should return undefined', () => {
-                user.id = '507f1f77bcf86cd799439012'         // Make mock return undefined
-                const query: IQuery = new Query()
-                query.filters = { _id: user.id }
-
-                return userService.getById(user.id, query)
-                    .then(result => {
-                        assert.isUndefined(result)
-                    })
-            })
-        })
-
-        context('when the family id is invalid', () => {
-            it('should throw a ValidationException', () => {
-                incorrectUser.id = '507f1f77bcf86cd7994390113'       // Make mock throw an exception
-                const query: IQuery = new Query()
-                query.filters = { _id: incorrectUser.id }
-
-                return userService.getById(incorrectUser.id, query)
-                    .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.USER.PARAM_ID_NOT_VALID_FORMAT)
-                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
