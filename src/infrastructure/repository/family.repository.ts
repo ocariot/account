@@ -37,7 +37,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                     // Required due to 'populate ()' routine.
                     // If there is no need for 'populate ()', the return will suffice.
                     const query = new Query()
-                    query.filters = result._id
+                    query.filters = { _id: result._id }
                     return resolve(this.findOne(query))
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))

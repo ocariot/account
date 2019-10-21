@@ -6,50 +6,49 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
         close(): Promise<void> {
             return Promise.resolve()
         },
-        getApplications(query: string, callback?: (err: any, applications: any) => void): any {
-
+        getApplications(query: string): Promise<any> {
             return Promise.resolve({})
         },
-        getChildren(query: string, callback?: (err: any, children: any) => void): any {
+        getChildren(query: string): Promise<any> {
             return Promise.resolve({})
         },
-        getEducatorChildrenGroups(educatorId: string, callback?: (err: any, childrenGroups: any) => void): any {
+        getEducatorChildrenGroups(educatorId: string): Promise<any> {
             return Promise.resolve({})
         },
-        getEducators(query: string, callback?: (err: any, educators: any) => void): any {
+        getEducators(query: string): Promise<any> {
             return Promise.resolve({})
         },
-        getEnvironments(query: string, callback?: (err: any, result: any) => void): any {
+        getEnvironments(query: string): Promise<any> {
             return Promise.resolve({})
         },
-        getFamilies(query: string, callback?: (err: any, families: any) => void): any {
+        getFamilies(query: string): Promise<any> {
             return Promise.resolve({})
         },
-        getFamilyChildren(familyId: string, callback?: (err: any, children: any) => void): any {
+        getFamilyChildren(familyId: string): Promise<any> {
             return Promise.resolve({})
         },
-        getHealthProfessionalChildrenGroups(healthProfessionalId: string, callback?: (err: any, childrenGroups: any) => void): any {
+        getHealthProfessionalChildrenGroups(healthProfessionalId: string): Promise<any> {
             return Promise.resolve({})
         },
-        getHealthProfessionals(query: string, callback?: (err: any, healthProfessionals: any) => void): any {
+        getHealthProfessionals(query: string): Promise<any> {
             return Promise.resolve({})
         },
-        getInstitutions(query: string, callback?: (err: any, institutions: any) => void): any {
+        getInstitutions(query: string): Promise<any> {
             return Promise.resolve({})
         },
-        getLogs(child_id: string, query: string, callback?: (err: any, result: any) => void): any {
+        getLogs(childId: string, dateStart: string, dateEnd: string): Promise<any> {
             return Promise.resolve({})
         },
-        getPhysicalActivities(query: string, callback?: (err: any, result: any) => void): any {
+        getPhysicalActivities(query?: string): Promise<any> {
             return Promise.resolve({})
         },
         getResource(name: string, params: any[], callback?: (err: any, result: any) => any): void | Promise<any> {
             return Promise.resolve()
         },
-        getSleep(query: string, callback?: (err: any, result: any) => void): any {
+        getSleep(query: string): Promise<any> {
             return Promise.resolve({})
         },
-        getWeights(query: string, callback?: (err: any, result: any) => void): any {
+        getWeights(query: string): Promise<any> {
             return Promise.resolve({})
         },
         logger(level: string): void {
@@ -91,7 +90,7 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
         provideInstitutions(listener: (query: string) => any): Promise<void> {
             return Promise.resolve()
         },
-        provideLogs(listener: (query: string) => any): Promise<void> {
+        provideLogs(listener: (childId: string, dateStart: string, dateEnd: string) => any): Promise<void> {
             return Promise.resolve()
         },
         providePhysicalActivities(listener: (query: string) => any): Promise<void> {
@@ -258,7 +257,7 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
         },
         subSyncWeight(callback: (message: any) => void): Promise<void> {
             return Promise.resolve()
-        },
+        }
     }
 
     public createConnection(uri: string, options?: IEventBusOptions): Promise<any> {

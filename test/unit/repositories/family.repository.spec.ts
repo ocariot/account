@@ -57,7 +57,7 @@ describe('Repositories: Family', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs(defaultFamily.id)
+                    .withArgs({ _id: defaultFamily.id })
                     .chain('exec')
                     .resolves(defaultFamily)
 

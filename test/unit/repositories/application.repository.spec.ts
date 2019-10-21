@@ -59,7 +59,7 @@ describe('Repositories: Application', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs(defaultApplication.id)
+                    .withArgs({ _id: defaultApplication.id })
                     .chain('exec')
                     .resolves(defaultApplication)
 

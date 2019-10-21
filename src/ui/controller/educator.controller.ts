@@ -181,7 +181,7 @@ export class EducatorController {
     public async getChildrenGroupFromEducatorById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const query: IQuery = new Query().fromJSON(req.query)
-            query.filters = ({ _id: req.params.group_id })
+            query.filters = { _id: req.params.group_id }
             const result: ChildrenGroup | undefined = await this._educatorService
                 .getChildrenGroupById(req.params.educator_id, req.params.group_id, query)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())

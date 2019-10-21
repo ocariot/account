@@ -49,7 +49,7 @@ describe('Repositories: User', () => {
                 sinon
                     .mock(userModelFake)
                     .expects('findOne')
-                    .withArgs(defaultUser.id)
+                    .withArgs({ _id: defaultUser.id })
                     .chain('exec')
                     .resolves(defaultUser)
 

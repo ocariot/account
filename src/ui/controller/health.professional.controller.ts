@@ -186,7 +186,7 @@ export class HealthProfessionalController {
 
         try {
             const query: IQuery = new Query().fromJSON(req.query)
-            query.filters = ({ _id: req.params.group_id })
+            query.filters = { _id: req.params.group_id }
             const result: ChildrenGroup | undefined = await this._healthProfessionalService
                 .getChildrenGroupById(req.params.healthprofessional_id, req.params.group_id, query)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())

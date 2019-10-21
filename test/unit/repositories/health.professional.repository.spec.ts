@@ -58,7 +58,7 @@ describe('Repositories: HealthProfessional', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs(defaultHealthProfessional.id)
+                    .withArgs({ _id: defaultHealthProfessional.id })
                     .chain('exec')
                     .resolves(defaultHealthProfessional)
 
