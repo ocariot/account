@@ -184,8 +184,12 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             // 2. Checks if the health professional exists.
             const healthProfessional: HealthProfessional =
                 await this._healthProfessionalRepository.findById(healthProfessionalId)
-            if (!healthProfessional || healthProfessional.id !== healthProfessionalId
-                || (healthProfessional.children_groups && healthProfessional.children_groups.length === 0)) {
+            if (!healthProfessional || healthProfessional.id !== healthProfessionalId) {
+                throw new ValidationException(
+                    Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
+                    Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION
+                )
+            } else if (healthProfessional.children_groups && healthProfessional.children_groups.length === 0) {
                 return Promise.resolve([])
             }
 
@@ -206,7 +210,12 @@ export class HealthProfessionalService implements IHealthProfessionalService {
 
             // 2. Checks if the health professional exists.
             const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
-            if (!healthProfessional || !healthProfessional.children_groups) return Promise.resolve(undefined)
+            if (!healthProfessional) {
+                throw new ValidationException(
+                    Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
+                    Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION
+                )
+            } else if (!healthProfessional.children_groups) return Promise.resolve(undefined)
 
             // 3. Verifies that the group of children belongs to the health professional.
             const checkGroups: Array<ChildrenGroup> = await healthProfessional.children_groups.filter((obj, pos, arr) => {

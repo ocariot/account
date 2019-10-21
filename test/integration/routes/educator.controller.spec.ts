@@ -850,17 +850,27 @@ describe('Routes: Educator', () => {
         })
 
         context('when the children group is not found', () => {
+            let resultEducator
+
             before(async () => {
                 try {
                     await deleteAllUsers()
                     await deleteAllChildrenGroups()
+
+                    resultEducator = await createUser({
+                        username: defaultEducator.username,
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
             it('should return status code 404 and info message from children group not found', () => {
                 return request
-                    .get(`/v1/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
+                    .get(`/v1/educators/${resultEducator.id}/children/groups/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {

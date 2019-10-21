@@ -806,16 +806,26 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when the children group is not found', () => {
+            let resultHealthProfessional
+
             before(async () => {
                 try {
                     await deleteAllUsers()
                     await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
             it('should return status code 404 and info message from children group not found', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
                     .concat(`children/groups/${new ObjectID()}`)
                 return request
                     .get(url)

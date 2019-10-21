@@ -494,9 +494,9 @@ describe('Services: Educator', () => {
                 query.filters = { _id : educator.id }
 
                 return educatorService.getAllChildrenGroups(educator.id, query)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isEmpty(result)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.EDUCATOR.NOT_FOUND)
+                        assert.propertyVal(err, 'description', Strings.EDUCATOR.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -542,15 +542,16 @@ describe('Services: Educator', () => {
                 query.filters = { _id : educator.children_groups![0].id }
 
                 return educatorService.getChildrenGroupById(educator.id, educator.children_groups![0].id, query)
-                    .then(result => {
-                        assert.isUndefined(result)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.EDUCATOR.NOT_FOUND)
+                        assert.propertyVal(err, 'description', Strings.EDUCATOR.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
 
         context('when the ChildrenGroup does not belong to the Educator', () => {
             it('should return undefined', () => {
-                educator.id = '507f1f77bcf86cd799439012'            // Make mock return undefined
+                educator.id = '507f1f77bcf86cd799439011'
                 educator.children_groups![0].id = '507f1f77bcf86cd799439011'
                 const query: IQuery = new Query()
                 query.filters = { _id : educator.children_groups![0].id }

@@ -179,8 +179,12 @@ export class EducatorService implements IEducatorService {
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
-            if (!educator || educator.id !== educatorId
-                || (educator.children_groups && educator.children_groups.length === 0)) {
+            if (!educator || educator.id !== educatorId) {
+                throw new ValidationException(
+                    Strings.EDUCATOR.NOT_FOUND,
+                    Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
+                )
+            } else if (educator.children_groups && educator.children_groups.length === 0) {
                 return Promise.resolve([])
             }
 
@@ -200,7 +204,12 @@ export class EducatorService implements IEducatorService {
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
-            if (!educator || !educator.children_groups) return Promise.resolve(undefined)
+            if (!educator) {
+                throw new ValidationException(
+                    Strings.EDUCATOR.NOT_FOUND,
+                    Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
+                )
+            } else if (!educator.children_groups) return Promise.resolve(undefined)
 
             // 3. Verifies that the group of children belongs to the educator.
             const checkGroups: Array<ChildrenGroup> = await educator.children_groups.filter((obj, pos, arr) => {

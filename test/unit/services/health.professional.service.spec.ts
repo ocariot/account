@@ -494,9 +494,9 @@ describe('Services: HealthProfessional', () => {
                 query.filters = { _id : healthProfessional.id }
 
                 return healthProfessionalService.getAllChildrenGroups(healthProfessional.id, query)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isEmpty(result)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.HEALTH_PROFESSIONAL.NOT_FOUND)
+                        assert.propertyVal(err, 'description', Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -544,15 +544,16 @@ describe('Services: HealthProfessional', () => {
 
                 return healthProfessionalService.getChildrenGroupById(healthProfessional.id,
                     healthProfessional.children_groups![0].id, query)
-                    .then(result => {
-                        assert.isUndefined(result)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.HEALTH_PROFESSIONAL.NOT_FOUND)
+                        assert.propertyVal(err, 'description', Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
 
         context('when the ChildrenGroup does not belong to the HealthProfessional', () => {
             it('should return undefined', () => {
-                healthProfessional.id = '507f1f77bcf86cd799439012'            // Make mock return undefined
+                healthProfessional.id = '507f1f77bcf86cd799439011'
                 healthProfessional.children_groups![0].id = '507f1f77bcf86cd799439011'
                 const query: IQuery = new Query()
                 query.filters = { _id : healthProfessional.children_groups![0].id }
