@@ -162,7 +162,7 @@ export class FamilyService implements IFamilyService {
 
         // 2. Get all children from family.
         try {
-            const family: Family = await this._familyRepository.findById(familyId)
+            const family: Family = await this._familyRepository.findOne(query)
             if (!family) return Promise.resolve(undefined)
 
             return Promise.resolve(family.children ? family.children : [])

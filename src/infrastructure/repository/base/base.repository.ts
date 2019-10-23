@@ -189,7 +189,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         })
     }
 
-    private applyFilterByUsername(username: any, items: Array<T>): Array<T> {
+    public applyFilterByUsername(username: any, items: any): any {
         let regExpUsername: RegExp
         if (username.$regex) regExpUsername = new RegExp(username.$regex, 'i')
         return items
@@ -199,13 +199,13 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
             })
     }
 
-    private compareAsc(previous: any, next: any): number {
+    public compareAsc(previous: any, next: any): number {
         if (previous.username.toLowerCase() > next.username.toLowerCase()) return 1
         if (previous.username.toLowerCase() < next.username.toLowerCase()) return -1
         return 0
     }
 
-    private compareDesc(previous: any, next: any): number {
+    public compareDesc(previous: any, next: any): number {
         if (previous.username.toLowerCase() > next.username.toLowerCase()) return -1
         if (previous.username.toLowerCase() < next.username.toLowerCase()) return 1
         return 0
