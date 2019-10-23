@@ -1009,7 +1009,7 @@ describe('Routes: Family', () => {
                     await deleteAllUsers()
 
                     resultChild = await createUser({
-                        username: defaultChild.username,
+                        username: 'Default child',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
@@ -1019,7 +1019,7 @@ describe('Routes: Family', () => {
                     })
 
                     resultChild2 = await createUser({
-                        username: 'ihaveauniqueusername',
+                        username: 'another child',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
@@ -1040,9 +1040,9 @@ describe('Routes: Family', () => {
                     throw new Error('Failure on Family test: ' + err.message)
                 }
             })
-            it('should return status code 200 and the family children', () => {
+            it('should return status code 200 and the family children (sorted by username in ascending order)', () => {
                 return request
-                    .get(`/v1/families/${resultFamily.id}/children`)
+                    .get(`/v1/families/${resultFamily.id}/children?sort=username`)
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -1054,6 +1054,43 @@ describe('Routes: Family', () => {
                             expect(child).to.have.property('gender')
                             expect(child).to.have.property('age')
                         }
+                    })
+            })
+
+            it('should return status code 200 and the family children (query a maximum of one children sorted by ' +
+                'username in descending order)', () => {
+                return request
+                    .get(`/v1/families/${resultFamily.id}/children?sort=-username&limit=1`)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).is.eql(1)
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0].username).to.eql('Default child')
+                        expect(res.body[0]).to.have.property('institution_id')
+                        expect(res.body[0].gender).to.eql(defaultChild.gender)
+                        expect(res.body[0].age).to.eql(defaultChild.age)
+                    })
+            })
+
+            it('should return status code 200 and the family children (query a maximum of two children who have a particular ' +
+                'string anywhere in their username, sorted in descending order by this username)', () => {
+                return request
+                    .get(`/v1/families/${resultFamily.id}/children?username=*child*&sort=-username&limit=2`)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).is.eql(2)
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0].username).to.eql('Default child')
+                        expect(res.body[0].institution_id).to.eql(institution.id)
+                        expect(res.body[0].gender).to.eql(defaultChild.gender)
+                        expect(res.body[0].age).to.eql(defaultChild.age)
+                        expect(res.body[1]).to.have.property('id')
+                        expect(res.body[1].username).to.eql('another child')
+                        expect(res.body[1].institution_id).to.eql(institution.id)
+                        expect(res.body[1].gender).to.eql(defaultChild.gender)
+                        expect(res.body[1].age).to.eql(defaultChild.age)
                     })
             })
         })

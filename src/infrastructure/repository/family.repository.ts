@@ -88,9 +88,11 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                         }
 
                         if (children.length > limit) {
-                            result.children = children.slice(0, limit)
+                            children = children.slice(0, limit)
                         }
                     }
+
+                    result.children = children
 
                     return resolve(this.familyMapper.transform(result))
                 })
