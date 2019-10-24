@@ -435,7 +435,7 @@ describe('Repositories: Child', () => {
 
         context('when the parameter is a children array and a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                queryMock.filters = { _id: childWithoutId.id, type: UserType.CHILD }
+                queryMock.filters = { _id: defaultChild.id, type: UserType.CHILD }
 
                 sinon
                     .mock(modelFake)
@@ -445,7 +445,7 @@ describe('Repositories: Child', () => {
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
-                return childRepo.checkExist([ childWithoutId ])
+                return childRepo.checkExist([ defaultChild ])
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')

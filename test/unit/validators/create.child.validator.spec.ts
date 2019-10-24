@@ -31,7 +31,7 @@ describe('Validators: Child', () => {
 
         it('should throw an error for does not pass password', () => {
             child.username = 'child'
-            child.password = ''
+            child.password = undefined
 
             try {
                 CreateChildValidator.validate(child)

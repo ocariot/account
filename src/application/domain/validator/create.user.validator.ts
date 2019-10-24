@@ -13,7 +13,11 @@ export class CreateUserValidator {
                 throw new ValidationException('Username field is invalid...',
                     'Username must have at least one character.')
             }
-            if (!user.password) fields.push('password')
+            if (user.password === undefined) fields.push('password')
+            else if (user.password.length === 0) {
+                throw new ValidationException('Password field is invalid...',
+                    'Password must have at least one character.')
+            }
             if (!user.type) fields.push('type')
             if (!user.institution || !user.institution.id) {
                 if (user.type !== UserType.APPLICATION) fields.push('institution')

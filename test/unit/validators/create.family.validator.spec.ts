@@ -32,7 +32,7 @@ describe('Validators: Family', () => {
 
         it('should throw an error for does not pass password', () => {
             family.username = 'family'
-            family.password = ''
+            family.password = undefined
 
             try {
                 CreateFamilyValidator.validate(family)

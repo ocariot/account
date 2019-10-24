@@ -30,7 +30,7 @@ describe('Validators: HealthProfessional', () => {
 
         it('should throw an error for does not pass password', () => {
             healthProfessional.username = 'healthprofessional'
-            healthProfessional.password = ''
+            healthProfessional.password = undefined
 
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)

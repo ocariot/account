@@ -156,7 +156,7 @@ describe('Routes: Application', () => {
         })
 
         context('when a validation error occurs', () => {
-            it('should return status code 400 and message info about missing or invalid  parameters', () => {
+            it('should return status code 400 and message info about missing or invalid parameters', () => {
                 const body = {
                     username: defaultApplication.username,
                     password: 'mysecretkey',

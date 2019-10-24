@@ -244,7 +244,7 @@ describe('Repositories: User', () => {
                 sinon
                     .mock(userModelFake)
                     .expects('countDocuments')
-                    .withArgs({ institution: '123' })
+                    .withArgs({ institution: defaultUser.institution!.id })
                     .chain('exec')
                     .resolves({ message: 'An internal error has occurred in the database!',
                                 description: 'Please try again later...' })

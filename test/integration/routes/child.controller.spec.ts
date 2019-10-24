@@ -275,6 +275,28 @@ describe('Routes: Child', () => {
             })
         })
 
+        context('when the password provided is invalid', () => {
+            it('should return status code 400 and message for invalid password', () => {
+                const body = {
+                    username: defaultChild.username,
+                    password: '',
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Password field is invalid...')
+                        expect(err.body.description).to.eql('Password must have at least one character.')
+                    })
+            })
+        })
+
         context('when the gender provided is invalid', () => {
             it('should return status code 400 and message for invalid gender', () => {
                 const body = {

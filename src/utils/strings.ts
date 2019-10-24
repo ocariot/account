@@ -82,6 +82,7 @@ export abstract class Strings {
         UNEXPECTED: 'An unexpected error has occurred. Please try again later...',
         UUID_NOT_VALID_FORMAT: 'Some ID provided does not have a valid format!',
         UUID_NOT_VALID_FORMAT_DESC: 'A 24-byte hex ID similar to this: 507f191e810c19729de860ea is expected.',
-        MULTIPLE_UUID_NOT_VALID_FORMAT: 'The following set of IDs is not in valid format: '
+        MULTIPLE_UUID_NOT_VALID_FORMAT: 'The following set of IDs is not in valid format: ',
+        INTERNAL_SERVER_ERROR: 'An internal server error has occurred.'
     }
 }

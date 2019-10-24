@@ -29,7 +29,7 @@ describe('Validators: Application', () => {
 
         it('should throw an error for does not pass password', () => {
             app.username = 'application'
-            app.password = ''
+            app.password = undefined
 
             try {
                 CreateApplicationValidator.validate(app)

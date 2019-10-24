@@ -30,7 +30,7 @@ describe('Validators: Educator', () => {
 
         it('should throw an error for does not pass password', () => {
             educator.username = 'educator'
-            educator.password = ''
+            educator.password = undefined
 
             try {
                 CreateEducatorValidator.validate(educator)
