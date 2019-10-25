@@ -126,9 +126,10 @@ describe('Services: Family', () => {
 
                 return familyService.add(incorrectFamily)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Family validation: username, password, type, institution, ' +
-                            'Collection with children IDs (ID can not be empty) is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'username, password, type, institution, ' +
+                            'Collection with children IDs (ID can not be empty)'
+                                .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -141,10 +142,9 @@ describe('Services: Family', () => {
 
                 return familyService.add(incorrectFamily)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
-                        assert.propertyVal(err, 'description', 'Family validation: ' +
-                            'Invalid children attribute. ' +
-                            'The following set of IDs is not in valid format: 507f1f77bcf86cd7994390111')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT
+                            .concat('507f1f77bcf86cd7994390111'))
                     })
             })
         })

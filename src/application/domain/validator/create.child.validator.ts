@@ -1,6 +1,7 @@
 import { ValidationException } from '../exception/validation.exception'
 import { Child, Gender } from '../model/child'
 import { CreateUserValidator } from './create.user.validator'
+import { Strings } from '../../../utils/strings'
 
 export class CreateChildValidator {
     public static validate(child: Child): void | ValidationException {
@@ -16,21 +17,21 @@ export class CreateChildValidator {
 
         if (!child.gender) fields.push('gender')
         else if (!genders.includes(child.gender)) {
-            throw new ValidationException(`The gender provided "${child.gender}" is not supported...`,
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
                 `The names of the allowed genders are: ${genders.join(', ')}.`)
         }
         if (child.age === undefined) fields.push('age')
         else if (isNaN(child.age)) {
-            throw new ValidationException('Age field is invalid...',
-                'Child validation: The value provided is not a valid number!')
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                'Provided age is not a valid number!')
         } else if (child.age <= 0) {
-            throw new ValidationException(`Age field is invalid...`,
-                'Child validation: The age parameter can only contain a value greater than zero!')
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                'Age cannot be less than or equal to zero!')
         }
 
         if (fields.length > 0) {
-            throw new ValidationException('Required fields were not provided...',
-                'Child validation: '.concat(fields.join(', ')).concat(' is required!'))
+            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
+                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

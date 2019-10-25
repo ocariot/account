@@ -2,6 +2,7 @@ import { ValidationException } from '../exception/validation.exception'
 import { User } from '../model/user'
 import { ObjectIdValidator } from './object.id.validator'
 import { Strings } from '../../../utils/strings'
+import { StringValidator } from './string.validator'
 
 export class UpdateUserValidator {
     public static validate(user: User): void | ValidationException {
@@ -12,10 +13,7 @@ export class UpdateUserValidator {
                 throw new ValidationException('USER_ID_INVALID')
             }
         }
-        if (user.username !== undefined && user.username.length === 0) {
-            throw new ValidationException('Username field is invalid...',
-                'Username must have at least one character.')
-        }
+        if (user.username !== undefined) StringValidator.validate(user.username, 'username')
         if (user.institution && user.institution.id) {
             try {
                 ObjectIdValidator.validate(user.institution.id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)

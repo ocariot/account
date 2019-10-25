@@ -111,9 +111,9 @@ describe('Services: Child', () => {
 
                 return childService.add(incorrectChild)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Child validation: username, password, type, institution, ' +
-                            'gender, age is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'username, password, type, institution, ' +
+                            'gender, age'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -137,8 +137,7 @@ describe('Services: Child', () => {
 
                 return childService.add(child)
                     .catch(err => {
-                        assert.propertyVal(err, 'message',
-                            'The gender provided "invalid_gender" is not supported...')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         assert.propertyVal(err, 'description',
                             'The names of the allowed genders are: male, female.')
                     })
@@ -155,9 +154,9 @@ describe('Services: Child', () => {
 
                 return childService.add(child)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Age field is invalid...')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         assert.propertyVal(err, 'description',
-                            'Child validation: The age parameter can only contain a value greater than zero!')
+                            'Age cannot be less than or equal to zero!')
                     })
             })
         })

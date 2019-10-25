@@ -1,6 +1,7 @@
 import { ValidationException } from '../exception/validation.exception'
 import { HealthProfessional } from '../model/health.professional'
 import { CreateUserValidator } from './create.user.validator'
+import { Strings } from '../../../utils/strings'
 
 export class CreateHealthProfessionalValidator {
     public static validate(healthProfessional: HealthProfessional): void | ValidationException {
@@ -14,8 +15,8 @@ export class CreateHealthProfessionalValidator {
         }
 
         if (fields.length > 0) {
-            throw new ValidationException('Required fields were not provided...',
-                'Health Professional validation: '.concat(fields.join(', ')).concat(' is required!'))
+            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
+                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

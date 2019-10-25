@@ -1,5 +1,6 @@
 import { UpdatePasswordValidator } from '../../../src/application/domain/validator/update.password.validator'
 import { assert } from 'chai'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Validators: UpdatePassword', () => {
     context('when the validation was successful', () => {
@@ -14,8 +15,8 @@ describe('Validators: UpdatePassword', () => {
             try {
                 UpdatePasswordValidator.validate(undefined!, 'newpass')
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Change password validation failed: old_password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'old_password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -23,8 +24,8 @@ describe('Validators: UpdatePassword', () => {
             try {
                 UpdatePasswordValidator.validate('oldpass', undefined!)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Change password validation failed: new_password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'new_password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -32,9 +33,8 @@ describe('Validators: UpdatePassword', () => {
             try {
                 UpdatePasswordValidator.validate(undefined!, undefined!)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Change password validation failed: old_password, ' +
-                    'new_password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'old_password, new_password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
     })

@@ -145,8 +145,9 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Educator validation: username, password, institution is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('username, password, institution'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -649,9 +650,9 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: name, Collection with children ' +
-                            'IDs is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('name, Collection with children IDs'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -699,8 +700,8 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('ChildrenGroup name field is invalid...')
-                        expect(err.body.description).to.eql('ChildrenGroup name must have at least one character.')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('childrengroup.name must have at least one character!')
                     })
             })
         })
@@ -737,9 +738,9 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
-                        expect(err.body.description).to.eql('Children Group validation: ' +
-                            'Invalid children attribute. The following set of IDs is not in valid format: 123, 123a')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('The following IDs from children attribute are not ' +
+                            'in valid format: 123, 123a')
                     })
             })
         })
@@ -1109,8 +1110,8 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('ChildrenGroup name field is invalid...')
-                        expect(err.body.description).to.eql('ChildrenGroup name must have at least one character.')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('childrengroup.name must have at least one character!')
                     })
             })
         })
@@ -1160,9 +1161,9 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
-                        expect(err.body.description).to.eql('Children Group validation: ' +
-                            'Invalid children attribute. The following set of IDs is not in valid format: 123, 123a')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('The following IDs from children attribute are not ' +
+                            'in valid format: 123, 123a')
                     })
             })
         })

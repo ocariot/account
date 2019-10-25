@@ -1,16 +1,20 @@
 import { ValidationException } from '../exception/validation.exception'
+import { Strings } from '../../../utils/strings'
+import { StringValidator } from './string.validator'
 
 export class AuthValidator {
     public static validate(username: string, password: string): void | ValidationException {
         const fields: Array<string> = []
 
         // validate null
-        if (!username) fields.push('username')
-        if (!password) fields.push('password')
+        if (username === undefined) fields.push('username')
+        else StringValidator.validate(username, 'username')
+        if (password === undefined) fields.push('password')
+        else StringValidator.validate(password, 'password')
 
         if (fields.length > 0) {
-            throw new ValidationException('Required fields were not provided...',
-                'Authentication validation: '.concat(fields.join(', ')).concat(' is required!'))
+            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
+                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

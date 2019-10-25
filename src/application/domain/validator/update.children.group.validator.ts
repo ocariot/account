@@ -2,6 +2,7 @@ import { ChildrenGroup } from '../model/children.group'
 import { ObjectIdValidator } from './object.id.validator'
 import { ValidationException } from '../exception/validation.exception'
 import { Strings } from '../../../utils/strings'
+import { StringValidator } from './string.validator'
 
 export class UpdateChildrenGroupValidator {
     public static validate(childrenGroup: ChildrenGroup): void | ValidationException {
@@ -9,9 +10,11 @@ export class UpdateChildrenGroupValidator {
         const invalid_ids: Array<string> = []
 
         if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
-        if (childrenGroup.name !== undefined && childrenGroup.name.length === 0) {
-            throw new ValidationException('ChildrenGroup name field is invalid...',
-                'ChildrenGroup name must have at least one character.')
+        if (childrenGroup.name !== undefined) {
+            StringValidator.validate(childrenGroup.name, 'childrengroup.name')
+        }
+        if (childrenGroup.school_class !== undefined) {
+            StringValidator.validate(childrenGroup.school_class, 'childrengroup.school_class')
         }
         if (childrenGroup.children && childrenGroup.children.length > 0) {
             childrenGroup.children.forEach(child => {
@@ -28,12 +31,11 @@ export class UpdateChildrenGroupValidator {
         }
 
         if (invalid_ids.length > 0) {
-            throw new ValidationException(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC,
-                'Children Group validation: Invalid children attribute. '
-                    .concat(Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT).concat(invalid_ids.join(', ')))
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat(invalid_ids.join(', ')))
         } else if (fields.length > 0) {
-            throw new ValidationException('Required fields were not provided...',
-                'Children Group validation: '.concat(fields.join(', ')).concat(' is required!'))
+            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
+                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

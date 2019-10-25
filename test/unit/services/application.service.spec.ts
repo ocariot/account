@@ -122,9 +122,9 @@ describe('Services: Application', () => {
             it('should throw a ValidationException', () => {
                 return applicationService.add(incorrectApplication)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Application validation: username, password, ' +
-                            'application_name is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'username, password, ' +
+                            'application_name'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })

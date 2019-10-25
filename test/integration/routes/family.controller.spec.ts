@@ -203,9 +203,9 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Family validation: username, password, institution, ' +
-                            'Collection with children IDs is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('username, password, institution, ' +
+                            'Collection with children IDs'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -233,9 +233,9 @@ describe('Routes: Family', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.code).to.eql(400)
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
-                        expect(err.body.description).to.eql('Family validation: Invalid children attribute. ' +
-                            'The following set of IDs is not in valid format: 123, 123a')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('The following IDs from children attribute are not ' +
+                            'in valid format: 123, 123a')
                     })
             })
         })
@@ -687,9 +687,9 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Family validation: ' +
-                            'Collection with children IDs (ID can not be empty) is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('Collection with children IDs (ID can not be empty)'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -775,9 +775,9 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
-                        expect(err.body.description).to.eql('Family validation: Invalid children attribute. ' +
-                            'The following set of IDs is not in valid format: 123, 123a')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('The following IDs from children attribute are not ' +
+                            'in valid format: 123, 123a')
                     })
             })
         })

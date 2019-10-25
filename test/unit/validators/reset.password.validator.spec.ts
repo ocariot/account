@@ -15,7 +15,7 @@ describe('Validators: UpdatePassword', () => {
                 ResetPasswordValidator.validate(undefined!)
             } catch (err) {
                 assert.equal(err.message, 'Required field not provided...')
-                assert.equal(err.description, 'Reset password validation failed: new_password is required!')
+                assert.equal(err.description, 'new_password is required!')
             }
         })
     })

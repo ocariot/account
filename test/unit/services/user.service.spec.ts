@@ -120,9 +120,9 @@ describe('Services: User', () => {
                 user.id = '507f1f77bcf86cd799439011'
                 return userService.changePassword(user.id!, undefined!, undefined!)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Change password validation failed: old_password, ' +
-                            'new_password is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'old_password, new_password'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -158,8 +158,7 @@ describe('Services: User', () => {
                 return userService.resetPassword(user.id!, undefined!)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'Required field not provided...')
-                        assert.propertyVal(err, 'description', 'Reset password validation failed: ' +
-                            'new_password is required!')
+                        assert.propertyVal(err, 'description', 'new_password is required!')
                     })
             })
         })

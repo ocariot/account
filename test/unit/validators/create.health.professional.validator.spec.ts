@@ -4,6 +4,7 @@ import { HealthProfessional } from '../../../src/application/domain/model/health
 import { CreateHealthProfessionalValidator } from '../../../src/application/domain/validator/create.health.professional.validator'
 import { HealthProfessionalMock } from '../../mocks/health.professional.mock'
 import { UserTypeMock } from '../../mocks/user.mock'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Validators: HealthProfessional', () => {
     const healthProfessional: HealthProfessional = new HealthProfessionalMock()
@@ -23,8 +24,8 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Health Professional validation: username is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -35,8 +36,8 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Health Professional validation: password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -47,8 +48,8 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Health Professional validation: type is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -59,8 +60,8 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Health Professional validation: institution is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -70,8 +71,8 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(healthProfessional)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Health Professional validation: institution is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -82,9 +83,9 @@ describe('Validators: HealthProfessional', () => {
             try {
                 CreateHealthProfessionalValidator.validate(emptyHealthProfessional)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Health Professional validation: username, ' +
-                    'password, type, institution is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username, password, type, institution'
+                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
     })

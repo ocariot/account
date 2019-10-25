@@ -8,6 +8,7 @@ import { Admin } from '../../../src/application/domain/model/admin'
 import { IUserRepository } from '../../../src/application/port/user.repository.interface'
 import { IDatabase } from '../../../src/infrastructure/port/database.interface'
 import { Default } from '../../../src/utils/default'
+import { Strings } from '../../../src/utils/strings'
 
 const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
 const userService: IUserRepository = DIContainer.get(Identifier.USER_REPOSITORY)
@@ -77,8 +78,9 @@ describe('Routes: Auth', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(res => {
-                        expect(res.body.message).to.eql('Required fields were not provided...')
-                        expect(res.body.description).to.eql('Authentication validation: username, password is required!')
+                        expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(res.body.description).to.eql('username, password'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })

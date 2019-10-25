@@ -3,6 +3,7 @@ import { CreateApplicationValidator } from '../../../src/application/domain/vali
 import { Application } from '../../../src/application/domain/model/application'
 import { ApplicationMock } from '../../mocks/application.mock'
 import { UserTypeMock } from '../../mocks/user.mock'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Validators: Application', () => {
     const app: Application = new ApplicationMock()
@@ -22,8 +23,8 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Application validation: username is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -34,8 +35,8 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Application validation: password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -46,8 +47,8 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Application validation: type is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -58,8 +59,8 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Application validation: application_name is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'application_name'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -69,9 +70,9 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(emptyApp)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Application validation: username, ' +
-                    'password, application_name is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username, password, application_name'
+                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
     })

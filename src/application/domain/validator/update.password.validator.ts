@@ -1,4 +1,6 @@
 import { ValidationException } from '../exception/validation.exception'
+import { Strings } from '../../../utils/strings'
+import { StringValidator } from './string.validator'
 
 export class UpdatePasswordValidator {
 
@@ -7,20 +9,14 @@ export class UpdatePasswordValidator {
 
         // validate null
         if (old_password === undefined) fields.push('old_password')
-        else if (old_password.length === 0) {
-            throw new ValidationException('Old password field is invalid...',
-                'The old password must have at least one character.')
-        }
+        else StringValidator.validate(old_password, 'old_password')
 
         if (new_password === undefined) fields.push('new_password')
-        else if (new_password.length === 0) {
-            throw new ValidationException('New password field is invalid...',
-                'The new password must have at least one character.')
-        }
+        else StringValidator.validate(new_password, 'new_password')
 
         if (fields.length > 0) {
-            throw new ValidationException('Required fields were not provided...',
-                'Change password validation failed: '.concat(fields.join(', ')).concat(' is required!'))
+            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
+                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

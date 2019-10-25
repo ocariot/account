@@ -37,12 +37,11 @@ export class UpdateFamilyValidator {
         }
 
         if (invalid_ids.length > 0) {
-            throw new ValidationException(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC,
-                'Family validation: Invalid children attribute. '
-                    .concat(Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT).concat(invalid_ids.join(', ')))
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat(invalid_ids.join(', ')))
         } else if (fields.length > 0) {
-            throw new ValidationException('Required fields were not provided...',
-                'Family validation: '.concat(fields.join(', ')).concat(' is required!'))
+            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
+                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

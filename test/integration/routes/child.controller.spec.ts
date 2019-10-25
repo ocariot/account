@@ -202,9 +202,9 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Child validation: username, password, institution, gender, ' +
-                            'age is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('username, password, institution, gender, ' +
+                            'age'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -269,8 +269,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Username field is invalid...')
-                        expect(err.body.description).to.eql('Username must have at least one character.')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('username must have at least one character!')
                     })
             })
         })
@@ -291,8 +291,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Password field is invalid...')
-                        expect(err.body.description).to.eql('Password must have at least one character.')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('password must have at least one character!')
                     })
             })
         })
@@ -313,7 +313,7 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('The gender provided "invalid_gender" is not supported...')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql('The names of the allowed genders are: male, female.')
                     })
             })
@@ -336,9 +336,9 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Age field is invalid...')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql(
-                            'Child validation: The value provided is not a valid number!')
+                            'Provided age is not a valid number!')
                     })
             })
         })
@@ -360,9 +360,9 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Age field is invalid...')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql(
-                            'Child validation: The age parameter can only contain a value greater than zero!')
+                            'Age cannot be less than or equal to zero!')
                     })
             })
         })
@@ -677,8 +677,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Username field is invalid...')
-                        expect(err.body.description).to.eql('Username must have at least one character.')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('username must have at least one character!')
                     })
             })
         })
@@ -691,7 +691,7 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('The gender provided "invalidGender" is not supported...')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql('The names of the allowed genders are: male, female.')
                     })
             })
@@ -705,9 +705,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Age field is invalid...')
-                        expect(err.body.description).to.eql('Child validation: ' +
-                            'The age parameter can only contain a value greater than zero!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('Age cannot be less than or equal to zero!')
                     })
             })
         })
@@ -720,9 +719,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Age field is invalid...')
-                        expect(err.body.description).to.eql('Child validation: ' +
-                            'The value provided is not a valid number!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('Provided age is not a valid number!')
                     })
             })
         })
@@ -735,9 +733,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Age field is invalid...')
-                        expect(err.body.description).to.eql('Child validation: ' +
-                            'The age parameter can only contain a value greater than zero!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('Age cannot be less than or equal to zero!')
                     })
             })
         })

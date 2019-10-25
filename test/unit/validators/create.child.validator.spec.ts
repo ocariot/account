@@ -5,6 +5,7 @@ import { Institution } from '../../../src/application/domain/model/institution'
 import { ChildMock } from '../../mocks/child.mock'
 import { UserTypeMock } from '../../mocks/user.mock'
 import { InstitutionMock } from '../../mocks/institution.mock'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Validators: Child', () => {
     const child: Child = new ChildMock()
@@ -24,8 +25,8 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Child validation: username is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -36,8 +37,8 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Child validation: password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -48,8 +49,8 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Child validation: type is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -60,8 +61,8 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Child validation: institution is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -71,8 +72,8 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Child validation: institution is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -82,7 +83,7 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
                 assert.equal(err.description, 'Child validation: gender is required!')
             }
         })
@@ -93,20 +94,8 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Child validation: age is required!')
-            }
-        })
-
-        it('should throw an error for does not pass age', () => {
-            child.gender = 'male'
-            child.age = undefined
-
-            try {
-                CreateChildValidator.validate(child)
-            } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Child validation: age is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'age'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -117,9 +106,9 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(emptyChild)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Child validation: username, ' +
-                    'password, type, institution, gender, age is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username, password, type, institution, gender, age'
+                        .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
     })
@@ -131,7 +120,7 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                assert.equal(err.message, 'The gender provided "invalid_gender" is not supported...')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.INVALID_FIELDS)
                 assert.equal(err.description, 'The names of the allowed genders are: male, female.')
             }
         })
@@ -145,9 +134,9 @@ describe('Validators: Child', () => {
             try {
                 CreateChildValidator.validate(child)
             } catch (err) {
-                assert.equal(err.message, 'Age field is invalid...')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.INVALID_FIELDS)
                 assert.equal(err.description,
-                    'Child validation: The age parameter can only contain a value greater than zero!')
+                    'Age cannot be less than or equal to zero!')
             }
         })
     })

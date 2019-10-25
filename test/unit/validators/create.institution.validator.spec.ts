@@ -2,6 +2,7 @@ import { CreateInstitutionValidator } from '../../../src/application/domain/vali
 import { Institution } from '../../../src/application/domain/model/institution'
 import { assert } from 'chai'
 import { InstitutionMock } from '../../mocks/institution.mock'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Validators: Institution', () => {
     const institution: Institution = new InstitutionMock()
@@ -20,8 +21,8 @@ describe('Validators: Institution', () => {
             try {
                 CreateInstitutionValidator.validate(institution)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Institution validation: name is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'name'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -32,8 +33,8 @@ describe('Validators: Institution', () => {
             try {
                 CreateInstitutionValidator.validate(institution)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Institution validation: type is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -43,8 +44,8 @@ describe('Validators: Institution', () => {
             try {
                 CreateInstitutionValidator.validate(institution)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Institution validation: name, type is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'name, type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
     })

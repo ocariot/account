@@ -2,6 +2,7 @@ import { ValidationException } from '../exception/validation.exception'
 import { Application } from '../model/application'
 import { UpdateUserValidator } from './update.user.validator'
 import { Strings } from '../../../utils/strings'
+import { StringValidator } from './string.validator'
 
 export class UpdateApplicationValidator {
     public static validate(application: Application): void | ValidationException {
@@ -18,9 +19,8 @@ export class UpdateApplicationValidator {
             throw err
         }
 
-        if (application.application_name !== undefined && application.application_name.length === 0) {
-            throw new ValidationException('Application name field is invalid...',
-                'Application name must have at least one character.')
+        if (application.application_name !== undefined) {
+            StringValidator.validate(application.application_name, 'application_name')
         }
     }
 }

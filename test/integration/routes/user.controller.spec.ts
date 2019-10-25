@@ -90,9 +90,9 @@ describe('Routes: User', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Change password validation failed: old_password, ' +
-                            'new_password is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('old_password, new_password'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -105,8 +105,8 @@ describe('Routes: User', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Old password field is invalid...')
-                        expect(err.body.description).to.eql('The old password must have at least one character.')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('old_password'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
                     })
             })
         })
@@ -119,8 +119,8 @@ describe('Routes: User', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('New password field is invalid...')
-                        expect(err.body.description).to.eql('The new password must have at least one character.')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('new_password'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
                     })
             })
         })
@@ -191,8 +191,7 @@ describe('Routes: User', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql('Required field not provided...')
-                        expect(err.body.description).to.eql('Reset password validation failed: ' +
-                            'new_password is required!')
+                        expect(err.body.description).to.eql('new_password is required!')
                     })
             })
         })
@@ -205,8 +204,8 @@ describe('Routes: User', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('New password field is invalid...')
-                        expect(err.body.description).to.eql('The new password must have at least one character.')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('new_password'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
                     })
             })
         })

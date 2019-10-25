@@ -99,9 +99,9 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Children Group validation: name, user, Collection with ' +
-                            'children IDs is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'name, user, Collection with ' +
+                            'children IDs'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -112,9 +112,9 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Children Group validation: name, user, Collection with ' +
-                            'children IDs (ID can not be empty) is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'name, user, Collection with ' +
+                            'children IDs (ID can not be empty)'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -127,10 +127,9 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
-                        assert.propertyVal(err, 'description', 'Children Group validation: ' +
-                            'Invalid children attribute. ' +
-                            'The following set of IDs is not in valid format: 507f1f77bcf86cd7994390111')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description',
+                            Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat('507f1f77bcf86cd7994390111'))
                     })
             })
         })
@@ -251,9 +250,9 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.update(incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Children Group validation: Collection with children IDs ' +
-                            '(ID can not be empty) is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'Collection with children IDs ' +
+                            '(ID can not be empty)'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -266,10 +265,9 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.update(incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         assert.propertyVal(err, 'description',
-                            'Children Group validation: Invalid children attribute. ' +
-                            'The following set of IDs is not in valid format: 507f1f77bcf86cd7994390111')
+                            Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat('507f1f77bcf86cd7994390111'))
                     })
             })
         })
