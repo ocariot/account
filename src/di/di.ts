@@ -81,7 +81,6 @@ import { UserService } from '../application/service/user.service'
 import { IUserRepository } from '../application/port/user.repository.interface'
 import { UserRepository } from '../infrastructure/repository/user.repository'
 import { ConnectionFactoryRabbitMQ } from '../infrastructure/eventbus/rabbitmq/connection.factory.rabbitmq'
-import { IntegrationEventRepoModel } from '../infrastructure/database/schema/integration.event.schema'
 import { IBackgroundTask } from '../application/port/background.task.interface'
 import { RegisterDefaultAdminTask } from '../background/task/register.default.admin.task'
 import { GenerateJwtKeysTask } from '../background/task/generate.jwt.keys.task'
@@ -181,7 +180,6 @@ export class IoC {
         this.container.bind(Identifier.USER_REPO_MODEL).toConstantValue(UserRepoModel)
         this.container.bind(Identifier.INSTITUTION_REPO_MODEL).toConstantValue(InstitutionRepoModel)
         this.container.bind(Identifier.CHILDREN_GROUP_REPO_MODEL).toConstantValue(ChildrenGroupRepoModel)
-        this.container.bind(Identifier.INTEGRATION_EVENT_REPO_MODEL).toConstantValue(IntegrationEventRepoModel)
 
         // Mappers
         this.container

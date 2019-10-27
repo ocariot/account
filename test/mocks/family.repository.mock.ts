@@ -63,6 +63,10 @@ export class FamilyRepositoryMock implements IFamilyRepository {
         if (id === '507f1f77bcf86cd799439011') {
             const family: Family = new FamilyMock()
             return Promise.resolve(family)
+        } else if (id === '507f1f77bcf86cd799439015') {
+            const family: Family = new FamilyMock()
+            family.children = undefined
+            return Promise.resolve(family)
         }
         return Promise.resolve(undefined!)
     }

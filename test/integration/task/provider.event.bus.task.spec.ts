@@ -263,11 +263,13 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
-            it('should return an array with nine children (query all children who have a particular string anywhere ' +
-                'in their username)', (done) => {
-                rabbitmq.bus.getChildren('?username=*child*')
+            it('should return an array with two children (query a maximum of two children who have a particular ' +
+                'string anywhere in their username, sorted in descending order by this username)', (done) => {
+                rabbitmq.bus.getChildren('?username=*child*&sort=-username&page=1&limit=2')
                     .then(result => {
-                        expect(result.length).to.eql(9)
+                        expect(result.length).to.eql(2)
+                        expect(result[0].username).to.eql('child_mock6')
+                        expect(result[1].username).to.eql('child_mock5')
                         done()
                     })
                     .catch(done)
@@ -700,11 +702,13 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
-            it('should return an array with six families (query all families who have a particular string anywhere ' +
-                'in their username)', (done) => {
-                rabbitmq.bus.getFamilies('?username=*family*')
+            it('should return an array with two families (query a maximum of two families who have a particular ' +
+                'string anywhere in their username, sorted in descending order by this username)', (done) => {
+                rabbitmq.bus.getFamilies('?username=*family*&sort=-username&page=1&limit=2')
                     .then(result => {
-                        expect(result.length).to.eql(6)
+                        expect(result.length).to.eql(2)
+                        expect(result[0].username).to.eql('other_family2')
+                        expect(result[1].username).to.eql('other_family')
                         done()
                     })
                     .catch(done)
@@ -1028,11 +1032,13 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
-            it('should return an array with six educators (query all educators who have a particular string anywhere ' +
-                'in their username)', (done) => {
-                rabbitmq.bus.getEducators('?username=*educator*')
+            it('should return an array with two educators (query a maximum of two educators who have a particular ' +
+                'string anywhere in their username, sorted in descending order by this username)', (done) => {
+                rabbitmq.bus.getEducators('?username=*educator*&sort=-username&page=1&limit=2')
                     .then(result => {
-                        expect(result.length).to.eql(6)
+                        expect(result.length).to.eql(2)
+                        expect(result[0].username).to.eql('other_educator2')
+                        expect(result[1].username).to.eql('other_educator1')
                         done()
                     })
                     .catch(done)
@@ -1359,11 +1365,14 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
-            it('should return an array with six health professionals (query all health professionals ' +
-                'who have a particular string anywhere in their username)', (done) => {
-                rabbitmq.bus.getHealthProfessionals('?username=*health_professional*')
+            it('should return an array with six health professionals (query a maximum of two health professionals ' +
+                'who have a particular string anywhere in their username, sorted in descending order ' +
+                'by this username)', (done) => {
+                rabbitmq.bus.getHealthProfessionals('?username=*health_professional*&sort=-username&page=1&limit=2')
                     .then(result => {
-                        expect(result.length).to.eql(6)
+                        expect(result.length).to.eql(2)
+                        expect(result[0].username).to.eql('other_health_professional')
+                        expect(result[1].username).to.eql('new_health_professional')
                         done()
                     })
                     .catch(done)
@@ -1604,15 +1613,18 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
-            it('should return an array with six applications (query all applications ' +
-                'who have a particular string anywhere in their username)', (done) => {
-                rabbitmq.bus.getApplications('?username=*application*')
-                    .then(result => {
-                        expect(result.length).to.eql(6)
-                        done()
-                    })
-                    .catch(done)
-            })
+            it('should return an array with six applications (query a maximum of two applications who have ' +
+                'a particular string anywhere in their username, sorted in descending order by this username)',
+                (done) => {
+                    rabbitmq.bus.getApplications('?username=*application*&sort=-username&page=1&limit=2')
+                        .then(result => {
+                            expect(result.length).to.eql(2)
+                            expect(result[0].username).to.eql('other_application2')
+                            expect(result[1].username).to.eql('other_application1')
+                            done()
+                        })
+                        .catch(done)
+                })
 
             it('should return an array with one application (query application ' +
                 'who has username exactly the same as the given string)', (done) => {
@@ -1802,10 +1814,13 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
-            it('should return an array with two institutions (query institutions by type)', (done) => {
-                rabbitmq.bus.getInstitutions('?type=Institute of Scientific Research')
+            it('should return an array with two institutions (query institutions by type, sorted in descending order ' +
+                'by the name)', (done) => {
+                rabbitmq.bus.getInstitutions('?type=Institute of Scientific Research&sort=-name')
                     .then(result => {
                         expect(result.length).to.eql(2)
+                        expect(result[0].name).to.eql('UEPB')
+                        expect(result[1].name).to.eql('NUTES')
                         done()
                     })
                     .catch(done)

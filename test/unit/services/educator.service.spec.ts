@@ -129,9 +129,9 @@ describe('Services: Educator', () => {
             it('should throw a ValidationException', () => {
                 return educatorService.add(incorrectEducator)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Educator validation: username, password, type, ' +
-                            'institution is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'username, password, type, ' +
+                            'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -142,7 +142,7 @@ describe('Services: Educator', () => {
 
                 return educatorService.add(educator)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -268,7 +268,7 @@ describe('Services: Educator', () => {
 
                 return educatorService.update(incorrectEducator)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -282,7 +282,7 @@ describe('Services: Educator', () => {
 
                 return educatorService.update(incorrectEducator)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -412,7 +412,7 @@ describe('Services: Educator', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
                         assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
-                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
+                            .concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -434,9 +434,9 @@ describe('Services: Educator', () => {
             it('should throw a ValidationException', () => {
                 return educatorService.saveChildrenGroup(educator.id!, incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Children Group validation: name, user, Collection with ' +
-                            'children IDs is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'name, user, Collection with ' +
+                            'children IDs'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -447,9 +447,9 @@ describe('Services: Educator', () => {
 
                 return educatorService.saveChildrenGroup(educator.id!, incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Children Group validation: name, user, Collection with ' +
-                            'children IDs (ID can not be empty) is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'name, user, Collection with ' +
+                            'children IDs (ID can not be empty)'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -494,9 +494,9 @@ describe('Services: Educator', () => {
                 query.filters = { _id : educator.id }
 
                 return educatorService.getAllChildrenGroups(educator.id, query)
-                    .then(result => {
-                        assert.isArray(result)
-                        assert.isEmpty(result)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.EDUCATOR.NOT_FOUND)
+                        assert.propertyVal(err, 'description', Strings.EDUCATOR.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
@@ -542,15 +542,16 @@ describe('Services: Educator', () => {
                 query.filters = { _id : educator.children_groups![0].id }
 
                 return educatorService.getChildrenGroupById(educator.id, educator.children_groups![0].id, query)
-                    .then(result => {
-                        assert.isUndefined(result)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', Strings.EDUCATOR.NOT_FOUND)
+                        assert.propertyVal(err, 'description', Strings.EDUCATOR.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
 
         context('when the ChildrenGroup does not belong to the Educator', () => {
             it('should return undefined', () => {
-                educator.id = '507f1f77bcf86cd799439012'            // Make mock return undefined
+                educator.id = '507f1f77bcf86cd799439011'
                 educator.children_groups![0].id = '507f1f77bcf86cd799439011'
                 const query: IQuery = new Query()
                 query.filters = { _id : educator.children_groups![0].id }
@@ -667,7 +668,7 @@ describe('Services: Educator', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
                         assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
-                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
+                            .concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -678,9 +679,9 @@ describe('Services: Educator', () => {
 
                 return educatorService.updateChildrenGroup(educator.id!, incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Children Group validation: Collection with children IDs ' +
-                            '(ID can not be empty) is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'Collection with children IDs ' +
+                            '(ID can not be empty)'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -693,8 +694,9 @@ describe('Services: Educator', () => {
 
                 return educatorService.updateChildrenGroup(educator.id!, incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
-                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description',
+                            Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat('507f1f77bcf86cd7994390111'))
                     })
             })
         })

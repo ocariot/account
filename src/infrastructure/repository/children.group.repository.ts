@@ -33,6 +33,7 @@ export class ChildrenGroupRepository extends BaseRepository<ChildrenGroup, Child
 
         return new Promise<Array<ChildrenGroup>>((resolve, reject) => {
             this.childrenGroupModel.find(q.filters)
+                .collation({ locale: 'en', caseLevel: true, numericOrdering: true, strength: 2 })
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))

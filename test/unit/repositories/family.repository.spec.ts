@@ -57,7 +57,7 @@ describe('Repositories: Family', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs(defaultFamily.id)
+                    .withArgs({ _id: defaultFamily.id })
                     .chain('exec')
                     .resolves(defaultFamily)
 
@@ -98,7 +98,7 @@ describe('Repositories: Family', () => {
         })
     })
 
-    describe('find(query: IQuery)', () => {
+    describe('findAll(query: IQuery)', () => {
         const query: Query = new Query()
         query.ordination = new Map()
         context('when there is at least one family that corresponds to the received parameters', () => {
@@ -115,7 +115,7 @@ describe('Repositories: Family', () => {
                     .chain('exec')
                     .resolves(familiesArr)
 
-                return familyRepo.find(query)
+                return familyRepo.findAll(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isNotEmpty(result)
@@ -137,7 +137,7 @@ describe('Repositories: Family', () => {
                     .chain('exec')
                     .resolves(new Array<FamilyMock>())
 
-                return familyRepo.find(query)
+                return familyRepo.findAll(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isEmpty(result)
@@ -162,7 +162,7 @@ describe('Repositories: Family', () => {
                         description: 'Please try again later...'
                     })
 
-                return familyRepo.find(query)
+                return familyRepo.findAll(query)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')

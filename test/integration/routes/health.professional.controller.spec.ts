@@ -146,9 +146,9 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Health Professional validation: username, password, ' +
-                            'institution is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('username, password, institution'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -187,7 +187,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -430,7 +430,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Health Professional is already registered!')
+                        expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.ALREADY_REGISTERED)
                     })
             })
         })
@@ -476,7 +476,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -504,7 +504,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -651,9 +651,9 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: name, Collection with ' +
-                            'children IDs is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('name, Collection with children IDs'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -677,10 +677,10 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid ID', () => {
+            it('should return status code 400 and info message from invalid IDs', () => {
                 const body = {
                     name: 'Children Group One',
-                    children: new Array<string | undefined>('123'),
+                    children: new Array<string | undefined>('123', '123a'),
                     school_class: '3th Grade'
                 }
 
@@ -690,9 +690,9 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: Collection with children IDs ' +
-                            '(ID can not be empty) is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('The following IDs from children attribute are not ' +
+                            'in valid format: 123, 123a')
                     })
             })
         })
@@ -716,7 +716,7 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid ID', () => {
+            it('should return status code 400 and info message from invalid IDs', () => {
                 const body = {
                     name: 'Children Group Two',
                     children: new Array<string | undefined>('507f1f77bcf86cd799439011'),
@@ -730,7 +730,7 @@ describe('Routes: HealthProfessional', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ')
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER
                             .concat('507f1f77bcf86cd799439011'))
                     })
             })
@@ -806,16 +806,26 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when the children group is not found', () => {
+            let resultHealthProfessional
+
             before(async () => {
                 try {
                     await deleteAllUsers()
                     await deleteAllChildrenGroups()
+
+                    resultHealthProfessional = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read'),
+                    })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
             it('should return status code 404 and info message from children group not found', () => {
-                const url = `/v1/healthprofessionals/${defaultHealthProfessional.id}/`
+                const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
                     .concat(`children/groups/${new ObjectID()}`)
                 return request
                     .get(url)
@@ -961,7 +971,7 @@ describe('Routes: HealthProfessional', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Children Group is already registered!')
+                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.ALREADY_REGISTERED)
                     })
             })
         })
@@ -1015,7 +1025,7 @@ describe('Routes: HealthProfessional', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ')
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER
                             .concat('507f1f77bcf86cd799439011'))
                     })
             })
@@ -1059,19 +1069,19 @@ describe('Routes: HealthProfessional', () => {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid ID.', () => {
+            it('should return status code 400 and info message from invalid IDs', () => {
                 const url = `/v1/healthprofessionals/${resultHealthProfessional.id}/`
                     .concat(`children/groups/${resultChildrenGroup.id}`)
 
                 return request
                     .patch(url)
-                    .send({ children: new Array<string>('123') })
+                    .send({ children: new Array<string>('123', '123a') })
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: Collection with children IDs ' +
-                            '(ID can not be empty) is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('The following IDs from children attribute are not ' +
+                            'in valid format: 123, 123a')
                     })
             })
         })
@@ -1379,7 +1389,7 @@ describe('Routes: HealthProfessional', () => {
                     })
 
                     resultHealthProfessional = await createUser({
-                        username: defaultHealthProfessional.username,
+                        username: 'HPROFBR0001',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
                         institution: new ObjectID(institution.id),
@@ -1387,7 +1397,7 @@ describe('Routes: HealthProfessional', () => {
                     })
 
                     resultHealthProfessional2 = await createUser({
-                        username: 'other_health_professional',
+                        username: 'HPROFBR0002',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
                         institution: new ObjectID(institution.id),
@@ -1452,29 +1462,15 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when use query strings', () => {
-            let resultHealthProfessional
             let resultChild
+            let resultHealthProfessional
+            let resultHealthProfessional2
             let resultChildrenGroup
+            let resultChildrenGroup2
 
             before(async () => {
                 try {
                     await deleteAllUsers()
-
-                    await createUser({
-                        username: defaultHealthProfessional.username,
-                        password: defaultHealthProfessional.password,
-                        type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
-
-                    resultHealthProfessional = await createUser({
-                        username: 'other_health_professional',
-                        password: defaultHealthProfessional.password,
-                        type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
 
                     resultChild = await createUser({
                         username: defaultChild.username,
@@ -1486,6 +1482,22 @@ describe('Routes: HealthProfessional', () => {
                         scopes: new Array('users:read')
                     })
 
+                    resultHealthProfessional = await createUser({
+                        username: 'HPROFBR0001',
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultHealthProfessional2 = await createUser({
+                        username: 'HPROFBR0002',
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
                     resultChildrenGroup = await createChildrenGroup({
                         name: defaultChildrenGroup.name,
                         children: new Array<string | undefined>(resultChild.id),
@@ -1493,16 +1505,29 @@ describe('Routes: HealthProfessional', () => {
                         user_id: resultHealthProfessional.id
                     })
 
+                    resultChildrenGroup2 = await createChildrenGroup({
+                        name: 'other_children_group_name',
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultHealthProfessional2.id
+                    })
+
                     await updateUser({
                         id: resultHealthProfessional.id,
                         children_groups: [resultChildrenGroup.id]
+                    })
+
+                    await updateUser({
+                        id: resultHealthProfessional2.id,
+                        children_groups: [resultChildrenGroup2.id]
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', () => {
-                const url: string = '/v1/healthprofessionals?username=other_health_professional&sort=username&page=1&limit=3'
+            it('should return the result as required in query (query the health professional that has username exactly ' +
+                'the same as the given string)', () => {
+                const url: string = '/v1/healthprofessionals?username=HPROFBR0002&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -1512,12 +1537,12 @@ describe('Routes: HealthProfessional', () => {
                         expect(res.body.length).to.eql(1)
                         for (const healthProf of res.body) {
                             expect(healthProf).to.have.property('id')
-                            expect(healthProf.username).to.eql('other_health_professional')
+                            expect(healthProf.username).to.eql('HPROFBR0002')
                             expect(healthProf.institution_id).to.eql(institution.id)
                             expect(healthProf.children_groups.length).to.eql(1)
                             for (const childrenGroup of healthProf.children_groups) {
                                 expect(childrenGroup).to.have.property('id')
-                                expect(childrenGroup.name).to.eql(defaultChildrenGroup.name)
+                                expect(childrenGroup.name).to.eql('other_children_group_name')
                                 expect(childrenGroup.children.length).to.eql(1)
                                 for (const child of childrenGroup.children) {
                                     expect(child).to.have.property('id')
@@ -1531,9 +1556,20 @@ describe('Routes: HealthProfessional', () => {
                         }
                     })
             })
+
+            it('should return an empty array (when not find any health professional)', () => {
+                const url = '/v1/healthprofessionals?username=*PB*&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
+                    })
+            })
         })
 
-        context('when there are no health professionals in database', () => {
+        context('when there are no health professionals in the database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()

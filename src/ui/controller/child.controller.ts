@@ -10,6 +10,8 @@ import { ILogger } from '../../utils/custom.logger'
 import { IChildService } from '../../application/port/child.service.interface'
 import { Child } from '../../application/domain/model/child'
 import { Strings } from '../../utils/strings'
+import { IQuery } from '../../application/port/query.interface'
+import { UserType } from '../../application/domain/model/user'
 
 /**
  * Controller that implements Child feature operations.
@@ -87,8 +89,10 @@ export class ChildController {
     @httpGet('/:child_id')
     public async getChildById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
+            const query: IQuery = new Query().fromJSON(req.query)
+            query.addFilter({ _id: req.params.child_id, type: UserType.CHILD })
             const result: Child = await this._childService
-                .getById(req.params.child_id, new Query().fromJSON(req.query))
+                .getById(req.params.child_id, query)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {

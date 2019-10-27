@@ -129,8 +129,52 @@ describe('Routes: Institution', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Institution validation: name, type is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('name, type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution name is invalid)', () => {
+            it('should return status code 400 and info message from invalid name', () => {
+                const body = {
+                    type: defaultInstitution.type,
+                    name: '',
+                    address: defaultInstitution.address,
+                    latitude: defaultInstitution.latitude,
+                    longitude: defaultInstitution.longitude
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('name must have at least one character!')
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution type is invalid)', () => {
+            it('should return status code 400 and info message from invalid type', () => {
+                const body = {
+                    type: '',
+                    name: defaultInstitution.name,
+                    address: defaultInstitution.address,
+                    latitude: defaultInstitution.latitude,
+                    longitude: defaultInstitution.longitude
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('type must have at least one character!')
                     })
             })
         })
@@ -307,6 +351,34 @@ describe('Routes: Institution', () => {
                     })
             })
         })
+
+        context('when the institution name is invalid', () => {
+            it('should return status code 400 and info message from invalid name', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ name: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('name must have at least one character!')
+                    })
+            })
+        })
+
+        context('when the institution type is invalid', () => {
+            it('should return status code 400 and info message from invalid type', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ type: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('type must have at least one character!')
+                    })
+            })
+        })
     })
 
     describe('RABBITMQ PUBLISHER -> DELETE /v1/institutions/:institution_id', () => {
@@ -472,16 +544,16 @@ describe('Routes: Institution', () => {
                     await deleteAllInstitutions()
 
                     await createInstitution({
-                        type: defaultInstitution.type,
-                        name: defaultInstitution.name,
+                        type: 'Default_type',
+                        name: 'Default_institution',
                         address: defaultInstitution.address,
                         latitude: defaultInstitution.latitude,
                         longitude: defaultInstitution.longitude
                     })
 
                     await createInstitution({
-                        type: defaultInstitution.type,
-                        name: 'other_institution',
+                        type: 'another_type',
+                        name: 'another_institution',
                         address: defaultInstitution.address,
                         latitude: defaultInstitution.latitude,
                         longitude: defaultInstitution.longitude
@@ -490,9 +562,9 @@ describe('Routes: Institution', () => {
                     throw new Error('Failure on Institution test: ' + err.message)
                 }
             })
-            it('should return status code 200 and a list of institutions', () => {
+            it('should return status code 200 and a list of institutions sorted by name', () => {
                 return request
-                    .get('/v1/institutions')
+                    .get('/v1/institutions?sort=name')
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -505,11 +577,125 @@ describe('Routes: Institution', () => {
                             expect(institution).to.have.property('latitude')
                             expect(institution).to.have.property('longitude')
                         }
+
+                        expect(res.body[0].name).to.eql('another_institution')
+                        expect(res.body[1].name).to.eql('Default_institution')
+                    })
+            })
+
+            it('should return status code 200 and a list of institutions sorted by type', () => {
+                return request
+                    .get('/v1/institutions?sort=type')
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).is.eql(2)
+                        for (const institution of res.body) {
+                            expect(institution).to.have.property('id')
+                            expect(institution).to.have.property('type')
+                            expect(institution).to.have.property('name')
+                            expect(institution).to.have.property('address')
+                            expect(institution).to.have.property('latitude')
+                            expect(institution).to.have.property('longitude')
+                        }
+
+                        expect(res.body[0].type).to.eql('another_type')
+                        expect(res.body[1].type).to.eql('Default_type')
                     })
             })
         })
 
-        context('when does not have institutions in database', () => {
+        context('when use query strings', () => {
+            before(async () => {
+                try {
+                    await deleteAllInstitutions()
+
+                    await createInstitution({
+                        type: 'School Institution',
+                        name: 'INSTBR00010',
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+
+                    await createInstitution({
+                        type: defaultInstitution.type,
+                        name: 'INSTBR0001',
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+
+                    await createInstitution({
+                        type: defaultInstitution.type,
+                        name: 'INSTBR0002',
+                        address: defaultInstitution.address,
+                        latitude: defaultInstitution.latitude,
+                        longitude: defaultInstitution.longitude
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Institution test: ' + err.message)
+                }
+            })
+            it('should return the result as required in query (query the institutions that has name exactly ' +
+                'the same as the given string)', () => {
+                const url: string = '/v1/institutions?name=INSTBR0001&sort=name&limit=3'
+
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(1)
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0].type).to.eql(defaultInstitution.type)
+                        expect(res.body[0].name).to.eql('INSTBR0001')
+                        expect(res.body[0].address).to.eql(defaultInstitution.address)
+                        expect(res.body[0].latitude).to.eql(defaultInstitution.latitude)
+                        expect(res.body[0].longitude).to.eql(defaultInstitution.longitude)
+                    })
+            })
+
+            it('should return the result as required in query (query a maximum of two institutions who have a particular ' +
+                'string anywhere in their name, sorted in descending order by this name)', () => {
+                const url: string = '/v1/institutions?name=*BR*&sort=-name&limit=2'
+
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).is.eql(2)
+                        for (const institution of res.body) {
+                            expect(institution).to.have.property('id')
+                            expect(institution).to.have.property('type')
+                            expect(institution).to.have.property('name')
+                            expect(institution).to.have.property('address')
+                            expect(institution).to.have.property('latitude')
+                            expect(institution).to.have.property('longitude')
+                        }
+
+                        expect(res.body[0].name).to.eql('INSTBR00010')
+                        expect(res.body[0].type).to.eql('School Institution')
+                        expect(res.body[1].name).to.eql('INSTBR0002')
+                        expect(res.body[1].type).to.eql(defaultInstitution.type)
+                    })
+            })
+
+            it('should return an empty array (when not find any institution)', () => {
+                const url: string = '/v1/institutions?name=*PB*&sort=username&limit=3'
+
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
+                    })
+            })
+        })
+
+        context('when there are no institutions in the database', () => {
             before(async () => {
                 try {
                     await deleteAllInstitutions()
@@ -522,8 +708,7 @@ describe('Routes: Institution', () => {
                     .get('/v1/institutions')
                     .set('Content-Type', 'application/json')
                     .then(res => {
-                        expect(res.body).is.instanceof(Array)
-                        expect(res.body.length).is.eql(0)
+                        expect(res.body.length).to.eql(0)
                     })
             })
         })

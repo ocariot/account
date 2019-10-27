@@ -35,7 +35,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
                     // Required due to 'populate ()' routine.
                     // If there is no need for 'populate ()', the return will suffice.
                     const query = new Query()
-                    query.filters = result._id
+                    query.filters = { _id: result._id }
                     return resolve(this.findOne(query))
                 })
                 .catch(err => reject(this.mongoDBErrorListener(err)))
@@ -46,6 +46,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         const q: any = query.toJSON()
         return new Promise<Array<T>>((resolve, reject) => {
             this.Model.find(q.filters)
+                .collation({ locale: 'en', caseLevel: true, numericOrdering: true, strength: 2 })
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -170,13 +171,14 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
                 return new ValidationException('Invalid query parameters!')
             }
         }
-        return new RepositoryException('An internal error has occurred in the database!',
-            'Please try again later...')
+        return new RepositoryException(err && err.message ? err.message : '',
+            err && err.description ? err.description : '')
     }
 
     private findPopulate(q: any, populate?: any): Promise<Array<T>> {
         return new Promise<Array<T>>((resolve, reject) => {
             this.Model.find(q.filters)
+                .collation({ locale: 'en', caseLevel: true, numericOrdering: true, strength: 2 })
                 .sort(q.ordination)
                 .skip(Number((q.pagination.limit * q.pagination.page) - q.pagination.limit))
                 .limit(Number(q.pagination.limit))
@@ -187,7 +189,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         })
     }
 
-    private applyFilterByUsername(username: any, items: Array<T>): Array<T> {
+    public applyFilterByUsername(username: any, items: any): any {
         let regExpUsername: RegExp
         if (username.$regex) regExpUsername = new RegExp(username.$regex, 'i')
         return items
@@ -197,15 +199,15 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
             })
     }
 
-    private compareAsc(previous: any, next: any): number {
-        if (previous.username > next.username) return 1
-        if (previous.username < next.username) return -1
+    public compareAsc(previous: any, next: any): number {
+        if (previous.username.toLowerCase() > next.username.toLowerCase()) return 1
+        if (previous.username.toLowerCase() < next.username.toLowerCase()) return -1
         return 0
     }
 
-    private compareDesc(previous: any, next: any): number {
-        if (previous.username > next.username) return -1
-        if (previous.username < next.username) return 1
+    public compareDesc(previous: any, next: any): number {
+        if (previous.username.toLowerCase() > next.username.toLowerCase()) return -1
+        if (previous.username.toLowerCase() < next.username.toLowerCase()) return 1
         return 0
     }
 

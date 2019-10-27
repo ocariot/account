@@ -5,6 +5,7 @@ import { ChildrenGroupMock } from '../../mocks/children.group.mock'
 import { UserMock } from '../../mocks/user.mock'
 import { Child } from '../../../src/application/domain/model/child'
 import { ChildMock } from '../../mocks/child.mock'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Validators: ChildrenGroup', () => {
     const childrenGroup: ChildrenGroup = new ChildrenGroupMock()
@@ -24,8 +25,8 @@ describe('Validators: ChildrenGroup', () => {
             try {
                 CreateChildrenGroupValidator.validate(childrenGroup)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Children Group validation: user is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'user'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -36,8 +37,8 @@ describe('Validators: ChildrenGroup', () => {
             try {
                 CreateChildrenGroupValidator.validate(childrenGroup)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Children Group validation: Collection with children IDs is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'Collection with children IDs'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -49,9 +50,9 @@ describe('Validators: ChildrenGroup', () => {
             try {
                 CreateChildrenGroupValidator.validate(childrenGroup)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Children Group validation: Collection with children IDs ' +
-                    '(ID can not be empty) is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'Collection with children IDs (ID can not be empty)'
+                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -61,9 +62,9 @@ describe('Validators: ChildrenGroup', () => {
             try {
                 CreateChildrenGroupValidator.validate(emptyChildrenGroup)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Children Group validation: name, user, Collection with children IDs ' +
-                    'is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'name, user, Collection with children IDs'
+                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
     })

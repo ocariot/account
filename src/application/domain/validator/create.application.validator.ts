@@ -1,21 +1,26 @@
 import { ValidationException } from '../exception/validation.exception'
 import { Application } from '../model/application'
-import { ObjectIdValidator } from './object.id.validator'
+import { CreateUserValidator } from './create.user.validator'
+import { StringValidator } from './string.validator'
+import { Strings } from '../../../utils/strings'
 
 export class CreateApplicationValidator {
     public static validate(application: Application): void | ValidationException {
         const fields: Array<string> = []
 
-        // validate null
-        if (!application.username) fields.push('username')
-        if (!application.password) fields.push('password')
-        if (!application.type) fields.push('type')
-        if (!application.application_name) fields.push('application_name')
-        if (application.institution && application.institution.id) ObjectIdValidator.validate(application.institution.id)
+        try {
+            CreateUserValidator.validate(application)
+        } catch (err) {
+            if (err.message !== 'REQUIRED_FIELDS') throw err
+            fields.push(err.description.split(','))
+        }
+
+        if (application.application_name === undefined) fields.push('application_name')
+        else StringValidator.validate(application.application_name, 'application_name')
 
         if (fields.length > 0) {
-            throw new ValidationException('Required fields were not provided...',
-                'Application validation: '.concat(fields.join(', ')).concat(' is required!'))
+            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
+                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

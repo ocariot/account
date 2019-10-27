@@ -202,9 +202,9 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Child validation: username, password, institution, gender, ' +
-                            'age is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('username, password, institution, gender, ' +
+                            'age'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -233,7 +233,6 @@ describe('Routes: Child', () => {
 
         context('when the institution id provided was invalid', () => {
             it('should return status code 400 and message for invalid institution id', () => {
-
                 const body = {
                     username: 'anotherusername',
                     password: defaultChild.password,
@@ -248,15 +247,58 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
         })
 
-        context('when the gender provided was invalid', () => {
-            it('should return status code 400 and message for invalid gender', () => {
+        context('when the name provided is invalid', () => {
+            it('should return status code 400 and message for invalid name', () => {
+                const body = {
+                    username: '',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id
+                }
 
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('username must have at least one character!')
+                    })
+            })
+        })
+
+        context('when the password provided is invalid', () => {
+            it('should return status code 400 and message for invalid password', () => {
+                const body = {
+                    username: defaultChild.username,
+                    password: '',
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('password must have at least one character!')
+                    })
+            })
+        })
+
+        context('when the gender provided is invalid', () => {
+            it('should return status code 400 and message for invalid gender', () => {
                 const body = {
                     username: 'anotherusername',
                     password: defaultChild.password,
@@ -271,14 +313,38 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('The gender provided "invalid_gender" is not supported...')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql('The names of the allowed genders are: male, female.')
                     })
             })
         })
 
-        context('when the age provided was invalid', () => {
-            it('should return status code 400 and message for invalid gender', () => {
+        context('when the age provided is invalid', () => {
+            it('should return status code 400 and message for invalid age', () => {
+
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: `${defaultChild.age}a`,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql(
+                            'Provided age is not a valid number!')
+                    })
+            })
+        })
+
+        context('when the age provided is negative', () => {
+            it('should return status code 400 and message for invalid age', () => {
 
                 const body = {
                     username: 'anotherusername',
@@ -294,9 +360,9 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Age field is invalid...')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql(
-                            'Child validation: The age parameter can only contain a value greater than zero.')
+                            'Age cannot be less than or equal to zero!')
                     })
             })
         })
@@ -463,8 +529,10 @@ describe('Routes: Child', () => {
                 'UpdateChild event)', () => {
                 return request
                     .patch(`/v1/children/${result.id}`)
-                    .send({ username: 'other_username', last_login: defaultChild.last_login,
-                                  last_sync: defaultChild.last_sync })
+                    .send({
+                        username: 'other_username', last_login: defaultChild.last_login,
+                        last_sync: defaultChild.last_sync
+                    })
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
@@ -514,7 +582,7 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Child is already registered!')
+                        expect(err.body.message).to.eql(Strings.CHILD.ALREADY_REGISTERED)
                     })
             })
         })
@@ -560,7 +628,7 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -595,8 +663,78 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+
+        context('when the username is invalid', () => {
+            it('should return status code 400 and info message from invalid username', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ username: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('username must have at least one character!')
+                    })
+            })
+        })
+
+        context('when the gender is invalid', () => {
+            it('should return status code 400 and info message from invalid age', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ gender: 'invalidGender' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('The names of the allowed genders are: male, female.')
+                    })
+            })
+        })
+
+        context('when the age is negative', () => {
+            it('should return status code 400 and info message from invalid age', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ age: -1 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('Age cannot be less than or equal to zero!')
+                    })
+            })
+        })
+
+        context('when the age is invalid', () => {
+            it('should return status code 400 and info message from invalid age', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ age: `${defaultChild.age}a` })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('Provided age is not a valid number!')
+                    })
+            })
+        })
+
+        context('when the age is negative', () => {
+            it('should return status code 400 and info message from invalid age', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ age: -1 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('Age cannot be less than or equal to zero!')
                     })
             })
         })
@@ -609,7 +747,7 @@ describe('Routes: Child', () => {
                     await deleteAllUsers()
 
                     await createUser({
-                        username: defaultChild.username,
+                        username: 'BR0002',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
@@ -619,7 +757,27 @@ describe('Routes: Child', () => {
                     })
 
                     await createUser({
-                        username: 'other_child',
+                        username: 'BR0003',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'EU0001',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'BR0001',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
@@ -637,13 +795,13 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(200)
                     .then(res => {
-                        expect(res.body.length).to.eql(2)
+                        expect(res.body.length).to.eql(4)
                         for (const child of res.body) {
                             expect(child).to.have.property('id')
                             expect(child).to.have.property('username')
                             expect(child).to.have.property('institution_id')
-                            expect(child).to.have.property('age')
                             expect(child).to.have.property('gender')
+                            expect(child).to.have.property('age')
                         }
                     })
             })
@@ -655,21 +813,41 @@ describe('Routes: Child', () => {
                     await deleteAllUsers()
 
                     await createUser({
-                        username: defaultChild.username,
+                        username: 'BR0002',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
-                        age: 10,
+                        age: defaultChild.age,
                         institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
                     })
 
                     await createUser({
-                        username: 'IHAVEAUSERNAME',
+                        username: 'br0003',
                         password: defaultChild.password,
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
-                        age: 12,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'EU0001',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    await createUser({
+                        username: 'BR0001',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
                         institution: new ObjectID(institution.id),
                         scopes: new Array('users:read')
                     })
@@ -677,8 +855,9 @@ describe('Routes: Child', () => {
                     throw new Error('Failure on Child test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', () => {
-                const url = '/v1/children?username=ihaveausername&sort=username&page=1&limit=3'
+            it('should return the result as required in query (query a maximum of three children who have a certain ' +
+                'string at the beginning of their username)', () => {
+                const url = '/v1/children?username=EU*&sort=username&page=1&limit=3'
                 return request
                     .get(url)
                     .set('Content-Type', 'application/json')
@@ -686,14 +865,82 @@ describe('Routes: Child', () => {
                     .then(res => {
                         expect(res.body.length).to.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0].username).to.eql('IHAVEAUSERNAME')
+                        expect(res.body[0].username).to.eql('EU0001')
                         expect(res.body[0].institution_id).to.eql(institution.id)
-                        expect(res.body[0].age).to.eql(12)
                         expect(res.body[0].gender).to.eql(defaultChild.gender)
+                        expect(res.body[0].age).to.eql(defaultChild.age)
+                    })
+            })
+
+            it('should return the result as required in query (query a maximum of three children who have a certain ' +
+                'string at the end of their username)', () => {
+                const url = '/v1/children?username=*2&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(1)
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0].username).to.eql('BR0002')
+                        expect(res.body[0].institution_id).to.eql(institution.id)
+                        expect(res.body[0].gender).to.eql(defaultChild.gender)
+                        expect(res.body[0].age).to.eql(defaultChild.age)
+                    })
+            })
+
+            it('should return the result as required in query (query a maximum of two children who have a particular ' +
+                'string anywhere in their username, sorted in descending order by this username)', () => {
+                const url = '/v1/children?username=*BR*&sort=-username&page=1&limit=2'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(2)
+                        // Tests if the ordination was applied correctly
+                        expect(res.body[0].username).to.eql('br0003')
+                        expect(res.body[1].username).to.eql('BR0002')
+                        for (const child of res.body) {
+                            expect(child).to.have.property('id')
+                            expect(child).to.have.property('username')
+                            expect(child).to.have.property('institution_id')
+                            expect(child).to.have.property('gender')
+                            expect(child).to.have.property('age')
+                        }
+                    })
+            })
+
+            it('should return the result as required in query (query the child that has username exactly the same as the ' +
+                'given string)', () => {
+                const url = '/v1/children?username=br0003&sort=username&page=1&limit=2'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(1)
+                        expect(res.body[0]).to.have.property('id')
+                        expect(res.body[0].username).to.eql('br0003')
+                        expect(res.body[0].institution_id).to.eql(institution.id)
+                        expect(res.body[0].gender).to.eql(defaultChild.gender)
+                        expect(res.body[0].age).to.eql(defaultChild.age)
+                    })
+            })
+
+            it('should return an empty array (when not find any child)', () => {
+                const url = '/v1/children?username=*PB*&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
                     })
             })
         })
-        context('when there are no children in database', () => {
+
+        context('when there are no children in the database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()

@@ -6,6 +6,7 @@ import { AuthRepositoryMock } from '../../mocks/auth.repository.mock'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
 import { UserRepositoryMock } from '../../mocks/user.repository.mock'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Services: Auth', () => {
     let username: string = 'valid_username'
@@ -37,16 +38,17 @@ describe('Services: Auth', () => {
 
         context('when the parameters are invalid (missing fields)', () => {
             it('should throw a ValidationException', async () => {
-                username = ''
-                password = ''
+                username = undefined!
+                password = undefined!
                 const query: IQuery = new Query()
                 query.filters = { _username: username }
 
                 try {
                     return await authService.authenticate(username, password)
                 } catch (err) {
-                    assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                    assert.propertyVal(err, 'description', 'Authentication validation: username, password is required!')
+                    assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                    assert.propertyVal(err, 'description', 'username, password'
+                        .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                 }
             })
         })

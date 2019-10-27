@@ -11,6 +11,8 @@ import { Family } from '../../application/domain/model/family'
 import { IFamilyService } from '../../application/port/family.service.interface'
 import { Strings } from '../../utils/strings'
 import { Child } from '../../application/domain/model/child'
+import { IQuery } from '../../application/port/query.interface'
+import { UserType } from '../../application/domain/model/user'
 
 /**
  * Controller that implements Family feature operations.
@@ -86,8 +88,10 @@ export class FamilyController {
     @httpGet('/:family_id')
     public async getFamilyById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
+            const query: IQuery = new Query().fromJSON(req.query)
+            query.addFilter({ _id: req.params.family_id, type: UserType.FAMILY })
             const result: Family = await this._familyService
-                .getById(req.params.family_id, new Query().fromJSON(req.query))
+                .getById(req.params.family_id, query)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageFamilyNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
@@ -129,8 +133,10 @@ export class FamilyController {
     @httpGet('/:family_id/children')
     public async getAllChildrenFromFamily(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
+            const query: IQuery = new Query().fromJSON(req.query)
+            query.addFilter({ _id: req.params.family_id, type: UserType.FAMILY })
             const result: Array<Child> | undefined = await this._familyService
-                .getAllChildren(req.params.family_id, new Query().fromJSON(req.query))
+                .getAllChildren(req.params.family_id, query)
             const count: number = await this._familyService.countChildrenFromFamily(req.params.family_id)
             res.setHeader('X-Total-Count', count)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageFamilyNotFound())

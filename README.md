@@ -38,6 +38,7 @@ Application settings are defined by environment variables.. To define the settin
 | `ADMIN_PASSWORD` | The default user password of the administrator type created automatically when the application is initialized and the database has no administrator user.  | `admin` |
 | `ENCRYPT_SECRET_KEY` | Secret key used in symmetric encryption applied to username.  | `s3cr3tk3y` |
 | `RABBITMQ_URI` | URI containing the parameters for connection to the message channel RabbitMQ. The [URI specifications ](https://www.rabbitmq.com/uri-spec.html) defined by RabbitMQ are accepted. For example: `amqp://user:pass@host:port`. | `amqp://guest:guest`<br/>`@127.0.0.1:5672` |
+| `RABBITMQ_CA_PATH` | RabbitMQ CA file location. Must always be provided when using `amqps` protocol. | `.certs/rabbitmqca.crt` |
 | `MONGODB_URI` | Database connection URI used if the application is running in development or production environment. The [URI specifications ](https://docs.mongodb.com/manual/reference/connection-string) defined by MongoDB are accepted. For example: `mongodb://user:pass@host:port/database?options`. | `mongodb://127.0.0.1:27017`<br/>`/ocariot-account` |
 | `MONGODB_URI_TEST` | Database connection URI used if the application is running in test environment. The [URI specifications ](https://docs.mongodb.com/manual/reference/connection-string) defined by MongoDB are accepted. For example: `mongodb://user:pass@host:port/database?options`. | `mongodb://127.0.0.1:27017`<br/>`/ocariot-account-test` |
 

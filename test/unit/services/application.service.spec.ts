@@ -27,7 +27,6 @@ describe('Services: Application', () => {
     application.institution.id = '507f1f77bcf86cd799439011'
 
     const incorrectApplication: Application = new Application()
-    incorrectApplication.type = ''
 
     // Mock application array
     const applicationsArr: Array<Application> = new Array<ApplicationMock>()
@@ -123,9 +122,9 @@ describe('Services: Application', () => {
             it('should throw a ValidationException', () => {
                 return applicationService.add(incorrectApplication)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Application validation: username, password, type, ' +
-                            'application_name is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'username, password, ' +
+                            'application_name'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -136,7 +135,7 @@ describe('Services: Application', () => {
 
                 return applicationService.add(application)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -260,7 +259,7 @@ describe('Services: Application', () => {
             it('should throw a ValidationException', () => {
                 return applicationService.update(incorrectApplication)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.APPLICATION.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -274,7 +273,7 @@ describe('Services: Application', () => {
 
                 return applicationService.update(incorrectApplication)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })

@@ -10,12 +10,11 @@ import { ConflictException } from '../domain/exception/conflict.exception'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
 import { Strings } from '../../utils/strings'
-import { UserType } from '../domain/model/user'
-import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 import { IFamilyRepository } from '../port/family.repository.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { UpdateChildValidator } from '../domain/validator/update.child.validator'
 
 /**
  * Implementing child Service.
@@ -90,14 +89,13 @@ export class ChildService implements IChildService {
         ObjectIdValidator.validate(id, Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a child.
-        query.addFilter({ _id: id, type: UserType.CHILD })
         return this._childRepository.findOne(query)
     }
 
     public async update(child: Child): Promise<Child> {
         try {
             // 1. Validate Child parameters.
-            UpdateUserValidator.validate(child)
+            UpdateChildValidator.validate(child)
 
             // 1.5 Ignore last_login and last_sync attributes if exists.
             if (child.last_login) child.last_login = undefined

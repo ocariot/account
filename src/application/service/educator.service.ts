@@ -6,17 +6,16 @@ import { ConflictException } from '../domain/exception/conflict.exception'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
 import { Strings } from '../../utils/strings'
-import { UserType } from '../domain/model/user'
 import { IEducatorService } from '../port/educator.service.interface'
 import { IEducatorRepository } from '../port/educator.repository.interface'
 import { Educator } from '../domain/model/educator'
 import { CreateEducatorValidator } from '../domain/validator/create.educator.validator'
 import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
-import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { UpdateEducatorValidator } from '../domain/validator/update.educator.validator'
 
 /**
  * Implementing educator Service.
@@ -75,14 +74,13 @@ export class EducatorService implements IEducatorService {
         ObjectIdValidator.validate(id, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a educator.
-        query.addFilter({ _id: id, type: UserType.EDUCATOR })
         return this._educatorRepository.findOne(query)
     }
 
     public async update(educator: Educator): Promise<Educator> {
         try {
             // 1. Validate Educator parameters.
-            UpdateUserValidator.validate(educator)
+            UpdateEducatorValidator.validate(educator)
 
             // 1.5 Ignore last_login attributes if exists.
             if (educator.last_login) educator.last_login = undefined
@@ -181,13 +179,16 @@ export class EducatorService implements IEducatorService {
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
-            if (!educator || educator.id !== educatorId
-                || (educator.children_groups && educator.children_groups.length === 0)) {
+            if (!educator || educator.id !== educatorId) {
+                throw new ValidationException(
+                    Strings.EDUCATOR.NOT_FOUND,
+                    Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
+                )
+            } else if (educator.children_groups && educator.children_groups.length === 0) {
                 return Promise.resolve([])
             }
 
             // 3. Retrieves children groups by educator id.
-            query.addFilter({ user_id: educatorId })
             return this._childrenGroupService.getAll(query)
         } catch (err) {
             return Promise.reject(err)
@@ -203,7 +204,12 @@ export class EducatorService implements IEducatorService {
 
             // 2. Checks if the educator exists.
             const educator: Educator = await this._educatorRepository.findById(educatorId)
-            if (!educator || !educator.children_groups) return Promise.resolve(undefined)
+            if (!educator) {
+                throw new ValidationException(
+                    Strings.EDUCATOR.NOT_FOUND,
+                    Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
+                )
+            } else if (!educator.children_groups) return Promise.resolve(undefined)
 
             // 3. Verifies that the group of children belongs to the educator.
             const checkGroups: Array<ChildrenGroup> = await educator.children_groups.filter((obj, pos, arr) => {

@@ -12,6 +12,7 @@ import { IUserRepository } from '../port/user.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
+import { UpdateInstitutionValidator } from '../domain/validator/update.institution.validator'
 
 /**
  * Implementing Institution Service.
@@ -53,13 +54,12 @@ export class InstitutionService implements IInstitutionService {
         ObjectIdValidator.validate(id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get a institution.
-        query.filters = { _id: id }
         return this._institutionRepository.findOne(query)
     }
 
     public async update(institution: Institution): Promise<Institution> {
         // 1. Validate id.
-        if (institution.id) ObjectIdValidator.validate(institution.id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
+        UpdateInstitutionValidator.validate(institution)
 
         // 2. Checks if Institution already exists.
         const id: string = institution.id!

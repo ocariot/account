@@ -99,7 +99,6 @@ describe('Routes: Application', () => {
                 }
             })
             it('should return status code 201 and the saved application', () => {
-
                 const body = {
                     username: defaultApplication.username,
                     password: 'mysecretkey',
@@ -157,7 +156,28 @@ describe('Routes: Application', () => {
         })
 
         context('when a validation error occurs', () => {
-            it('should return status code 400 and message info about missing or invalid  parameters', () => {
+            it('should return status code 400 and message info about missing or invalid parameters', () => {
+                const body = {
+                    username: defaultApplication.username,
+                    password: 'mysecretkey',
+                    application_name: '',
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/applications')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('application_name must have at least one character!')
+                    })
+            })
+        })
+
+        context('when a validation error occurs (application_name is invalid)', () => {
+            it('should return status code 400 and message info about the invalid application_name parameters', () => {
                 const body = {
                     password: 'mysecretkey',
                     application_name: defaultApplication.application_name
@@ -169,8 +189,8 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Application validation: username is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -211,7 +231,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -415,7 +435,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Application is already registered!')
+                        expect(err.body.message).to.eql(Strings.APPLICATION.ALREADY_REGISTERED)
                     })
             })
         })
@@ -461,7 +481,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -488,6 +508,20 @@ describe('Routes: Application', () => {
             })
         })
 
+        context('when the application_name is invalid', () => {
+            it('should return status code 400 and info message from invalid application_name', () => {
+                return request
+                    .patch(`/v1/applications/${defaultApplication.id}`)
+                    .send({ application_name: ''})
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('application_name must have at least one character!')
+                    })
+            })
+        })
+
         context('when the application_id is invalid', () => {
             it('should return status code 400 and info message from invalid id', () => {
                 return request
@@ -496,7 +530,7 @@ describe('Routes: Application', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.APPLICATION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -505,65 +539,6 @@ describe('Routes: Application', () => {
 
     describe('GET /v1/applications/', () => {
         context('when want get all applications in database', () => {
-            before(async () => {
-                try {
-                    await deleteAllUsers()
-
-                    await createUser({
-                        username: defaultApplication.username,
-                        password: 'mysecretkey',
-                        application_name: defaultApplication.application_name,
-                        institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION,
-                        last_login: defaultApplication.last_login
-                    })
-
-                    await createUser({
-                        username: 'other_application',
-                        password: 'mysecretkey',
-                        application_name: 'app02',
-                        institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION
-                    })
-
-                    await createUser({
-                        username: 'new_application',
-                        password: 'mysecretkey',
-                        application_name: 'app03',
-                        institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION
-                    })
-
-                    await createUser({
-                        username: 'application1',
-                        password: 'mysecretkey',
-                        application_name: 'app04',
-                        institution: new ObjectID(institution.id),
-                        type: UserType.APPLICATION
-                    })
-                } catch (err) {
-                    throw new Error('Failure on Application test: ' + err.message)
-                }
-            })
-            it('should return status code 200 and a list of applications', () => {
-                return request
-                    .get('/v1/applications')
-                    .set('Content-Type', 'application/json')
-                    .expect(200)
-                    .then(res => {
-                        expect(res.body.length).to.eql(4)
-                        for (const application of res.body) {
-                            expect(application).to.have.property('id')
-                            expect(application).to.have.property('username')
-                            expect(application).to.have.property('institution_id')
-                            expect(application).to.have.property('application_name')
-                        }
-                    })
-            })
-        })
-
-        context('when use query strings (query application who has username exactly the same as the given string)',
-            () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
@@ -603,8 +578,66 @@ describe('Routes: Application', () => {
                     throw new Error('Failure on Application test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', () => {
-                const url: string = '/v1/applications?username=APP0*&sort=username&limit=1'
+            it('should return status code 200 and a list of applications', () => {
+                return request
+                    .get('/v1/applications')
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(4)
+                        for (const application of res.body) {
+                            expect(application).to.have.property('id')
+                            expect(application).to.have.property('username')
+                            expect(application).to.have.property('institution_id')
+                            expect(application).to.have.property('application_name')
+                        }
+                    })
+            })
+        })
+
+        context('when use query strings and find users in the database', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    await createUser({
+                        username: 'APP0002',
+                        password: 'mysecretkey',
+                        application_name: 'Scale',
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
+
+                    await createUser({
+                        username: 'APP0003',
+                        password: 'mysecretkey',
+                        application_name: 'Raspberry Pi 4',
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
+
+                    await createUser({
+                        username: 'APP0004',
+                        password: 'mysecretkey',
+                        application_name: 'Raspberry Pi 2',
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
+
+                    await createUser({
+                        username: 'APP0001',
+                        password: 'mysecretkey',
+                        application_name: 'Raspberry Pi 3 b+',
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Application test: ' + err.message)
+                }
+            })
+            it('should return the result as required in query (query the application that has username exactly ' +
+                'the same as the given string)', () => {
+                const url: string = '/v1/applications?username=APP0004&sort=username&limit=3'
 
                 return request
                     .get(url)
@@ -613,14 +646,25 @@ describe('Routes: Application', () => {
                     .then(res => {
                         expect(res.body.length).to.eql(1)
                         expect(res.body[0]).to.have.property('id')
-                        expect(res.body[0].username).to.eql('APP0001')
+                        expect(res.body[0].username).to.eql('APP0004')
                         expect(res.body[0].institution_id).to.eql(institution.id)
-                        expect(res.body[0].application_name).to.eql('Raspberry Pi 3 b+')
+                        expect(res.body[0].application_name).to.eql('Raspberry Pi 2')
+                    })
+            })
+
+            it('should return an empty array (when not find any application)', () => {
+                const url = '/v1/applications?username=*PB*&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
                     })
             })
         })
 
-        context('when there are no applications in database', () => {
+        context('when there are no applications in the database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()

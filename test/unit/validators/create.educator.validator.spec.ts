@@ -4,6 +4,7 @@ import { CreateEducatorValidator } from '../../../src/application/domain/validat
 import { Educator } from '../../../src/application/domain/model/educator'
 import { EducatorMock } from '../../mocks/educator.mock'
 import { UserTypeMock } from '../../mocks/user.mock'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Validators: Educator', () => {
     const educator: Educator = new EducatorMock()
@@ -18,25 +19,25 @@ describe('Validators: Educator', () => {
 
     context('when the educator was incomplete', () => {
         it('should throw an error for does not pass username', () => {
-            educator.username = ''
+            educator.username = undefined
 
             try {
                 CreateEducatorValidator.validate(educator)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Educator validation: username is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
         it('should throw an error for does not pass password', () => {
             educator.username = 'educator'
-            educator.password = ''
+            educator.password = undefined
 
             try {
                 CreateEducatorValidator.validate(educator)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Educator validation: password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -47,8 +48,8 @@ describe('Validators: Educator', () => {
             try {
                 CreateEducatorValidator.validate(educator)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Educator validation: type is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -59,8 +60,8 @@ describe('Validators: Educator', () => {
             try {
                 CreateEducatorValidator.validate(educator)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Educator validation: institution is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -70,8 +71,8 @@ describe('Validators: Educator', () => {
             try {
                 CreateEducatorValidator.validate(educator)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Educator validation: institution is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -82,9 +83,9 @@ describe('Validators: Educator', () => {
             try {
                 CreateEducatorValidator.validate(emptyEducator)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Educator validation: username, ' +
-                    'password, type, institution is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username, password, type, institution'
+                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
     })

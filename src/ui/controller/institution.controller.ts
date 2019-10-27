@@ -10,6 +10,7 @@ import { ILogger } from '../../utils/custom.logger'
 import { IInstitutionService } from '../../application/port/institution.service.interface'
 import { Institution } from '../../application/domain/model/institution'
 import { Strings } from '../../utils/strings'
+import { IQuery } from '../../application/port/query.interface'
 
 /**
  * Controller that implements Institution feature operations.
@@ -85,8 +86,10 @@ export class InstitutionController {
     @httpGet('/:institution_id')
     public async getInstitutionById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
+            const query: IQuery = new Query().fromJSON(req.query)
+            query.filters = { _id: req.params.institution_id }
             const result: Institution = await this._institutionService
-                .getById(req.params.institution_id, new Query().fromJSON(req.query))
+                .getById(req.params.institution_id, query)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageInstitutionNotFound())
             return res.status(HttpStatus.OK).send(result.toJSON())
         } catch (err) {

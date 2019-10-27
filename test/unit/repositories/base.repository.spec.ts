@@ -48,22 +48,6 @@ describe('Repositories: Base', () => {
     })
 
     describe('create(item: T)', () => {
-        context('when a database error occurs (arguments not passed to findOne)', () => {
-            it('should throw a ValidationException', () => {
-
-                sinon
-                    .mock(modelFake)
-                    .expects('create')
-                    .chain('exec')
-                    .resolves(defaultUser)
-
-                return repo.create(queryMock)
-                    .catch(err => {
-                        assert.propertyVal(err, 'message', 'Invalid query parameters!')
-                    })
-            })
-        })
-
         context('when a database error occurs (internal error in the database)', () => {
             it('should throw a RepositoryException', () => {
 

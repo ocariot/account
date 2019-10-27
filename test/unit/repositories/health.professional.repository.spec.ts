@@ -58,7 +58,7 @@ describe('Repositories: HealthProfessional', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs(defaultHealthProfessional.id)
+                    .withArgs({ _id: defaultHealthProfessional.id })
                     .chain('exec')
                     .resolves(defaultHealthProfessional)
 
@@ -96,7 +96,7 @@ describe('Repositories: HealthProfessional', () => {
         })
     })
 
-    describe('find(query: IQuery)', () => {
+    describe('findAll(query: IQuery)', () => {
         const query: Query = new Query()
         query.ordination = new Map()
         context('when there is at least one healthProfessional that corresponds to the received parameters', () => {
@@ -113,7 +113,7 @@ describe('Repositories: HealthProfessional', () => {
                     .chain('exec')
                     .resolves(healthProfessionalsArr)
 
-                return healthProfessionalRepo.find(query)
+                return healthProfessionalRepo.findAll(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isNotEmpty(result)
@@ -135,7 +135,7 @@ describe('Repositories: HealthProfessional', () => {
                     .chain('exec')
                     .resolves(new Array<HealthProfessionalMock>())
 
-                return healthProfessionalRepo.find(query)
+                return healthProfessionalRepo.findAll(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isEmpty(result)
@@ -158,7 +158,7 @@ describe('Repositories: HealthProfessional', () => {
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
-                return healthProfessionalRepo.find(query)
+                return healthProfessionalRepo.findAll(query)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')

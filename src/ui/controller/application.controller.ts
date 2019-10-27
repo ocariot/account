@@ -10,6 +10,8 @@ import { ILogger } from '../../utils/custom.logger'
 import { IApplicationService } from '../../application/port/application.service.interface'
 import { Strings } from '../../utils/strings'
 import { Application } from '../../application/domain/model/application'
+import { IQuery } from '../../application/port/query.interface'
+import { UserType } from '../../application/domain/model/user'
 
 /**
  * Controller that implements Application feature operations.
@@ -85,8 +87,10 @@ export class ApplicationController {
     @httpGet('/:application_id')
     public async getApplicationById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
+            const query: IQuery = new Query().fromJSON(req.query)
+            query.addFilter({ _id: req.params.application_id, type: UserType.APPLICATION })
             const result: Application = await this._applicationService
-                .getById(req.params.application_id, new Query().fromJSON(req.query))
+                .getById(req.params.application_id, query)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundApplication())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {

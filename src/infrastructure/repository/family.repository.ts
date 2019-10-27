@@ -10,6 +10,7 @@ import { Family } from '../../application/domain/model/family'
 import { FamilyEntity } from '../entity/family.entity'
 import { IUserRepository } from '../../application/port/user.repository.interface'
 import { IQuery } from '../../application/port/query.interface'
+import { Child } from '../../application/domain/model/child'
 
 /**
  * Implementation of the family repository.
@@ -37,7 +38,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                     // Required due to 'populate ()' routine.
                     // If there is no need for 'populate ()', the return will suffice.
                     const query = new Query()
-                    query.filters = result._id
+                    query.filters = { _id: result._id }
                     return resolve(this.findOne(query))
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
@@ -53,12 +54,46 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
         const q: any = query.toJSON()
         const populate: any = { path: 'children' }
 
+        // Checks if you have username in filters
+        let usernameFilter: any
+        const limit: number = q.pagination.limit
+        if (q.filters.username) {
+            usernameFilter = q.filters.username
+            delete q.filters.username
+        }
+
+        // Checks if you have username in ordination/sort
+        let usernameOrder: string
+        if (q.ordination.username) {
+            usernameOrder = q.ordination.username
+            delete q.ordination.username
+        }
+
         return new Promise<Family>((resolve, reject) => {
             this.familyModel.findOne(q.filters)
                 .populate(populate)
                 .exec()
                 .then((result: Family) => {
                     if (!result) return resolve(undefined)
+
+                    let children: Array<Child> = result.children ? result.children : []
+                    if (children) {
+                        if (usernameFilter) {
+                            children = this.applyFilterByUsername(usernameFilter, children)
+                        }
+
+                        if (usernameOrder) {
+                            if (usernameOrder === 'asc') children.sort(this.compareAsc)
+                            else children.sort(this.compareDesc)
+                        }
+
+                        if (children.length > limit) {
+                            children = children.slice(0, limit)
+                        }
+                    }
+
+                    result.children = children
+
                     return resolve(this.familyMapper.transform(result))
                 })
                 .catch(err => reject(super.mongoDBErrorListener(err)))
@@ -123,7 +158,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
 
     public countChildrenFromFamily(familyId: string): Promise<number> {
         return new Promise<number>((resolve, reject) => {
-            this.findOne(new Query().fromJSON({ filters: { _id: familyId } }))
+            super.findOne(new Query().fromJSON({ filters: { _id: familyId } }))
                 .then(result => resolve(result && result.children ? result.children.length : 0))
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })

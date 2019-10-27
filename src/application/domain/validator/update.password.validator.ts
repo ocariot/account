@@ -1,4 +1,6 @@
 import { ValidationException } from '../exception/validation.exception'
+import { Strings } from '../../../utils/strings'
+import { StringValidator } from './string.validator'
 
 export class UpdatePasswordValidator {
 
@@ -6,12 +8,15 @@ export class UpdatePasswordValidator {
         const fields: Array<string> = []
 
         // validate null
-        if (!old_password) fields.push('old_password')
-        if (!new_password) fields.push('new_password')
+        if (old_password === undefined) fields.push('old_password')
+        else StringValidator.validate(old_password, 'old_password')
+
+        if (new_password === undefined) fields.push('new_password')
+        else StringValidator.validate(new_password, 'new_password')
 
         if (fields.length > 0) {
-            throw new ValidationException('Required fields were not provided...',
-                'Change password validation failed: '.concat(fields.join(', ')).concat(' is required!'))
+            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
+                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

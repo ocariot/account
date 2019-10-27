@@ -145,8 +145,9 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Educator validation: username, password, institution is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('username, password, institution'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -185,7 +186,7 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -428,7 +429,7 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Educator is already registered!')
+                        expect(err.body.message).to.eql(Strings.EDUCATOR.ALREADY_REGISTERED)
                     })
             })
         })
@@ -474,7 +475,7 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -502,7 +503,7 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(err.body.message).to.eql(Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -649,9 +650,58 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: name, Collection with children ' +
-                            'IDs is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('name, Collection with children IDs'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                    })
+            })
+        })
+
+        context('when the ChildrenGroup name is invalid', () => {
+            let resultEducator
+            let resultChild
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultEducator = await createUser({
+                        username: defaultEducator.username,
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Educator test: ' + err.message)
+                }
+            })
+            it('should return status code 400 and info message from invalid ChildrenGroup name', () => {
+                const body = {
+                    name: '',
+                    children: new Array<string | undefined>(resultChild.id),
+                    school_class: '3th Grade'
+                }
+
+                return request
+                    .post(`/v1/educators/${resultEducator.id}/children/groups`)
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('childrengroup.name must have at least one character!')
                     })
             })
         })
@@ -675,10 +725,10 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid ID', () => {
+            it('should return status code 400 and info message from invalid IDs', () => {
                 const body = {
                     name: 'Children Group One',
-                    children: new Array<string | undefined>('123'),
+                    children: new Array<string | undefined>('123', '123a'),
                     school_class: '3th Grade'
                 }
 
@@ -688,9 +738,9 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: Collection with children IDs ' +
-                            '(ID can not be empty) is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('The following IDs from children attribute are not ' +
+                            'in valid format: 123, 123a')
                     })
             })
         })
@@ -714,7 +764,7 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid ID', () => {
+            it('should return status code 400 and info message from invalid IDs', () => {
                 const body = {
                     name: 'Children Group Two',
                     children: new Array<string | undefined>('507f1f77bcf86cd799439011'),
@@ -728,7 +778,7 @@ describe('Routes: Educator', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ')
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER
                             .concat('507f1f77bcf86cd799439011'))
                     })
             })
@@ -801,17 +851,27 @@ describe('Routes: Educator', () => {
         })
 
         context('when the children group is not found', () => {
+            let resultEducator
+
             before(async () => {
                 try {
                     await deleteAllUsers()
                     await deleteAllChildrenGroups()
+
+                    resultEducator = await createUser({
+                        username: defaultEducator.username,
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
             it('should return status code 404 and info message from children group not found', () => {
                 return request
-                    .get(`/v1/educators/${defaultEducator.id}/children/groups/${new ObjectID()}`)
+                    .get(`/v1/educators/${resultEducator.id}/children/groups/${new ObjectID()}`)
                     .set('Content-Type', 'application/json')
                     .expect(404)
                     .then(err => {
@@ -948,7 +1008,7 @@ describe('Routes: Educator', () => {
                     .set('Content-Type', 'application/json')
                     .expect(409)
                     .then(err => {
-                        expect(err.body.message).to.eql('Children Group is already registered!')
+                        expect(err.body.message).to.eql(Strings.CHILDREN_GROUP.ALREADY_REGISTERED)
                     })
             })
         })
@@ -999,8 +1059,59 @@ describe('Routes: Educator', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
-                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ')
+                        expect(err.body.description).to.eql(Strings.CHILD.IDS_WITHOUT_REGISTER
                             .concat('507f1f77bcf86cd799439011'))
+                    })
+            })
+        })
+
+        context('when the children group was updated with an invalid name', () => {
+            let resultEducator
+            let resultChild
+            let resultChildrenGroup
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    await deleteAllChildrenGroups()
+
+                    resultEducator = await createUser({
+                        username: defaultEducator.username,
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultChildrenGroup = await createChildrenGroup({
+                        name: defaultChildrenGroup.name,
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultEducator.id
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Educator test: ' + err.message)
+                }
+            })
+            it('should return status code 400 and info message from invalid name', () => {
+                return request
+                    .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
+                    .send({ name: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('childrengroup.name must have at least one character!')
                     })
             })
         })
@@ -1043,16 +1154,16 @@ describe('Routes: Educator', () => {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return status code 400 and info message from invalid id', () => {
+            it('should return status code 400 and info message from invalid ids', () => {
                 return request
                     .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
-                    .send({ children: new Array<string>('123') })
+                    .send({ children: new Array<string>('123', '123a') })
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Required fields were not provided...')
-                        expect(err.body.description).to.eql('Children Group validation: Collection with children IDs ' +
-                            '(ID can not be empty) is required!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('The following IDs from children attribute are not ' +
+                            'in valid format: 123, 123a')
                     })
             })
         })
@@ -1353,7 +1464,7 @@ describe('Routes: Educator', () => {
                     })
 
                     resultEducator = await createUser({
-                        username: defaultEducator.username,
+                        username: 'EDUBR0001',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
@@ -1361,7 +1472,7 @@ describe('Routes: Educator', () => {
                     })
 
                     resultEducator2 = await createUser({
-                        username: 'other_educator',
+                        username: 'EDUBR0002',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
                         institution: new ObjectID(institution.id),
@@ -1426,29 +1537,15 @@ describe('Routes: Educator', () => {
         })
 
         context('when use query strings', () => {
-            let resultEducator
             let resultChild
+            let resultEducator
+            let resultEducator2
             let resultChildrenGroup
+            let resultChildrenGroup2
 
             before(async () => {
                 try {
                     await deleteAllUsers()
-
-                    await createUser({
-                        username: defaultEducator.username,
-                        password: defaultEducator.password,
-                        type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
-
-                    resultEducator = await createUser({
-                        username: 'other_educator',
-                        password: defaultEducator.password,
-                        type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
-                    })
 
                     resultChild = await createUser({
                         username: defaultChild.username,
@@ -1460,6 +1557,22 @@ describe('Routes: Educator', () => {
                         scopes: new Array('users:read')
                     })
 
+                    resultEducator = await createUser({
+                        username: 'EDUBR0001',
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultEducator2 = await createUser({
+                        username: 'EDUBR0002',
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
                     resultChildrenGroup = await createChildrenGroup({
                         name: defaultChildrenGroup.name,
                         children: new Array<string | undefined>(resultChild.id),
@@ -1467,17 +1580,29 @@ describe('Routes: Educator', () => {
                         user_id: resultEducator.id
                     })
 
+                    resultChildrenGroup2 = await createChildrenGroup({
+                        name: 'other_children_group_name',
+                        children: new Array<string | undefined>(resultChild.id),
+                        school_class: defaultChildrenGroup.school_class,
+                        user_id: resultEducator2.id
+                    })
 
                     await updateUser({
                         id: resultEducator.id,
                         children_groups: [resultChildrenGroup.id]
                     })
+
+                    await updateUser({
+                        id: resultEducator2.id,
+                        children_groups: [resultChildrenGroup2.id]
+                    })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
                 }
             })
-            it('should return the result as required in query', () => {
-                const url: string = '/v1/educators?username=other_educator&sort=username&page=1&limit=3'
+            it('should return the result as required in query (query the educator that has username exactly ' +
+                'the same as the given string)', () => {
+                const url: string = '/v1/educators?username=EDUBR0002&sort=username&page=1&limit=3'
 
                 return request
                     .get(url)
@@ -1487,12 +1612,12 @@ describe('Routes: Educator', () => {
                         expect(res.body.length).to.eql(1)
                         for (const educator of res.body) {
                             expect(educator).to.have.property('id')
-                            expect(educator.username).to.eql('other_educator')
+                            expect(educator.username).to.eql('EDUBR0002')
                             expect(educator.institution_id).to.eql(institution.id)
                             expect(educator.children_groups.length).to.eql(1)
                             for (const childrenGroup of educator.children_groups) {
                                 expect(childrenGroup).to.have.property('id')
-                                expect(childrenGroup.name).to.eql(defaultChildrenGroup.name)
+                                expect(childrenGroup.name).to.eql('other_children_group_name')
                                 expect(childrenGroup.children.length).to.eql(1)
                                 for (const child of childrenGroup.children) {
                                     expect(child).to.have.property('id')
@@ -1506,9 +1631,20 @@ describe('Routes: Educator', () => {
                         }
                     })
             })
+
+            it('should return an empty array (when not find any educator)', () => {
+                const url = '/v1/educators?username=*PB*&sort=username&page=1&limit=3'
+                return request
+                    .get(url)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body.length).to.eql(0)
+                    })
+            })
         })
 
-        context('when there are no educators in database', () => {
+        context('when there are no educators in the database', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()

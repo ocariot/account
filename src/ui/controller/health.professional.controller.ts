@@ -11,6 +11,8 @@ import { Strings } from '../../utils/strings'
 import { IHealthProfessionalService } from '../../application/port/health.professional.service.interface'
 import { HealthProfessional } from '../../application/domain/model/health.professional'
 import { ChildrenGroup } from '../../application/domain/model/children.group'
+import { IQuery } from '../../application/port/query.interface'
+import { UserType } from '../../application/domain/model/user'
 
 /**
  * Controller that implements Health Professional feature operations.
@@ -86,8 +88,10 @@ export class HealthProfessionalController {
     @httpGet('/:healthprofessional_id')
     public async getHealthProfessionalById(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
+            const query: IQuery = new Query().fromJSON(req.query)
+            query.addFilter({ _id: req.params.healthprofessional_id, type: UserType.HEALTH_PROFESSIONAL })
             const result: HealthProfessional = await this._healthProfessionalService
-                .getById(req.params.healthprofessional_id, new Query().fromJSON(req.query))
+                .getById(req.params.healthprofessional_id, query)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageHealthProfessionalNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
@@ -156,8 +160,10 @@ export class HealthProfessionalController {
         Promise<Response> {
 
         try {
+            const query: IQuery = new Query().fromJSON(req.query)
+            query.addFilter({ user_id: req.params.healthprofessional_id })
             const result: Array<ChildrenGroup> = await this._healthProfessionalService
-                .getAllChildrenGroups(req.params.healthprofessional_id, new Query().fromJSON(req.query))
+                .getAllChildrenGroups(req.params.healthprofessional_id, query)
             const count: number = await this._healthProfessionalService.countChildrenGroups(req.params.healthprofessional_id)
             res.setHeader('X-Total-Count', count)
             return res.status(HttpStatus.OK).send(this.toJSONChildrenGroupView(result))
@@ -179,8 +185,10 @@ export class HealthProfessionalController {
         Promise<Response> {
 
         try {
+            const query: IQuery = new Query().fromJSON(req.query)
+            query.filters = { _id: req.params.group_id }
             const result: ChildrenGroup | undefined = await this._healthProfessionalService
-                .getChildrenGroupById(req.params.healthprofessional_id, req.params.group_id, new Query().fromJSON(req.query))
+                .getChildrenGroupById(req.params.healthprofessional_id, req.params.group_id, query)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONChildrenGroupView(result))
         } catch (err) {

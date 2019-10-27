@@ -59,7 +59,7 @@ describe('Repositories: Application', () => {
                 sinon
                     .mock(modelFake)
                     .expects('findOne')
-                    .withArgs(defaultApplication.id)
+                    .withArgs({ _id: defaultApplication.id })
                     .chain('exec')
                     .resolves(defaultApplication)
 
@@ -97,7 +97,7 @@ describe('Repositories: Application', () => {
         })
     })
 
-    describe('find(query: IQuery)', () => {
+    describe('findAll(query: IQuery)', () => {
         const query: Query = new Query()
         query.ordination = new Map()
         context('when there is at least one application that corresponds to the received parameters', () => {
@@ -115,7 +115,7 @@ describe('Repositories: Application', () => {
                     .chain('exec')
                     .resolves(applicationsArr)
 
-                return applicationRepo.find(query)
+                return applicationRepo.findAll(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isNotEmpty(result)
@@ -139,7 +139,7 @@ describe('Repositories: Application', () => {
                     .chain('exec')
                     .resolves(new Array<ApplicationMock>())
 
-                return applicationRepo.find(query)
+                return applicationRepo.findAll(query)
                     .then(result => {
                         assert.isArray(result)
                         assert.isEmpty(result)
@@ -164,7 +164,7 @@ describe('Repositories: Application', () => {
                     .rejects({ message: 'An internal error has occurred in the database!',
                                description: 'Please try again later...' })
 
-                return applicationRepo.find(query)
+                return applicationRepo.findAll(query)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')

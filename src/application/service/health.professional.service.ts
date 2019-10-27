@@ -6,17 +6,16 @@ import { ConflictException } from '../domain/exception/conflict.exception'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { ValidationException } from '../domain/exception/validation.exception'
 import { Strings } from '../../utils/strings'
-import { UserType } from '../domain/model/user'
 import { IHealthProfessionalService } from '../port/health.professional.service.interface'
 import { IHealthProfessionalRepository } from '../port/health.professional.repository.interface'
 import { HealthProfessional } from '../domain/model/health.professional'
 import { CreateHealthProfessionalValidator } from '../domain/validator/create.health.professional.validator'
 import { ChildrenGroup } from '../domain/model/children.group'
 import { IChildrenGroupService } from '../port/children.group.service.interface'
-import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IChildrenGroupRepository } from '../port/children.group.repository.interface'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { UpdateHealthProfessionalValidator } from '../domain/validator/update.health.professional.validator'
 
 /**
  * Implementing Health Professional Service.
@@ -78,14 +77,13 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         ObjectIdValidator.validate(id, Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Find a health professional.
-        query.addFilter({ _id: id, type: UserType.HEALTH_PROFESSIONAL })
         return this._healthProfessionalRepository.findOne(query)
     }
 
     public async update(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
         try {
             // 1. Validate Health Professional parameters.
-            UpdateUserValidator.validate(healthProfessional)
+            UpdateHealthProfessionalValidator.validate(healthProfessional)
 
             // 1.5 Ignore last_login attributes if exists.
             if (healthProfessional.last_login) healthProfessional.last_login = undefined
@@ -186,13 +184,16 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             // 2. Checks if the health professional exists.
             const healthProfessional: HealthProfessional =
                 await this._healthProfessionalRepository.findById(healthProfessionalId)
-            if (!healthProfessional || healthProfessional.id !== healthProfessionalId
-                || (healthProfessional.children_groups && healthProfessional.children_groups.length === 0)) {
+            if (!healthProfessional || healthProfessional.id !== healthProfessionalId) {
+                throw new ValidationException(
+                    Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
+                    Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION
+                )
+            } else if (healthProfessional.children_groups && healthProfessional.children_groups.length === 0) {
                 return Promise.resolve([])
             }
 
             // 3. Retrieves children groups by health professional id.
-            query.addFilter({ user_id: healthProfessionalId })
             return this._childrenGroupService.getAll(query)
         } catch (err) {
             return Promise.reject(err)
@@ -209,7 +210,12 @@ export class HealthProfessionalService implements IHealthProfessionalService {
 
             // 2. Checks if the health professional exists.
             const healthProfessional: HealthProfessional = await this._healthProfessionalRepository.findById(healthProfessionalId)
-            if (!healthProfessional || !healthProfessional.children_groups) return Promise.resolve(undefined)
+            if (!healthProfessional) {
+                throw new ValidationException(
+                    Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
+                    Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION
+                )
+            } else if (!healthProfessional.children_groups) return Promise.resolve(undefined)
 
             // 3. Verifies that the group of children belongs to the health professional.
             const checkGroups: Array<ChildrenGroup> = await healthProfessional.children_groups.filter((obj, pos, arr) => {

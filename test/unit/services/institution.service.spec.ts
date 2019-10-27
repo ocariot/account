@@ -76,13 +76,14 @@ describe('Services: Institution', () => {
 
         context('when the Institution is incorrect (missing fields)', () => {
             it('should throw a ValidationException', () => {
-                incorrectInstitution.name = ''      // Make mock throw an exception
-                incorrectInstitution.type = ''
+                incorrectInstitution.name = undefined      // Make mock throw an exception
+                incorrectInstitution.type = undefined
 
                 return institutionService.add(incorrectInstitution)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Institution validation: name, type is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'name, type'
+                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })

@@ -12,10 +12,9 @@ import { Child } from '../domain/model/child'
 import { IChildRepository } from '../port/child.repository.interface'
 import { IInstitutionRepository } from '../port/institution.repository.interface'
 import { Strings } from '../../utils/strings'
-import { UserType } from '../domain/model/user'
-import { UpdateUserValidator } from '../domain/validator/update.user.validator'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
+import { UpdateFamilyValidator } from '../domain/validator/update.family.validator'
 
 /**
  * Implementing family Service.
@@ -50,7 +49,7 @@ export class FamilyService implements IFamilyService {
                 if (checkChildrenExist instanceof ValidationException) {
                     throw new ValidationException(
                         Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
+                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(checkChildrenExist.message)
                     )
                 }
             }
@@ -85,14 +84,13 @@ export class FamilyService implements IFamilyService {
         ObjectIdValidator.validate(id, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Find a family.
-        query.addFilter({ _id: id, type: UserType.FAMILY })
         return this._familyRepository.findOne(query)
     }
 
     public async update(family: Family): Promise<Family> {
         try {
             // 1. Validate Family parameters.
-            UpdateUserValidator.validate(family)
+            UpdateFamilyValidator.validate(family)
 
             // 1.5 Ignore last_login attributes if exists.
             if (family.last_login) family.last_login = undefined
@@ -112,7 +110,7 @@ export class FamilyService implements IFamilyService {
                 if (checkChildrenExist instanceof ValidationException) {
                     throw new ValidationException(
                         Strings.CHILD.CHILDREN_REGISTER_REQUIRED,
-                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(' ').concat(checkChildrenExist.message)
+                        Strings.CHILD.IDS_WITHOUT_REGISTER.concat(checkChildrenExist.message)
                     )
                 }
             }
@@ -163,10 +161,8 @@ export class FamilyService implements IFamilyService {
         ObjectIdValidator.validate(familyId, Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
 
         // 2. Get all children from family.
-        query.addFilter({ _id: familyId, type: UserType.FAMILY })
-
         try {
-            const family: Family = await this._familyRepository.findById(familyId)
+            const family: Family = await this._familyRepository.findOne(query)
             if (!family) return Promise.resolve(undefined)
 
             return Promise.resolve(family.children ? family.children : [])

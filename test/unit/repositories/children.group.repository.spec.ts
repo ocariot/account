@@ -325,7 +325,6 @@ describe('Repositories: ChildrenGroup', () => {
 
         context('when a database error occurs', () => {
             it('should throw a RepositoryException', () => {
-                defaultChildrenGroup.id = ''
                 queryMock.filters = { _id: defaultChildrenGroup.id }
 
                 sinon

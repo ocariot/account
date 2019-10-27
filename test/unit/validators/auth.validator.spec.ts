@@ -1,5 +1,6 @@
 import { AuthValidator } from '../../../src/application/domain/validator/auth.validator'
 import { assert } from 'chai'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Validators: Auth', () => {
     context('when the validation was successful', () => {
@@ -12,28 +13,28 @@ describe('Validators: Auth', () => {
     context('when doest not pass username or password', () => {
         it('should throw an error for does not pass username', () => {
             try {
-                AuthValidator.validate('', 'password')
+                AuthValidator.validate(undefined!, 'password')
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Authentication validation: username is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
         it('should throw an error for does not pass password', () => {
             try {
-                AuthValidator.validate('username', '')
+                AuthValidator.validate('username', undefined!)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Authentication validation: password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
         it('should throw an error for does not pass any of required parameters', () => {
             try {
-                AuthValidator.validate('', '')
+                AuthValidator.validate(undefined!, undefined!)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Authentication validation: username, password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username, password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
     })

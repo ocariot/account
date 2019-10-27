@@ -100,7 +100,7 @@ describe('Services: Family', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
                         assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
-                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
+                            .concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })
@@ -126,9 +126,10 @@ describe('Services: Family', () => {
 
                 return familyService.add(incorrectFamily)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', 'Required fields were not provided...')
-                        assert.propertyVal(err, 'description', 'Family validation: username, password, type, institution, ' +
-                            'Collection with children IDs (ID can not be empty) is required!')
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        assert.propertyVal(err, 'description', 'username, password, type, institution, ' +
+                            'Collection with children IDs (ID can not be empty)'
+                                .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -141,8 +142,9 @@ describe('Services: Family', () => {
 
                 return familyService.add(incorrectFamily)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
-                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT
+                            .concat('507f1f77bcf86cd7994390111'))
                     })
             })
         })
@@ -153,7 +155,7 @@ describe('Services: Family', () => {
 
                 return familyService.add(family)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -278,7 +280,7 @@ describe('Services: Family', () => {
             it('should throw a ValidationException', () => {
                 return familyService.update(incorrectFamily)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.FAMILY.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -292,7 +294,7 @@ describe('Services: Family', () => {
 
                 return familyService.update(incorrectFamily)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.propertyVal(err, 'message', Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     })
             })
@@ -320,7 +322,7 @@ describe('Services: Family', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.CHILD.CHILDREN_REGISTER_REQUIRED)
                         assert.propertyVal(err, 'description', Strings.CHILD.IDS_WITHOUT_REGISTER
-                            .concat(' ').concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
+                            .concat(Strings.CHILD.CHILDREN_REGISTER_REQUIRED))
                     })
             })
         })

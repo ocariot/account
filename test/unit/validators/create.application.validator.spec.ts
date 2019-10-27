@@ -3,6 +3,7 @@ import { CreateApplicationValidator } from '../../../src/application/domain/vali
 import { Application } from '../../../src/application/domain/model/application'
 import { ApplicationMock } from '../../mocks/application.mock'
 import { UserTypeMock } from '../../mocks/user.mock'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Validators: Application', () => {
     const app: Application = new ApplicationMock()
@@ -17,25 +18,25 @@ describe('Validators: Application', () => {
 
     context('when the application was incomplete', () => {
         it('should throw an error for does not pass username', () => {
-            app.username = ''
+            app.username = undefined
 
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Application validation: username is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
         it('should throw an error for does not pass password', () => {
             app.username = 'application'
-            app.password = ''
+            app.password = undefined
 
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Application validation: password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -46,33 +47,32 @@ describe('Validators: Application', () => {
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Application validation: type is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
         it('should throw an error for does not pass application name', () => {
             app.type = UserTypeMock.APPLICATION
-            app.application_name = ''
+            app.application_name = undefined
 
             try {
                 CreateApplicationValidator.validate(app)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Application validation: application_name is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'application_name'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
         it('should trow an error for does not pass any of required parameters', () => {
             const emptyApp: Application = new Application()
-            emptyApp.type = ''
 
             try {
                 CreateApplicationValidator.validate(emptyApp)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Application validation: username, ' +
-                    'password, type, application_name is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username, password, application_name'
+                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
     })

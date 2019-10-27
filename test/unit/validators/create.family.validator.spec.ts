@@ -6,6 +6,7 @@ import { Child } from '../../../src/application/domain/model/child'
 import { FamilyMock } from '../../mocks/family.mock'
 import { UserTypeMock } from '../../mocks/user.mock'
 import { InstitutionMock } from '../../mocks/institution.mock'
+import { Strings } from '../../../src/utils/strings'
 
 describe('Validators: Family', () => {
     const family: Family = new FamilyMock()
@@ -20,25 +21,25 @@ describe('Validators: Family', () => {
 
     context('when the educator was incomplete', () => {
         it('should throw an error for does not pass username', () => {
-            family.username = ''
+            family.username = undefined
 
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Family validation: username is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
         it('should throw an error for does not pass password', () => {
             family.username = 'family'
-            family.password = ''
+            family.password = undefined
 
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Family validation: password is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -49,8 +50,8 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Family validation: type is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -61,8 +62,8 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Family validation: institution is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -72,8 +73,8 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Family validation: institution is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -84,19 +85,9 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Family validation: Collection with children IDs is required!')
-            }
-        })
-
-        it('should throw an error for pass empty children collection', () => {
-            family.children = []
-
-            try {
-                CreateFamilyValidator.validate(family)
-            } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Family validation: Collection with children IDs is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'Collection with children IDs'
+                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -106,9 +97,9 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Family validation: Collection with children IDs ' +
-                    '(ID can not be empty) is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'Collection with children IDs (ID can not be empty)'
+                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
 
@@ -119,9 +110,9 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(emptyFamily)
             } catch (err) {
-                assert.equal(err.message, 'Required fields were not provided...')
-                assert.equal(err.description, 'Family validation: username, ' +
-                    'password, type, institution, Collection with children IDs is required!')
+                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                assert.equal(err.description, 'username, password, type, institution, ' +
+                    'Collection with children IDs'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
             }
         })
     })

@@ -52,7 +52,8 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideChildren(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    const _query: IQuery = new Query().fromJSON(
+                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
                     const result: Array<Child> = await this._childRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -66,7 +67,8 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideFamilies(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    const _query: IQuery = new Query().fromJSON(
+                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
                     const result: Array<Family> = await this._familyRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -95,7 +97,8 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideEducators(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    const _query: IQuery = new Query().fromJSON(
+                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
                     const result: Array<Educator> = await this._educatorRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -124,7 +127,8 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideHealthProfessionals(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    const _query: IQuery = new Query().fromJSON(
+                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
                     const result: Array<HealthProfessional> = await this._healthProfessionalRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -155,7 +159,8 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideApplications(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    const _query: IQuery = new Query().fromJSON(
+                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
                     const result: Array<Application> = await this._applicationRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -169,7 +174,8 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideInstitutions(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON({ ...qs.parser(query) })
+                    const _query: IQuery = new Query().fromJSON(
+                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
                     const result: Array<Institution> = await this._institutionRepository.find(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
