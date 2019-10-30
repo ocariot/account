@@ -11,10 +11,10 @@ export class UpdateChildrenGroupValidator {
 
         if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
         if (childrenGroup.name !== undefined) {
-            StringValidator.validate(childrenGroup.name, 'childrengroup.name')
+            StringValidator.validate(childrenGroup.name, 'name')
         }
         if (childrenGroup.school_class !== undefined) {
-            StringValidator.validate(childrenGroup.school_class, 'childrengroup.school_class')
+            StringValidator.validate(childrenGroup.school_class, 'school_class')
         }
         if (childrenGroup.children && childrenGroup.children.length > 0) {
             childrenGroup.children.forEach(child => {

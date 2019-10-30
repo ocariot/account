@@ -11,10 +11,10 @@ export class CreateChildrenGroupValidator {
 
         // validate null
         if (childrenGroup.name === undefined) fields.push('name')
-        else StringValidator.validate(childrenGroup.name, 'childrengroup.name')
+        else StringValidator.validate(childrenGroup.name, 'name')
 
         if (childrenGroup.school_class !== undefined) {
-            StringValidator.validate(childrenGroup.school_class, 'childrengroup.school_class')
+            StringValidator.validate(childrenGroup.school_class, 'school_class')
         }
 
         if (!childrenGroup.user || !childrenGroup.user.id) fields.push('user')

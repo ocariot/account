@@ -51,6 +51,9 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
         getWeights(query: string): Promise<any> {
             return Promise.resolve({})
         },
+        getFoods(childId: string, dateStart: string, dateEnd: string): Promise<any> {
+            return Promise.resolve({})
+        },
         logger(level: string): void {
             //
         },
@@ -100,6 +103,9 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
             return Promise.resolve()
         },
         provideWeights(listener: (query: string) => any): Promise<void> {
+            return Promise.resolve()
+        },
+        provideFoods(listener: (childId: string, dateStart: string, dateEnd: string) => any): Promise<void> {
             return Promise.resolve()
         },
         pub(routingKey: string, body: any): Promise<void> {
@@ -180,6 +186,12 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
         pubSyncWeight(weight: any): Promise<void> {
             return Promise.resolve()
         },
+        pubSaveFood(food: any): Promise<void> {
+            return Promise.resolve()
+        },
+        pubUpdateFood(food: any): Promise<void> {
+            return Promise.resolve()
+        },
         sub(routingKey: string, callback: (message: any) => void): Promise<void> {
             return Promise.resolve()
         },
@@ -256,6 +268,12 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
             return Promise.resolve()
         },
         subSyncWeight(callback: (message: any) => void): Promise<void> {
+            return Promise.resolve()
+        },
+        subSaveFood(callback: (message: any) => void): Promise<void> {
+            return Promise.resolve()
+        },
+        subUpdateFood(callback: (message: any) => void): Promise<void> {
             return Promise.resolve()
         }
     }
