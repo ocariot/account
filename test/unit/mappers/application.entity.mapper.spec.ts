@@ -54,8 +54,7 @@ describe('Mappers: ApplicationEntity', () => {
         username: 'application_mock',
         password: 'application_password',
         institution: '603c062fda850512e4387e46',
-        application_name: 'application test',
-        last_login: application.last_login
+        application_name: 'application test'
     }
 
     // To test how mapper works with an object without any attributes (JSON)
@@ -72,7 +71,6 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.propertyVal(result, 'scopes', application.scopes)
                 assert.propertyVal(result, 'institution', application.institution!.id)
                 assert.propertyVal(result, 'application_name', application.application_name)
-                assert.propertyVal(result, 'last_login', application.last_login)
             })
         })
 
@@ -93,7 +91,6 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.deepPropertyVal(result, 'scopes', applicationJSON.scopes)
                 assert.equal(result.institution!.id, applicationJSON.institution)
                 assert.propertyVal(result, 'application_name', applicationJSON.application_name)
-                assert.propertyVal(result, 'last_login', applicationJSON.last_login)
             })
         })
 
@@ -108,7 +105,6 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.deepPropertyVal(result, 'scopes', applicationJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.propertyVal(result, 'application_name', applicationJSON.application_name)
-                assert.propertyVal(result, 'last_login', applicationJSON.last_login)
             })
         })
 
@@ -122,7 +118,6 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.deepPropertyVal(result, 'scopes', applicationJSON.scopes)
                 assert.propertyVal(result, 'institution', emptyApplicationJSON.institution)
                 assert.propertyVal(result, 'application_name', emptyApplicationJSON.application_name)
-                assert.propertyVal(result, 'last_login', emptyApplicationJSON.last_login)
             })
         })
 
@@ -135,7 +130,6 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'application_name', undefined)
-                assert.propertyVal(result, 'last_login', undefined)
             })
         })
     })

@@ -115,8 +115,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         expect(result[0].institution_id).to.eql(child.institution!.id)
                         expect(result[0].gender).to.eql(child.gender)
                         expect(result[0].age).to.eql(child.age)
-                        expect(result[0].last_login).to.eql(child.last_login!.toISOString())
-                        expect(result[0].last_sync).to.eql(child.last_sync!.toISOString())
                         done()
                     })
                     .catch(done)
@@ -449,7 +447,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch((err) => {
                         try {
                             expect(err.message).to.eql('Error: '
-                                .concat('Datetime: invalidLastLogin is not in valid ISO 8601 format.'))
+                                .concat('Datetime: invalidLastLogin'.concat(Strings.ERROR_MESSAGE.INVALID_DATE)))
                             done()
                         } catch (err) {
                             done(err)
@@ -466,7 +464,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch((err) => {
                         try {
                             expect(err.message).to.eql('Error: '
-                                .concat('Datetime: invalidLastSync is not in valid ISO 8601 format.'))
+                                .concat('Datetime: invalidLastSync'.concat(Strings.ERROR_MESSAGE.INVALID_DATE)))
                             done()
                         } catch (err) {
                             done(err)
@@ -546,7 +544,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         expect(result[0].username).to.eql(family.username)
                         expect(result[0].type).to.eql(family.type)
                         expect(result[0].institution_id).to.eql(family.institution!.id)
-                        expect(result[0].last_login).to.eql(family.last_login!.toISOString())
                         let index = 0
                         for (const elem of result[0].children) {
                             expect(elem.id).to.eql(family.children![index].id)
@@ -554,8 +551,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                             expect(elem.institution_id).to.eql(family.children![index].institution!.id)
                             expect(elem.gender).to.eql(family.children![index].gender)
                             expect(elem.age).to.eql(family.children![index].age)
-                            expect(elem.last_login).to.eql(family.children![index].last_login!.toISOString())
-                            expect(elem.last_sync).to.eql(family.children![index].last_sync!.toISOString())
                             index++
                         }
                         done()
@@ -575,8 +570,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                             expect(elem.institution_id).to.eql(family.children![index].institution!.id)
                             expect(elem.gender).to.eql(family.children![index].gender)
                             expect(elem.age).to.eql(family.children![index].age)
-                            expect(elem.last_login).to.eql(family.children![index].last_login!.toISOString())
-                            expect(elem.last_sync).to.eql(family.children![index].last_sync!.toISOString())
                             index++
                         }
                         done()
@@ -771,7 +764,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch((err) => {
                         try {
                             expect(err.message).to.eql('Error: '
-                                .concat('Datetime: invalidLastLogin is not in valid ISO 8601 format.'))
+                                .concat('Datetime: invalidLastLogin'.concat(Strings.ERROR_MESSAGE.INVALID_DATE)))
                             done()
                         } catch (err) {
                             done(err)
@@ -861,7 +854,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         expect(result[0].username).to.eql(educator.username)
                         expect(result[0].type).to.eql(educator.type)
                         expect(result[0].institution_id).to.eql(educator.institution!.id)
-                        expect(result[0].last_login).to.eql(educator.last_login!.toISOString())
                         let index = 0
                         for (const elem of result[0].children_groups) {
                             expect(elem.id).to.eql(educator.children_groups![index].id)
@@ -874,8 +866,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                                 expect(childItem.institution_id).to.eql(childItemMock.institution!.id)
                                 expect(childItem.gender).to.eql(childItemMock.gender)
                                 expect(childItem.age).to.eql(childItemMock.age)
-                                expect(childItem.last_login).to.eql(childItemMock.last_login!.toISOString())
-                                expect(childItem.last_sync).to.eql(childItemMock.last_sync!.toISOString())
                                 indexChildren++
                             }
                             expect(elem.school_class).to.eql(educator.children_groups![index].school_class)
@@ -902,8 +892,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                                 expect(childItem.institution_id).to.eql(childItemMock.institution!.id)
                                 expect(childItem.gender).to.eql(childItemMock.gender)
                                 expect(childItem.age).to.eql(childItemMock.age)
-                                expect(childItem.last_login).to.eql(childItemMock.last_login!.toISOString())
-                                expect(childItem.last_sync).to.eql(childItemMock.last_sync!.toISOString())
                                 indexChildren++
                             }
                             expect(elem.school_class).to.eql(educator.children_groups![index].school_class)
@@ -1101,7 +1089,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch((err) => {
                         try {
                             expect(err.message).to.eql('Error: '
-                                .concat('Datetime: invalidLastLogin is not in valid ISO 8601 format.'))
+                                .concat('Datetime: invalidLastLogin'.concat(Strings.ERROR_MESSAGE.INVALID_DATE)))
                             done()
                         } catch (err) {
                             done(err)
@@ -1191,7 +1179,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         expect(result[0].username).to.eql(healthProfessional.username)
                         expect(result[0].type).to.eql(healthProfessional.type)
                         expect(result[0].institution_id).to.eql(healthProfessional.institution!.id)
-                        expect(result[0].last_login).to.eql(healthProfessional.last_login!.toISOString())
                         let index = 0
                         for (const elem of result[0].children_groups) {
                             expect(elem.id).to.eql(healthProfessional.children_groups![index].id)
@@ -1204,8 +1191,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                                 expect(childItem.institution_id).to.eql(childItemMock.institution!.id)
                                 expect(childItem.gender).to.eql(childItemMock.gender)
                                 expect(childItem.age).to.eql(childItemMock.age)
-                                expect(childItem.last_login).to.eql(childItemMock.last_login!.toISOString())
-                                expect(childItem.last_sync).to.eql(childItemMock.last_sync!.toISOString())
                                 indexChildren++
                             }
                             expect(elem.school_class).to.eql(healthProfessional.children_groups![index].school_class)
@@ -1232,8 +1217,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                                 expect(childItem.institution_id).to.eql(childItemMock.institution!.id)
                                 expect(childItem.gender).to.eql(childItemMock.gender)
                                 expect(childItem.age).to.eql(childItemMock.age)
-                                expect(childItem.last_login).to.eql(childItemMock.last_login!.toISOString())
-                                expect(childItem.last_sync).to.eql(childItemMock.last_sync!.toISOString())
                                 indexChildren++
                             }
                             expect(elem.school_class).to.eql(healthProfessional.children_groups![index].school_class)
@@ -1435,7 +1418,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch((err) => {
                         try {
                             expect(err.message).to.eql('Error: '
-                                .concat('Datetime: invalidLastLogin is not in valid ISO 8601 format.'))
+                                .concat('Datetime: invalidLastLogin'.concat(Strings.ERROR_MESSAGE.INVALID_DATE)))
                             done()
                         } catch (err) {
                             done(err)
@@ -1509,7 +1492,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         expect(result[0].username).to.eql(application.username)
                         expect(result[0].type).to.eql(application.type)
                         expect(result[0].institution_id).to.eql(application.institution!.id)
-                        expect(result[0].last_login).to.eql(application.last_login!.toISOString())
                         expect(result[0].application_name).to.eql(application.application_name)
                         done()
                     })
@@ -1683,7 +1665,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch((err) => {
                         try {
                             expect(err.message).to.eql('Error: '
-                                .concat('Datetime: invalidLastLogin is not in valid ISO 8601 format.'))
+                                .concat('Datetime: invalidLastLogin'.concat(Strings.ERROR_MESSAGE.INVALID_DATE)))
                             done()
                         } catch (err) {
                             done(err)

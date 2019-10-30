@@ -25,8 +25,7 @@ describe('Mappers: UserEntity', () => {
             address: '221B Baker Street, St.',
             latitude: 16.444253797043274,
             longitude: 88.34393529265958
-        },
-        last_login: user.last_login
+        }
     }
 
     // To test how mapper works with an object without any attributes (JSON)
@@ -42,7 +41,6 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'type', user.type)
                 assert.propertyVal(result, 'scopes', user.scopes)
                 assert.propertyVal(result, 'institution', user.institution!.id)
-                assert.propertyVal(result, 'last_login', user.last_login)
             })
         })
 
@@ -62,7 +60,6 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'type', userJSON.type)
                 assert.propertyVal(result, 'scopes', userJSON.scopes)
                 assert.deepEqual(result.institution!.id, userJSON.institution)
-                assert.propertyVal(result, 'last_login', userJSON.last_login)
             })
         })
 
@@ -76,7 +73,6 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'type', userJSON.type)
                 assert.propertyVal(result, 'scopes', userJSON.scopes)
                 assert.isUndefined(result.institution)
-                assert.propertyVal(result, 'last_login', userJSON.last_login)
             })
         })
 
@@ -89,7 +85,6 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'type', emptyUserJSON.type)
                 assert.propertyVal(result, 'scopes', emptyUserJSON.scopes)
                 assert.propertyVal(result, 'institution', emptyUserJSON.institution)
-                assert.propertyVal(result, 'last_login', emptyUserJSON.last_login)
             })
         })
 
@@ -103,7 +98,6 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'type', undefined)
                 assert.propertyVal(result, 'scopes', undefined)
                 assert.propertyVal(result, 'institution', undefined)
-                assert.propertyVal(result, 'last_login', undefined)
             })
         })
     })

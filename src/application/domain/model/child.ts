@@ -2,6 +2,9 @@ import { User, UserType } from './user'
 import { JsonUtils } from '../utils/json.utils'
 import { IJSONSerializable } from '../utils/json.serializable.interface'
 import { IJSONDeserializable } from '../utils/json.deserializable.interface'
+import { DatetimeValidator } from '../validator/datetime.validator'
+import { ValidationException } from '../exception/validation.exception'
+import { Strings } from '../../../utils/strings'
 
 /**
  * Implementation of the child entity.
@@ -62,6 +65,16 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         this._last_sync = value
     }
 
+    public convertDatetimeString(value: string): Date {
+        DatetimeValidator.validate(value)
+        const date: Date = new Date(value)
+        if (isNaN(date.getTime())) {
+            throw new ValidationException(`Datetime: ${value}`.concat(Strings.ERROR_MESSAGE.INVALID_DATE),
+                Strings.ERROR_MESSAGE.INVALID_DATE_DESC)
+        }
+        return date
+    }
+
     public fromJSON(json: any): Child {
         if (!json) return this
         super.fromJSON(json)
@@ -76,11 +89,6 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         }
         if (json.gender !== undefined) this.gender = json.gender
         if (json.age !== undefined) this.age = json.age
-        if (json.last_sync !== undefined && !(json.last_sync instanceof Date)) {
-            this.last_sync = this.convertDatetimeString(json.last_sync)
-        } else if (json.last_sync !== undefined && json.last_sync instanceof Date) {
-            this.last_sync = json.last_sync
-        }
 
         return this
     }

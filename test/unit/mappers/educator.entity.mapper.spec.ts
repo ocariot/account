@@ -117,8 +117,7 @@ describe('Mappers: EducatorEntity', () => {
                             },
                         ]
                 }
-            ],
-        last_login: educator.last_login
+            ]
     }
 
     // To test how mapper works with an object without any attributes (JSON)
@@ -135,7 +134,6 @@ describe('Mappers: EducatorEntity', () => {
                 assert.propertyVal(result, 'scopes', educator.scopes)
                 assert.propertyVal(result, 'institution', educator.institution!.id)
                 assert.property(result, 'children_groups')
-                assert.propertyVal(result, 'last_login', educator.last_login)
             })
         })
 
@@ -156,7 +154,6 @@ describe('Mappers: EducatorEntity', () => {
                 assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.equal(result.institution!.id, educatorJSON.institution)
                 assert.property(result, 'children_groups')
-                assert.propertyVal(result, 'last_login', educatorJSON.last_login)
             })
         })
 
@@ -171,7 +168,6 @@ describe('Mappers: EducatorEntity', () => {
                 assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.property(result, 'children_groups')
-                assert.propertyVal(result, 'last_login', educatorJSON.last_login)
             })
         })
 
@@ -185,7 +181,6 @@ describe('Mappers: EducatorEntity', () => {
                 assert.propertyVal(result, 'type', UserType.EDUCATOR)
                 assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.propertyVal(result, 'institution', emptyEducatorJSON.institution)
-                assert.propertyVal(result, 'last_login', emptyEducatorJSON.last_login)
                 assert.propertyVal(result, 'children_groups', emptyEducatorJSON.children_groups)
             })
         })
@@ -199,7 +194,6 @@ describe('Mappers: EducatorEntity', () => {
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'children_groups', undefined)
-                assert.propertyVal(result, 'last_login', undefined)
             })
         })
     })

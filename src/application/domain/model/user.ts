@@ -3,7 +3,6 @@ import { Institution } from './institution'
 import { JsonUtils } from '../utils/json.utils'
 import { IJSONSerializable } from '../utils/json.serializable.interface'
 import { IJSONDeserializable } from '../utils/json.deserializable.interface'
-import { DatetimeValidator } from '../validator/datetime.validator'
 
 /**
  * Implementation of the user entity.
@@ -82,11 +81,6 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
         }
     }
 
-    public convertDatetimeString(value: string): Date {
-        DatetimeValidator.validate(value)
-        return new Date(value)
-    }
-
     public fromJSON(json: any): User {
         if (!json) return this
         if (typeof json === 'string' && JsonUtils.isJsonString(json)) {
@@ -101,11 +95,6 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
             this.institution.id = json.institution
         } else if (json.institution_id !== undefined) {
             this.institution = new Institution().fromJSON(json)
-        }
-        if (json.last_login !== undefined && !(json.last_login instanceof Date)) {
-            this.last_login = this.convertDatetimeString(json.last_login)
-        } else if (json.last_login !== undefined && json.last_login instanceof Date) {
-            this.last_login = json.last_login
         }
         if (json.scope !== undefined) this.scopes = json.scope
 

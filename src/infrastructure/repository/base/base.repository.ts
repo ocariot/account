@@ -153,18 +153,16 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
             } else if (err.name === 'CastError' || new RegExp(/(invalid format)/i).test(err)) {
                 if (err.name === 'CastError' && err.kind) {
                     if (err.kind === 'date') {
-                        return new ValidationException(`Datetime: ${err.value} is not in valid ISO 8601 format.`,
-                            'Date must be in the format: yyyy-MM-dd\'T\'HH:mm:ssZ')
+                        return new ValidationException(`Datetime: ${err.value}`.concat(Strings.ERROR_MESSAGE.INVALID_DATE),
+                            Strings.ERROR_MESSAGE.INVALID_DATE_DESC)
                     } else if (err.kind === 'ObjectId') {
                         return new ValidationException(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
                             Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
                     } else if (err.kind === 'number') {
                         return new ValidationException(`The value \'${err.value}\' of ${err.path} field is not a number.`)
                     }
-                    return new ValidationException(`The value \'${err.value}\' of ${err.path} field is invalid.`)
                 }
-                return new ValidationException(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT,
-                    Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                return new ValidationException(`The value \'${err.value}\' of ${err.path} field is invalid.`)
             } else if (err.name === 'MongoError' && err.code === 11000) {
                 return new ConflictException('A registration with the same unique data already exists!')
             } else if (err.name === 'ObjectParameterError') {

@@ -15,7 +15,6 @@ export class FamilyMock extends Family {
         super.password = 'family_password'
         super.institution = this.generateInstitution()
         super.children = [new ChildMock(), new ChildMock()]
-        super.last_login = new Date()
     }
 
     private generateObjectId(): string {
