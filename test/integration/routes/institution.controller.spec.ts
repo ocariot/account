@@ -532,12 +532,26 @@ describe('Routes: Institution', () => {
             it('should return status code 400 and info message from invalid name', () => {
                 return request
                     .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ name: 123 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when the institution name is empty', () => {
+            it('should return status code 400 and info message from invalid name', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
                     .send({ name: '' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('name must have at least one character!')
+                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
                     })
             })
         })
@@ -546,12 +560,110 @@ describe('Routes: Institution', () => {
             it('should return status code 400 and info message from invalid type', () => {
                 return request
                     .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ type: 123 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('type'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when the institution type is empty', () => {
+            it('should return status code 400 and info message from invalid type', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
                     .send({ type: '' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('type must have at least one character!')
+                        expect(err.body.description).to.eql('type'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+        })
+
+        context('when the institution address is invalid', () => {
+            it('should return status code 400 and info message from invalid address', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ address: 123 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('address'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when the institution address is empty', () => {
+            it('should return status code 400 and info message from invalid address', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ address: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('address'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+        })
+
+        context('when the institution latitude is invalid', () => {
+            it('should return status code 400 and info message from invalid latitude', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ latitude: 123 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('latitude'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when the institution latitude is empty', () => {
+            it('should return status code 400 and info message from invalid latitude', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ latitude: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('latitude'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+        })
+
+        context('when the institution longitude is invalid', () => {
+            it('should return status code 400 and info message from invalid longitude', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ longitude: 123 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('longitude'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when the institution longitude is empty', () => {
+            it('should return status code 400 and info message from invalid longitude', () => {
+                return request
+                    .patch(`/v1/institutions/${defaultInstitution.id}`)
+                    .send({ longitude: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('longitude'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
                     })
             })
         })
