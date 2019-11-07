@@ -11,8 +11,8 @@ export class InstitutionMock extends Institution {
         super.type = 'Institute of Scientific Research'
         super.name = 'Example Name'
         super.address = '221B Baker Street, St.'
-        super.latitude = Math.random() * 90
-        super.longitude = Math.random() * 180
+        super.latitude = `${Math.random() * 90}`
+        super.longitude = `${Math.random() * 180}`
     }
 
     private generateObjectId(): string {

@@ -7,8 +7,8 @@ const institutionSchema = new Mongoose.Schema({
         type: { type: String },
         name: { type: String },
         address: { type: String },
-        latitude: { type: Number },
-        longitude: { type: Number }
+        latitude: { type: String },
+        longitude: { type: String }
     },
     {
         timestamps: { createdAt: 'created_at', updatedAt: false },

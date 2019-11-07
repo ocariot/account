@@ -18,8 +18,8 @@ describe('Repositories: AuthRepository', () => {
     institution.type = 'Any Type'
     institution.name = 'Name Example'
     institution.address = '221B Baker Street, St.'
-    institution.latitude = 0
-    institution.longitude = 0
+    institution.latitude = '0'
+    institution.longitude = '0'
 
     const user: User = new User()
     user.id = '5b13826de00324086854584b'

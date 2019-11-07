@@ -135,11 +135,11 @@ describe('Routes: Institution', () => {
             })
         })
 
-        context('when a validation error occurs (institution name is invalid)', () => {
-            it('should return status code 400 and info message from invalid name', () => {
+        context('when a validation error occurs (institution type is invalid)', () => {
+            it('should return status code 400 and info message from invalid type', () => {
                 const body = {
-                    type: defaultInstitution.type,
-                    name: '',
+                    type: 123,
+                    name: defaultInstitution.name,
                     address: defaultInstitution.address,
                     latitude: defaultInstitution.latitude,
                     longitude: defaultInstitution.longitude
@@ -152,12 +152,12 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('name must have at least one character!')
+                        expect(err.body.description).to.eql('type'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
                     })
             })
         })
 
-        context('when a validation error occurs (institution type is invalid)', () => {
+        context('when a validation error occurs (institution type is empty)', () => {
             it('should return status code 400 and info message from invalid type', () => {
                 const body = {
                     type: '',
@@ -174,7 +174,183 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('type must have at least one character!')
+                        expect(err.body.description).to.eql('type'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution name is invalid)', () => {
+            it('should return status code 400 and info message from invalid name', () => {
+                const body = {
+                    type: defaultInstitution.type,
+                    name: 123,
+                    address: defaultInstitution.address,
+                    latitude: defaultInstitution.latitude,
+                    longitude: defaultInstitution.longitude
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution name is empty)', () => {
+            it('should return status code 400 and info message from invalid name', () => {
+                const body = {
+                    type: defaultInstitution.type,
+                    name: '',
+                    address: defaultInstitution.address,
+                    latitude: defaultInstitution.latitude,
+                    longitude: defaultInstitution.longitude
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution address is invalid)', () => {
+            it('should return status code 400 and info message from invalid address', () => {
+                const body = {
+                    type: defaultInstitution.type,
+                    name: defaultInstitution.name,
+                    address: 123,
+                    latitude: defaultInstitution.latitude,
+                    longitude: defaultInstitution.longitude
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('address'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution address is empty)', () => {
+            it('should return status code 400 and info message from invalid address', () => {
+                const body = {
+                    type: defaultInstitution.type,
+                    name: defaultInstitution.name,
+                    address: '',
+                    latitude: defaultInstitution.latitude,
+                    longitude: defaultInstitution.longitude
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('address'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution latitude is invalid)', () => {
+            it('should return status code 400 and info message from invalid latitude', () => {
+                const body = {
+                    type: defaultInstitution.type,
+                    name: defaultInstitution.name,
+                    address: defaultInstitution.address,
+                    latitude: 123,
+                    longitude: defaultInstitution.longitude
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('latitude'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution latitude is empty)', () => {
+            it('should return status code 400 and info message from invalid latitude', () => {
+                const body = {
+                    type: defaultInstitution.type,
+                    name: defaultInstitution.name,
+                    address: defaultInstitution.address,
+                    latitude: '',
+                    longitude: defaultInstitution.longitude
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('latitude'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution longitude is invalid)', () => {
+            it('should return status code 400 and info message from invalid longitude', () => {
+                const body = {
+                    type: defaultInstitution.type,
+                    name: defaultInstitution.name,
+                    address: defaultInstitution.address,
+                    latitude: defaultInstitution.latitude,
+                    longitude: 123
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('longitude'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when a validation error occurs (institution longitude is empty)', () => {
+            it('should return status code 400 and info message from invalid longitude', () => {
+                const body = {
+                    type: defaultInstitution.type,
+                    name: defaultInstitution.name,
+                    address: defaultInstitution.address,
+                    latitude: defaultInstitution.latitude,
+                    longitude: ''
+                }
+
+                return request
+                    .post('/v1/institutions')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('longitude'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
                     })
             })
         })

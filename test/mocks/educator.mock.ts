@@ -32,8 +32,8 @@ export class EducatorMock extends Educator {
         institution.type = 'Institute of Scientific Research'
         institution.name = 'Name Example'
         institution.address = '221B Baker Street, St.'
-        institution.latitude = Math.random() * 90
-        institution.longitude = Math.random() * 180
+        institution.latitude = `${Math.random() * 90}`
+        institution.longitude = `${Math.random() * 180}`
         return institution
     }
 }

@@ -1818,61 +1818,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
             })
         })
 
-        context('when trying to retrieve institutions through invalid query', () => {
-            before(async () => {
-                try {
-                    await deleteAllInstitutions()
-
-                    const institution: Institution = new InstitutionMock()
-
-                    await institutionRepository.create(institution)
-                } catch (err) {
-                    throw new Error('Failure on Provider Institution test: ' + err.message)
-                }
-            })
-            // Delete all institutions from database after each test case
-            after(async () => {
-                try {
-                    await deleteAllInstitutions()
-                } catch (err) {
-                    throw new Error('Failure on Provider Institution test: ' + err.message)
-                }
-            })
-            it('should return a ValidationException (query with an invalid number)', (done) => {
-                rabbitmq.bus.getInstitutions('?latitude=invalidLatitude')
-                    .then(result => {
-                        expect(result.length).to.eql(0)
-                        done(new Error('The find method of the repository should not function normally'))
-                    })
-                    .catch((err) => {
-                        try {
-                            expect(err.message).to.eql('Error: '
-                                .concat('The value \'invalidLatitude\' of latitude field is not a number.'))
-                            done()
-                        } catch (err) {
-                            done(err)
-                        }
-                    })
-            })
-
-            it('should return a ValidationException (query with an invalid number))', (done) => {
-                rabbitmq.bus.getInstitutions('?longitude=invalidLongitude')
-                    .then(result => {
-                        expect(result.length).to.eql(0)
-                        done(new Error('The find method of the repository should not function normally'))
-                    })
-                    .catch((err) => {
-                        try {
-                            expect(err.message).to.eql('Error: '
-                                .concat('The value \'invalidLongitude\' of longitude field is not a number.'))
-                            done()
-                        } catch (err) {
-                            done(err)
-                        }
-                    })
-            })
-        })
-
         context('when trying to recover institutions through a query unsuccessful (without MongoDB connection)',
             () => {
                 before(async () => {
