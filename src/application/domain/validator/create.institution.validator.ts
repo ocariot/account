@@ -15,6 +15,8 @@ export class CreateInstitutionValidator {
         else StringValidator.validate(institution.type, 'type')
 
         if (institution.address !== undefined) StringValidator.validate(institution.address, 'address')
+        if (institution.latitude !== undefined) StringValidator.validate(institution.latitude, 'latitude')
+        if (institution.longitude !== undefined) StringValidator.validate(institution.longitude, 'longitude')
 
         if (fields.length > 0) {
             throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,

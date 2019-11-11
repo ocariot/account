@@ -657,7 +657,7 @@ describe('Routes: Educator', () => {
             })
         })
 
-        context('when the ChildrenGroup name is invalid', () => {
+        context('when the ChildrenGroup is invalid', () => {
             let resultEducator
             let resultChild
 
@@ -689,9 +689,9 @@ describe('Routes: Educator', () => {
             })
             it('should return status code 400 and info message from invalid ChildrenGroup name', () => {
                 const body = {
-                    name: '',
+                    name: 123,
                     children: new Array<string | undefined>(resultChild.id),
-                    school_class: '3th Grade'
+                    school_class: defaultChildrenGroup.school_class
                 }
 
                 return request
@@ -701,7 +701,61 @@ describe('Routes: Educator', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('childrengroup.name must have at least one character!')
+                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+
+            it('should return status code 400 and info message from empty ChildrenGroup name', () => {
+                const body = {
+                    name: '',
+                    children: new Array<string | undefined>(resultChild.id),
+                    school_class: defaultChildrenGroup.school_class
+                }
+
+                return request
+                    .post(`/v1/educators/${resultEducator.id}/children/groups`)
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+
+            it('should return status code 400 and info message from invalid ChildrenGroup school_class', () => {
+                const body = {
+                    name: defaultChildrenGroup.name,
+                    children: new Array<string | undefined>(resultChild.id),
+                    school_class: 123
+                }
+
+                return request
+                    .post(`/v1/educators/${resultEducator.id}/children/groups`)
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('school_class'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+
+            it('should return status code 400 and info message from empty ChildrenGroup school_class', () => {
+                const body = {
+                    name: defaultChildrenGroup.name,
+                    children: new Array<string | undefined>(resultChild.id),
+                    school_class: ''
+                }
+
+                return request
+                    .post(`/v1/educators/${resultEducator.id}/children/groups`)
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('school_class'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
                     })
             })
         })
@@ -1111,7 +1165,7 @@ describe('Routes: Educator', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('childrengroup.name must have at least one character!')
+                        expect(err.body.description).to.eql('name must have at least one character!')
                     })
             })
         })

@@ -41,8 +41,7 @@ describe('Models: Family', () => {
             'missions:read',
             'gamificationprofile:read',
             'external:sync'
-        ],
-        last_login: new Date()
+        ]
     }
 
     describe('fromJSON()', () => {
@@ -56,7 +55,6 @@ describe('Models: Family', () => {
                 assert.deepPropertyVal(result, 'scopes', familyJSON.scopes)
                 assert.deepPropertyVal(result, 'children', familyJSON.children)
                 assert.deepEqual(new ObjectID(result.institution!.id), familyJSON.institution)
-                assert.propertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
 
@@ -85,7 +83,6 @@ describe('Models: Family', () => {
                 assert.deepPropertyVal(result, 'scopes', familyJSON.scopes)
                 assert.deepPropertyVal(result, 'children', familyJSON.children)
                 assert.deepEqual(new ObjectID(result.institution!.id), familyJSON.institution)
-                assert.deepPropertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
     })
@@ -100,7 +97,6 @@ describe('Models: Family', () => {
                 assert.propertyVal(result, 'type', familyJSON.type)
                 assert.deepPropertyVal(result, 'children', familyJSON.children)
                 assert.propertyVal(result, 'institution_id', familyJSON.institution)
-                assert.propertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
 
@@ -114,7 +110,6 @@ describe('Models: Family', () => {
                 assert.propertyVal(result, 'type', familyJSON.type)
                 assert.deepPropertyVal(result, 'children', familyJSON.children)
                 assert.propertyVal(result, 'institution_id', familyJSON.institution)
-                assert.propertyVal(result, 'last_login', familyJSON.last_login)
             })
         })
     })

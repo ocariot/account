@@ -8,8 +8,7 @@ describe('Models: User', () => {
         username: 'ihaveaunknowusername',
         password: 'mysecretkey',
         institution: new ObjectID(),
-        scope: ['users:read'],
-        last_login: new Date()
+        scope: ['users:read']
     }
 
     describe('fromJSON()', () => {
@@ -21,7 +20,6 @@ describe('Models: User', () => {
                 assert.propertyVal(result, 'password', userJSON.password)
                 assert.deepEqual(new ObjectID(result.institution!.id), userJSON.institution)
                 assert.deepPropertyVal(result, 'scopes', userJSON.scope)
-                assert.propertyVal(result, 'last_login', userJSON.last_login)
             })
         })
 
@@ -44,7 +42,6 @@ describe('Models: User', () => {
                 assert.propertyVal(result, 'password', userJSON.password)
                 assert.deepEqual(new ObjectID(result.institution!.id), userJSON.institution)
                 assert.deepPropertyVal(result, 'scopes', userJSON.scope)
-                assert.deepPropertyVal(result, 'last_login', userJSON.last_login)
             })
         })
     })

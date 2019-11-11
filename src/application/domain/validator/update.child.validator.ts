@@ -25,8 +25,8 @@ export class UpdateChildValidator {
                 `The names of the allowed genders are: ${genders.join(', ')}.`)
         }
 
-        if (child.age) {
-            if (isNaN(child.age)) {
+        if (child.age !== undefined) {
+            if (child.age === null || isNaN(child.age)) {
                 throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
                     'Provided age is not a valid number!')
             } else if (child.age <= 0) {

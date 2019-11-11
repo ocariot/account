@@ -11,7 +11,6 @@ import { IEntityMapper } from '../../../src/infrastructure/port/entity.mapper.in
 import { ILogger } from '../../../src/utils/custom.logger'
 import { Entity } from '../../../src/application/domain/model/entity'
 import { UserMock, UserTypeMock } from '../../mocks/user.mock'
-import { Strings } from '../../../src/utils/strings'
 
 require('sinon-mongoose')
 
@@ -261,12 +260,11 @@ describe('Repositories: Base', () => {
                     .expects('findOneAndUpdate')
                     .withArgs({ _id: invalidUser.id }, invalidUser, { new: true })
                     .chain('exec')
-                    .rejects({ name: 'CastError' })
+                    .rejects({ name: 'CastError', value: invalidUser.id, path: 'id' })
 
                 return repo.update(invalidUser)
                     .catch((err: any) => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
-                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        assert.equal(err.message, `The value '${invalidUser.id}' of id field is invalid.`)
                     })
             })
 
@@ -320,12 +318,11 @@ describe('Repositories: Base', () => {
                     .expects('findOneAndDelete')
                     .withArgs({ _id: invalidId })
                     .chain('exec')
-                    .rejects({ name: 'CastError' })
+                    .rejects({ name: 'CastError', value: invalidId, path: 'id' })
 
                 return repo.delete(invalidId)
                     .catch((err: any) => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
-                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                        assert.equal(err.message, `The value '${invalidId}' of id field is invalid.`)
                     })
             })
         })

@@ -13,8 +13,8 @@ export class Institution extends Entity implements IJSONSerializable, IJSONDeser
     private _type?: string // Type of institution, for example: Institute of Scientific Research.
     private _name?: string // Name of institution.
     private _address?: string // Address of institution.
-    private _latitude?: number // Latitude from place's geolocation, for example: -7.2100766.
-    private _longitude?: number // Longitude from place's geolocation, for example: -35.9175756.
+    private _latitude?: string // Latitude from place's geolocation, for example: -7.2100766.
+    private _longitude?: string // Longitude from place's geolocation, for example: -35.9175756.
 
     constructor() {
         super()
@@ -44,19 +44,19 @@ export class Institution extends Entity implements IJSONSerializable, IJSONDeser
         this._address = value
     }
 
-    get latitude(): number | undefined {
+    get latitude(): string | undefined {
         return this._latitude
     }
 
-    set latitude(value: number | undefined) {
+    set latitude(value: string | undefined) {
         this._latitude = value
     }
 
-    get longitude(): number | undefined {
+    get longitude(): string | undefined {
         return this._longitude
     }
 
-    set longitude(value: number | undefined) {
+    set longitude(value: string | undefined) {
         this._longitude = value
     }
 

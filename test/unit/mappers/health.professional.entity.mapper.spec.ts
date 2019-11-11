@@ -102,8 +102,7 @@ describe('Mappers: HealthProfessionalEntity', () => {
                             },
                         ]
                 }
-            ],
-        last_login: healthProfessional.last_login
+            ]
     }
 
     // To test how mapper works with an object without any attributes (JSON)
@@ -121,7 +120,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'scopes', healthProfessional.scopes)
                 assert.propertyVal(result, 'institution', healthProfessional.institution!.id)
                 assert.property(result, 'children_groups')
-                assert.propertyVal(result, 'last_login', healthProfessional.last_login)
             })
         })
 
@@ -143,7 +141,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'scopes', healthProfessionalJSON.scopes)
                 assert.property(result, 'institution')
                 assert.property(result, 'children_groups')
-                assert.propertyVal(result, 'last_login', healthProfessionalJSON.last_login)
             })
         })
 
@@ -159,7 +156,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'scopes', healthProfessionalJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.property(result, 'children_groups')
-                assert.propertyVal(result, 'last_login', healthProfessionalJSON.last_login)
             })
         })
 
@@ -173,7 +169,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'type', UserType.HEALTH_PROFESSIONAL)
                 assert.deepPropertyVal(result, 'scopes', healthProfessionalJSON.scopes)
                 assert.propertyVal(result, 'institution', emptyHealthProfessionalJSON.institution)
-                assert.propertyVal(result, 'last_login', emptyHealthProfessionalJSON.last_login)
                 assert.propertyVal(result, 'children_groups', emptyHealthProfessionalJSON.children_groups)
             })
         })
@@ -188,7 +183,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'children_groups', undefined)
-                assert.propertyVal(result, 'last_login', undefined)
             })
         })
     })

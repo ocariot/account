@@ -43,8 +43,7 @@ describe('Models: Application', () => {
             'gamificationprofile:update',
             'gamificationprofile:delete',
             'external:sync'
-        ],
-        last_login: new Date()
+        ]
     }
 
     describe('fromJSON()', () => {
@@ -58,7 +57,6 @@ describe('Models: Application', () => {
                 assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
                 assert.deepEqual(new ObjectID(result.institution!.id), appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
-                assert.propertyVal(result, 'last_login', appJSON.last_login)
             })
         })
 
@@ -86,7 +84,6 @@ describe('Models: Application', () => {
                 assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
                 assert.deepEqual(new ObjectID(result.institution!.id), appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
-                assert.deepPropertyVal(result, 'last_login', appJSON.last_login)
             })
         })
     })
@@ -102,7 +99,6 @@ describe('Models: Application', () => {
                 assert.propertyVal(result, 'type', appJSON.type)
                 assert.propertyVal(result, 'institution_id', appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
-                assert.propertyVal(result, 'last_login', appJSON.last_login)
             })
         })
     })

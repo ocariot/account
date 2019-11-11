@@ -15,8 +15,6 @@ export class ChildMock extends Child {
         super.institution = this.generateInstitution()
         super.age = Math.floor(Math.random() * 5) + 5
         super.gender = this.generateGender()
-        super.last_login = new Date()
-        super.last_sync = new Date()
     }
 
     private generateObjectId(): string {
@@ -34,8 +32,8 @@ export class ChildMock extends Child {
         institution.type = 'Institute of Scientific Research'
         institution.name = 'Name Example'
         institution.address = '221B Baker Street, St.'
-        institution.latitude = Math.random() * 90
-        institution.longitude = Math.random() * 180
+        institution.latitude = `${Math.random() * 90}`
+        institution.longitude = `${Math.random() * 180}`
         return institution
     }
 
