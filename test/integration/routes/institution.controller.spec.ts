@@ -267,28 +267,6 @@ describe('Routes: Institution', () => {
             })
         })
 
-        context('when a validation error occurs (institution latitude is invalid)', () => {
-            it('should return status code 400 and info message from invalid latitude', () => {
-                const body = {
-                    type: defaultInstitution.type,
-                    name: defaultInstitution.name,
-                    address: defaultInstitution.address,
-                    latitude: 123,
-                    longitude: defaultInstitution.longitude
-                }
-
-                return request
-                    .post('/v1/institutions')
-                    .send(body)
-                    .set('Content-Type', 'application/json')
-                    .expect(400)
-                    .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('latitude'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
-                    })
-            })
-        })
-
         context('when a validation error occurs (institution latitude is empty)', () => {
             it('should return status code 400 and info message from invalid latitude', () => {
                 const body = {
@@ -307,28 +285,6 @@ describe('Routes: Institution', () => {
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql('latitude'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
-                    })
-            })
-        })
-
-        context('when a validation error occurs (institution longitude is invalid)', () => {
-            it('should return status code 400 and info message from invalid longitude', () => {
-                const body = {
-                    type: defaultInstitution.type,
-                    name: defaultInstitution.name,
-                    address: defaultInstitution.address,
-                    latitude: defaultInstitution.latitude,
-                    longitude: 123
-                }
-
-                return request
-                    .post('/v1/institutions')
-                    .send(body)
-                    .set('Content-Type', 'application/json')
-                    .expect(400)
-                    .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('longitude'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
                     })
             })
         })
@@ -612,20 +568,6 @@ describe('Routes: Institution', () => {
             })
         })
 
-        context('when the institution latitude is invalid', () => {
-            it('should return status code 400 and info message from invalid latitude', () => {
-                return request
-                    .patch(`/v1/institutions/${defaultInstitution.id}`)
-                    .send({ latitude: 123 })
-                    .set('Content-Type', 'application/json')
-                    .expect(400)
-                    .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('latitude'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
-                    })
-            })
-        })
-
         context('when the institution latitude is empty', () => {
             it('should return status code 400 and info message from invalid latitude', () => {
                 return request
@@ -636,20 +578,6 @@ describe('Routes: Institution', () => {
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql('latitude'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
-                    })
-            })
-        })
-
-        context('when the institution longitude is invalid', () => {
-            it('should return status code 400 and info message from invalid longitude', () => {
-                return request
-                    .patch(`/v1/institutions/${defaultInstitution.id}`)
-                    .send({ longitude: 123 })
-                    .set('Content-Type', 'application/json')
-                    .expect(400)
-                    .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('longitude'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
                     })
             })
         })
