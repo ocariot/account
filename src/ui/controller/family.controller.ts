@@ -45,6 +45,7 @@ export class FamilyController {
     public async saveFamily(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const family: Family = new Family().fromJSON(req.body)
+            family.id = undefined
             const result: Family = await this._familyService.add(family)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {

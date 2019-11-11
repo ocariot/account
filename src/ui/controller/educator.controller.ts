@@ -45,6 +45,7 @@ export class EducatorController {
     public async saveEducator(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const educator: Educator = new Educator().fromJSON(req.body)
+            educator.id = undefined
             const result: Educator = await this._educatorService.add(educator)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {
@@ -132,6 +133,7 @@ export class EducatorController {
     public async saveChildrenGroupFromEducator(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const childrenGroup: ChildrenGroup = new ChildrenGroup().fromJSON(req.body)
+            childrenGroup.id = undefined
             // Creates an educator to associate with the group of children
             const educator: Educator = new Educator()
             educator.id = req.params.educator_id
