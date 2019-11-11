@@ -44,6 +44,7 @@ export class ChildController {
     public async saveChild(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const child: Child = new Child().fromJSON(req.body)
+            child.id = undefined
             const result: Child = await this._childService.add(child)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {

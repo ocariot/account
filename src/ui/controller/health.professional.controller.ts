@@ -45,6 +45,7 @@ export class HealthProfessionalController {
     public async saveHealthProfessional(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const healthProfessional: HealthProfessional = new HealthProfessional().fromJSON(req.body)
+            healthProfessional.id = undefined
             const result: HealthProfessional = await this._healthProfessionalService.add(healthProfessional)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {
@@ -132,6 +133,7 @@ export class HealthProfessionalController {
     public async saveChildrenGroupFromHealthProfessional(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const childrenGroup: ChildrenGroup = new ChildrenGroup().fromJSON(req.body)
+            childrenGroup.id = undefined
             // Creates a health professional to associate with the group of children
             const healthProfessional: HealthProfessional = new HealthProfessional()
             healthProfessional.id = req.params.healthprofessional_id

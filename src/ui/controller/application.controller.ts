@@ -44,6 +44,7 @@ export class ApplicationController {
     public async saveApplication(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const application: Application = new Application().fromJSON(req.body)
+            application.id = undefined
             const result: Application = await this._applicationService.add(application)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {

@@ -43,6 +43,7 @@ export class InstitutionController {
     public async saveInstitution(@request() req: Request, @response() res: Response): Promise<Response> {
         try {
             const institution: Institution = new Institution().fromJSON(req.body)
+            institution.id = undefined
             const result: Institution = await this._institutionService.add(institution)
             return res.status(HttpStatus.CREATED).send(result.toJSON())
         } catch (err) {
