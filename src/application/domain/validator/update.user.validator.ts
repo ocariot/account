@@ -14,7 +14,7 @@ export class UpdateUserValidator {
             }
         }
         if (user.username !== undefined) StringValidator.validate(user.username, 'username')
-        if (user.institution && user.institution.id) {
+        if (user.institution && user.institution.id !== undefined) {
             try {
                 ObjectIdValidator.validate(user.institution.id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
             } catch (err) {
