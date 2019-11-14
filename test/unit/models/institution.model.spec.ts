@@ -56,7 +56,7 @@ describe('Models: Educator', () => {
                 }
 
                 const result = new Institution().fromJSON(jsonWithBlankInstitutionID)
-                assert.propertyVal(result, 'id', undefined)
+                assert.propertyVal(result, 'id', '')
                 assert.propertyVal(result, 'name', undefined)
                 assert.propertyVal(result, 'type', undefined)
                 assert.propertyVal(result, 'address', undefined)

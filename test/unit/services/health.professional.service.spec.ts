@@ -447,9 +447,8 @@ describe('Services: HealthProfessional', () => {
 
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'name, user, Collection with ' +
-                            'children IDs (ID can not be empty)'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                     })
             })
         })
@@ -687,9 +686,8 @@ describe('Services: HealthProfessional', () => {
 
                 return healthProfessionalService.updateChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'Collection with children IDs ' +
-                            '(ID can not be empty)'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                     })
             })
         })

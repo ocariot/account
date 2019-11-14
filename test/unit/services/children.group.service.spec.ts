@@ -112,9 +112,8 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'name, user, Collection with ' +
-                            'children IDs (ID can not be empty)'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                     })
             })
         })
@@ -250,9 +249,8 @@ describe('Services: ChildrenGroup', () => {
 
                 return childrenGroupService.update(incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'Collection with children IDs ' +
-                            '(ID can not be empty)'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                     })
             })
         })
@@ -266,8 +264,8 @@ describe('Services: ChildrenGroup', () => {
                 return childrenGroupService.update(incorrectChildrenGroup)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        assert.propertyVal(err, 'description',
-                            Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat('507f1f77bcf86cd7994390111'))
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT
+                            .concat('507f1f77bcf86cd7994390111'))
                     })
             })
         })

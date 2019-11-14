@@ -126,10 +126,8 @@ describe('Services: Family', () => {
 
                 return familyService.add(incorrectFamily)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'username, password, type, institution, ' +
-                            'Collection with children IDs (ID can not be empty)'
-                                .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                     })
             })
         })

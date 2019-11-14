@@ -69,7 +69,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     }
 
     public fromJSON(json: any): Child {
-        if (!json) return this
+        if (!json || json === 'null') return this
         super.fromJSON(json)
 
         if (typeof json === 'string') {

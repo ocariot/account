@@ -22,10 +22,16 @@ export class UpdateFamilyValidator {
             throw err
         }
 
+        if (family.children !== undefined && !(family.children instanceof Array)) {
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                'children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+        }
+
         if (family.children && family.children.length > 0) {
             family.children.forEach(child => {
                 if (!child.id) {
-                    fields.push('Collection with children IDs (ID can not be empty)')
+                    throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                        Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                 } else {
                     try {
                         ObjectIdValidator.validate(child.id)

@@ -34,7 +34,7 @@ export class ChildrenGroup extends Entity implements IJSONSerializable, IJSONDes
     }
 
     set children(value: Array<Child> | undefined) {
-        this._children = value ? this.removesRepeatedChildren(value) : value
+        this._children = value && value instanceof Array ? this.removesRepeatedChildren(value) : value
     }
 
     get school_class(): string | undefined {
@@ -79,8 +79,9 @@ export class ChildrenGroup extends Entity implements IJSONSerializable, IJSONDes
         if (json.id !== undefined) super.id = json.id
         if (json.name !== undefined) this.name = json.name
         if (json.school_class !== undefined) this.school_class = json.school_class
-        if (json.children !== undefined && json.children instanceof Array) {
-            this.children = json.children.map(child => new Child().fromJSON(child))
+        if (json.children !== undefined) {
+            if (json.children instanceof Array) this.children = json.children.map(child => new Child().fromJSON(child))
+            else this.children = json.children
         }
 
         return this

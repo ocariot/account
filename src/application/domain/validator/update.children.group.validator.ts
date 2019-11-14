@@ -16,10 +16,15 @@ export class UpdateChildrenGroupValidator {
         if (childrenGroup.school_class !== undefined) {
             StringValidator.validate(childrenGroup.school_class, 'school_class')
         }
+        if (childrenGroup.children !== undefined && !(childrenGroup.children instanceof Array)) {
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                'children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+        }
         if (childrenGroup.children && childrenGroup.children.length > 0) {
             childrenGroup.children.forEach(child => {
                 if (!child.id) {
-                    fields.push('Collection with children IDs (ID can not be empty)')
+                    throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                        Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                 } else {
                     try {
                         ObjectIdValidator.validate(child.id)

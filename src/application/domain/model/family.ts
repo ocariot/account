@@ -52,7 +52,7 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
     }
 
     set children(value: Array<Child> | undefined) {
-        this._children = value ? this.removesRepeatedChildren(value) : value
+        this._children = value && value instanceof Array ? this.removesRepeatedChildren(value) : value
     }
 
     public addChild(child: Child): void {
@@ -75,8 +75,9 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
             json = JSON.parse(json)
         }
 
-        if (json.children !== undefined && json.children instanceof Array) {
-            this.children = json.children.map(child => new Child().fromJSON(child))
+        if (json.children !== undefined) {
+            if (json.children instanceof Array) this.children = json.children.map(child => new Child().fromJSON(child))
+            else this.children = json.children
         }
 
         return this
