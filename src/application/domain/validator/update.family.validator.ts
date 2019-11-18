@@ -6,7 +6,6 @@ import { Strings } from '../../../utils/strings'
 
 export class UpdateFamilyValidator {
     public static validate(family: Family): void | ValidationException {
-        const fields: Array<string> = []
         const invalid_ids: Array<string> = []
 
         try {
@@ -45,9 +44,6 @@ export class UpdateFamilyValidator {
         if (invalid_ids.length > 0) {
             throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
                 Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat(invalid_ids.join(', ')))
-        } else if (fields.length > 0) {
-            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
-                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

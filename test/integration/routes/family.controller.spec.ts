@@ -300,6 +300,27 @@ describe('Routes: Family', () => {
                     })
             })
         })
+
+        context('when the children provided was null', () => {
+            it('should return status code 400 and message for invalid children', () => {
+                const body = {
+                    username: defaultFamily.username,
+                    password: defaultFamily.password,
+                    children: null,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/families')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+                    })
+            })
+        })
     })
 
     describe('GET /v1/families/:family_id', () => {
@@ -689,6 +710,49 @@ describe('Routes: Family', () => {
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
+                    })
+            })
+        })
+
+        context('when the family was updated with a null children array', () => {
+            let resultChild
+            let resultFamily
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        scopes: new Array('users:read')
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id),
+                        scopes: new Array('users:read')
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
+            it('should return status code 400 and info message from invalid ids)', () => {
+                return request
+                    .patch(`/v1/families/${resultFamily.id}`)
+                    .send({ children: null })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
                     })
             })
         })

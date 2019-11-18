@@ -6,7 +6,6 @@ import { StringValidator } from './string.validator'
 
 export class UpdateChildrenGroupValidator {
     public static validate(childrenGroup: ChildrenGroup): void | ValidationException {
-        const fields: Array<string> = []
         const invalid_ids: Array<string> = []
 
         if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
@@ -38,9 +37,6 @@ export class UpdateChildrenGroupValidator {
         if (invalid_ids.length > 0) {
             throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
                 Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat(invalid_ids.join(', ')))
-        } else if (fields.length > 0) {
-            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
-                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

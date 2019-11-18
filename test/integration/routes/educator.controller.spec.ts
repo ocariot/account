@@ -758,6 +758,24 @@ describe('Routes: Educator', () => {
                         expect(err.body.description).to.eql('school_class'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
                     })
             })
+
+            it('should return status code 400 and info message from invalid ChildrenGroup children', () => {
+                const body = {
+                    name: defaultChildrenGroup.name,
+                    children: null,
+                    school_class: defaultChildrenGroup.school_class
+                }
+
+                return request
+                    .post(`/v1/educators/${resultEducator.id}/children/groups`)
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+                    })
+            })
         })
 
         context('when the children id (ids) is (are) invalid', () => {
@@ -1119,7 +1137,7 @@ describe('Routes: Educator', () => {
             })
         })
 
-        context('when the children group was updated with an invalid name', () => {
+        context('when the children group was updated with an invalid attribute', () => {
             let resultEducator
             let resultChild
             let resultChildrenGroup
@@ -1160,12 +1178,60 @@ describe('Routes: Educator', () => {
             it('should return status code 400 and info message from invalid name', () => {
                 return request
                     .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
+                    .send({ name: 123 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+
+            it('should return status code 400 and info message from empty name', () => {
+                return request
+                    .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
                     .send({ name: '' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('name must have at least one character!')
+                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+
+            it('should return status code 400 and info message from invalid school_class', () => {
+                return request
+                    .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
+                    .send({ school_class: 123 })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('school_class'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+
+            it('should return status code 400 and info message from empty school_class', () => {
+                return request
+                    .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
+                    .send({ school_class: '' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('school_class'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+
+            it('should return status code 400 and info message from invalid children', () => {
+                return request
+                    .patch(`/v1/educators/${resultEducator.id}/children/groups/${resultChildrenGroup.id}`)
+                    .send({ children: null })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
                     })
             })
         })
