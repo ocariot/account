@@ -45,6 +45,7 @@ export class ApplicationController {
         try {
             const application: Application = new Application().fromJSON(req.body)
             application.id = undefined
+            application.last_login = undefined
             const result: Application = await this._applicationService.add(application)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {

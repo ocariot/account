@@ -20,7 +20,7 @@ export class UpdateChildValidator {
             throw err
         }
 
-        if (child.gender && !genders.includes(child.gender)) {
+        if (child.gender !== undefined && !genders.includes(child.gender)) {
             throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
                 `The names of the allowed genders are: ${genders.join(', ')}.`)
         }

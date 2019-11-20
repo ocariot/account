@@ -70,17 +70,6 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
         this._scopes = value
     }
 
-    public addScope(scope: string): void {
-        if (!this.scopes) this._scopes = []
-        if (scope) this._scopes.push(scope)
-    }
-
-    public removeScope(scope: string): void {
-        if (scope) {
-            this.scopes = this.scopes.filter(item => item !== scope)
-        }
-    }
-
     public fromJSON(json: any): User {
         if (!json) return this
         if (typeof json === 'string' && JsonUtils.isJsonString(json)) {
@@ -96,7 +85,7 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
         } else if (json.institution_id !== undefined) {
             this.institution = new Institution().fromJSON(json)
         }
-        if (json.scope !== undefined) this.scopes = json.scope
+        if (json.last_login !== undefined) this.last_login = json.last_login
 
         return this
     }

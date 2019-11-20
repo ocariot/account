@@ -234,7 +234,7 @@ describe('Services: Educator', () => {
     describe('update(educator: Educator)', () => {
         context('when the Educator exists in the database', () => {
             it('should return the Educator that was updated', () => {
-                educator.password = ''
+                educator.password = undefined
                 educator.id = '507f1f77bcf86cd799439011'         // Make mock return an updated child
 
                 return educatorService.update(educator)
@@ -303,7 +303,7 @@ describe('Services: Educator', () => {
 
         context('when the Educator is incorrect (the institution is not registered)', () => {
             it('should throw a ValidationException', () => {
-                educator.password = ''
+                educator.password = undefined
                 educator.institution!.id = '507f1f77bcf86cd799439012'
 
                 return educatorService.update(educator)
@@ -447,9 +447,8 @@ describe('Services: Educator', () => {
 
                 return educatorService.saveChildrenGroup(educator.id!, incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'name, user, Collection with ' +
-                            'children IDs (ID can not be empty)'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                     })
             })
         })
@@ -679,9 +678,8 @@ describe('Services: Educator', () => {
 
                 return educatorService.updateChildrenGroup(educator.id!, incorrectChildrenGroup)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'Collection with children IDs ' +
-                            '(ID can not be empty)'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                     })
             })
         })

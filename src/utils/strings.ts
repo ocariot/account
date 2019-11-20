@@ -83,6 +83,8 @@ export abstract class Strings {
         UUID_NOT_VALID_FORMAT: 'Some ID provided does not have a valid format!',
         UUID_NOT_VALID_FORMAT_DESC: 'A 24-byte hex ID similar to this: 507f191e810c19729de860ea is expected.',
         MULTIPLE_UUID_NOT_VALID_FORMAT: 'The following IDs from children attribute are not in valid format: ',
+        INVALID_MULTIPLE_UUID: 'Children field contains invalid IDs. It is expected that each item in the array is a ' +
+            '24-byte hex string like this: 507f191e810c19729de860ea',
         INTERNAL_SERVER_ERROR: 'An internal server error has occurred.',
         REQUIRED_FIELDS: 'Required fields were not provided...',
         REQUIRED_FIELDS_DESC: ' are required!',
@@ -90,6 +92,7 @@ export abstract class Strings {
         INVALID_STRING: ' must be a string!',
         EMPTY_STRING: ' must have at least one character!',
         INVALID_DATE: ', is not in valid ISO 8601 format.',
-        INVALID_DATE_DESC: 'Date must be in the format: yyyy-MM-dd\'T\'HH:mm:ssZ'
+        INVALID_DATE_DESC: 'Date must be in the format: yyyy-MM-dd\'T\'HH:mm:ssZ',
+        INVALID_ARRAY: ' must be an array!',
     }
 }

@@ -6,7 +6,6 @@ import { Strings } from '../../../utils/strings'
 
 export class UpdateFamilyValidator {
     public static validate(family: Family): void | ValidationException {
-        const fields: Array<string> = []
         const invalid_ids: Array<string> = []
 
         try {
@@ -22,10 +21,16 @@ export class UpdateFamilyValidator {
             throw err
         }
 
+        if (family.children !== undefined && !(family.children instanceof Array)) {
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                'children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+        }
+
         if (family.children && family.children.length > 0) {
             family.children.forEach(child => {
                 if (!child.id) {
-                    fields.push('Collection with children IDs (ID can not be empty)')
+                    throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                        Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                 } else {
                     try {
                         ObjectIdValidator.validate(child.id)
@@ -39,9 +44,6 @@ export class UpdateFamilyValidator {
         if (invalid_ids.length > 0) {
             throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
                 Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat(invalid_ids.join(', ')))
-        } else if (fields.length > 0) {
-            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
-                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

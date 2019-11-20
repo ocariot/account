@@ -97,9 +97,8 @@ describe('Validators: Family', () => {
             try {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
-                assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'Collection with children IDs (ID can not be empty)'
-                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.message, Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                assert.equal(err.description, Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
             }
         })
 

@@ -20,12 +20,18 @@ export class CreateChildrenGroupValidator {
         if (!childrenGroup.user || !childrenGroup.user.id) fields.push('user')
         else ObjectIdValidator.validate(childrenGroup.user.id)
 
+        if (childrenGroup.children !== undefined && !(childrenGroup.children instanceof Array)) {
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                'children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+        }
+
         if (!childrenGroup.children || !childrenGroup.children.length) {
             fields.push('Collection with children IDs')
         } else {
             childrenGroup.children.forEach(child => {
                 if (!child.id) {
-                    fields.push('Collection with children IDs (ID can not be empty)')
+                    throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                        Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                 } else {
                     try {
                         ObjectIdValidator.validate(child.id)

@@ -15,7 +15,7 @@ export class CreateUserValidator {
             else StringValidator.validate(user.password, 'password')
 
             if (!user.type) fields.push('type')
-            if (!user.institution || !user.institution.id) {
+            if (!user.institution || user.institution.id === undefined) {
                 if (user.type !== UserType.APPLICATION) fields.push('institution')
             }
             else ObjectIdValidator.validate(user.institution.id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)

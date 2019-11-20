@@ -82,8 +82,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -159,16 +158,14 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createUser({
                         username: defaultFamily.username,
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -253,8 +250,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -300,6 +296,27 @@ describe('Routes: Family', () => {
                     })
             })
         })
+
+        context('when the children provided was null', () => {
+            it('should return status code 400 and message for invalid children', () => {
+                const body = {
+                    username: defaultFamily.username,
+                    password: defaultFamily.password,
+                    children: null,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/families')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+                    })
+            })
+        })
     })
 
     describe('GET /v1/families/:family_id', () => {
@@ -317,8 +334,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -326,8 +342,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -403,8 +418,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -412,8 +426,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
@@ -485,8 +498,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -494,8 +506,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -538,8 +549,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createUser({
@@ -547,8 +557,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
 
                     resultFamily = await createUser({
@@ -556,8 +565,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -664,8 +672,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -673,8 +680,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -687,9 +693,49 @@ describe('Routes: Family', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('Collection with children IDs (ID can not be empty)'
-                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
+                    })
+            })
+        })
+
+        context('when the family was updated with a null children array', () => {
+            let resultChild
+            let resultFamily
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id)
+                    })
+
+                    resultFamily = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
+            it('should return status code 400 and info message from invalid ids)', () => {
+                return request
+                    .patch(`/v1/families/${resultFamily.id}`)
+                    .send({ children: null })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
                     })
             })
         })
@@ -708,8 +754,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -717,8 +762,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -752,8 +796,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -761,8 +804,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -799,8 +841,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild2 = await createUser({
@@ -809,8 +850,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -818,8 +858,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -860,8 +899,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -869,8 +907,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -916,8 +953,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -925,8 +961,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -957,8 +992,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -966,8 +1000,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -1014,8 +1047,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild2 = await createUser({
@@ -1024,8 +1056,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultFamily = await createUser({
@@ -1033,8 +1064,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id, resultChild2.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id, resultChild2.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -1106,8 +1136,7 @@ describe('Routes: Family', () => {
                         username: defaultFamily.username,
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -1155,6 +1184,8 @@ describe('Routes: Family', () => {
     describe('GET /v1/families', () => {
         context('when want get all families in database', () => {
             let resultChild
+            const lastLogin: Date = new Date()
+            const lastSync: Date = new Date()
 
             before(async () => {
                 try {
@@ -1167,7 +1198,8 @@ describe('Routes: Family', () => {
                         gender: defaultChild.gender,
                         age: defaultChild.age,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        last_login: lastLogin,
+                        last_sync: lastSync
                     })
 
                     await createUser({
@@ -1175,8 +1207,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
 
                     await createUser({
@@ -1184,8 +1215,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
@@ -1209,6 +1239,8 @@ describe('Routes: Family', () => {
                                 expect(child).to.have.property('institution_id')
                                 expect(child).to.have.property('gender')
                                 expect(child).to.have.property('age')
+                                expect(child.last_login).to.eql(lastLogin.toISOString())
+                                expect(child.last_sync).to.eql(lastSync.toISOString())
                             }
                         }
                     })
@@ -1228,8 +1260,7 @@ describe('Routes: Family', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createUser({
@@ -1237,8 +1268,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
 
                     await createUser({
@@ -1246,8 +1276,7 @@ describe('Routes: Family', () => {
                         password: defaultFamily.password,
                         type: UserType.FAMILY,
                         institution: new ObjectID(institution.id),
-                        children: new Array<string | undefined>(resultChild.id),
-                        scopes: new Array('users:read')
+                        children: new Array<string | undefined>(resultChild.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Family test: ' + err.message)
