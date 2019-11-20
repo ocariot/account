@@ -709,8 +709,7 @@ describe('Routes: Institution', () => {
                         type: UserType.CHILD,
                         gender: 'male',
                         age: 11,
-                        institution: new ObjectID(resultInstitution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(resultInstitution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Institution test: ' + err.message)

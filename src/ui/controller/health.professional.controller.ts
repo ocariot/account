@@ -46,6 +46,7 @@ export class HealthProfessionalController {
         try {
             const healthProfessional: HealthProfessional = new HealthProfessional().fromJSON(req.body)
             healthProfessional.id = undefined
+            healthProfessional.last_login = undefined
             const result: HealthProfessional = await this._healthProfessionalService.add(healthProfessional)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {

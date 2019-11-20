@@ -165,8 +165,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
@@ -382,8 +381,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
@@ -452,8 +450,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
@@ -518,8 +515,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
@@ -558,8 +554,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     result = await createUser({
@@ -568,8 +563,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
@@ -752,8 +746,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createUser({
@@ -762,8 +755,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createUser({
@@ -772,8 +764,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createUser({
@@ -782,8 +773,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)
@@ -818,8 +808,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createUser({
@@ -828,8 +817,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createUser({
@@ -838,8 +826,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createUser({
@@ -848,8 +835,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Child test: ' + err.message)

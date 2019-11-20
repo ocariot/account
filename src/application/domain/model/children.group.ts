@@ -93,11 +93,9 @@ export class ChildrenGroup extends Entity implements IJSONSerializable, IJSONDes
             name: this.name,
             children: this.children ?
                 this.children.map(child => {
-                    child.toJSON()
                     child.type = undefined
-                    return child
-                }) :
-                this.children,
+                    return child.toJSON()
+                }) : this.children,
             school_class: this.school_class
         }
     }

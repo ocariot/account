@@ -45,6 +45,8 @@ export class ChildController {
         try {
             const child: Child = new Child().fromJSON(req.body)
             child.id = undefined
+            child.last_login = undefined
+            child.last_sync = undefined
             const result: Child = await this._childService.add(child)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {

@@ -110,8 +110,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -208,8 +207,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -218,8 +216,7 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -310,8 +307,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
@@ -373,8 +369,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -407,16 +402,14 @@ describe('Routes: Educator', () => {
                         username: 'anothercoolusername',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     result = await createUser({
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -526,16 +519,14 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -582,8 +573,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -592,8 +582,7 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createChildrenGroup({
@@ -636,8 +625,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -672,16 +660,14 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultEducator = await createUser({
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -790,8 +776,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -829,8 +814,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -862,6 +846,8 @@ describe('Routes: Educator', () => {
             let resultEducator
             let resultChild
             let resultChildrenGroup
+            const lastLogin: Date = new Date()
+            const lastSync: Date = new Date()
 
             before(async () => {
                 try {
@@ -872,8 +858,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -883,7 +868,8 @@ describe('Routes: Educator', () => {
                         gender: defaultChild.gender,
                         age: defaultChild.age,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        last_login: lastLogin,
+                        last_sync: lastSync
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -916,6 +902,8 @@ describe('Routes: Educator', () => {
                             expect(child.institution_id).to.eql(institution.id)
                             expect(child.gender).to.eql(defaultChild.gender)
                             expect(child.age).to.eql(defaultChild.age)
+                            expect(child.last_login).to.eql(lastLogin.toISOString())
+                            expect(child.last_sync).to.eql(lastSync.toISOString())
                         }
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                     })
@@ -934,8 +922,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -982,8 +969,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -992,8 +978,7 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1042,8 +1027,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1052,8 +1036,7 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1099,8 +1082,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1109,8 +1091,7 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1151,8 +1132,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1161,8 +1141,7 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1250,8 +1229,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1260,8 +1238,7 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1304,8 +1281,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1314,8 +1290,7 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1351,8 +1326,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -1399,8 +1373,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1409,8 +1382,7 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1472,8 +1444,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1482,8 +1453,7 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1541,8 +1511,7 @@ describe('Routes: Educator', () => {
                         username: defaultEducator.username,
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on Educator test: ' + err.message)
@@ -1579,24 +1548,21 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultEducator = await createUser({
                         username: 'EDUBR0001',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultEducator2 = await createUser({
                         username: 'EDUBR0002',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1673,24 +1639,21 @@ describe('Routes: Educator', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultEducator = await createUser({
                         username: 'EDUBR0001',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultEducator2 = await createUser({
                         username: 'EDUBR0002',
                         password: defaultEducator.password,
                         type: UserType.EDUCATOR,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
