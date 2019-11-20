@@ -15,7 +15,7 @@ export class CreateChildValidator {
             fields.push(err.description.split(','))
         }
 
-        if (!child.gender) fields.push('gender')
+        if (child.gender === undefined) fields.push('gender')
         else if (!genders.includes(child.gender)) {
             throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
                 `The names of the allowed genders are: ${genders.join(', ')}.`)

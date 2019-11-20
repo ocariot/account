@@ -22,7 +22,7 @@ export class UpdateUserValidator {
             }
         }
         // validate parameters that can not be updated.
-        if (user.password) {
+        if (user.password !== undefined) {
             throw new ValidationException('This parameter could not be updated.',
                 'A specific route to update user password already exists.' +
                 `Access: PATCH /users/${user.id}/password to update your password.`)
