@@ -234,7 +234,7 @@ describe('Services: HealthProfessional', () => {
     describe('update(healthProfessional: HealthProfessional)', () => {
         context('when the HealthProfessional exists in the database', () => {
             it('should return the HealthProfessional that was updated', () => {
-                healthProfessional.password = ''
+                healthProfessional.password = undefined
                 healthProfessional.id = '507f1f77bcf86cd799439011'         // Make mock return an updated child
 
                 return healthProfessionalService.update(healthProfessional)
@@ -303,7 +303,7 @@ describe('Services: HealthProfessional', () => {
 
         context('when the Child is incorrect (the institution is not registered)', () => {
             it('should throw a ValidationException', () => {
-                healthProfessional.password = ''
+                healthProfessional.password = undefined
                 healthProfessional.institution!.id = '507f1f77bcf86cd799439012'
 
                 return healthProfessionalService.update(healthProfessional)

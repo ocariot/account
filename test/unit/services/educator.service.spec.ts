@@ -234,7 +234,7 @@ describe('Services: Educator', () => {
     describe('update(educator: Educator)', () => {
         context('when the Educator exists in the database', () => {
             it('should return the Educator that was updated', () => {
-                educator.password = ''
+                educator.password = undefined
                 educator.id = '507f1f77bcf86cd799439011'         // Make mock return an updated child
 
                 return educatorService.update(educator)
@@ -303,7 +303,7 @@ describe('Services: Educator', () => {
 
         context('when the Educator is incorrect (the institution is not registered)', () => {
             it('should throw a ValidationException', () => {
-                educator.password = ''
+                educator.password = undefined
                 educator.institution!.id = '507f1f77bcf86cd799439012'
 
                 return educatorService.update(educator)
