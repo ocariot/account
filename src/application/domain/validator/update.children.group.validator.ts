@@ -6,7 +6,6 @@ import { StringValidator } from './string.validator'
 
 export class UpdateChildrenGroupValidator {
     public static validate(childrenGroup: ChildrenGroup): void | ValidationException {
-        const fields: Array<string> = []
         const invalid_ids: Array<string> = []
 
         if (childrenGroup.id) ObjectIdValidator.validate(childrenGroup.id, Strings.CHILDREN_GROUP.PARAM_ID_NOT_VALID_FORMAT)
@@ -16,10 +15,15 @@ export class UpdateChildrenGroupValidator {
         if (childrenGroup.school_class !== undefined) {
             StringValidator.validate(childrenGroup.school_class, 'school_class')
         }
+        if (childrenGroup.children !== undefined && !(childrenGroup.children instanceof Array)) {
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                'children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+        }
         if (childrenGroup.children && childrenGroup.children.length > 0) {
             childrenGroup.children.forEach(child => {
                 if (!child.id) {
-                    fields.push('Collection with children IDs (ID can not be empty)')
+                    throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                        Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                 } else {
                     try {
                         ObjectIdValidator.validate(child.id)
@@ -33,9 +37,6 @@ export class UpdateChildrenGroupValidator {
         if (invalid_ids.length > 0) {
             throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
                 Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat(invalid_ids.join(', ')))
-        } else if (fields.length > 0) {
-            throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
-                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
         }
     }
 }

@@ -67,7 +67,7 @@ export class Institution extends Entity implements IJSONSerializable, IJSONDeser
         }
 
         if (json.institution_id !== undefined) {
-            super.id = json.institution_id ? json.institution_id : undefined
+            super.id = json.institution_id ? json.institution_id : ''
             return this
         }
 

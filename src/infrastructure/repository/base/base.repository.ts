@@ -169,8 +169,8 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
                 return new ValidationException('Invalid query parameters!')
             }
         }
-        return new RepositoryException(err && err.message ? err.message : '',
-            err && err.description ? err.description : '')
+        return new RepositoryException(err && err.message ? err.message : Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+            err && err.description ? err.description : undefined)
     }
 
     private findPopulate(q: any, populate?: any): Promise<Array<T>> {

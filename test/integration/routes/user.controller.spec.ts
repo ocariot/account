@@ -325,7 +325,6 @@ describe('Routes: User', () => {
                 admin.username = 'anotheradminuser'
                 admin.password = 'mysecretkey'
                 admin.institution = institution.id
-                admin.scopes = ['users:read']
 
                 try {
                     await createUser(admin)
@@ -351,8 +350,7 @@ describe('Routes: User', () => {
                         type: UserType.CHILD,
                         gender: 'male',
                         age: 11,
-                        institution: institution.id,
-                        scopes: new Array('users:read')
+                        institution: institution.id
                     }).then(user => {
                         return request
                             .delete(`/v1/users/${user._id}`)
@@ -374,7 +372,6 @@ describe('Routes: User', () => {
                         password: 'mysecretkey',
                         type: UserType.EDUCATOR,
                         institution: institution.id,
-                        scopes: new Array('users:read'),
                         children_groups: []
                     }).then(user => {
                         return request
@@ -397,7 +394,6 @@ describe('Routes: User', () => {
                         password: 'mysecretkey',
                         type: UserType.HEALTH_PROFESSIONAL,
                         institution: institution.id,
-                        scopes: new Array('users:read'),
                         children_groups: []
                     }).then(user => {
                         return request
@@ -420,7 +416,6 @@ describe('Routes: User', () => {
                         password: 'mysecretkey',
                         type: UserType.FAMILY,
                         institution: institution.id,
-                        scopes: new Array('users:read'),
                         children: []
                     }).then(user => {
                         return request

@@ -227,7 +227,7 @@ describe('Services: Application', () => {
     describe('update(application: Application)', () => {
         context('when the Application exists in the database', () => {
             it('should return the Application that was updated', () => {
-                application.password = ''
+                application.password = undefined
                 application.id = '507f1f77bcf86cd799439011'         // Make mock return an updated Application
 
                 return applicationService.update(application)
@@ -294,7 +294,7 @@ describe('Services: Application', () => {
 
         context('when the Application is incorrect (the institution is not registered)', () => {
             it('should throw a ValidationException', () => {
-                application.password = ''
+                application.password = undefined
                 application.institution!.id = '507f1f77bcf86cd799439012'
 
                 return applicationService.update(application)

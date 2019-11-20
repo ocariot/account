@@ -16,12 +16,18 @@ export class CreateFamilyValidator {
             fields.push(err.description.split(','))
         }
 
+        if (family.children !== undefined && !(family.children instanceof Array)) {
+            throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                'children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+        }
+
         if (!family.children || !family.children.length) {
             fields.push('Collection with children IDs')
         } else {
             family.children.forEach(child => {
                 if (!child.id) {
-                    fields.push('Collection with children IDs (ID can not be empty)')
+                    throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
+                        Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                 } else {
                     try {
                         ObjectIdValidator.validate(child.id)

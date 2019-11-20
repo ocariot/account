@@ -14,7 +14,7 @@ export class UpdateUserValidator {
             }
         }
         if (user.username !== undefined) StringValidator.validate(user.username, 'username')
-        if (user.institution && user.institution.id) {
+        if (user.institution && user.institution.id !== undefined) {
             try {
                 ObjectIdValidator.validate(user.institution.id, Strings.INSTITUTION.PARAM_ID_NOT_VALID_FORMAT)
             } catch (err) {
@@ -22,7 +22,7 @@ export class UpdateUserValidator {
             }
         }
         // validate parameters that can not be updated.
-        if (user.password) {
+        if (user.password !== undefined) {
             throw new ValidationException('This parameter could not be updated.',
                 'A specific route to update user password already exists.' +
                 `Access: PATCH /users/${user.id}/password to update your password.`)

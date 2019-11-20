@@ -46,6 +46,7 @@ export class FamilyController {
         try {
             const family: Family = new Family().fromJSON(req.body)
             family.id = undefined
+            family.last_login = undefined
             const result: Family = await this._familyService.add(family)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {

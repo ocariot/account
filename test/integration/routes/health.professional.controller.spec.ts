@@ -110,8 +110,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -209,8 +208,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -219,8 +217,7 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -311,8 +308,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
@@ -374,8 +370,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -408,16 +403,14 @@ describe('Routes: HealthProfessional', () => {
                         username: 'anothercoolusername',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     result = await createUser({
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -527,16 +520,14 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultHealthProfessional = await createUser({
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -583,8 +574,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -593,8 +583,7 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     await createChildrenGroup({
@@ -637,8 +626,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -670,8 +658,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -709,8 +696,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -742,6 +728,8 @@ describe('Routes: HealthProfessional', () => {
             let resultHealthProfessional
             let resultChild
             let resultChildrenGroup
+            const lastLogin: Date = new Date()
+            const lastSync: Date = new Date()
 
             before(async () => {
                 try {
@@ -752,8 +740,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -763,7 +750,8 @@ describe('Routes: HealthProfessional', () => {
                         gender: defaultChild.gender,
                         age: defaultChild.age,
                         institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        last_login: lastLogin,
+                        last_sync: lastSync
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -799,6 +787,8 @@ describe('Routes: HealthProfessional', () => {
                             expect(child.institution_id).to.eql(institution.id)
                             expect(child.gender).to.eql(defaultChild.gender)
                             expect(child.age).to.eql(defaultChild.age)
+                            expect(child.last_login).to.eql(lastLogin.toISOString())
+                            expect(child.last_sync).to.eql(lastSync.toISOString())
                         }
                         expect(res.body.school_class).to.eql(defaultChildrenGroup.school_class)
                     })
@@ -817,8 +807,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -867,8 +856,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -877,8 +865,7 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -930,8 +917,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -940,8 +926,7 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -990,8 +975,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1000,8 +984,7 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1045,8 +1028,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1055,8 +1037,7 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1102,8 +1083,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1112,8 +1092,7 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1152,8 +1131,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -1203,8 +1181,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1213,8 +1190,7 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1276,8 +1252,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChild = await createUser({
@@ -1286,8 +1261,7 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1346,8 +1320,7 @@ describe('Routes: HealthProfessional', () => {
                         username: defaultHealthProfessional.username,
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read'),
+                        institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
                     throw new Error('Failure on HealthProfessional test: ' + err.message)
@@ -1384,24 +1357,21 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultHealthProfessional = await createUser({
                         username: 'HPROFBR0001',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultHealthProfessional2 = await createUser({
                         username: 'HPROFBR0002',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({
@@ -1478,24 +1448,21 @@ describe('Routes: HealthProfessional', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultHealthProfessional = await createUser({
                         username: 'HPROFBR0001',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultHealthProfessional2 = await createUser({
                         username: 'HPROFBR0002',
                         password: defaultHealthProfessional.password,
                         type: UserType.HEALTH_PROFESSIONAL,
-                        institution: new ObjectID(institution.id),
-                        scopes: new Array('users:read')
+                        institution: new ObjectID(institution.id)
                     })
 
                     resultChildrenGroup = await createChildrenGroup({

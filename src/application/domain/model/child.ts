@@ -69,7 +69,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     }
 
     public fromJSON(json: any): Child {
-        if (!json) return this
+        if (!json || json === 'null') return this
         super.fromJSON(json)
 
         if (typeof json === 'string') {
@@ -82,6 +82,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         }
         if (json.gender !== undefined) this.gender = json.gender
         if (json.age !== undefined) this.age = json.age
+        if (json.last_sync !== undefined) this.last_sync = json.last_sync
 
         return this
     }

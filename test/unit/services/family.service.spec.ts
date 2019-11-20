@@ -126,10 +126,8 @@ describe('Services: Family', () => {
 
                 return familyService.add(incorrectFamily)
                     .catch(err => {
-                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'username, password, type, institution, ' +
-                            'Collection with children IDs (ID can not be empty)'
-                                .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_MULTIPLE_UUID)
                     })
             })
         })
@@ -248,7 +246,7 @@ describe('Services: Family', () => {
             it('should return the Family that was updated', () => {
                 family.institution!.id = '507f1f77bcf86cd799439011'
                 family.children![0].id = '507f1f77bcf86cd799439011'
-                family.password = ''
+                family.password = undefined
                 family.id = '507f1f77bcf86cd799439011'         // Make mock return an updated Family
 
                 return familyService.update(family)
@@ -315,7 +313,7 @@ describe('Services: Family', () => {
 
         context('when the Family exists in the database but the children are not registered', () => {
             it('should throw a ValidationException', () => {
-                family.password = ''
+                family.password = undefined
                 family.children![0].id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
 
                 return familyService.update(family)
@@ -329,7 +327,7 @@ describe('Services: Family', () => {
 
         context('when the Family is incorrect (the institution is not registered)', () => {
             it('should throw a ValidationException', () => {
-                family.password = ''
+                family.password = undefined
                 family.children![0].id = '507f1f77bcf86cd799439011'
                 family.institution!.id = '507f1f77bcf86cd799439012'      // Make mock throw an exception
 

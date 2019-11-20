@@ -247,7 +247,7 @@ describe('Services: Child', () => {
     describe('update(child: Child)', () => {
         context('when the Child exists in the database', () => {
             it('should return the Child that was updated', () => {
-                child.password = ''
+                child.password = undefined
 
                 return childService.update(child)
                     .then(result => {
@@ -317,7 +317,7 @@ describe('Services: Child', () => {
 
         context('when the Child is incorrect (the institution is not registered)', () => {
             it('should throw a ValidationException', () => {
-                child.password = ''
+                child.password = undefined
                 child.institution!.id = '507f1f77bcf86cd799439012'
 
                 return childService.update(child)
