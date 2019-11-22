@@ -926,6 +926,142 @@ describe('Routes: Child', () => {
             })
         })
 
+        context('when get all children ordered by username', () => {
+            const childrenSaved: any = []
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    for (let i = 0; i < 1000; i++) {
+                        let childUsername
+                        if (i < 10) childUsername = 'BR00'.concat(`${i}`)
+                        else if (i >= 10 && i < 100) childUsername = 'BR0'.concat(`${i}`)
+                        else childUsername = 'BR'.concat(`${i}`)
+                        await createUser({
+                            username: childUsername,
+                            password: defaultChild.password,
+                            type: UserType.CHILD,
+                            gender: defaultChild.gender,
+                            age: Math.random(),
+                            institution: new ObjectID(institution.id)
+                        })
+                        childrenSaved.push(childUsername)
+                    }
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+            it('should return the result as required in query (query a maximum of 100 children per page ' +
+                '(in this case 10 pages) sorted in ascending order by username)', (done) => {
+                const limit = 10
+                for (let page = 1; page <= limit; page++) {
+                    let i = (100 * page) - 100
+                    const url = `/v1/children?sort=username,age&page=${page}&limit=100`
+                    request
+                        .get(url)
+                        .set('Content-Type', 'application/json')
+                        .expect(200)
+                        .then(res => {
+                            for (const child of res.body) {
+                                expect(child.username).to.eql(childrenSaved[i++])
+                            }
+                            if (page === limit) done()
+                        })
+                        .catch(done)
+                }
+            })
+
+            it('should return the result as required in query (query a maximum of 100 children per page ' +
+                '(in this case 10 pages) sorted in descending order by username)', (done) => {
+                const newChildrenSaved = childrenSaved.slice()
+                newChildrenSaved.reverse()
+                const limit = 10
+                for (let page = 1; page <= limit; page++) {
+                    let i = (100 * page) - 100
+                    const url = `/v1/children?sort=-username,age&page=${page}&limit=100`
+                    request
+                        .get(url)
+                        .set('Content-Type', 'application/json')
+                        .expect(200)
+                        .then(res => {
+                            for (const child of res.body) {
+                                expect(child.username).to.eql(newChildrenSaved[i++])
+                            }
+                            if (page === limit) done()
+                        })
+                        .catch(done)
+                }
+            })
+        })
+
+        context('when get all children ordered by age', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    for (let i = 0; i < 300; i++) {
+                        let ageToBeSaved = 9
+                        if (i > 99) ageToBeSaved = 10
+                        if (i > 199) ageToBeSaved = 11
+                        await createUser({
+                            username: 'BR'.concat(`${i}`),
+                            password: defaultChild.password,
+                            type: UserType.CHILD,
+                            gender: defaultChild.gender,
+                            age: ageToBeSaved,
+                            institution: new ObjectID(institution.id)
+                        })
+                    }
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+            it('should return the result as required in query (query a maximum of 100 children per page ' +
+                '(in this case 3 pages) sorted in ascending order by age)', (done) => {
+                const limit = 3
+                for (let page = 1; page <= limit; page++) {
+                    let age = 9
+                    if (page === 2) age = 10
+                    if (page === 3) age = 11
+                    const url = `/v1/children?sort=age&page=${page}&limit=100`
+                    request
+                        .get(url)
+                        .set('Content-Type', 'application/json')
+                        .expect(200)
+                        .then(res => {
+                            for (const child of res.body) {
+                                expect(child.age).to.eql(age)
+                            }
+                            if (page === limit) done()
+                        })
+                        .catch(done)
+                }
+            })
+
+            it('should return the result as required in query (query a maximum of 100 children per page ' +
+                '(in this case 3 pages) sorted in descending order by age)', (done) => {
+                const limit = 3
+                for (let page = 1; page <= limit; page++) {
+                    let age = 11
+                    if (page === 2) age = 10
+                    if (page === 3) age = 9
+                    const url = `/v1/children?sort=-age&page=${page}&limit=100`
+                    request
+                        .get(url)
+                        .set('Content-Type', 'application/json')
+                        .expect(200)
+                        .then(res => {
+                            for (const child of res.body) {
+                                expect(child.age).to.eql(age)
+                            }
+                            if (page === limit) done()
+                        })
+                        .catch(done)
+                }
+            })
+        })
+
         context('when there are no children in the database', () => {
             before(async () => {
                 try {

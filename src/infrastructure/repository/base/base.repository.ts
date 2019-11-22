@@ -60,20 +60,26 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         const q: any = query.toJSON()
         const populate: any = this.buildPopulateByUserType(q.filters.type)
 
+        // Auxiliar logic for pagination
+        const page: number = q.pagination.page
+
         // Checks if you have username in filters
         let usernameFilter: any
         const limit: number = q.pagination.limit
         if (q.filters.username) {
             usernameFilter = q.filters.username
-            q.pagination.limit = Number.MAX_SAFE_INTEGER
             delete q.filters.username
+            q.pagination.limit = Number.MAX_SAFE_INTEGER
+            if (q.pagination.page > 1) q.pagination.page = 1
         }
 
         // Checks if you have username in ordination/sort
         let usernameOrder: string
         if (q.ordination.username) {
             usernameOrder = q.ordination.username
-            delete q.ordination.username
+            q.ordination = {}
+            q.pagination.limit = Number.MAX_SAFE_INTEGER
+            if (q.pagination.page > 1) q.pagination.page = 1
         }
 
         return new Promise<Array<T>>(async (resolve, reject) => {
@@ -90,7 +96,10 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
                     else users.sort(this.compareDesc)
                 }
 
-                if (users.length > limit) users = users.slice(0, limit)
+                if (users.length > limit) {
+                    const start = (limit * page) - limit
+                    users = users.slice(start, limit + start)
+                }
 
                 return resolve(users.map(item => this.mapper.transform(item)))
             } catch (err) {
