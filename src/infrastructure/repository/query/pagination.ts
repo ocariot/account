@@ -27,7 +27,7 @@ export class Pagination implements IPagination {
     }
 
     set limit(value: number) {
-        this._limit = value
+        this._limit = value <= 100 ? value : 100
     }
 
     public fromJSON(json: any): Pagination {
