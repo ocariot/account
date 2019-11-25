@@ -2,35 +2,33 @@ import { DIContainer } from '../../../di/di'
 import { Identifier } from '../../../di/identifiers'
 import { ILogger } from '../../../utils/custom.logger'
 import { ValidationException } from '../../domain/exception/validation.exception'
+import { IChildRepository } from '../../port/child.repository.interface'
 import { Child, FitbitStatus } from '../../domain/model/child'
 import { ObjectIdValidator } from '../../domain/validator/object.id.validator'
 import { Strings } from '../../../utils/strings'
-import { IChildRepository } from '../../port/child.repository.interface'
 
 /**
- * Handler for FitbitLastSyncEvent operation.
+ * Handler for FitbitRevokeEvent operation.
  *
  * @param event
  */
-export const fitbitLastSyncEventHandler = async (event: any) => {
+export const fitbitRevokeEventHandler = async (event: any) => {
     const childRepository: IChildRepository = DIContainer.get<IChildRepository>(Identifier.CHILD_REPOSITORY)
     const logger: ILogger = DIContainer.get<ILogger>(Identifier.LOGGER)
 
     try {
         if (typeof event === 'string') event = JSON.parse(event)
-        if (!event.fitbit && (!event.fitbit.child_id || !event.fitbit.last_sync)) {
+        if (!event.fitbit && !event.fitbit.child_id) {
             throw new ValidationException('Event received but could not be handled due to an error in the event format.')
         }
         const childId: string = event.fitbit.child_id
-        const lastSync: string = event.fitbit.last_sync
 
         // 1. Validate child_id
         ObjectIdValidator.validate(childId, Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
 
         const childUp: Child = new Child()
         childUp.id = childId
-        childUp.last_sync = childUp.convertDatetimeString(lastSync)
-        childUp.fitbit_status = FitbitStatus.VALID_TOKEN
+        childUp.fitbit_status = FitbitStatus.NONE
 
         // 2. Try to update the user
         await childRepository.update(childUp)

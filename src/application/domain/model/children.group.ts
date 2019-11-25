@@ -80,7 +80,14 @@ export class ChildrenGroup extends Entity implements IJSONSerializable, IJSONDes
         if (json.name !== undefined) this.name = json.name
         if (json.school_class !== undefined) this.school_class = json.school_class
         if (json.children !== undefined) {
-            if (json.children instanceof Array) this.children = json.children.map(child => new Child().fromJSON(child))
+            if (json.children instanceof Array) this.children = json.children.map(item => {
+                const child: Child = new Child().fromJSON(item)
+                if (item.last_sync !== undefined) child.last_sync = item.last_sync
+                if (item.last_login !== undefined) child.last_login = item.last_login
+                child.fitbit_status = item.fitbit_status
+                child.cve_status = item.cve_status
+                return child
+            })
             else this.children = json.children
         }
 

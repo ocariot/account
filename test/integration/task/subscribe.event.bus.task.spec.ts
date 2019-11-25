@@ -10,9 +10,10 @@ import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.
 import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
 import { IChildRepository } from '../../../src/application/port/child.repository.interface'
 import { IQuery } from '../../../src/application/port/query.interface'
-import { Child } from '../../../src/application/domain/model/child'
+import { Child, FitbitStatus } from '../../../src/application/domain/model/child'
 import { ChildMock } from '../../mocks/child.mock'
 import { UserType } from '../../../src/application/domain/model/user'
+import { Strings } from '../../../src/utils/strings'
 
 const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
 const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
@@ -94,10 +95,11 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
                         await timeout(2000)
 
                         const query: IQuery = new Query()
-                        query.addFilter({ _id: fitbitLastSync.child_id, type: UserType.CHILD })
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
 
                         const result = await childRepository.findOne(query)
                         expect(result.last_sync).to.eql(new Date(fitbitLastSync.last_sync))
+                        expect(result.fitbit_status).to.eql(FitbitStatus.VALID_TOKEN)
 
                         done()
                     })
@@ -150,10 +152,322 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
                         await timeout(2000)
 
                         const query: IQuery = new Query()
-                        query.addFilter({ _id: fitbitLastSync.child_id, type: UserType.CHILD })
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
 
                         const result = await childRepository.findOne(query)
                         expect(result.last_sync).to.eql(new Date(fitbitLastSync.last_sync))
+
+                        done()
+                    })
+                    .catch(done)
+            })
+        })
+    })
+
+    describe('SUBSCRIBE FitbitAuthErrorEvent', () => {
+        before(async () => {
+            try {
+                await deleteAllInstitutions()
+                await deleteAllUsers()
+            } catch (err) {
+                throw new Error('Failure on Subscribe FitbitAuthErrorEvent test: ' + err.message)
+            }
+        })
+        // Delete all activities from database after each test case
+        afterEach(async () => {
+            try {
+                await deleteAllInstitutions()
+                await deleteAllUsers()
+            } catch (err) {
+                throw new Error('Failure on Subscribe FitbitAuthErrorEvent test: ' + err.message)
+            }
+        })
+
+        context('when receiving a FitbitAuthErrorEvent successfully', () => {
+            it('should return an updated child with a new fitbit_status (expired_token)', (done) => {
+                const child: Child = new ChildMock()
+
+                childRepository.create(child)
+                    .then(async childCreate => {
+                        const fitbitAuthError: any = { child_id: childCreate.id,
+                            error: {
+                                code: 1011, message: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+                                description: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR_DESC
+                            } }
+                        await rabbitmq.bus.pubFitbitAuthError(fitbitAuthError)
+
+                        // Wait for 2000 milliseconds for the task to be executed
+                        await timeout(2000)
+
+                        const query: IQuery = new Query()
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
+
+                        const result = await childRepository.findOne(query)
+                        expect(result.fitbit_status).to.eql(FitbitStatus.EXPIRED_TOKEN)
+
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an updated child with a new fitbit_status (invalid_token)', (done) => {
+                const child: Child = new ChildMock()
+
+                childRepository.create(child)
+                    .then(async childCreate => {
+                        const fitbitAuthError: any = { child_id: childCreate.id,
+                            error: {
+                                code: 1012, message: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+                                description: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR_DESC
+                            } }
+                        await rabbitmq.bus.pubFitbitAuthError(fitbitAuthError)
+
+                        // Wait for 2000 milliseconds for the task to be executed
+                        await timeout(2000)
+
+                        const query: IQuery = new Query()
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
+
+                        const result = await childRepository.findOne(query)
+                        expect(result.fitbit_status).to.eql(FitbitStatus.INVALID_TOKEN)
+
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an updated child with a new fitbit_status (invalid_grant)', (done) => {
+                const child: Child = new ChildMock()
+
+                childRepository.create(child)
+                    .then(async childCreate => {
+                        const fitbitAuthError: any = { child_id: childCreate.id,
+                            error: {
+                                code: 1021, message: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+                                description: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR_DESC
+                            } }
+                        await rabbitmq.bus.pubFitbitAuthError(fitbitAuthError)
+
+                        // Wait for 2000 milliseconds for the task to be executed
+                        await timeout(2000)
+
+                        const query: IQuery = new Query()
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
+
+                        const result = await childRepository.findOne(query)
+                        expect(result.fitbit_status).to.eql(FitbitStatus.INVALID_GRANT)
+
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an updated child with a new fitbit_status (invalid_client)', (done) => {
+                const child: Child = new ChildMock()
+
+                childRepository.create(child)
+                    .then(async childCreate => {
+                        const fitbitAuthError: any = { child_id: childCreate.id,
+                            error: {
+                                code: 1401, message: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+                                description: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR_DESC
+                            } }
+                        await rabbitmq.bus.pubFitbitAuthError(fitbitAuthError)
+
+                        // Wait for 2000 milliseconds for the task to be executed
+                        await timeout(2000)
+
+                        const query: IQuery = new Query()
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
+
+                        const result = await childRepository.findOne(query)
+                        expect(result.fitbit_status).to.eql(FitbitStatus.INVALID_CLIENT)
+
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an updated child with a new fitbit_status (system)', (done) => {
+                const child: Child = new ChildMock()
+
+                childRepository.create(child)
+                    .then(async childCreate => {
+                        const fitbitAuthError: any = { child_id: childCreate.id,
+                            error: {
+                                code: 1429, message: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+                                description: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR_DESC
+                            } }
+                        await rabbitmq.bus.pubFitbitAuthError(fitbitAuthError)
+
+                        // Wait for 2000 milliseconds for the task to be executed
+                        await timeout(2000)
+
+                        const query: IQuery = new Query()
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
+
+                        const result = await childRepository.findOne(query)
+                        expect(result.fitbit_status).to.eql(FitbitStatus.SYSTEM)
+
+                        done()
+                    })
+                    .catch(done)
+            })
+
+            it('should return an updated child with a new fitbit_status (other)', (done) => {
+                const child: Child = new ChildMock()
+
+                childRepository.create(child)
+                    .then(async childCreate => {
+                        const fitbitAuthError: any = { child_id: childCreate.id,
+                            error: {
+                                code: 1500, message: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+                                description: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR_DESC
+                            } }
+                        await rabbitmq.bus.pubFitbitAuthError(fitbitAuthError)
+
+                        // Wait for 2000 milliseconds for the task to be executed
+                        await timeout(2000)
+
+                        const query: IQuery = new Query()
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
+
+                        const result = await childRepository.findOne(query)
+                        expect(result.fitbit_status).to.eql(FitbitStatus.NONE)
+
+                        done()
+                    })
+                    .catch(done)
+            })
+        })
+
+        context('when receiving a FitbitAuthErrorEvent with an invalid fitbit parameter (invalid child_id))', () => {
+            it('should print a log referring to the wrong "fitbit" format, in this case the child_id that is not in the ' +
+                'correct format', (done) => {
+                const fitbitAuthError: any = { child_id: '5d7fb75ae48591c21a793f701',    // Invalid child_id
+                    error: {
+                        code: 1011, message: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+                        description: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR_DESC
+                    } }
+                rabbitmq.bus.pubFitbitAuthError(fitbitAuthError)
+                    .then(async () => {
+                        await timeout(2000)
+                        done()
+                    })
+                    .catch(done)
+            })
+        })
+
+        context('when receiving a FitbitAuthErrorEvent successfully (without MongoDB connection, at first)', () => {
+            it('should return an updated child with a new fitbit_status', (done) => {
+                const child: Child = new ChildMock()
+                childRepository.create(child)
+                    .then(async childCreate => {
+                        const fitbitAuthError: any = { child_id: childCreate.id,
+                            error: {
+                                code: 1011, message: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR,
+                                description: Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR_DESC
+                            } }
+                        await dbConnection.dispose()
+                        await rabbitmq.bus.pubFitbitAuthError(fitbitAuthError)
+
+                        await timeout(1000)
+
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                            { interval: 100 })
+
+                        await timeout(2000)
+
+                        const query: IQuery = new Query()
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
+
+                        const result = await childRepository.findOne(query)
+                        expect(result.fitbit_status).to.eql(FitbitStatus.EXPIRED_TOKEN)
+
+                        done()
+                    })
+                    .catch(done)
+            })
+        })
+    })
+
+    describe('SUBSCRIBE FitbitRevokeEvent', () => {
+        before(async () => {
+            try {
+                await deleteAllInstitutions()
+                await deleteAllUsers()
+            } catch (err) {
+                throw new Error('Failure on Subscribe FitbitRevokeEvent test: ' + err.message)
+            }
+        })
+        // Delete all activities from database after each test case
+        afterEach(async () => {
+            try {
+                await deleteAllInstitutions()
+                await deleteAllUsers()
+            } catch (err) {
+                throw new Error('Failure on Subscribe FitbitRevokeEvent test: ' + err.message)
+            }
+        })
+
+        context('when receiving a FitbitRevokeEvent successfully', () => {
+            it('should return an updated child with a new fitbit_status (none)', (done) => {
+                const child: Child = new ChildMock()
+
+                childRepository.create(child)
+                    .then(async childCreate => {
+                        const fitbitRevoke: any = { child_id: childCreate.id }
+                        await rabbitmq.bus.pubFitbitRevoke(fitbitRevoke)
+
+                        // Wait for 2000 milliseconds for the task to be executed
+                        await timeout(2000)
+
+                        const query: IQuery = new Query()
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
+
+                        const result = await childRepository.findOne(query)
+                        expect(result.fitbit_status).to.eql(FitbitStatus.NONE)
+
+                        done()
+                    })
+                    .catch(done)
+            })
+        })
+
+        context('when receiving a FitbitRevokeEvent with an invalid fitbit parameter (invalid child_id))', () => {
+            it('should print a log referring to the wrong "fitbit" format, in this case the child_id that is not in the ' +
+                'correct format', (done) => {
+                const fitbitRevoke: any = { child_id: '5d7fb75ae48591c21a793f701'}
+                rabbitmq.bus.pubFitbitRevoke(fitbitRevoke)
+                    .then(async () => {
+                        await timeout(2000)
+                        done()
+                    })
+                    .catch(done)
+            })
+        })
+
+        context('when receiving a FitbitRevokeEvent successfully (without MongoDB connection, at first)', () => {
+            it('should return an updated child with a new fitbit_status', (done) => {
+                const child: Child = new ChildMock()
+                childRepository.create(child)
+                    .then(async childCreate => {
+                        const fitbitRevoke: any = { child_id: childCreate.id }
+                        await dbConnection.dispose()
+                        await rabbitmq.bus.pubFitbitRevoke(fitbitRevoke)
+
+                        await timeout(1000)
+
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
+                            { interval: 100 })
+
+                        await timeout(2000)
+
+                        const query: IQuery = new Query()
+                        query.addFilter({ _id: childCreate.id, type: UserType.CHILD })
+
+                        const result = await childRepository.findOne(query)
+                        expect(result.fitbit_status).to.eql(FitbitStatus.NONE)
 
                         done()
                     })

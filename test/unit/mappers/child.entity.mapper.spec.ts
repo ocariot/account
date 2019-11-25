@@ -13,6 +13,8 @@ describe('Mappers: ChildEntity', () => {
     const emptyChild: Child = new Child()
     emptyChild.type = undefined
     emptyChild.scopes = undefined!
+    emptyChild.fitbit_status = undefined
+    emptyChild.cve_status = undefined
 
     // Create child JSON
     const childJSON: any = {

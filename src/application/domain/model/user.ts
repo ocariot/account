@@ -85,7 +85,6 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
         } else if (json.institution_id !== undefined) {
             this.institution = new Institution().fromJSON(json)
         }
-        if (json.last_login !== undefined) this.last_login = json.last_login
 
         return this
     }

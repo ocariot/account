@@ -14,6 +14,8 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     private _gender?: string // Gender of the child. Can be male or female.
     private _age?: number  // Age of the child.
     private _last_sync?: Date // Last synchronization time according to the UTC.
+    private _fitbit_status?: string // Fitbit status value.
+    private _cve_status?: string // CVE status value.
 
     constructor() {
         super()
@@ -37,6 +39,8 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
             'gamificationprofile:update',
             'external:sync'
         ]
+        this.fitbit_status = 'none'
+        this.cve_status = 'none'
     }
 
     get gender(): string | undefined {
@@ -63,6 +67,22 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         this._last_sync = value
     }
 
+    get fitbit_status(): string | undefined {
+        return this._fitbit_status
+    }
+
+    set fitbit_status(value: string | undefined) {
+        this._fitbit_status = value
+    }
+
+    get cve_status(): string | undefined {
+        return this._cve_status
+    }
+
+    set cve_status(value: string | undefined) {
+        this._cve_status = value
+    }
+
     public convertDatetimeString(value: string): Date {
         DatetimeValidator.validate(value)
         return new Date(value)
@@ -82,7 +102,6 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         }
         if (json.gender !== undefined) this.gender = json.gender
         if (json.age !== undefined) this.age = json.age
-        if (json.last_sync !== undefined) this.last_sync = json.last_sync
 
         return this
     }
@@ -93,7 +112,9 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
             ...{
                 gender: this.gender,
                 age: this.age,
-                last_sync: this.last_sync
+                last_sync: this.last_sync,
+                fitbit_status: this.fitbit_status,
+                cve_status: this.cve_status
             }
         }
     }
@@ -102,4 +123,14 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
 export enum Gender {
     MALE = 'male',
     FEMALE = 'female'
+}
+
+export enum FitbitStatus {
+    VALID_TOKEN = 'valid_token',
+    EXPIRED_TOKEN = 'expired_token',
+    INVALID_TOKEN = 'invalid_token',
+    INVALID_GRANT = 'invalid_grant',
+    INVALID_CLIENT = 'invalid_client',
+    SYSTEM = 'rate_limit',
+    NONE = 'none'
 }

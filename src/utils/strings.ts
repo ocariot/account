@@ -86,6 +86,7 @@ export abstract class Strings {
         INVALID_MULTIPLE_UUID: 'Children field contains invalid IDs. It is expected that each item in the array is a ' +
             '24-byte hex string like this: 507f191e810c19729de860ea',
         INTERNAL_SERVER_ERROR: 'An internal server error has occurred.',
+        INTERNAL_SERVER_ERROR_DESC: 'Check all parameters of the operation being requested.',
         REQUIRED_FIELDS: 'Required fields were not provided...',
         REQUIRED_FIELDS_DESC: ' are required!',
         INVALID_FIELDS: 'One or more request fields are invalid...',
