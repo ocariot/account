@@ -63,7 +63,14 @@ export class FamilyEntityMapper implements IEntityMapper<Family, FamilyEntity> {
             }
         }
         if (json.children !== undefined) {
-            result.children = json.children.map(item => new Child().fromJSON(item))
+            result.children = json.children.map(item => {
+                const child: Child = new Child().fromJSON(item)
+                if (item.last_sync !== undefined) child.last_sync = item.last_sync
+                if (item.last_login !== undefined) child.last_login = item.last_login
+                child.fitbit_status = item.fitbit_status
+                child.cve_status = item.cve_status
+                return child
+            })
         }
         if (json.last_login !== undefined) result.last_login = json.last_login
         if (json.scopes !== undefined) result.scopes = json.scopes

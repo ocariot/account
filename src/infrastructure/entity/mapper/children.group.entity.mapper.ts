@@ -52,7 +52,14 @@ export class ChildrenGroupEntityMapper implements IEntityMapper<ChildrenGroup, C
         if (json.name !== undefined) result.name = json.name
         if (json.school_class !== undefined) result.school_class = json.school_class
         if (json.children !== undefined) {
-            result.children = json.children.map(item => new Child().fromJSON(item))
+            result.children = json.children.map(item => {
+                const child: Child = new Child().fromJSON(item)
+                if (item.last_sync !== undefined) child.last_sync = item.last_sync
+                if (item.last_login !== undefined) child.last_login = item.last_login
+                child.fitbit_status = item.fitbit_status
+                child.cve_status = item.cve_status
+                return child
+            })
         }
         if (json.user_id) {
             const user: User = new User()

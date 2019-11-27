@@ -46,7 +46,6 @@ export class EducatorController {
         try {
             const educator: Educator = new Educator().fromJSON(req.body)
             educator.id = undefined
-            educator.last_login = undefined
             const result: Educator = await this._educatorService.add(educator)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
         } catch (err) {
