@@ -52,8 +52,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideChildren(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON(
-                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
+                    const _query: IQuery = this.buildQS(query)
                     const result: Array<Child> = await this._childRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -67,8 +66,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideFamilies(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON(
-                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
+                    const _query: IQuery = this.buildQS(query)
                     const result: Array<Family> = await this._familyRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -97,8 +95,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideEducators(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON(
-                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
+                    const _query: IQuery = this.buildQS(query)
                     const result: Array<Educator> = await this._educatorRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -127,8 +124,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideHealthProfessionals(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON(
-                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
+                    const _query: IQuery = this.buildQS(query)
                     const result: Array<HealthProfessional> = await this._healthProfessionalRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -159,8 +155,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideApplications(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON(
-                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
+                    const _query: IQuery = this.buildQS(query)
                     const result: Array<Application> = await this._applicationRepository.findAll(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -174,8 +169,7 @@ export class ProviderEventBusTask implements IBackgroundTask {
         this._eventBus.bus
             .provideInstitutions(async (query) => {
                 try {
-                    const _query: IQuery = new Query().fromJSON(
-                        query ? { ...qs.parser(query) } : { limit: Number.MAX_SAFE_INTEGER })
+                    const _query: IQuery = this.buildQS(query)
                     const result: Array<Institution> = await this._institutionRepository.find(_query)
                     return result.map(item => item.toJSON())
                 } catch (err) {
@@ -184,5 +178,18 @@ export class ProviderEventBusTask implements IBackgroundTask {
             })
             .then(() => this._logger.info('Institution resource provided successfully!'))
             .catch((err) => this._logger.error(`Error trying to provide Institution resource: ${err.message}`))
+    }
+
+    /**
+     * Prepare query string based on defaults parameters and values.
+     * 
+     * @param query
+     * @param dateField 
+     */
+    private buildQS(query?: any, dateField?: string): IQuery {
+        return new Query().fromJSON(
+            qs.parser(query ? query : {}, { pagination: { limit: Number.MAX_SAFE_INTEGER } },
+                { use_page: true, date_fields: { start_at: dateField, end_at: dateField } })
+        )
     }
 }
