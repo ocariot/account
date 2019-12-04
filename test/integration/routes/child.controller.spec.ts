@@ -108,6 +108,7 @@ describe('Routes: Child', () => {
                                 password: defaultChild.password,
                                 gender: defaultChild.gender,
                                 age: defaultChild.age,
+                                age_calc_date: defaultChild.age_calc_date,
                                 institution_id: institution.id
                             })
                             .set('Content-Type', 'application/json')
@@ -136,6 +137,7 @@ describe('Routes: Child', () => {
                     password: defaultChild.password,
                     gender: defaultChild.gender,
                     age: defaultChild.age,
+                    age_calc_date: defaultChild.age_calc_date,
                     institution_id: institution.id
                 }
 
@@ -165,6 +167,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
+                        age_calc_date: defaultChild.age_calc_date,
                         institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
@@ -177,6 +180,7 @@ describe('Routes: Child', () => {
                     password: defaultChild.password,
                     gender: defaultChild.gender,
                     age: defaultChild.age,
+                    age_calc_date: defaultChild.age_calc_date,
                     institution_id: institution.id
                 }
 
@@ -215,6 +219,7 @@ describe('Routes: Child', () => {
                     password: defaultChild.password,
                     gender: defaultChild.gender,
                     age: defaultChild.age,
+                    age_calc_date: defaultChild.age_calc_date,
                     institution_id: new ObjectID()
                 }
 
@@ -336,8 +341,7 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql(
-                            'Provided age is not a valid number!')
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
                     })
             })
         })
@@ -362,6 +366,97 @@ describe('Routes: Child', () => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql(
                             'Age cannot be less than or equal to zero!')
+                    })
+            })
+        })
+
+        context('when the age provided is a number and the \'age_calc_date\' parameter is missing', () => {
+            it('should return status code 400 and an error message', () => {
+
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                    })
+            })
+        })
+
+        context('when the age provided is an invalid date (invalid format)', () => {
+            it('should return status code 400 and an error message about invalid age', () => {
+
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: '2012-06-0',
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
+                    })
+            })
+        })
+
+        context('when the age provided is an invalid date (invalid day)', () => {
+            it('should return status code 400 and an error message about invalid age', () => {
+
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: '2012-06-32',
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
+                    })
+            })
+        })
+
+        context('when the age provided is an invalid date (future date)', () => {
+            it('should return status code 400 and an error message about invalid age', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: '2030-12-31',
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Datetime: 2030-12-31, cannot be used!')
+                        expect(err.body.description).to.eql('The \'age\' and \'age_calc_date\' fields can only receive past or present dates.')
                     })
             })
         })
@@ -714,7 +809,7 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('Provided age is not a valid number!')
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
                     })
             })
         })
@@ -1021,9 +1116,9 @@ describe('Routes: Child', () => {
                 '(in this case 3 pages) sorted in ascending order by age)', (done) => {
                 const limit = 3
                 for (let page = 1; page <= limit; page++) {
-                    let age = 9
-                    if (page === 2) age = 10
-                    if (page === 3) age = 11
+                    let age = '9'
+                    if (page === 2) age = '10'
+                    if (page === 3) age = '11'
                     const url = `/v1/children?sort=age&page=${page}&limit=100`
                     request
                         .get(url)
@@ -1043,9 +1138,9 @@ describe('Routes: Child', () => {
                 '(in this case 3 pages) sorted in descending order by age)', (done) => {
                 const limit = 3
                 for (let page = 1; page <= limit; page++) {
-                    let age = 11
-                    if (page === 2) age = 10
-                    if (page === 3) age = 9
+                    let age = '11'
+                    if (page === 2) age = '10'
+                    if (page === 3) age = '9'
                     const url = `/v1/children?sort=-age&page=${page}&limit=100`
                     request
                         .get(url)
