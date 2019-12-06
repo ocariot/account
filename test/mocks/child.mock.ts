@@ -13,8 +13,9 @@ export class ChildMock extends Child {
         super.username = 'child_mock'
         super.password = 'child_password'
         super.institution = this.generateInstitution()
-        super.age = Math.floor(Math.random() * 5) + 5
+        super.age = `${Math.floor(Math.random() * 5) + 5}`
         super.gender = this.generateGender()
+        super.age_calc_date = '2019-12-01'
     }
 
     private generateObjectId(): string {

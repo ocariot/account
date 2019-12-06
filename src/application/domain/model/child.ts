@@ -12,7 +12,8 @@ import { DatetimeValidator } from '../validator/datetime.validator'
  */
 export class Child extends User implements IJSONSerializable, IJSONDeserializable<Child> {
     private _gender?: string // Gender of the child. Can be male or female.
-    private _age?: number  // Age of the child.
+    private _age?: string  // Age of the child.
+    private _age_calc_date?: string // Date the age was registered.
     private _last_sync?: Date // Last synchronization time according to the UTC.
     private _fitbit_status?: string // Fitbit status value.
     private _cve_status?: string // CVE status value.
@@ -51,12 +52,20 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         this._gender = value
     }
 
-    get age(): number | undefined {
+    get age(): string | undefined {
         return this._age
     }
 
-    set age(value: number | undefined) {
+    set age(value: string | undefined) {
         this._age = value
+    }
+
+    get age_calc_date(): string | undefined {
+        return this._age_calc_date
+    }
+
+    set age_calc_date(value: string | undefined) {
+        this._age_calc_date = value
     }
 
     get last_sync(): Date | undefined {
@@ -102,6 +111,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         }
         if (json.gender !== undefined) this.gender = json.gender
         if (json.age !== undefined) this.age = json.age
+        if (json.age_calc_date !== undefined) this.age_calc_date = json.age_calc_date
 
         return this
     }
@@ -112,6 +122,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
             ...{
                 gender: this.gender,
                 age: this.age,
+                age_calc_date: this.age_calc_date,
                 last_sync: this.last_sync,
                 fitbit_status: this.fitbit_status,
                 cve_status: this.cve_status

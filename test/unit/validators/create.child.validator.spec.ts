@@ -129,7 +129,7 @@ describe('Validators: Child', () => {
     context('when the age is invalid', () => {
         it('should throw a ValidationException', () => {
             child.gender = Gender.MALE
-            child.age = -1
+            child.age = '-1'
 
             try {
                 CreateChildValidator.validate(child)

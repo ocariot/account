@@ -26,8 +26,7 @@ describe('Routes: Child', () => {
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                    { interval: 100 })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
                 await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
 
@@ -108,6 +107,7 @@ describe('Routes: Child', () => {
                                 password: defaultChild.password,
                                 gender: defaultChild.gender,
                                 age: defaultChild.age,
+                                age_calc_date: defaultChild.age_calc_date,
                                 institution_id: institution.id
                             })
                             .set('Content-Type', 'application/json')
@@ -136,6 +136,7 @@ describe('Routes: Child', () => {
                     password: defaultChild.password,
                     gender: defaultChild.gender,
                     age: defaultChild.age,
+                    age_calc_date: defaultChild.age_calc_date,
                     institution_id: institution.id
                 }
 
@@ -165,6 +166,7 @@ describe('Routes: Child', () => {
                         type: UserType.CHILD,
                         gender: defaultChild.gender,
                         age: defaultChild.age,
+                        age_calc_date: defaultChild.age_calc_date,
                         institution: new ObjectID(institution.id)
                     })
                 } catch (err) {
@@ -177,6 +179,7 @@ describe('Routes: Child', () => {
                     password: defaultChild.password,
                     gender: defaultChild.gender,
                     age: defaultChild.age,
+                    age_calc_date: defaultChild.age_calc_date,
                     institution_id: institution.id
                 }
 
@@ -215,6 +218,7 @@ describe('Routes: Child', () => {
                     password: defaultChild.password,
                     gender: defaultChild.gender,
                     age: defaultChild.age,
+                    age_calc_date: defaultChild.age_calc_date,
                     institution_id: new ObjectID()
                 }
 
@@ -318,9 +322,52 @@ describe('Routes: Child', () => {
             })
         })
 
+        context('when the age provided is null', () => {
+            it('should return status code 400 and an error message about invalid age', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: null,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('age'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when the age provided is empty', () => {
+            it('should return status code 400 and message for invalid age', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: '',
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('age'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+        })
+
         context('when the age provided is invalid', () => {
             it('should return status code 400 and message for invalid age', () => {
-
                 const body = {
                     username: 'anotherusername',
                     password: defaultChild.password,
@@ -336,15 +383,13 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql(
-                            'Provided age is not a valid number!')
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
                     })
             })
         })
 
         context('when the age provided is negative', () => {
             it('should return status code 400 and message for invalid age', () => {
-
                 const body = {
                     username: 'anotherusername',
                     password: defaultChild.password,
@@ -362,6 +407,232 @@ describe('Routes: Child', () => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql(
                             'Age cannot be less than or equal to zero!')
+                    })
+            })
+        })
+
+        context('when the age provided is a number and the \'age_calc_date\' parameter is missing', () => {
+            it('should return status code 400 and an error message', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                    })
+            })
+        })
+
+        context('when the age provided is an invalid date (invalid format)', () => {
+            it('should return status code 400 and an error message about invalid age', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: '2012-06-0',
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
+                    })
+            })
+        })
+
+        context('when the age provided is an invalid date (invalid day)', () => {
+            it('should return status code 400 and an error message about invalid age', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: '2012-06-35',
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
+                    })
+            })
+        })
+
+        context('when the age provided is an invalid date (future date)', () => {
+            it('should return status code 400 and an error message about invalid age', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: '2050-12-31',
+                    institution_id: institution.id
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Datetime: 2050-12-31, cannot be used!')
+                        expect(err.body.description).to.eql('The \'age\' and \'age_calc_date\' fields can only receive past or present dates.')
+                    })
+            })
+        })
+
+        context('when the age_calc_date provided is null', () => {
+            it('should return status code 400 and an error message about invalid age_calc_date', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id,
+                    age_calc_date: null
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when the age_calc_date provided is empty', () => {
+            it('should return status code 400 and an error message about invalid age_calc_date', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id,
+                    age_calc_date: ''
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                    })
+            })
+        })
+
+        context('when the age_calc_date provided is invalid', () => {
+            it('should return status code 400 and an error message about invalid age_calc_date', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id,
+                    age_calc_date: 1
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                    })
+            })
+        })
+
+        context('when the age_calc_date provided is an invalid date (invalid format)', () => {
+            it('should return status code 400 and an error message about invalid age_calc_date', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id,
+                    age_calc_date: '2019-12-0'
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Datetime: 2019-12-0'.concat(Strings.ERROR_MESSAGE.INVALID_DATE))
+                        expect(err.body.description).to.eql('Date must be in the format: yyyy-MM-dd')
+                    })
+            })
+        })
+
+        context('when the age_calc_date provided is an invalid date (invalid day)', () => {
+            it('should return status code 400 and an error message about invalid age_calc_date', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id,
+                    age_calc_date: '2019-12-35'
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Datetime: 2019-12-35'.concat(Strings.ERROR_MESSAGE.INVALID_DATE))
+                        expect(err.body.description).to.eql('Date must be in the format: yyyy-MM-dd')
+                    })
+            })
+        })
+
+        context('when the age_calc_date provided is an invalid date (future date)', () => {
+            it('should return status code 400 and an error message about invalid age_calc_date', () => {
+                const body = {
+                    username: 'anotherusername',
+                    password: defaultChild.password,
+                    gender: defaultChild.gender,
+                    age: defaultChild.age,
+                    institution_id: institution.id,
+                    age_calc_date: '2050-12-31'
+                }
+
+                return request
+                    .post('/v1/children')
+                    .send(body)
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql('Datetime: 2050-12-31, cannot be used!')
+                        expect(err.body.description).to.eql('The \'age\' and \'age_calc_date\' fields can only receive past or present dates.')
                     })
             })
         })
@@ -714,21 +985,35 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('Provided age is not a valid number!')
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
                     })
             })
         })
 
-        context('when the age is negative', () => {
+        context('when the age provided is a number and the age_calc_date parameter is missing', () => {
             it('should return status code 400 and info message from invalid age', () => {
                 return request
                     .patch(`/v1/children/${defaultChild.id}`)
-                    .send({ age: -1 })
+                    .send({ age: 10 })
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('Age cannot be less than or equal to zero!')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                    })
+            })
+        })
+
+        context('when the age_calc_date is provided and the age parameter is missing', () => {
+            it('should return status code 400 and info message from invalid age', () => {
+                return request
+                    .patch(`/v1/children/${defaultChild.id}`)
+                    .send({ age_calc_date: '2010-12-01' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
+                        expect(err.body.description).to.eql('age'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
                     })
             })
         })
@@ -1021,9 +1306,9 @@ describe('Routes: Child', () => {
                 '(in this case 3 pages) sorted in ascending order by age)', (done) => {
                 const limit = 3
                 for (let page = 1; page <= limit; page++) {
-                    let age = 9
-                    if (page === 2) age = 10
-                    if (page === 3) age = 11
+                    let age = '9'
+                    if (page === 2) age = '10'
+                    if (page === 3) age = '11'
                     const url = `/v1/children?sort=age&page=${page}&limit=100`
                     request
                         .get(url)
@@ -1043,9 +1328,9 @@ describe('Routes: Child', () => {
                 '(in this case 3 pages) sorted in descending order by age)', (done) => {
                 const limit = 3
                 for (let page = 1; page <= limit; page++) {
-                    let age = 11
-                    if (page === 2) age = 10
-                    if (page === 3) age = 9
+                    let age = '11'
+                    if (page === 2) age = '10'
+                    if (page === 3) age = '9'
                     const url = `/v1/children?sort=-age&page=${page}&limit=100`
                     request
                         .get(url)

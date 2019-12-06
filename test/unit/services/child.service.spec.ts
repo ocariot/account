@@ -146,11 +146,11 @@ describe('Services: Child', () => {
 
         context('when the Child is incorrect (the age is invalid)', () => {
             after(() => {
-                child.age = 9
+                child.age = '9'
             })
             it('should throw a ValidationException', () => {
                 child.gender = Gender.MALE
-                child.age = -1
+                child.age = '-1'
 
                 return childService.add(child)
                     .catch(err => {
