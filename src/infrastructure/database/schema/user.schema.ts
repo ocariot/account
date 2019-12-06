@@ -21,7 +21,8 @@ const userSchema = new Mongoose.Schema({
             ref: 'Institution'
         },
         gender: { type: String }, // User type Child
-        age: { type: Number }, // User type Child
+        age: { type: String }, // User type Child
+        age_calc_date: { type: String }, // User type Child
         children: [{
             type: Schema.Types.ObjectId,
             ref: 'User'

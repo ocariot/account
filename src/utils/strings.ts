@@ -95,5 +95,6 @@ export abstract class Strings {
         INVALID_DATE: ', is not in valid ISO 8601 format.',
         INVALID_DATE_DESC: 'Date must be in the format: yyyy-MM-dd\'T\'HH:mm:ssZ',
         INVALID_ARRAY: ' must be an array!',
+        INVALID_AGE: 'Age must be a valid decimal or a valid date.'
     }
 }

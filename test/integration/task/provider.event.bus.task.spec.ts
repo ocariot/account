@@ -48,8 +48,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
     // Start DB connection, RabbitMQ connection and ProviderEventBusTask
     before(async () => {
         try {
-            await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                { interval: 100 })
+            await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
             await deleteAllUsers()
             await deleteAllInstitutions()
@@ -130,37 +129,37 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     child1.username = 'child_mock1'
                     child1.institution!.id = '5a62be07d6f33400146c9b61'
                     child1.gender = Gender.MALE
-                    child1.age = 8
+                    child1.age = '8'
 
                     const child2: Child = new ChildMock()
                     child2.username = 'child_mock2'
                     child2.institution!.id = '5a62be07d6f33400146c9b61'
                     child2.gender = Gender.FEMALE
-                    child2.age = 9
+                    child2.age = '9'
 
                     const child3: Child = new ChildMock()
                     child3.username = 'child_mock3'
                     child3.institution!.id = '5a62be07d6f33400146c9b61'
                     child3.gender = Gender.MALE
-                    child3.age = 10
+                    child3.age = '10'
 
                     const child4: Child = new ChildMock()
                     child4.username = 'child_mock4'
                     child4.institution!.id = '5a62be07de34500146d9c544'
                     child4.gender = Gender.FEMALE
-                    child4.age = 6
+                    child4.age = '6'
 
                     const child5: Child = new ChildMock()
                     child5.username = 'child_mock5'
                     child5.institution!.id = '5a62be07de34500146d9c544'
                     child5.gender = Gender.MALE
-                    child5.age = 7
+                    child5.age = '7'
 
                     const child6: Child = new ChildMock()
                     child6.username = 'child_mock6'
                     child6.institution!.id = '5a62be07de34500146d9c544'
                     child6.gender = Gender.FEMALE
-                    child6.age = 7
+                    child6.age = '7'
 
                     const userModel: any = DIContainer.get(Identifier.USER_REPO_MODEL)
                     const child7: any = {
@@ -169,7 +168,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         type: 'child',
                         institution: '5a62be07d6f33400146c9b61',
                         gender: 'male',
-                        age: 7,
+                        age: '7',
                         created_at: '2019-01-20T00:00:00.000Z'
                     }
 
@@ -179,7 +178,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         type: 'child',
                         institution: '5a62be07d6f33400146c9b62',
                         gender: 'female',
-                        age: 7,
+                        age: '7',
                         created_at: '2019-01-30T00:00:00.000Z'
                     }
 
@@ -189,7 +188,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                         type: 'child',
                         institution: '5a62be07d6f33400146c9b61',
                         gender: 'female',
-                        age: 7,
+                        age: '7',
                         created_at: '2019-01-30T00:00:00.000Z'
                     }
 
@@ -422,22 +421,6 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     })
             })
 
-            it('should return a ValidationException (query with an invalid number)', (done) => {
-                rabbitmq.bus.getChildren('?age=invalidAge')
-                    .then(result => {
-                        expect(result.length).to.eql(0)
-                        done(new Error('The find method of the repository should not function normally'))
-                    })
-                    .catch((err) => {
-                        try {
-                            expect(err.message).to.eql('Error: '.concat('The value \'invalidAge\' of age field is not a number.'))
-                            done()
-                        } catch (err) {
-                            done(err)
-                        }
-                    })
-            })
-
             it('should return a ValidationException (query with an invalid date (last_login))', (done) => {
                 rabbitmq.bus.getChildren('?last_login=invalidLastLogin')
                     .then(result => {
@@ -484,8 +467,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 })
                 after(async () => {
                     try {
-                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                            { interval: 100 })
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
                     } catch (err) {
                         throw new Error('Failure on Provider Child test: ' + err.message)
                     }
@@ -784,8 +766,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 })
                 after(async () => {
                     try {
-                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                            { interval: 100 })
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
                     } catch (err) {
                         throw new Error('Failure on Provider Family test: ' + err.message)
                     }
@@ -1109,8 +1090,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 })
                 after(async () => {
                     try {
-                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                            { interval: 100 })
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
                     } catch (err) {
                         throw new Error('Failure on Provider Educator test: ' + err.message)
                     }
@@ -1438,8 +1418,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 })
                 after(async () => {
                     try {
-                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                            { interval: 100 })
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
                     } catch (err) {
                         throw new Error('Failure on Provider HealthProfessional test: ' + err.message)
                     }
@@ -1685,8 +1664,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 })
                 after(async () => {
                     try {
-                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                            { interval: 100 })
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
                     } catch (err) {
                         throw new Error('Failure on Provider Application test: ' + err.message)
                     }
@@ -1829,8 +1807,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 })
                 after(async () => {
                     try {
-                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                            { interval: 100 })
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
                     } catch (err) {
                         throw new Error('Failure on Provider Institution test: ' + err.message)
                     }
