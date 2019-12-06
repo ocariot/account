@@ -25,7 +25,7 @@ export class CreateChildValidator {
 
         if (child.age === undefined) fields.push('age')
         else {
-            child.age = child.age.toString()
+            if (child.age !== null) child.age = child.age.toString()
             StringValidator.validate(child.age, 'age')
 
             // Number

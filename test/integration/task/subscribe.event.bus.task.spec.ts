@@ -29,8 +29,7 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
     // Start DB connection, RabbitMQ connection and SubscribeEventBusTask
     before(async () => {
         try {
-            await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                { interval: 100 })
+            await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
             await deleteAllInstitutions()
             await deleteAllUsers()
@@ -146,8 +145,7 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
 
                         await timeout(1000)
 
-                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                            { interval: 100 })
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
                         await timeout(2000)
 
@@ -373,8 +371,7 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
 
                         await timeout(1000)
 
-                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                            { interval: 100 })
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
                         await timeout(2000)
 
@@ -458,8 +455,7 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
 
                         await timeout(1000)
 
-                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                            { interval: 100 })
+                        await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
                         await timeout(2000)
 

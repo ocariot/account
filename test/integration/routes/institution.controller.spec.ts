@@ -24,8 +24,7 @@ describe('Routes: Institution', () => {
 
     before(async () => {
             try {
-                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST,
-                    { interval: 100 })
+                await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
                 await rabbitmq.initialize('amqp://invalidUser:guest@localhost', { retries: 1, interval: 100 })
 
