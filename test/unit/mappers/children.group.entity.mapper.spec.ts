@@ -28,18 +28,17 @@ describe('Mappers: ChildrenGroupEntity', () => {
                     scopes: [
                         'children:read',
                         'institutions:read',
-                        'questionnaires:create',
-                        'questionnaires:read',
-                        'foodrecord:create',
-                        'foodrecord:read',
                         'physicalactivities:create',
                         'physicalactivities:read',
                         'sleep:create',
                         'sleep:read',
+                        'measurements:create',
+                        'measurements:read',
                         'environment:read',
                         'missions:read',
                         'gamificationprofile:read',
-                        'gamificationprofile:update'
+                        'gamificationprofile:update',
+                        'external:sync'
                     ],
                     username: 'child_mock',
                     institution: {
@@ -59,18 +58,17 @@ describe('Mappers: ChildrenGroupEntity', () => {
                     scopes: [
                         'children:read',
                         'institutions:read',
-                        'questionnaires:create',
-                        'questionnaires:read',
-                        'foodrecord:create',
-                        'foodrecord:read',
                         'physicalactivities:create',
                         'physicalactivities:read',
                         'sleep:create',
                         'sleep:read',
+                        'measurements:create',
+                        'measurements:read',
                         'environment:read',
                         'missions:read',
                         'gamificationprofile:read',
-                        'gamificationprofile:update'
+                        'gamificationprofile:update',
+                        'external:sync'
                     ],
                     username: 'child_mock',
                     institution: {

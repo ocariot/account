@@ -23,10 +23,6 @@ describe('Mappers: ChildEntity', () => {
         scopes: [
             'children:read',
             'institutions:read',
-            'questionnaires:create',
-            'questionnaires:read',
-            'foodrecord:create',
-            'foodrecord:read',
             'physicalactivities:create',
             'physicalactivities:read',
             'sleep:create',
