@@ -113,26 +113,28 @@ This command will download the latest image and create a container with the defa
 You can also create the container by passing the settings that are desired by the environment variables. The supported settings are the same as those defined in ["Set the environment variables"](#set-the-environment-variables). See the following example:
 ```sh
 docker run --rm \
-  -e PORT_HTTP=8080 \
-  -e PORT_HTTPS=8081 \
-  -e SSL_KEY_PATH=.certs/server.key \
-  -e SSL_CERT_PATH=.certs/server.crt \
-  -e JWT_PRIVATE_KEY_PATH=.certs/jwt.key \
-  -e JWT_PUBLIC_KEY_PATH=.certs/jwt.key.pub \
+  -e NODE_ENV=development \
+  -e PORT_HTTP=3000 \
+  -e PORT_HTTPS=3001 \
+  -e SSL_KEY_PATH=/etc/ssl/certs/server.key \
+  -e SSL_CERT_PATH=/etc/ssl/server.crt \
+  -e JWT_PRIVATE_KEY_PATH=/etc/ssl/jwt.key \
+  -e JWT_PUBLIC_KEY_PATH=/etc/ssl/jwt.key.pub \
   -e ISSUER=ocariot \
   -e ADMIN_USERNAME=admin \
   -e ADMIN_PASSWORD=admin123 \
   -e ENCRYPT_SECRET_KEY=s3cr3tk3y \
-  -e RABBITMQ_URI="amqp://guest:guest@192.168.0.1:5672/ocariot" \
-  -e MONGODB_URI="mongodb://192.168.0.2:27017/ocariot-account" \
+  -e RABBITMQ_URI="amqp://guest:guest@200.168.10.9:5672/ocariot" \
+  -e MONGODB_URI="mongodb://200.168.10.9:27017/ocariot-account" \
   ocariot/account
 ```
 If the MongoDB or RabbitMQ instance is in the host local, add the `--net=host` statement when creating the container, this will cause the docker container to communicate with its local host.
 ```sh
 docker run --rm \
   --net=host \
-  -e RABBITMQ_URI="amqp://guest:guest@localhost:5672/ocariot" \
-  -e MONGODB_URI="mongodb://localhost:27017/ocariot-account" \
+  -e NODE_ENV=development \
+  -e RABBITMQ_URI="amqp://guest:guest@localhost:5672" \
+  -e MONGODB_URI="mongodb://127.0.0.1:27017/ocariot-account" \
   ocariot/account
 ```
 To generate your own docker image, run the following command:
