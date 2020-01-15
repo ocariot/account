@@ -47,6 +47,7 @@ export class AuthRepository implements IAuthRepository {
                     resolve(undefined)
                 })
                 .catch(err => {
+                    this.logger.error(`Authenticate error: ${err.message}`)
                     reject(new RepositoryException(Strings.ERROR_MESSAGE.UNEXPECTED))
                 })
         })
