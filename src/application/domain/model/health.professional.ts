@@ -35,6 +35,10 @@ export class HealthProfessional extends Educator {
             'habitsquest:read',
             'foodhabitsquest:read',
             'perceptionquest:read',
+            'foodtracking:create',
+            'foodtracking:read',
+            'foodtracking:update',
+            'foodtracking:delete',
             'missions:read',
             'gamificationprofile:read',
             'external:sync'

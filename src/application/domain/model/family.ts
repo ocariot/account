@@ -52,6 +52,10 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
             'perceptionquest:create',
             'perceptionquest:read',
             'perceptionquest:update',
+            'foodtracking:create',
+            'foodtracking:read',
+            'foodtracking:update',
+            'foodtracking:delete',
             'missions:read',
             'gamificationprofile:read',
             'external:sync'
