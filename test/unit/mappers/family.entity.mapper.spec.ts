@@ -61,7 +61,8 @@ describe('Mappers: FamilyEntity', () => {
             'foodtracking:delete',
             'missions:read',
             'gamificationprofile:read',
-            'external:sync'
+            'external:sync',
+            'notifications:create'
         ],
         username: 'family_mock',
         password: 'family_password',

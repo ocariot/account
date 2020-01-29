@@ -28,7 +28,8 @@ describe('Models: Child', () => {
             'missions:read',
             'gamificationprofile:read',
             'gamificationprofile:update',
-            'external:sync'
+            'external:sync',
+            'notifications:create'
         ]
     }
 

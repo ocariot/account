@@ -41,7 +41,8 @@ export class HealthProfessional extends Educator {
             'foodtracking:delete',
             'missions:read',
             'gamificationprofile:read',
-            'external:sync'
+            'external:sync',
+            'notifications:create'
         ]
     }
 }

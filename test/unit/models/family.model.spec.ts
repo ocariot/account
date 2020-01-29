@@ -55,7 +55,8 @@ describe('Models: Family', () => {
             'foodtracking:delete',
             'missions:read',
             'gamificationprofile:read',
-            'external:sync'
+            'external:sync',
+            'notifications:create'
         ]
     }
 

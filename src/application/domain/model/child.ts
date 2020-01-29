@@ -38,7 +38,8 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
             'missions:read',
             'gamificationprofile:read',
             'gamificationprofile:update',
-            'external:sync'
+            'external:sync',
+            'notifications:create'
         ]
         this.fitbit_status = 'none'
         this.cve_status = 'none'
