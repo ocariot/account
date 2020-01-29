@@ -112,8 +112,9 @@ describe('Services: Child', () => {
                 return childService.add(incorrectChild)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'username, password, type, institution, ' +
-                            'gender, age'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'username, password, type, institution, ' +
+                                'gender, age'))
                     })
             })
         })

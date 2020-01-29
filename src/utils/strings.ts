@@ -82,19 +82,23 @@ export abstract class Strings {
         UNEXPECTED: 'An unexpected error has occurred. Please try again later...',
         UUID_NOT_VALID_FORMAT: 'Some ID provided does not have a valid format!',
         UUID_NOT_VALID_FORMAT_DESC: 'A 24-byte hex ID similar to this: 507f191e810c19729de860ea is expected.',
-        MULTIPLE_UUID_NOT_VALID_FORMAT: 'The following IDs from children attribute are not in valid format: ',
+        MULTIPLE_UUID_NOT_VALID_FORMAT: 'The following IDs from children attribute are not in valid format: {0}',
         INVALID_MULTIPLE_UUID: 'Children field contains invalid IDs. It is expected that each item in the array is a ' +
             '24-byte hex string like this: 507f191e810c19729de860ea',
         INTERNAL_SERVER_ERROR: 'An internal server error has occurred.',
         INTERNAL_SERVER_ERROR_DESC: 'Check all parameters of the operation being requested.',
         REQUIRED_FIELDS: 'Required fields were not provided...',
-        REQUIRED_FIELDS_DESC: ' are required!',
+        REQUIRED_FIELDS_DESC: '{0} are required!',
         INVALID_FIELDS: 'One or more request fields are invalid...',
-        INVALID_STRING: ' must be a string!',
-        EMPTY_STRING: ' must have at least one character!',
-        INVALID_DATE: ', is not in valid ISO 8601 format.',
-        INVALID_DATE_DESC: 'Date must be in the format: yyyy-MM-dd\'T\'HH:mm:ssZ',
-        INVALID_ARRAY: ' must be an array!',
-        INVALID_AGE: 'Age must be a valid decimal or a valid date.'
+        INVALID_STRING: '{0} must be a string!',
+        EMPTY_STRING: '{0} must have at least one character!',
+        YEAR_NOT_ALLOWED: 'Date {0} has year not allowed. The year must be greater than 1678 and less than 2261.',
+        INVALID_DATE_FORMAT: 'Date: {0}, is not in valid ISO 8601 format.',
+        INVALID_DATE_FORMAT_DESC: 'Date must be in the format: yyyy-MM-dd',
+        INVALID_DATETIME_FORMAT: 'Datetime: {0}, is not in valid ISO 8601 format.',
+        INVALID_DATETIME_FORMAT_DESC: 'Datetime must be in the format: yyyy-MM-ddTHH:mm:ssZ',
+        INVALID_ARRAY: '{0} must be an array!',
+        INVALID_AGE_DATE: 'Datetime: {0}, cannot be used!',
+        INVALID_AGE_DATE_DESC: 'The \'age\' and \'age_calc_date\' fields can only receive past or present dates.'
     }
 }

@@ -142,7 +142,7 @@ describe('Services: Family', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT
-                            .concat('507f1f77bcf86cd7994390111'))
+                            .replace('{0}','507f1f77bcf86cd7994390111'))
                     })
             })
         })

@@ -200,8 +200,9 @@ describe('Routes: Family', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('username, password, institution, ' +
-                            'Collection with children IDs'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'username, password, institution, ' +
+                                'Collection with children IDs'))
                     })
             })
         })
@@ -312,7 +313,8 @@ describe('Routes: Family', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_ARRAY
+                            .replace('{0}', 'children'))
                     })
             })
         })
@@ -734,7 +736,8 @@ describe('Routes: Family', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_ARRAY
+                            .replace('{0}', 'children'))
                     })
             })
         })

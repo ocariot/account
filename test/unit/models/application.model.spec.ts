@@ -13,6 +13,7 @@ describe('Models: Application', () => {
         type: UserType.APPLICATION,
         scopes: [
             'applications:read',
+            'children:readAll',
             'institutions:read',
             'institutions:readAll',
             'physicalactivities:create',

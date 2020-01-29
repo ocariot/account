@@ -78,8 +78,8 @@ describe('Routes: Auth', () => {
                     .expect(400)
                     .then(res => {
                         expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(res.body.description).to.eql('username, password'
-                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'username, password'))
                     })
             })
         })
