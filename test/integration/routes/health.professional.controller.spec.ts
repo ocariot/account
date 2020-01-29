@@ -145,8 +145,8 @@ describe('Routes: HealthProfessional', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('username, password, institution'
-                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'username, password, institution'))
                     })
             })
         })
@@ -639,8 +639,8 @@ describe('Routes: HealthProfessional', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('name, Collection with children IDs'
-                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'name, Collection with children IDs'))
                     })
             })
         })

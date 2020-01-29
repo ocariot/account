@@ -189,7 +189,8 @@ describe('Routes: Application', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'username'))
                     })
             })
         })

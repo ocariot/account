@@ -205,8 +205,9 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('username, password, institution, gender, ' +
-                            'age'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'username, password, institution, gender, ' +
+                                'age'))
                     })
             })
         })
@@ -339,7 +340,8 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('age'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_STRING
+                            .replace('{0}', 'age'))
                     })
             })
         })
@@ -361,7 +363,8 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('age'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'age'))
                     })
             })
         })
@@ -382,8 +385,9 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_DATE_FORMAT
+                            .replace('{0}', `${defaultChild.age}a`))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_DATE_FORMAT_DESC)
                     })
             })
         })
@@ -428,7 +432,8 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'age_calc_date'))
                     })
             })
         })
@@ -449,8 +454,9 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_DATE_FORMAT
+                            .replace('{0}', '2012-06-0'))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_DATE_FORMAT_DESC)
                     })
             })
         })
@@ -471,8 +477,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_DATE_FORMAT
+                            .replace('{0}', '2012-06-35'))
                     })
             })
         })
@@ -517,7 +523,8 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_STRING
+                            .replace('{0}', 'age_calc_date'))
                     })
             })
         })
@@ -540,7 +547,8 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'age_calc_date'))
                     })
             })
         })
@@ -563,7 +571,8 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_STRING
+                            .replace('{0}', 'age_calc_date'))
                     })
             })
         })
@@ -585,8 +594,9 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Datetime: 2019-12-0'.concat(Strings.ERROR_MESSAGE.INVALID_DATE))
-                        expect(err.body.description).to.eql('Date must be in the format: yyyy-MM-dd')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_DATE_FORMAT
+                            .replace('{0}', '2019-12-0'))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_DATE_FORMAT_DESC)
                     })
             })
         })
@@ -608,8 +618,8 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql('Datetime: 2019-12-35'.concat(Strings.ERROR_MESSAGE.INVALID_DATE))
-                        expect(err.body.description).to.eql('Date must be in the format: yyyy-MM-dd')
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_DATE_FORMAT
+                            .replace('{0}', '2019-12-35'))
                     })
             })
         })
@@ -984,8 +994,9 @@ describe('Routes: Child', () => {
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
-                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_AGE)
+                        expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_DATE_FORMAT
+                            .replace('{0}', `${defaultChild.age}a`))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_DATE_FORMAT_DESC)
                     })
             })
         })
@@ -999,7 +1010,8 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('age_calc_date'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'age_calc_date'))
                     })
             })
         })
@@ -1013,7 +1025,8 @@ describe('Routes: Child', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('age'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'age'))
                     })
             })
         })

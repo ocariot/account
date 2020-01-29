@@ -129,7 +129,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('name, type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'name, type'))
                     })
             })
         })
@@ -151,7 +152,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('type'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_STRING
+                            .replace('{0}', 'type'))
                     })
             })
         })
@@ -173,7 +175,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('type'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'type'))
                     })
             })
         })
@@ -195,7 +198,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_STRING
+                            .replace('{0}', 'name'))
                     })
             })
         })
@@ -217,7 +221,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'name'))
                     })
             })
         })
@@ -239,7 +244,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('address'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_STRING
+                            .replace('{0}', 'address'))
                     })
             })
         })
@@ -261,7 +267,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('address'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'address'))
                     })
             })
         })
@@ -283,7 +290,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('latitude'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'latitude'))
                     })
             })
         })
@@ -305,7 +313,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('longitude'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'longitude'))
                     })
             })
         })
@@ -492,7 +501,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_STRING
+                            .replace('{0}', 'name'))
                     })
             })
         })
@@ -506,7 +516,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('name'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'name'))
                     })
             })
         })
@@ -520,7 +531,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('type'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_STRING
+                            .replace('{0}', 'type'))
                     })
             })
         })
@@ -534,7 +546,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('type'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'type'))
                     })
             })
         })
@@ -548,7 +561,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('address'.concat(Strings.ERROR_MESSAGE.INVALID_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_STRING
+                            .replace('{0}', 'address'))
                     })
             })
         })
@@ -562,7 +576,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('address'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'address'))
                     })
             })
         })
@@ -576,7 +591,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('latitude'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'latitude'))
                     })
             })
         })
@@ -590,7 +606,8 @@ describe('Routes: Institution', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('longitude'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'longitude'))
                     })
             })
         })

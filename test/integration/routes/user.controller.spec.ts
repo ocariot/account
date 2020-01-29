@@ -90,8 +90,8 @@ describe('Routes: User', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        expect(err.body.description).to.eql('old_password, new_password'
-                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'old_password, new_password'))
                     })
             })
         })
@@ -105,7 +105,8 @@ describe('Routes: User', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('old_password'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'old_password'))
                     })
             })
         })
@@ -119,7 +120,8 @@ describe('Routes: User', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('new_password'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'new_password'))
                     })
             })
         })
@@ -204,7 +206,8 @@ describe('Routes: User', () => {
                     .expect(400)
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
-                        expect(err.body.description).to.eql('new_password'.concat(Strings.ERROR_MESSAGE.EMPTY_STRING))
+                        expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.EMPTY_STRING
+                            .replace('{0}', 'new_password'))
                     })
             })
         })

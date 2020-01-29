@@ -22,7 +22,8 @@ describe('Validators: Institution', () => {
                 CreateInstitutionValidator.validate(institution)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'name'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'name'))
             }
         })
 
@@ -34,7 +35,8 @@ describe('Validators: Institution', () => {
                 CreateInstitutionValidator.validate(institution)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'type'))
             }
         })
 
@@ -45,7 +47,8 @@ describe('Validators: Institution', () => {
                 CreateInstitutionValidator.validate(institution)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'name, type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'name, type'))
             }
         })
     })

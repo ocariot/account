@@ -22,7 +22,7 @@ export class CreateChildrenGroupValidator {
 
         if (childrenGroup.children !== undefined && !(childrenGroup.children instanceof Array)) {
             throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
-                'children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+                Strings.ERROR_MESSAGE.INVALID_ARRAY.replace('{0}', 'children'))
         }
 
         if (!childrenGroup.children || !childrenGroup.children.length) {
@@ -44,10 +44,10 @@ export class CreateChildrenGroupValidator {
 
         if (invalid_ids.length > 0) {
             throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
-                Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat(invalid_ids.join(', ')))
+                Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.replace('{0}', invalid_ids.join(', ')))
         } else if (fields.length > 0) {
             throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
-                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC.replace('{0}', fields.join(', ')))
         }
     }
 }

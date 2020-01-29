@@ -47,8 +47,8 @@ describe('Services: Auth', () => {
                     return await authService.authenticate(username, password)
                 } catch (err) {
                     assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                    assert.propertyVal(err, 'description', 'username, password'
-                        .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                    assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                        .replace('{0}', 'username, password'))
                 }
             })
         })

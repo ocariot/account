@@ -23,7 +23,7 @@ export class UpdateFamilyValidator {
 
         if (family.children !== undefined && !(family.children instanceof Array)) {
             throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
-                'children'.concat(Strings.ERROR_MESSAGE.INVALID_ARRAY))
+                Strings.ERROR_MESSAGE.INVALID_ARRAY.replace('{0}', 'children'))
         }
 
         if (family.children && family.children.length > 0) {
@@ -43,7 +43,7 @@ export class UpdateFamilyValidator {
 
         if (invalid_ids.length > 0) {
             throw new ValidationException(Strings.ERROR_MESSAGE.INVALID_FIELDS,
-                Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat(invalid_ids.join(', ')))
+                Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.replace('{0}', invalid_ids.join(', ')))
         }
     }
 }

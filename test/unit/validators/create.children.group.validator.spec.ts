@@ -26,7 +26,8 @@ describe('Validators: ChildrenGroup', () => {
                 CreateChildrenGroupValidator.validate(childrenGroup)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'user'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'user'))
             }
         })
 
@@ -38,7 +39,8 @@ describe('Validators: ChildrenGroup', () => {
                 CreateChildrenGroupValidator.validate(childrenGroup)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'Collection with children IDs'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'Collection with children IDs'))
             }
         })
 
@@ -62,8 +64,8 @@ describe('Validators: ChildrenGroup', () => {
                 CreateChildrenGroupValidator.validate(emptyChildrenGroup)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'name, user, Collection with children IDs'
-                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'name, user, Collection with children IDs'))
             }
         })
     })
