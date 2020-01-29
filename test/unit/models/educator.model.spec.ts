@@ -56,7 +56,8 @@ describe('Models: Educator', () => {
             'missions:read',
             'missions:update',
             'gamificationprofile:read',
-            'external:sync'
+            'external:sync',
+            'notifications:create'
         ]
     }
 

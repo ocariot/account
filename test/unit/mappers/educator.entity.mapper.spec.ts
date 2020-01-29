@@ -62,7 +62,8 @@ describe('Mappers: EducatorEntity', () => {
                 'missions:read',
                 'missions:update',
                 'gamificationprofile:read',
-                'external:sync'
+                'external:sync',
+                'notifications:create'
             ],
         username: 'educator_mock',
         password: 'educator_password',

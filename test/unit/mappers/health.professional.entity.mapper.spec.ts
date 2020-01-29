@@ -50,7 +50,8 @@ describe('Mappers: HealthProfessionalEntity', () => {
             'foodtracking:delete',
             'missions:read',
             'gamificationprofile:read',
-            'external:sync'
+            'external:sync',
+            'notifications:create'
         ],
         username: 'health_professional_mock',
         password: 'health_professional_password',
