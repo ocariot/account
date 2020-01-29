@@ -27,7 +27,8 @@ describe('Validators: Family', () => {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'username'))
             }
         })
 
@@ -39,7 +40,8 @@ describe('Validators: Family', () => {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'password'))
             }
         })
 
@@ -51,7 +53,8 @@ describe('Validators: Family', () => {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'type'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'type'))
             }
         })
 
@@ -63,7 +66,8 @@ describe('Validators: Family', () => {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'institution'))
             }
         })
 
@@ -74,7 +78,8 @@ describe('Validators: Family', () => {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'institution'))
             }
         })
 
@@ -86,8 +91,8 @@ describe('Validators: Family', () => {
                 CreateFamilyValidator.validate(family)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'Collection with children IDs'
-                    .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'Collection with children IDs'))
             }
         })
 
@@ -110,8 +115,9 @@ describe('Validators: Family', () => {
                 CreateFamilyValidator.validate(emptyFamily)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'username, password, type, institution, ' +
-                    'Collection with children IDs'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'username, password, type, institution, ' +
+                        'Collection with children IDs'))
             }
         })
     })

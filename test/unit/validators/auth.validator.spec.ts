@@ -16,7 +16,8 @@ describe('Validators: Auth', () => {
                 AuthValidator.validate(undefined!, 'password')
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'username'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'username'))
             }
         })
 
@@ -25,7 +26,8 @@ describe('Validators: Auth', () => {
                 AuthValidator.validate('username', undefined!)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'password'))
             }
         })
 
@@ -34,7 +36,8 @@ describe('Validators: Auth', () => {
                 AuthValidator.validate(undefined!, undefined!)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'username, password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'username, password'))
             }
         })
     })

@@ -20,6 +20,7 @@ describe('Mappers: ApplicationEntity', () => {
         type: 'application',
         scopes: [
             'applications:read',
+            'children:readAll',
             'institutions:read',
             'institutions:readAll',
             'physicalactivities:create',

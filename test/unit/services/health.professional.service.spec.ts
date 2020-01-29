@@ -130,8 +130,8 @@ describe('Services: HealthProfessional', () => {
                 return healthProfessionalService.add(incorrectHealthProfessional)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'username, password, type, ' +
-                            'institution'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'username, password, type, institution'))
                     })
             })
         })
@@ -435,8 +435,8 @@ describe('Services: HealthProfessional', () => {
                 return healthProfessionalService.saveChildrenGroup(healthProfessional.id!, incorrectChildrenGroup)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'name, user, Collection with ' +
-                            'children IDs'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'name, user, Collection with children IDs'))
                     })
             })
         })
@@ -702,7 +702,7 @@ describe('Services: HealthProfessional', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT
-                            .concat('507f1f77bcf86cd7994390111'))
+                            .replace('{0}', '507f1f77bcf86cd7994390111'))
                     })
             })
         })

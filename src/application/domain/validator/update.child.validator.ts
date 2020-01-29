@@ -42,7 +42,7 @@ export class UpdateChildValidator {
             }
 
             // Date
-            else AgeDateValidator.validate(child.age, Strings.ERROR_MESSAGE.INVALID_FIELDS, Strings.ERROR_MESSAGE.INVALID_AGE)
+            else AgeDateValidator.validate(child.age)
         }
 
         if (child.age_calc_date !== undefined) {
@@ -53,7 +53,7 @@ export class UpdateChildValidator {
 
         if (fields.length > 0) {
             throw new ValidationException(Strings.ERROR_MESSAGE.REQUIRED_FIELDS,
-                fields.join(', ').concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC.replace('{0}', fields.join(', ')))
         }
     }
 }

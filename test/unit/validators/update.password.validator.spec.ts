@@ -16,7 +16,7 @@ describe('Validators: UpdatePassword', () => {
                 UpdatePasswordValidator.validate(undefined!, 'newpass')
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'old_password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC.replace('{0}', 'old_password'))
             }
         })
 
@@ -25,7 +25,7 @@ describe('Validators: UpdatePassword', () => {
                 UpdatePasswordValidator.validate('oldpass', undefined!)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'new_password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC.replace('{0}', 'new_password'))
             }
         })
 
@@ -34,7 +34,8 @@ describe('Validators: UpdatePassword', () => {
                 UpdatePasswordValidator.validate(undefined!, undefined!)
             } catch (err) {
                 assert.equal(err.message, Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                assert.equal(err.description, 'old_password, new_password'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                assert.equal(err.description, Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                    .replace('{0}', 'old_password, new_password'))
             }
         })
     })

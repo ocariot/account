@@ -100,8 +100,8 @@ describe('Services: ChildrenGroup', () => {
                 return childrenGroupService.add(incorrectChildrenGroup)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'name, user, Collection with ' +
-                            'children IDs'.concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'name, user, Collection with children IDs'))
                     })
             })
         })
@@ -128,7 +128,7 @@ describe('Services: ChildrenGroup', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         assert.propertyVal(err, 'description',
-                            Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.concat('507f1f77bcf86cd7994390111'))
+                            Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT.replace('{0}', '507f1f77bcf86cd7994390111'))
                     })
             })
         })
@@ -265,7 +265,7 @@ describe('Services: ChildrenGroup', () => {
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.MULTIPLE_UUID_NOT_VALID_FORMAT
-                            .concat('507f1f77bcf86cd7994390111'))
+                            .replace('{0}', '507f1f77bcf86cd7994390111'))
                     })
             })
         })

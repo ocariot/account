@@ -121,8 +121,8 @@ describe('Services: User', () => {
                 return userService.changePassword(user.id!, undefined!, undefined!)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
-                        assert.propertyVal(err, 'description', 'old_password, new_password'
-                            .concat(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC))
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
+                            .replace('{0}', 'old_password, new_password'))
                     })
             })
         })
