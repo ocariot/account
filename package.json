@@ -1,6 +1,6 @@
 {
   "name": "account",
-  "version": "2.3.2",
+  "version": "2.3.3",
   "description": "Microservice responsible for user management and authentication on the OCARIoT platform.",
   "main": "dist/server.js",
   "scripts": {
