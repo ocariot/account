@@ -82,12 +82,13 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
         })
 
         context('when receiving a FitbitLastSyncEvent successfully', () => {
-            it('should return an updated child with a new last_sync', (done) => {
+            it('should return an updated child with a nesw last_sync', (done) => {
                 const child: Child = new ChildMock()
+                child.last_sync = new Date('2020-01-25T14:40:00Z')
 
                 childRepository.create(child)
                     .then(async childCreate => {
-                        const fitbitLastSync: any = { child_id: childCreate.id, last_sync: '2018-11-19T14:40:00' }
+                        const fitbitLastSync: any = { child_id: childCreate.id, last_sync: '2020-02-05T10:30:00Z' }
                         await rabbitmq.bus.pubFitbitLastSync(fitbitLastSync)
 
                         // Wait for 2000 milliseconds for the task to be executed
@@ -410,6 +411,7 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
         context('when receiving a FitbitRevokeEvent successfully', () => {
             it('should return an updated child with a new fitbit_status (none)', (done) => {
                 const child: Child = new ChildMock()
+                child.fitbit_status = FitbitStatus.VALID_TOKEN
 
                 childRepository.create(child)
                     .then(async childCreate => {
