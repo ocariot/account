@@ -3,7 +3,7 @@ import { Identifier } from '../../../di/identifiers'
 import { ILogger } from '../../../utils/custom.logger'
 import { ValidationException } from '../../domain/exception/validation.exception'
 import { IChildRepository } from '../../port/child.repository.interface'
-import { Child, FitbitStatus } from '../../domain/model/child'
+import { FitbitStatus } from '../../domain/model/child'
 import { ObjectIdValidator } from '../../domain/validator/object.id.validator'
 import { Strings } from '../../../utils/strings'
 
@@ -26,12 +26,8 @@ export const fitbitRevokeEventHandler = async (event: any) => {
         // 1. Validate child_id
         ObjectIdValidator.validate(childId, Strings.CHILD.PARAM_ID_NOT_VALID_FORMAT)
 
-        const childUp: Child = new Child()
-        childUp.id = childId
-        childUp.fitbit_status = FitbitStatus.NONE
-
         // 2. Try to update the user
-        await childRepository.update(childUp)
+        await childRepository.updateFitbitStatus(childId, FitbitStatus.NONE)
 
         // 3. If got here, it's because the action was successful.
         logger.info(`Action for event ${event.event_name} associated with child with ID: ${childId} successfully held!`)

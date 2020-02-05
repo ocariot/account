@@ -2,7 +2,7 @@ import { inject, injectable } from 'inversify'
 import { BaseRepository } from './base/base.repository'
 import { UserType } from '../../application/domain/model/user'
 import { IChildRepository } from '../../application/port/child.repository.interface'
-import { Child } from '../../application/domain/model/child'
+import { Child, FitbitStatus } from '../../application/domain/model/child'
 import { ChildEntity } from '../entity/child.entity'
 import { IEntityMapper } from '../port/entity.mapper.interface'
 import { ILogger } from '../../utils/custom.logger'
@@ -99,5 +99,31 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
 
     public count(): Promise<number> {
         return super.count(new Query().fromJSON({ filters: { type: UserType.CHILD } }))
+    }
+
+    public updateFitbitStatus(childId: string, fitbitStatus: string): Promise<Child> {
+        return new Promise<Child>((resolve, reject) => {
+            this.Model.findOneAndUpdate({ _id: childId },
+                { fitbit_status: fitbitStatus }, { new: true })
+                .exec()
+                .then((result: ChildEntity) => {
+                    if (!result) return resolve(undefined)
+                    return resolve(this.mapper.transform(result))
+                })
+                .catch(err => reject(this.mongoDBErrorListener(err)))
+        })
+    }
+
+    public updateLastSync(childId: string, lastSync: Date): Promise<Child> {
+        return new Promise<Child>((resolve, reject) => {
+            this.Model.findOneAndUpdate({ _id: childId },
+                { last_sync: lastSync, fitbit_status: FitbitStatus.VALID_TOKEN }, { new: true })
+                .exec()
+                .then((result: ChildEntity) => {
+                    if (!result) return resolve(undefined)
+                    return resolve(this.mapper.transform(result))
+                })
+                .catch(err => reject(this.mongoDBErrorListener(err)))
+        })
     }
 }
