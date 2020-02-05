@@ -33,4 +33,24 @@ export interface IChildRepository extends IRepository<Child> {
      * @throws {RepositoryException}
      */
     count(): Promise<number>
+
+    /**
+     * Updates a Child's fitbit_status.
+     *
+     * @param childId - Id of child to be updated.
+     * @param fitbitStatus - New fitbit_status to be inserted in Child.
+     * @return {Promise<Child>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    updateFitbitStatus(childId: string, fitbitStatus: string): Promise<Child>
+
+    /**
+     * Updates a Child's last_sync.
+     *
+     * @param childId - Id of child to be updated.
+     * @param lastSync - New last_sync to be inserted in Child.
+     * @return {Promise<Child>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    updateLastSync(childId: string, lastSync: Date): Promise<Child>
 }

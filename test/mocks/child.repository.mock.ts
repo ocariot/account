@@ -1,5 +1,5 @@
 import { IChildRepository } from '../../src/application/port/child.repository.interface'
-import { Child } from '../../src/application/domain/model/child'
+import { Child, FitbitStatus } from '../../src/application/domain/model/child'
 import { ValidationException } from '../../src/application/domain/exception/validation.exception'
 import { ChildMock } from './child.mock'
 import { Strings } from '../../src/utils/strings'
@@ -56,5 +56,20 @@ export class ChildRepositoryMock implements IChildRepository {
 
     public findAll(query: any): Promise<Array<Child>> {
         return this.find(query)
+    }
+
+    public updateFitbitStatus(childId: string, fitbitStatus: string): Promise<Child> {
+        const child: Child = new Child()
+        child.id = childId
+        child.fitbit_status = fitbitStatus
+        return Promise.resolve(child)
+    }
+
+    public updateLastSync(childId: string, lastSync: Date): Promise<Child> {
+        const child: Child = new Child()
+        child.id = childId
+        child.last_sync = lastSync
+        child.fitbit_status = FitbitStatus.VALID_TOKEN
+        return Promise.resolve(child)
     }
 }
