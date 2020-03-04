@@ -17,12 +17,8 @@ export class UserRepositoryMock implements IUserRepository {
         return Promise.resolve(true)
     }
 
-    public encryptUsername(username: string): string {
-        return username
-    }
-
-    public decryptUsername(encryptedUsername: string): string {
-        return encryptedUsername
+    public replaceScopes(userType: string, newScopes: Array<string>): Promise<boolean> {
+        return Promise.resolve(true)
     }
 
     public encryptPassword(password: string): string {

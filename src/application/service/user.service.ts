@@ -15,6 +15,8 @@ import { ILogger } from '../../utils/custom.logger'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 import { ResetPasswordValidator } from '../domain/validator/reset.password.validator'
 import { Strings } from '../../utils/strings'
+import { UserTypeValidator } from '../domain/validator/user.type.validator'
+import { ScopesValidator } from '../domain/validator/scopes.validator'
 
 /**
  * Implementing user Service.
@@ -59,6 +61,17 @@ export class UserService implements IUserService {
 
         // 3. Reset user password.
         return this._userRepository.resetPassword(userId, newPassword)
+    }
+
+    public async replaceScopes(userType: string, newScopes: Array<string>): Promise<boolean> {
+        // 1. Validate user type.
+        UserTypeValidator.validate(userType)
+
+        // 2. Validate the new list of scopes
+        ScopesValidator.validate(userType, newScopes)
+
+        // 3. Replaces the old list of scopes
+        return this._userRepository.replaceScopes(userType, newScopes)
     }
 
     public async getAll(query: IQuery): Promise<Array<User>> {

@@ -27,4 +27,14 @@ export interface IUserService extends IService<User> {
      * @throws {ValidationException | RepositoryException}
      */
     resetPassword(userId: string, newPassword: string): Promise<boolean>
+
+    /**
+     * Replaces the scopes of all users according to the type.
+     *
+     * @param userType - User type.
+     * @param newScopes - New list of scopes to be inserted in the user.
+     * @return {Promise<boolean>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    replaceScopes(userType: string, newScopes: Array<string>): Promise<boolean>
 }

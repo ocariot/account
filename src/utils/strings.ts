@@ -99,6 +99,9 @@ export abstract class Strings {
         INVALID_DATETIME_FORMAT_DESC: 'Datetime must be in the format: yyyy-MM-ddTHH:mm:ssZ',
         INVALID_ARRAY: '{0} must be an array!',
         INVALID_AGE_DATE: 'Datetime: {0}, cannot be used!',
-        INVALID_AGE_DATE_DESC: 'The \'age\' and \'age_calc_date\' fields can only receive past or present dates.'
+        INVALID_AGE_DATE_DESC: 'The \'age\' and \'age_calc_date\' fields can only receive past or present dates.',
+        INVALID_SCOPES: 'The list of new scopes is invalid!',
+        INVALID_SCOPES_DESC_1: '{0} is not a valid scope for {1} users.',
+        INVALID_SCOPES_DESC_2: 'A scopes array with at least one item is required.'
     }
 }
