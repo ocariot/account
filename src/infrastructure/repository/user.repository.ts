@@ -70,6 +70,8 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
         return new Promise<boolean>((resolve, reject) => {
             super.find(query)
                 .then(users => {
+                    if (!users.length) return resolve(false)
+
                     for (const user of users) {
                         this.userModel.findOneAndUpdate({ _id: user.id }, { scopes: newScopes },
                             { new: true })

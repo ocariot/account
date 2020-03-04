@@ -360,6 +360,30 @@ describe('Routes: User', () => {
             })
         })
 
+        context('when there is no user in the repository', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on User routes test: ' + err.message)
+                }
+            })
+
+            it('should return status code 204 and no content (admin users)', () => {
+                const scopesToBeInserted = Default.ADMIN_SCOPES.slice()
+                scopesToBeInserted.push('notifications:create')
+
+                return request
+                    .post(`/v1/users/types/${UserType.ADMIN}/scopes`)
+                    .send({ scopes: scopesToBeInserted })
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
+                    })
+            })
+        })
+
         context('when there are validation errors', () => {
             before(async () => {
                 try {

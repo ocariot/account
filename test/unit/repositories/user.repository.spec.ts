@@ -268,7 +268,7 @@ describe('Repositories: User', () => {
                     .rejects({ message: 'An internal error has occurred in the database!',
                                      description: 'Please try again later...' })
 
-                return userRepo.resetPassword(otherUser.id!, '')
+                return userRepo.replaceScopes(otherUser.id!, Default.ADMIN_SCOPES)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
