@@ -13,12 +13,16 @@ import { Strings } from '../../../src/utils/strings'
 import { IDatabase } from '../../../src/infrastructure/port/database.interface'
 import { Default } from '../../../src/utils/default'
 import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
+import { Gender } from '../../../src/application/domain/model/child'
+import { Query } from '../../../src/infrastructure/repository/query/query'
 
 const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
 const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
 const userRepository: IUserRepository = DIContainer.get(Identifier.USER_REPOSITORY)
 const app: App = DIContainer.get(Identifier.APP)
 const request = require('supertest')(app.getExpress())
+
+const institution: Institution = new Institution()
 
 describe('Routes: User', () => {
 
@@ -27,8 +31,6 @@ describe('Routes: User', () => {
         password: 'mysecretkey',
         type: UserType.ADMIN
     })
-
-    const institution: Institution = new Institution()
 
     before(async () => {
             try {
@@ -224,6 +226,324 @@ describe('Routes: User', () => {
                         expect(err.body.description).to.eql(Strings.USER.NOT_FOUND_DESCRIPTION)
                     })
             })
+        })
+    })
+
+    describe('POST /v1/users/types/:user_type/scopes', () => {
+        context('when the scopes update was successful', () => {
+            before(async () => {
+                try {
+                    await createManyUsers()
+                } catch (err) {
+                    throw new Error('Failure on User routes test: ' + err.message)
+                }
+            })
+
+            it('should return status code 204 and no content (admin users)', () => {
+                const scopesToBeInserted = Default.ADMIN_SCOPES.slice(0, Default.ADMIN_SCOPES.length - 1)
+                scopesToBeInserted.push('notifications:create')
+
+                return request
+                    .post(`/v1/users/types/${UserType.ADMIN}/scopes`)
+                    .send({ scopes: scopesToBeInserted })
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
+                        userRepository.find(new Query().fromJSON({ filters: { type: UserType.ADMIN } }))
+                            .then(users => {
+                                for (const user of users) {
+                                    expect(user.scopes.length).to.eql(Default.ADMIN_SCOPES.length)
+                                }
+                            })
+                    })
+            })
+
+            it('should return status code 204 and no content (application users)', () => {
+                const scopesToBeInserted = Default.APPLICATION_SCOPES.slice(0, Default.APPLICATION_SCOPES.length - 1)
+                scopesToBeInserted.push('external:sync')
+
+                return request
+                    .post(`/v1/users/types/${UserType.APPLICATION}/scopes`)
+                    .send({ scopes: scopesToBeInserted })
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
+                        userRepository.find(new Query().fromJSON({ filters: { type: UserType.APPLICATION } }))
+                            .then(users => {
+                                for (const user of users) {
+                                    expect(user.scopes.length).to.eql(Default.APPLICATION_SCOPES.length)
+                                }
+                            })
+                    })
+            })
+
+            it('should return status code 204 and no content (child users)', () => {
+                const scopesToBeInserted = Default.CHILD_SCOPES.slice(0, Default.CHILD_SCOPES.length - 1)
+                scopesToBeInserted.push('notifications:create')
+
+                return request
+                    .post(`/v1/users/types/${UserType.CHILD}/scopes`)
+                    .send({ scopes: scopesToBeInserted })
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
+                        userRepository.find(new Query().fromJSON({ filters: { type: UserType.CHILD } }))
+                            .then(users => {
+                                for (const user of users) {
+                                    expect(user.scopes.length).to.eql(Default.CHILD_SCOPES.length)
+                                }
+                            })
+                    })
+            })
+
+            it('should return status code 204 and no content (educator users)', () => {
+                const scopesToBeInserted = Default.EDUCATOR_SCOPES.slice(0, Default.EDUCATOR_SCOPES.length - 1)
+                scopesToBeInserted.push('notifications:create')
+
+                return request
+                    .post(`/v1/users/types/${UserType.EDUCATOR}/scopes`)
+                    .send({ scopes: scopesToBeInserted })
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
+                        userRepository.find(new Query().fromJSON({ filters: { type: UserType.EDUCATOR } }))
+                            .then(users => {
+                                for (const user of users) {
+                                    expect(user.scopes.length).to.eql(Default.EDUCATOR_SCOPES.length)
+                                }
+                            })
+                    })
+            })
+
+            it('should return status code 204 and no content (family users)', () => {
+                const scopesToBeInserted = Default.FAMILY_SCOPES.slice(0, Default.FAMILY_SCOPES.length - 1)
+                scopesToBeInserted.push('notifications:create')
+
+                return request
+                    .post(`/v1/users/types/${UserType.FAMILY}/scopes`)
+                    .send({ scopes: scopesToBeInserted })
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
+                        userRepository.find(new Query().fromJSON({ filters: { type: UserType.FAMILY } }))
+                            .then(users => {
+                                for (const user of users) {
+                                    expect(user.scopes.length).to.eql(Default.FAMILY_SCOPES.length)
+                                }
+                            })
+                    })
+            })
+
+            it('should return status code 204 and no content (health professional users)', () => {
+                const scopesToBeInserted = Default.HEALTH_PROF_SCOPES.slice(0, Default.HEALTH_PROF_SCOPES.length - 1)
+                scopesToBeInserted.push('notifications:create')
+
+                return request
+                    .post(`/v1/users/types/${UserType.HEALTH_PROFESSIONAL}/scopes`)
+                    .send({ scopes: scopesToBeInserted })
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
+                        userRepository.find(new Query().fromJSON({ filters: { type: UserType.HEALTH_PROFESSIONAL } }))
+                            .then(users => {
+                                for (const user of users) {
+                                    expect(user.scopes.length).to.eql(Default.HEALTH_PROF_SCOPES.length)
+                                }
+                            })
+                    })
+            })
+        })
+
+        context('when there is no user in the repository', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on User routes test: ' + err.message)
+                }
+            })
+
+            it('should return status code 204 and no content (admin users)', () => {
+                const scopesToBeInserted = Default.ADMIN_SCOPES.slice()
+                scopesToBeInserted.push('notifications:create')
+
+                return request
+                    .post(`/v1/users/types/${UserType.ADMIN}/scopes`)
+                    .send({ scopes: scopesToBeInserted })
+                    .set('Content-Type', 'application/json')
+                    .expect(204)
+                    .then(res => {
+                        expect(res.body).to.eql({})
+                    })
+            })
+        })
+
+        context('when there are validation errors', () => {
+            before(async () => {
+                try {
+                    await createManyUsers()
+                } catch (err) {
+                    throw new Error('Failure on User routes test: ' + err.message)
+                }
+            })
+
+            it('should return status code 400 and info message about error (invalid user type)', () => {
+                return request
+                    .post(`/v1/users/types/invalidUserType/scopes`)
+                    .send({ scopes: ['testscope:readAll'] })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(res => {
+                        expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
+                        expect(res.body.description).to.eql(`The user types allowed are: ${Object.values(UserType).join(', ')}.`)
+                    })
+            })
+
+            it('should return status code 400 and info message about error (undefined scopes array)', () => {
+                return request
+                    .post(`/v1/users/types/${UserType.ADMIN}/scopes`)
+                    .send({ scopes: undefined })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(res => {
+                        expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
+                        expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1)
+                    })
+            })
+
+            it('should return status code 400 and info message about error (empty scopes array)', () => {
+                return request
+                    .post(`/v1/users/types/${UserType.ADMIN}/scopes`)
+                    .send({ scopes: [] })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(res => {
+                        expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
+                        expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1)
+                    })
+            })
+
+            it('should return status code 400 and info message about error (invalid scope(s) for admin users)',
+                () => {
+                    const invalidScopes = Default.ADMIN_SCOPES.slice()
+                    invalidScopes.push('physicalactivities:create')
+                    invalidScopes.push('external:sync')
+
+                    return request
+                        .post(`/v1/users/types/${UserType.ADMIN}/scopes`)
+                        .send({ scopes: invalidScopes })
+                        .set('Content-Type', 'application/json')
+                        .expect(400)
+                        .then(res => {
+                            expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'physicalactivities:create, external:sync')
+                                .replace('{1}', UserType.ADMIN))
+                        })
+                })
+
+            it('should return status code 400 and info message about error (invalid scope(s) for application users)',
+                () => {
+                    const invalidScopes = Default.APPLICATION_SCOPES.slice()
+                    invalidScopes.push('applications:readAll')
+                    invalidScopes.push('notifications:create')
+
+                    return request
+                        .post(`/v1/users/types/${UserType.APPLICATION}/scopes`)
+                        .send({ scopes: invalidScopes })
+                        .set('Content-Type', 'application/json')
+                        .expect(400)
+                        .then(res => {
+                            expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'applications:readAll, notifications:create')
+                                .replace('{1}', UserType.APPLICATION))
+                        })
+                })
+
+            it('should return status code 400 and info message about error (invalid scope(s) for child users)',
+                () => {
+                    const invalidScopes = Default.CHILD_SCOPES.slice()
+                    invalidScopes.push('children:create')
+                    invalidScopes.push('children:readAll')
+                    invalidScopes.push('physicalactivities:delete')
+
+                    return request
+                        .post(`/v1/users/types/${UserType.CHILD}/scopes`)
+                        .send({ scopes: invalidScopes })
+                        .set('Content-Type', 'application/json')
+                        .expect(400)
+                        .then(res => {
+                            expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'children:create, children:readAll, ' +
+                                    'physicalactivities:delete')
+                                .replace('{1}', UserType.CHILD))
+                        })
+                })
+
+            it('should return status code 400 and info message about error (invalid scope(s) for educator users)',
+                () => {
+                    const invalidScopes = Default.EDUCATOR_SCOPES.slice()
+                    invalidScopes.push('educators:create')
+                    invalidScopes.push('educators:readAll')
+
+                    return request
+                        .post(`/v1/users/types/${UserType.EDUCATOR}/scopes`)
+                        .send({ scopes: invalidScopes })
+                        .set('Content-Type', 'application/json')
+                        .expect(400)
+                        .then(res => {
+                            expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'educators:create, educators:readAll')
+                                .replace('{1}', UserType.EDUCATOR))
+                        })
+                })
+
+            it('should return status code 400 and info message about error (invalid scope(s) for family users)',
+                () => {
+                    const invalidScopes = Default.FAMILY_SCOPES.slice()
+                    invalidScopes.push('families:create')
+                    invalidScopes.push('families:readAll')
+
+                    return request
+                        .post(`/v1/users/types/${UserType.FAMILY}/scopes`)
+                        .send({ scopes: invalidScopes })
+                        .set('Content-Type', 'application/json')
+                        .expect(400)
+                        .then(res => {
+                            expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'families:create, families:readAll')
+                                .replace('{1}', UserType.FAMILY))
+                        })
+                })
+
+            it('should return status code 400 and info message about error (invalid scope(s) for health professional users)',
+                () => {
+                    const invalidScopes = Default.HEALTH_PROF_SCOPES.slice()
+                    invalidScopes.push('healthprofessionals:create')
+                    invalidScopes.push('healthprofessionals:readAll')
+
+                    return request
+                        .post(`/v1/users/types/${UserType.HEALTH_PROFESSIONAL}/scopes`)
+                        .send({ scopes: invalidScopes })
+                        .set('Content-Type', 'application/json')
+                        .expect(400)
+                        .then(res => {
+                            expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'healthprofessionals:create, healthprofessionals:readAll')
+                                .replace('{1}', UserType.HEALTH_PROFESSIONAL))
+                        })
+                })
         })
     })
 
@@ -447,7 +767,7 @@ describe('Routes: User', () => {
         })
 
         context('when there are validation errors (user id is invalid)', () => {
-            it('should return status code 204 and no content, even user does not exists', () => {
+            it('should return status code 400 and info message from invalid user id', () => {
                 return request
                     .delete(`/v1/users/123}`)
                     .set('Content-Type', 'application/json')
@@ -475,4 +795,130 @@ async function createInstitution(item) {
 
 async function deleteAllInstitutions() {
     return InstitutionRepoModel.deleteMany({})
+}
+
+async function createManyUsers() {
+    await deleteAllUsers()
+
+    // Create admin users
+    await createUser({
+            username: 'admin01',
+            password: 'mysecretkey',
+            institution: institution.id,
+            type: UserType.ADMIN,
+            scopes: Default.ADMIN_SCOPES
+        }
+    )
+
+    await createUser({
+            username: 'admin02',
+            password: 'mysecretkey',
+            institution: institution.id,
+            type: UserType.ADMIN,
+            scopes: Default.ADMIN_SCOPES
+        }
+    )
+
+    // Create application users
+    await createUser({
+            username: 'app01',
+            password: 'mysecretkey',
+            institution: institution.id,
+            application_name: 'application_name',
+            type: UserType.APPLICATION,
+            scopes: Default.APPLICATION_SCOPES
+        }
+    )
+
+    await createUser({
+            username: 'app02',
+            password: 'mysecretkey',
+            institution: institution.id,
+            application_name: 'application_name',
+            type: UserType.APPLICATION,
+            scopes: Default.APPLICATION_SCOPES
+        }
+    )
+
+    // Create child users
+    await createUser({
+            username: 'child01',
+            password: 'mysecretkey',
+            institution: institution.id,
+            gender: Gender.MALE,
+            age: 9,
+            age_calc_date: '2020-04-10',
+            type: UserType.CHILD,
+            scopes: Default.CHILD_SCOPES
+        }
+    )
+
+    await createUser({
+            username: 'child02',
+            password: 'mysecretkey',
+            institution: institution.id,
+            gender: Gender.FEMALE,
+            age: 10,
+            age_calc_date: '2020-04-10',
+            type: UserType.CHILD,
+            scopes: Default.CHILD_SCOPES
+        }
+    )
+
+    // Create educator users
+    await createUser({
+            username: 'edu01',
+            password: 'mysecretkey',
+            institution: institution.id,
+            type: UserType.EDUCATOR,
+            scopes: Default.EDUCATOR_SCOPES
+        }
+    )
+
+    await createUser({
+            username: 'edu02',
+            password: 'mysecretkey',
+            institution: institution.id,
+            type: UserType.EDUCATOR,
+            scopes: Default.EDUCATOR_SCOPES
+        }
+    )
+
+    // Create family users
+    await createUser({
+            username: 'fam01',
+            password: 'mysecretkey',
+            institution: institution.id,
+            type: UserType.FAMILY,
+            scopes: Default.FAMILY_SCOPES
+        }
+    )
+
+    await createUser({
+            username: 'fam02',
+            password: 'mysecretkey',
+            institution: institution.id,
+            type: UserType.FAMILY,
+            scopes: Default.FAMILY_SCOPES
+        }
+    )
+
+    // Create health professional users
+    await createUser({
+            username: 'hprof01',
+            password: 'mysecretkey',
+            institution: institution.id,
+            type: UserType.HEALTH_PROFESSIONAL,
+            scopes: Default.HEALTH_PROF_SCOPES
+        }
+    )
+
+    await createUser({
+            username: 'hprof02',
+            password: 'mysecretkey',
+            institution: institution.id,
+            type: UserType.HEALTH_PROFESSIONAL,
+            scopes: Default.HEALTH_PROF_SCOPES
+        }
+    )
 }

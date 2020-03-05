@@ -4,8 +4,9 @@ import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.
 import { UserRepository } from '../../../src/infrastructure/repository/user.repository'
 import { EntityMapperMock } from '../../mocks/entity.mapper.mock'
 import { CustomLoggerMock } from '../../mocks/custom.logger.mock'
-import { UserMock } from '../../mocks/user.mock'
+import { UserMock, UserTypeMock } from '../../mocks/user.mock'
 import { assert } from 'chai'
+import { Default } from '../../../src/utils/default'
 
 require('sinon-mongoose')
 
@@ -15,7 +16,7 @@ describe('Repositories: User', () => {
     defaultUser.type = UserType.ADMIN
     defaultUser.scopes = new Array<string>('i-can-everything')
 
-    const otherUser: User = new UserMock()
+    const otherUser: User = new UserMock(UserTypeMock.ADMIN)
 
     const userModelFake: any = UserRepoModel
     const userRepo = new UserRepository(userModelFake, new EntityMapperMock(), new CustomLoggerMock())
@@ -172,7 +173,7 @@ describe('Repositories: User', () => {
         })
 
         context('when there is no user with the id received', () => {
-            it('should throw a ValidationException', () => {
+            it('should return false', () => {
                 sinon
                     .mock(userModelFake)
                     .expects('findOneAndUpdate')
@@ -198,6 +199,101 @@ describe('Repositories: User', () => {
                                description: 'Please try again later...' })
 
                 return userRepo.resetPassword(otherUser.id!, '')
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('replaceScopes(userType: string, newScopes: Array<string>)', () => {
+        context('when password is successfully reset', () => {
+            it('should return true', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('find')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves([ otherUser ])
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .resolves(true)
+
+                return userRepo.replaceScopes(otherUser.type!, Default.ADMIN_SCOPES)
+                    .then(result => {
+                        assert.isTrue(result)
+                    })
+            })
+        })
+
+        context('when there is no user with the id received', () => {
+            it('should return false', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('find')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves([ otherUser ])
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .resolves(false)
+
+                return userRepo.replaceScopes(otherUser.type!, Default.ADMIN_SCOPES)
+                    .then(result => {
+                        assert.isFalse(result)
+                    })
+            })
+        })
+
+        context('when a database error occurs in the first operation (find)', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('find')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                                     description: 'Please try again later...' })
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .resolves(true)
+
+
+                return userRepo.replaceScopes(otherUser.id!, Default.ADMIN_SCOPES)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+
+        context('when a database error occurs in the second operation (findOneAndUpdate)', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('find')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves([ otherUser ])
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                                     description: 'Please try again later...' })
+
+                return userRepo.replaceScopes(otherUser.id!, Default.ADMIN_SCOPES)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
@@ -246,8 +342,8 @@ describe('Repositories: User', () => {
                     .expects('countDocuments')
                     .withArgs({ institution: defaultUser.institution!.id })
                     .chain('exec')
-                    .resolves({ message: 'An internal error has occurred in the database!',
-                                description: 'Please try again later...' })
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                                     description: 'Please try again later...' })
 
                 return userRepo.hasInstitution(defaultUser.institution!.id!)
                     .catch(err => {

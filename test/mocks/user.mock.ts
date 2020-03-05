@@ -1,5 +1,6 @@
 import { User } from '../../src/application/domain/model/user'
 import { Institution } from '../../src/application/domain/model/institution'
+import { Default } from '../../src/utils/default'
 
 export class UserMock extends User {
 
@@ -16,7 +17,7 @@ export class UserMock extends User {
         super.password = 'user_password'
         super.type = type
         super.institution = this.generateInstitution()
-        super.scopes = new Array<string>('readonly')
+        super.scopes = Default.ADMIN_SCOPES
     }
 
     private generateObjectId(): string {
