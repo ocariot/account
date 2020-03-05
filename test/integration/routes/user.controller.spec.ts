@@ -413,7 +413,7 @@ describe('Routes: User', () => {
                     .expect(400)
                     .then(res => {
                         expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                        expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2)
+                        expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1)
                     })
             })
 
@@ -425,13 +425,14 @@ describe('Routes: User', () => {
                     .expect(400)
                     .then(res => {
                         expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                        expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2)
+                        expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1)
                     })
             })
 
             it('should return status code 400 and info message about error (invalid scope(s) for admin users)',
                 () => {
                     const invalidScopes = Default.ADMIN_SCOPES.slice()
+                    invalidScopes.push('physicalactivities:create')
                     invalidScopes.push('external:sync')
 
                     return request
@@ -441,8 +442,8 @@ describe('Routes: User', () => {
                         .expect(400)
                         .then(res => {
                             expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1
-                                .replace('{0}', 'external:sync')
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'physicalactivities:create, external:sync')
                                 .replace('{1}', UserType.ADMIN))
                         })
                 })
@@ -451,6 +452,7 @@ describe('Routes: User', () => {
                 () => {
                     const invalidScopes = Default.APPLICATION_SCOPES.slice()
                     invalidScopes.push('applications:readAll')
+                    invalidScopes.push('notifications:create')
 
                     return request
                         .post(`/v1/users/types/${UserType.APPLICATION}/scopes`)
@@ -459,8 +461,8 @@ describe('Routes: User', () => {
                         .expect(400)
                         .then(res => {
                             expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1
-                                .replace('{0}', 'applications:readAll')
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'applications:readAll, notifications:create')
                                 .replace('{1}', UserType.APPLICATION))
                         })
                 })
@@ -468,7 +470,9 @@ describe('Routes: User', () => {
             it('should return status code 400 and info message about error (invalid scope(s) for child users)',
                 () => {
                     const invalidScopes = Default.CHILD_SCOPES.slice()
+                    invalidScopes.push('children:create')
                     invalidScopes.push('children:readAll')
+                    invalidScopes.push('physicalactivities:delete')
 
                     return request
                         .post(`/v1/users/types/${UserType.CHILD}/scopes`)
@@ -477,8 +481,9 @@ describe('Routes: User', () => {
                         .expect(400)
                         .then(res => {
                             expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1
-                                .replace('{0}', 'children:readAll')
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'children:create, children:readAll, ' +
+                                    'physicalactivities:delete')
                                 .replace('{1}', UserType.CHILD))
                         })
                 })
@@ -486,6 +491,7 @@ describe('Routes: User', () => {
             it('should return status code 400 and info message about error (invalid scope(s) for educator users)',
                 () => {
                     const invalidScopes = Default.EDUCATOR_SCOPES.slice()
+                    invalidScopes.push('educators:create')
                     invalidScopes.push('educators:readAll')
 
                     return request
@@ -495,8 +501,8 @@ describe('Routes: User', () => {
                         .expect(400)
                         .then(res => {
                             expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1
-                                .replace('{0}', 'educators:readAll')
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'educators:create, educators:readAll')
                                 .replace('{1}', UserType.EDUCATOR))
                         })
                 })
@@ -504,6 +510,7 @@ describe('Routes: User', () => {
             it('should return status code 400 and info message about error (invalid scope(s) for family users)',
                 () => {
                     const invalidScopes = Default.FAMILY_SCOPES.slice()
+                    invalidScopes.push('families:create')
                     invalidScopes.push('families:readAll')
 
                     return request
@@ -513,8 +520,8 @@ describe('Routes: User', () => {
                         .expect(400)
                         .then(res => {
                             expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1
-                                .replace('{0}', 'families:readAll')
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'families:create, families:readAll')
                                 .replace('{1}', UserType.FAMILY))
                         })
                 })
@@ -522,6 +529,7 @@ describe('Routes: User', () => {
             it('should return status code 400 and info message about error (invalid scope(s) for health professional users)',
                 () => {
                     const invalidScopes = Default.HEALTH_PROF_SCOPES.slice()
+                    invalidScopes.push('healthprofessionals:create')
                     invalidScopes.push('healthprofessionals:readAll')
 
                     return request
@@ -531,8 +539,8 @@ describe('Routes: User', () => {
                         .expect(400)
                         .then(res => {
                             expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1
-                                .replace('{0}', 'healthprofessionals:readAll')
+                            expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                                .replace('{0}', 'healthprofessionals:create, healthprofessionals:readAll')
                                 .replace('{1}', UserType.HEALTH_PROFESSIONAL))
                         })
                 })

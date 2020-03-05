@@ -193,7 +193,7 @@ describe('Services: User', () => {
                 return userService.replaceScopes(user.type!, undefined!)
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1)
                     })
             })
         })
@@ -203,7 +203,7 @@ describe('Services: User', () => {
                 return userService.replaceScopes(user.type!, [])
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2)
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1)
                     })
             })
         })
@@ -213,8 +213,13 @@ describe('Services: User', () => {
                 return userService.replaceScopes(user.type!, Default.APPLICATION_SCOPES) // Should be ADMIN_SCOPES
                     .catch(err => {
                         assert.propertyVal(err, 'message', Strings.ERROR_MESSAGE.INVALID_SCOPES)
-                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_1
-                            .replace('{0}', 'physicalactivities:create')
+                        assert.propertyVal(err, 'description', Strings.ERROR_MESSAGE.INVALID_SCOPES_DESC_2
+                            .replace('{0}', 'physicalactivities:create, ' +
+                                'physicalactivities:update, physicalactivities:delete, sleep:create, sleep:update, ' +
+                                'sleep:delete, measurements:create, measurements:delete, environment:create, ' +
+                                'environment:update, environment:delete, foodhabitsquest:create, missions:create, ' +
+                                'missions:update, missions:delete, gamificationprofile:create, ' +
+                                'gamificationprofile:update, gamificationprofile:delete, external:sync')
                             .replace('{1}', user.type))
                     })
             })

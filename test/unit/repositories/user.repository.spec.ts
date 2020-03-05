@@ -252,7 +252,32 @@ describe('Repositories: User', () => {
             })
         })
 
-        context('when a database error occurs', () => {
+        context('when a database error occurs in the first operation (find)', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(userModelFake)
+                    .expects('find')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                                     description: 'Please try again later...' })
+                sinon
+                    .mock(userModelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs({ _id: otherUser.id })
+                    .chain('exec')
+                    .resolves(true)
+
+
+                return userRepo.replaceScopes(otherUser.id!, Default.ADMIN_SCOPES)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+
+        context('when a database error occurs in the second operation (findOneAndUpdate)', () => {
             it('should throw a RepositoryException', () => {
                 sinon
                     .mock(userModelFake)
@@ -317,8 +342,8 @@ describe('Repositories: User', () => {
                     .expects('countDocuments')
                     .withArgs({ institution: defaultUser.institution!.id })
                     .chain('exec')
-                    .resolves({ message: 'An internal error has occurred in the database!',
-                                description: 'Please try again later...' })
+                    .rejects({ message: 'An internal error has occurred in the database!',
+                                     description: 'Please try again later...' })
 
                 return userRepo.hasInstitution(defaultUser.institution!.id!)
                     .catch(err => {

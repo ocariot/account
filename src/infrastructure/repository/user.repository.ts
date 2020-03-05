@@ -134,8 +134,4 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
-
-    public findAll(query: IQuery): Promise<User[]> {
-        throw new Error('Method not implemented.')
-    }
 }

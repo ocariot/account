@@ -101,7 +101,7 @@ export abstract class Strings {
         INVALID_AGE_DATE: 'Datetime: {0}, cannot be used!',
         INVALID_AGE_DATE_DESC: 'The \'age\' and \'age_calc_date\' fields can only receive past or present dates.',
         INVALID_SCOPES: 'The list of new scopes is invalid!',
-        INVALID_SCOPES_DESC_1: '{0} is not a valid scope for {1} users.',
-        INVALID_SCOPES_DESC_2: 'A scopes array with at least one item is required.'
+        INVALID_SCOPES_DESC_1: 'A scopes array with at least one item is required.',
+        INVALID_SCOPES_DESC_2: '{0} are not valid scopes for {1} users.'
     }
 }
