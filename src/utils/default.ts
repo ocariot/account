@@ -212,6 +212,7 @@ export abstract class Default {
         'missions:update',
         'gamificationprofile:create',
         'gamificationprofile:read',
+        'gamificationprofile:update',
         'external:sync',
         'notifications:create'
     ]
@@ -262,6 +263,7 @@ export abstract class Default {
         'missions:update',
         'gamificationprofile:create',
         'gamificationprofile:read',
+        'gamificationprofile:update',
         'external:sync',
         'notifications:create'
     ]

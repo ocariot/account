@@ -63,6 +63,7 @@ describe('Mappers: EducatorEntity', () => {
                 'missions:update',
                 'gamificationprofile:create',
                 'gamificationprofile:read',
+                'gamificationprofile:update',
                 'external:sync',
                 'notifications:create'
             ],

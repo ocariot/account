@@ -59,6 +59,7 @@ export class Educator extends User implements IJSONSerializable, IJSONDeserializ
             'missions:update',
             'gamificationprofile:create',
             'gamificationprofile:read',
+            'gamificationprofile:update',
             'external:sync',
             'notifications:create'
     ]
