@@ -118,4 +118,27 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
+
+    // TODO Finalize method logic
+    /**
+     * Retrieves the educators who have an association with a Child according to child ID.
+     *
+     * @param childId
+     * @return {Promise<Array<Educator>>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    public findEducatorsByChildId(childId: string): Promise<Array<Educator>> {
+        const populate: any =
+            { path: 'children_groups', populate: { path: 'children', match: { _id: childId } } }
+
+        return new Promise<Array<Educator>>((resolve, reject) => {
+            this.educatorModel.find({ type: UserType.EDUCATOR })
+                .populate(populate)
+                .exec()
+                .then((result: Array<Educator>) => {
+                    resolve(result.map(item => this.educatorMapper.transform(item)))
+                })
+                .catch(err => reject(this.mongoDBErrorListener(err)))
+        })
+    }
 }

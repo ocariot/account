@@ -792,28 +792,61 @@ describe('PROVIDER EVENT BUS TASK', () => {
         context('when retrieving educators through a query successfully', () => {
             const educator: Educator = new EducatorMock()
             educator.institution!.id = '5a62be07d6f33400146c9b61'
+
+            const educator2: Educator = new EducatorMock()
+            educator2.username = 'educator_mock2'
+            educator2.institution!.id = '5a62be07d6f33400146c9b61'
+
+            const educator3: Educator = new EducatorMock()
+            educator3.username = 'educator_mock3'
+            educator3.institution!.id = '5a62be07d6f33400146c9b61'
+
+            let childIdToBeSearched: string = ''
+
             before(async () => {
                 try {
                     await deleteAllUsers()
 
+                    // Create Children
                     const childCreated1 = await childRepository.create(educator.children_groups![0].children![0])
+                    childIdToBeSearched = childCreated1.id!
                     const childCreated2 = await childRepository.create(educator.children_groups![0].children![1])
-                    educator.children_groups![0].children![0].id = childCreated1.id
-                    educator.children_groups![0].children![1].id = childCreated2.id
-
                     const childCreated3 = await childRepository.create(educator.children_groups![1].children![0])
                     const childCreated4 = await childRepository.create(educator.children_groups![1].children![1])
+
+                    // Associate the ids of children created with specific educators.
+                    educator.children_groups![0].children![0].id = childCreated1.id
+                    educator.children_groups![0].children![1].id = childCreated2.id
                     educator.children_groups![1].children![0].id = childCreated3.id
                     educator.children_groups![1].children![1].id = childCreated4.id
 
+                    educator2.children_groups![1].children![0].id = childCreated3.id
+                    educator2.children_groups![1].children![1].id = childCreated4.id
+
+                    educator3.children_groups![0].children![0].id = childCreated1.id
+                    educator3.children_groups![0].children![1].id = childCreated2.id
+                    educator3.children_groups![1].children![0].id = childCreated3.id
+                    educator3.children_groups![1].children![1].id = childCreated4.id
+
+                    // Create ChildrenGroups
                     const childrenGroupCreated1 = await childrenGroupRepository.create(educator.children_groups![0])
                     educator.children_groups![0].id = childrenGroupCreated1.id
+                    educator3.children_groups![0].id = childrenGroupCreated1.id
 
                     const childrenGroupCreated2 = await childrenGroupRepository.create(educator.children_groups![1])
                     educator.children_groups![1].id = childrenGroupCreated2.id
+                    educator2.children_groups![1].id = childrenGroupCreated2.id
+                    educator3.children_groups![1].id = childrenGroupCreated2.id
 
+                    // Create Educators
                     const educatorCreated = await educatorRepository.create(educator)
                     educator.id = educatorCreated.id
+
+                    const educatorCreated2 = await educatorRepository.create(educator2)
+                    educator2.id = educatorCreated2.id
+
+                    const educatorCreated3 = await educatorRepository.create(educator3)
+                    educator3.id = educatorCreated3.id
                 } catch (err) {
                     throw new Error('Failure on Provider Educator test: ' + err.message)
                 }
@@ -826,6 +859,16 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     throw new Error('Failure on Provider Educator test: ' + err.message)
                 }
             })
+
+            // TODO This integration test is for the feature of picking up educators associated with a childId
+            it('should return an array with all educator from childId', (done) => {
+                rabbitmq.bus.getEducatorsFromChild(`${childIdToBeSearched}`)
+                    .then(result => {
+                        done()
+                    })
+                    .catch(done)
+            })
+
             it('should return an array with one educator', (done) => {
                 rabbitmq.bus.getEducators('?institution=5a62be07d6f33400146c9b61')
                     .then(result => {

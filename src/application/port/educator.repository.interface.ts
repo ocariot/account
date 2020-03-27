@@ -46,4 +46,13 @@ export interface IEducatorRepository extends IRepository<Educator> {
      * @throws {RepositoryException}
      */
     countChildrenGroups(educatorId: string): Promise<number>
+
+    /**
+     * Retrieves the educators who have an association with a Child according to child ID.
+     *
+     * @param childId
+     * @return {Promise<Array<Educator>>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    findEducatorsByChildId(childId: string): Promise<Array<Educator>>
 }

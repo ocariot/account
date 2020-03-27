@@ -125,4 +125,27 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
+
+    // TODO Finalize method logic
+    /**
+     * Retrieves the health professionals who have an association with a Child according to child ID.
+     *
+     * @param childId
+     * @return {Promise<Array<HealthProfessional>>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    public findHealthProfsByChildId(childId: string): Promise<Array<HealthProfessional>> {
+        const populate: any =
+            { path: 'children_groups', populate: { path: 'children', match: { _id: childId } } }
+
+        return new Promise<Array<HealthProfessional>>((resolve, reject) => {
+            this.healthProfessionalModel.find({ type: UserType.HEALTH_PROFESSIONAL })
+                .populate(populate)
+                .exec()
+                .then((result: Array<HealthProfessional>) => {
+                    resolve(result.map(item => this.healthProfessionalMapper.transform(item)))
+                })
+                .catch(err => reject(this.mongoDBErrorListener(err)))
+        })
+    }
 }
