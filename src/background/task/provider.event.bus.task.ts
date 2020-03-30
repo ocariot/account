@@ -120,6 +120,21 @@ export class ProviderEventBusTask implements IBackgroundTask {
             .then(() => this._logger.info('Educator ChildrenGroup resource provided successfully!'))
             .catch((err) => this._logger.error(`Error trying to provide Educator ChildrenGroup resource: ${err.message}`))
 
+        // Providing educator from child resource.
+        this._eventBus.bus
+            .provideEducatorsFromChild(async (childId) => {
+                try {
+                    ObjectIdValidator.validate(childId)
+                    const result: Array<Educator> = await this._educatorRepository.findEducatorsByChildId(childId)
+                    if (result && result.length) return result.map(item => item.toJSON())
+                    return []
+                } catch (err) {
+                    return err
+                }
+            })
+            .then(() => this._logger.info('Educators from Child resource provided successfully!'))
+            .catch((err) => this._logger.error(`Error trying to provide Educator from Child resource: ${err.message}`))
+
         // Providing health professional resource.
         this._eventBus.bus
             .provideHealthProfessionals(async (query) => {
@@ -150,6 +165,22 @@ export class ProviderEventBusTask implements IBackgroundTask {
             .catch((err) => {
                 this._logger.error(`Error trying to provide HealthProfessional ChildrenGroup resource: ${err.message}`)
             })
+
+        // Providing health professional from child resource.
+        this._eventBus.bus
+            .provideHealthProfessionalsFromChild(async (childId) => {
+                try {
+                    ObjectIdValidator.validate(childId)
+                    const result: Array<HealthProfessional> =
+                        await this._healthProfessionalRepository.findHealthProfsByChildId(childId)
+                    if (result && result.length) return result.map(item => item.toJSON())
+                    return []
+                } catch (err) {
+                    return err
+                }
+            })
+            .then(() => this._logger.info('HealthProfessionals from Child resource provided successfully!'))
+            .catch((err) => this._logger.error(`Error trying to provide HealthProfessionals from Child resource: ${err.message}`))
 
         // Providing application resource.
         this._eventBus.bus
