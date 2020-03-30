@@ -62,4 +62,8 @@ export class HealthProfessionalRepositoryMock implements IHealthProfessionalRepo
     public findAll(query: any): Promise<Array<HealthProfessional>> {
         return this.find(query)
     }
+
+    public findHealthProfsByChildId(childId: string): Promise<Array<HealthProfessional>> {
+        return Promise.resolve([new HealthProfessionalMock(), new HealthProfessionalMock()])
+    }
 }

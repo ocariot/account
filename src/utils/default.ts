@@ -210,6 +210,7 @@ export abstract class Default {
         'missions:create',
         'missions:read',
         'missions:update',
+        'missions:delete',
         'gamificationprofile:create',
         'gamificationprofile:read',
         'gamificationprofile:update',

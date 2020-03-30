@@ -126,7 +126,6 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
         })
     }
 
-    // TODO Finalize method logic
     /**
      * Retrieves the health professionals who have an association with a Child according to child ID.
      *
@@ -135,14 +134,32 @@ export class HealthProfessionalRepository extends BaseRepository<HealthProfessio
      * @throws {ValidationException | RepositoryException}
      */
     public findHealthProfsByChildId(childId: string): Promise<Array<HealthProfessional>> {
-        const populate: any =
-            { path: 'children_groups', populate: { path: 'children', match: { _id: childId } } }
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
 
         return new Promise<Array<HealthProfessional>>((resolve, reject) => {
+            // 1. Search all health professionals and populate their groups
             this.healthProfessionalModel.find({ type: UserType.HEALTH_PROFESSIONAL })
                 .populate(populate)
                 .exec()
                 .then((result: Array<HealthProfessional>) => {
+                    // 2. Filters health professionals by removing those who have no association with the childId received
+                    result = result.filter(hProfItem => {
+                        if (hProfItem.children_groups && hProfItem.children_groups.length) {
+                            // 2.1. Filter ChildrenGroups
+                            hProfItem.children_groups = hProfItem.children_groups.filter(groupItem => {
+                                if (groupItem.children && groupItem.children.length) {
+                                    // 2.2 Filter each children array of each ChildrenGroup
+                                    groupItem.children = groupItem.children.filter(childItem => childItem.id === childId)
+                                }
+
+                                return !!(groupItem.children && groupItem.children.length)
+                            })
+                        }
+
+                        return !!(hProfItem.children_groups && hProfItem.children_groups.length)
+                    })
+
+                    // 3. Apply the mapper to each health professional and return the array
                     resolve(result.map(item => this.healthProfessionalMapper.transform(item)))
                 })
                 .catch(err => reject(this.mongoDBErrorListener(err)))

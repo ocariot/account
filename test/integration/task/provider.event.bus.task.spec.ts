@@ -835,7 +835,7 @@ describe('PROVIDER EVENT BUS TASK', () => {
 
                     const childrenGroupCreated2 = await childrenGroupRepository.create(educator.children_groups![1])
                     educator.children_groups![1].id = childrenGroupCreated2.id
-                    educator2.children_groups![1].id = childrenGroupCreated2.id
+                    // educator2.children_groups![1].id = childrenGroupCreated2.id
                     educator3.children_groups![1].id = childrenGroupCreated2.id
 
                     // Create Educators
@@ -860,19 +860,13 @@ describe('PROVIDER EVENT BUS TASK', () => {
                 }
             })
 
-            // TODO This integration test is for the feature of picking up educators associated with a childId
-            it('should return an array with all educator from childId', (done) => {
-                rabbitmq.bus.getEducatorsFromChild(`${childIdToBeSearched}`)
-                    .then(result => {
-                        done()
-                    })
-                    .catch(done)
-            })
-
-            it('should return an array with one educator', (done) => {
+            /**
+             * getEducators(query: string): Promise<any>
+             */
+            it('should return an array with three educators', (done) => {
                 rabbitmq.bus.getEducators('?institution=5a62be07d6f33400146c9b61')
                     .then(result => {
-                        expect(result.length).to.eql(1)
+                        expect(result.length).to.eql(3)
                         // Comparing the resources
                         expect(result[0].id).to.eql(educator.id)
                         expect(result[0].username).to.eql(educator.username)
@@ -900,6 +894,9 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
+            /**
+             * getEducatorChildrenGroups(educatorId: string): Promise<any>
+             */
             it('should return an array with the children groups of educator', (done) => {
                 rabbitmq.bus.getEducatorChildrenGroups(educator.id!)
                     .then(result => {
@@ -937,6 +934,44 @@ describe('PROVIDER EVENT BUS TASK', () => {
 
             it('should return a ValidationException (query with an invalid educator id)', (done) => {
                 rabbitmq.bus.getEducatorChildrenGroups('invalidID')
+                    .then(() => {
+                        done(new Error('The GET method should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '.concat(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+
+            /**
+             * getEducatorsFromChild(childId: string, callback?: (err: any, educators: any) => void): any
+             */
+            it('should return an array with two educators that have an association with the given childId',
+                (done) => {
+                    rabbitmq.bus.getEducatorsFromChild(`${childIdToBeSearched}`)
+                        .then(result => {
+                            expect(result.length).to.eql(2)
+                            done()
+                        })
+                        .catch(done)
+                })
+
+            it('should return an empty array because no educator has an association with the given childId',
+                (done) => {
+                    rabbitmq.bus.getEducatorsFromChild('5a62be07d6233300146c9b32')
+                        .then(result => {
+                            expect(result.length).to.eql(0)
+                            done()
+                        })
+                        .catch(done)
+                })
+
+            it('should return a ValidationException (query with an invalid child id)', (done) => {
+                rabbitmq.bus.getEducatorsFromChild('invalidID')
                     .then(() => {
                         done(new Error('The GET method should not function normally'))
                     })
@@ -1159,28 +1194,61 @@ describe('PROVIDER EVENT BUS TASK', () => {
         context('when retrieving health professionals through a query successfully', () => {
             const healthProfessional: HealthProfessional = new HealthProfessionalMock()
             healthProfessional.institution!.id = '5a62be07d6f33400146c9b61'
+
+            const healthProfessional2: HealthProfessional = new HealthProfessionalMock()
+            healthProfessional2.username = 'health_professional_mock2'
+            healthProfessional2.institution!.id = '5a62be07d6f33400146c9b61'
+
+            const healthProfessional3: HealthProfessional = new HealthProfessionalMock()
+            healthProfessional3.username = 'health_professional_mock3'
+            healthProfessional3.institution!.id = '5a62be07d6f33400146c9b61'
+
+            let childIdToBeSearched: string = ''
+
             before(async () => {
                 try {
                     await deleteAllUsers()
 
+                    // Create Children
                     const childCreated1 = await childRepository.create(healthProfessional.children_groups![0].children![0])
+                    childIdToBeSearched = childCreated1.id!
                     const childCreated2 = await childRepository.create(healthProfessional.children_groups![0].children![1])
-                    healthProfessional.children_groups![0].children![0].id = childCreated1.id
-                    healthProfessional.children_groups![0].children![1].id = childCreated2.id
-
                     const childCreated3 = await childRepository.create(healthProfessional.children_groups![1].children![0])
                     const childCreated4 = await childRepository.create(healthProfessional.children_groups![1].children![1])
+
+                    // Associate the ids of children created with specific educators.
+                    healthProfessional.children_groups![0].children![0].id = childCreated1.id
+                    healthProfessional.children_groups![0].children![1].id = childCreated2.id
                     healthProfessional.children_groups![1].children![0].id = childCreated3.id
                     healthProfessional.children_groups![1].children![1].id = childCreated4.id
 
+                    healthProfessional2.children_groups![1].children![0].id = childCreated3.id
+                    healthProfessional2.children_groups![1].children![1].id = childCreated4.id
+
+                    healthProfessional3.children_groups![0].children![0].id = childCreated1.id
+                    healthProfessional3.children_groups![0].children![1].id = childCreated2.id
+                    healthProfessional3.children_groups![1].children![0].id = childCreated3.id
+                    healthProfessional3.children_groups![1].children![1].id = childCreated4.id
+
+                    // Create ChildrenGroups
                     const childrenGroupCreated1 = await childrenGroupRepository.create(healthProfessional.children_groups![0])
                     healthProfessional.children_groups![0].id = childrenGroupCreated1.id
+                    healthProfessional3.children_groups![0].id = childrenGroupCreated1.id
 
                     const childrenGroupCreated2 = await childrenGroupRepository.create(healthProfessional.children_groups![1])
                     healthProfessional.children_groups![1].id = childrenGroupCreated2.id
+                    healthProfessional2.children_groups![1].id = childrenGroupCreated2.id
+                    healthProfessional3.children_groups![1].id = childrenGroupCreated2.id
 
+                    // Create HealthProfessionals
                     const healthProfCreated = await healthProfRepository.create(healthProfessional)
                     healthProfessional.id = healthProfCreated.id
+
+                    const healthProfCreated2 = await healthProfRepository.create(healthProfessional2)
+                    healthProfessional2.id = healthProfCreated2.id
+
+                    const healthProfCreated3 = await healthProfRepository.create(healthProfessional3)
+                    healthProfessional3.id = healthProfCreated3.id
                 } catch (err) {
                     throw new Error('Failure on Provider HealthProfessional test: ' + err.message)
                 }
@@ -1193,10 +1261,14 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     throw new Error('Failure on Provider HealthProfessional test: ' + err.message)
                 }
             })
-            it('should return an array with one health professional', (done) => {
+
+            /**
+             * getHealthProfessionals(query: string): Promise<any>
+             */
+            it('should return an array with three health professionals', (done) => {
                 rabbitmq.bus.getHealthProfessionals('?institution=5a62be07d6f33400146c9b61')
                     .then(result => {
-                        expect(result.length).to.eql(1)
+                        expect(result.length).to.eql(3)
                         // Comparing the resources
                         expect(result[0].id).to.eql(healthProfessional.id)
                         expect(result[0].username).to.eql(healthProfessional.username)
@@ -1224,6 +1296,9 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .catch(done)
             })
 
+            /**
+             * getHealthProfessionalChildrenGroups(healthProfessionalId: string): Promise<any>
+             */
             it('should return an array with the children groups of health professional', (done) => {
                 rabbitmq.bus.getHealthProfessionalChildrenGroups(healthProfessional.id!)
                     .then(result => {
@@ -1261,6 +1336,44 @@ describe('PROVIDER EVENT BUS TASK', () => {
 
             it('should return a ValidationException (query with an invalid health professional id)', (done) => {
                 rabbitmq.bus.getHealthProfessionalChildrenGroups('invalidID')
+                    .then(() => {
+                        done(new Error('The GET method should not function normally'))
+                    })
+                    .catch((err) => {
+                        try {
+                            expect(err.message).to.eql('Error: '.concat(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT))
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    })
+            })
+
+            /**
+             * getHealthProfessionalsFromChild(childId: string, callback?: (err: any, healthProfessionals: any) => void): any
+             */
+            it('should return an array with two health professionals that have an association with the given childId',
+                (done) => {
+                    rabbitmq.bus.getHealthProfessionalsFromChild(`${childIdToBeSearched}`)
+                        .then(result => {
+                            expect(result.length).to.eql(2)
+                            done()
+                        })
+                        .catch(done)
+                })
+
+            it('should return an empty array because no health professional has an association with the given childId',
+                (done) => {
+                    rabbitmq.bus.getHealthProfessionalsFromChild('5a62be07d6233300146c9b32')
+                        .then(result => {
+                            expect(result.length).to.eql(0)
+                            done()
+                        })
+                        .catch(done)
+                })
+
+            it('should return a ValidationException (query with an invalid child id)', (done) => {
+                rabbitmq.bus.getHealthProfessionalsFromChild('invalidID')
                     .then(() => {
                         done(new Error('The GET method should not function normally'))
                     })
