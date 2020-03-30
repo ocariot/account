@@ -62,4 +62,8 @@ export class EducatorRepositoryMock implements IEducatorRepository {
     public findAll(query: any): Promise<Array<Educator>> {
         return this.find(query)
     }
+
+    public findEducatorsByChildId(childId: string): Promise<Array<Educator>> {
+        return Promise.resolve([new EducatorMock(), new EducatorMock()])
+    }
 }

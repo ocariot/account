@@ -118,4 +118,43 @@ export class EducatorRepository extends BaseRepository<Educator, EducatorEntity>
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
+
+    /**
+     * Retrieves the educators who have an association with a Child according to child ID.
+     *
+     * @param childId
+     * @return {Promise<Array<Educator>>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    public findEducatorsByChildId(childId: string): Promise<Array<Educator>> {
+        const populate: any = { path: 'children_groups', populate: { path: 'children' } }
+
+        return new Promise<Array<Educator>>((resolve, reject) => {
+            this.educatorModel.find({ type: UserType.EDUCATOR })    // 1. Search all educators and populate their groups
+                .populate(populate)
+                .exec()
+                .then((result: Array<Educator>) => {
+                    // 2. Filters educators by removing those who have no association with the childId received
+                    result = result.filter(educatorItem => {
+                        if (educatorItem.children_groups && educatorItem.children_groups.length) {
+                            // 2.1. Filter ChildrenGroups
+                            educatorItem.children_groups = educatorItem.children_groups.filter(groupItem => {
+                                if (groupItem.children && groupItem.children.length) {
+                                    // 2.2 Filter each children array of each ChildrenGroup
+                                    groupItem.children = groupItem.children.filter(childItem => childItem.id === childId)
+                                }
+
+                                return !!(groupItem.children && groupItem.children.length)
+                            })
+                        }
+
+                        return !!(educatorItem.children_groups && educatorItem.children_groups.length)
+                    })
+
+                    // 3. Apply the mapper to each educator and return the array
+                    resolve(result.map(item => this.educatorMapper.transform(item)))
+                })
+                .catch(err => reject(this.mongoDBErrorListener(err)))
+        })
+    }
 }

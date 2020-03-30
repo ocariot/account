@@ -46,4 +46,13 @@ export interface IHealthProfessionalRepository extends IRepository<HealthProfess
      * @throws {RepositoryException}
      */
     countChildrenGroups(healthProfessionalId: string): Promise<number>
+
+    /**
+     * Retrieves the health professionals who have an association with a Child according to child ID.
+     *
+     * @param childId
+     * @return {Promise<Array<HealthProfessional>>}
+     * @throws {ValidationException | RepositoryException}
+     */
+    findHealthProfsByChildId(childId: string): Promise<Array<HealthProfessional>>
 }

@@ -84,8 +84,10 @@ describe('Repositories: Educator', () => {
                     .expects('create')
                     .withArgs(defaultEducator)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return educatorRepo.create(defaultEducator)
                     .catch(err => {
@@ -155,8 +157,10 @@ describe('Repositories: Educator', () => {
                     .chain('limit')
                     .withArgs(query.pagination.limit)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return educatorRepo.findAll(query)
                     .catch(err => {
@@ -220,8 +224,10 @@ describe('Repositories: Educator', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return educatorRepo.findOne(queryMock)
                     .catch(err => {
@@ -283,8 +289,10 @@ describe('Repositories: Educator', () => {
                     .expects('findOneAndUpdate')
                     .withArgs({ _id: defaultEducator.id }, defaultEducator, { new: true })
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return educatorRepo.update(defaultEducator)
                     .catch((err) => {
@@ -350,8 +358,10 @@ describe('Repositories: Educator', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return educatorRepo.findById(defaultEducator.id!)
                     .catch(err => {
@@ -372,7 +382,7 @@ describe('Repositories: Educator', () => {
                     .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves([ defaultEducator ])
+                    .resolves([defaultEducator])
 
                 return educatorRepo.checkExist(defaultEducator)
                     .then(result => {
@@ -403,7 +413,7 @@ describe('Repositories: Educator', () => {
                     .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves([ educatorWithoutId ])
+                    .resolves([educatorWithoutId])
 
                 return educatorRepo.checkExist(educatorWithoutId)
                     .then(result => {
@@ -506,11 +516,13 @@ describe('Repositories: Educator', () => {
                     .expects('countDocuments')
                     .withArgs()
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return educatorRepo.count()
-                    .catch (err => {
+                    .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })
@@ -558,11 +570,68 @@ describe('Repositories: Educator', () => {
                     .expects('findOne')
                     .withArgs({ _id: defaultEducator.id, type: UserType.EDUCATOR })
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return educatorRepo.countChildrenGroups(defaultEducator.id!)
-                    .catch (err => {
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('findEducatorsByChildId(childId: string)', () => {
+        context('when there is at least one educator associated with the childId received', () => {
+            it('should return an array with one educator that has an association with the given childId',
+                () => {
+                    sinon
+                        .mock(modelFake)
+                        .expects('find')
+                        .withArgs({ type: UserType.EDUCATOR })
+                        .chain('exec')
+                        .resolves([new EducatorMock(), defaultEducator])
+
+                    return educatorRepo.findEducatorsByChildId(defaultEducator.children_groups![0].children![0].id!)
+                        .then((result: Array<Educator>) => {
+                            assert.equal(result.length, 1)
+                        })
+                })
+        })
+
+        context('when there no are educator associated with the childId received', () => {
+            it('should return an empty array because no educator has an association with the given childId', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('find')
+                    .withArgs({ type: UserType.EDUCATOR })
+                    .chain('exec')
+                    .resolves([new EducatorMock(), defaultEducator, new EducatorMock()])
+
+                return educatorRepo.findEducatorsByChildId('5a62be07d6233300146c9b32')
+                    .then((result: Array<Educator>) => {
+                        assert.equal(result.length, 0)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('find')
+                    .withArgs({ type: UserType.EDUCATOR })
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                return educatorRepo.findEducatorsByChildId('5a62be07d6233300146c9b32')
+                    .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })

@@ -84,8 +84,10 @@ describe('Repositories: HealthProfessional', () => {
                     .mock(modelFake)
                     .expects('create')
                     .withArgs(defaultHealthProfessional)
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return healthProfessionalRepo.create(defaultHealthProfessional)
                     .catch(err => {
@@ -155,8 +157,10 @@ describe('Repositories: HealthProfessional', () => {
                     .chain('limit')
                     .withArgs(query.pagination.limit)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return healthProfessionalRepo.findAll(query)
                     .catch(err => {
@@ -220,8 +224,10 @@ describe('Repositories: HealthProfessional', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return healthProfessionalRepo.findOne(queryMock)
                     .catch(err => {
@@ -283,8 +289,10 @@ describe('Repositories: HealthProfessional', () => {
                     .expects('findOneAndUpdate')
                     .withArgs({ _id: defaultHealthProfessional.id }, defaultHealthProfessional, { new: true })
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return healthProfessionalRepo.update(defaultHealthProfessional)
                     .catch((err) => {
@@ -350,8 +358,10 @@ describe('Repositories: HealthProfessional', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return healthProfessionalRepo.findById(defaultHealthProfessional.id)
                     .catch(err => {
@@ -372,7 +382,7 @@ describe('Repositories: HealthProfessional', () => {
                     .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves([ defaultHealthProfessional ])
+                    .resolves([defaultHealthProfessional])
 
                 return healthProfessionalRepo.checkExist(defaultHealthProfessional)
                     .then(result => {
@@ -403,7 +413,7 @@ describe('Repositories: HealthProfessional', () => {
                     .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves([ healthProfessionalWithoutId ])
+                    .resolves([healthProfessionalWithoutId])
 
                 return healthProfessionalRepo.checkExist(healthProfessionalWithoutId)
                     .then(result => {
@@ -506,11 +516,13 @@ describe('Repositories: HealthProfessional', () => {
                     .expects('countDocuments')
                     .withArgs()
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return healthProfessionalRepo.count()
-                    .catch (err => {
+                    .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })
@@ -558,11 +570,70 @@ describe('Repositories: HealthProfessional', () => {
                     .expects('findOne')
                     .withArgs({ _id: defaultHealthProfessional.id, type: UserType.HEALTH_PROFESSIONAL })
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return healthProfessionalRepo.countChildrenGroups(defaultHealthProfessional.id!)
-                    .catch (err => {
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('findEducatorsByChildId(childId: string)', () => {
+        context('when there is at least one health professional associated with the childId received', () => {
+            it('should return an array with one health professional that has an association with the given childId',
+                () => {
+                    sinon
+                        .mock(modelFake)
+                        .expects('find')
+                        .withArgs({ type: UserType.HEALTH_PROFESSIONAL })
+                        .chain('exec')
+                        .resolves([new HealthProfessionalMock(), defaultHealthProfessional])
+
+                    return healthProfessionalRepo
+                        .findHealthProfsByChildId(defaultHealthProfessional.children_groups![0].children![0].id!)
+                        .then((result: Array<HealthProfessional>) => {
+                            assert.equal(result.length, 1)
+                        })
+                })
+        })
+
+        context('when there no are health professional associated with the childId received', () => {
+            it('should return an empty array because no health professional has an association with the given childId',
+                () => {
+                    sinon
+                        .mock(modelFake)
+                        .expects('find')
+                        .withArgs({ type: UserType.HEALTH_PROFESSIONAL })
+                        .chain('exec')
+                        .resolves([new HealthProfessionalMock(), defaultHealthProfessional, new HealthProfessionalMock()])
+
+                    return healthProfessionalRepo.findHealthProfsByChildId('5a62be07d6233300146c9b32')
+                        .then((result: Array<HealthProfessional>) => {
+                            assert.equal(result.length, 0)
+                        })
+                })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('find')
+                    .withArgs({ type: UserType.HEALTH_PROFESSIONAL })
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                return healthProfessionalRepo.findHealthProfsByChildId('5a62be07d6233300146c9b32')
+                    .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })
