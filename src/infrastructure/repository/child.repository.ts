@@ -126,4 +126,27 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
+
+    /**
+     * Returns the total number of children who had their data synchronized in a range of days (up to N days ago).
+     *
+     * @param numberOfDays Number of days used to search for children who had their data synchronized in a range of days
+     *                     (up to {numberOfDays} ago).
+     * @return {Promise<Array<Child>>}
+     * @throws {RepositoryException}
+     */
+    public findByLastSync(numberOfDays: number): Promise<Array<Child>> {
+        // Sets the date object to be used in the search
+        const searchDate: Date = new Date()
+        searchDate.setDate(searchDate.getDate() - numberOfDays)
+
+        // Sets the date in string format
+        const searchDateStr: string = new Date(searchDate.getTime() - (searchDate.getTimezoneOffset() * 60000)).toISOString()
+
+        // Sets the query and search
+        const query: IQuery = new Query()
+        query.filters = { 'last_sync': { $lt: searchDateStr } }
+
+        return super.find(query)
+    }
 }

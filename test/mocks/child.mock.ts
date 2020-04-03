@@ -1,5 +1,5 @@
 import { Institution } from '../../src/application/domain/model/institution'
-import { Child } from '../../src/application/domain/model/child'
+import { Child, FitbitStatus } from '../../src/application/domain/model/child'
 
 export class ChildMock extends Child {
 
@@ -16,6 +16,8 @@ export class ChildMock extends Child {
         super.age = `${Math.floor(Math.random() * 5) + 5}`
         super.gender = this.generateGender()
         super.age_calc_date = '2019-12-01'
+        super.last_sync = new Date('2020-01-25T14:40:00Z')
+        super.fitbit_status = this.generateFitbitStatus()
     }
 
     private generateObjectId(): string {
@@ -44,6 +46,25 @@ export class ChildMock extends Child {
                 return GenderMock.MALE
             case 1:
                 return GenderMock.FEMALE
+        }
+    }
+
+    private generateFitbitStatus(): string | undefined {
+        switch (Math.floor((Math.random() * 7))) { // 0-6
+            case 0:
+                return FitbitStatus.VALID_TOKEN
+            case 1:
+                return FitbitStatus.EXPIRED_TOKEN
+            case 2:
+                return FitbitStatus.INVALID_TOKEN
+            case 3:
+                return FitbitStatus.INVALID_GRANT
+            case 4:
+                return FitbitStatus.INVALID_CLIENT
+            case 5:
+                return FitbitStatus.SYSTEM
+            case 6:
+                return FitbitStatus.NONE
         }
     }
 }

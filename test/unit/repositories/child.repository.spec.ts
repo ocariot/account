@@ -1,5 +1,5 @@
 import sinon from 'sinon'
-import { Child } from '../../../src/application/domain/model/child'
+import { Child, FitbitStatus } from '../../../src/application/domain/model/child'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
 import { ChildRepository } from '../../../src/infrastructure/repository/child.repository'
 import { EntityMapperMock } from '../../mocks/entity.mapper.mock'
@@ -519,6 +519,174 @@ describe('Repositories: Child', () => {
 
                 return childRepo.count()
                     .catch (err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('updateFitbitStatus(childId: string, fitbitStatus: string)', () => {
+        context('when the child exists in the database', () => {
+                it('should return the updated child', () => {
+                        sinon
+                            .mock(modelFake)
+                            .expects('findOneAndUpdate')
+                            .withArgs()
+                            .chain('exec')
+                            .resolves(defaultChild)
+
+                        return childRepo.updateFitbitStatus(defaultChild.id!, FitbitStatus.INVALID_TOKEN)
+                            .then((result: Child) => {
+                                assert.propertyVal(result, 'id', defaultChild.id)
+                                assert.propertyVal(result, 'username', defaultChild.username)
+                                assert.propertyVal(result, 'password', defaultChild.password)
+                                assert.propertyVal(result, 'type', defaultChild.type)
+                                assert.propertyVal(result, 'scopes', defaultChild.scopes)
+                                assert.propertyVal(result, 'institution', defaultChild.institution)
+                                assert.propertyVal(result, 'gender', defaultChild.gender)
+                                assert.propertyVal(result, 'age', defaultChild.age)
+                                assert.propertyVal(result, 'last_login', defaultChild.last_login)
+                                assert.propertyVal(result, 'last_sync', defaultChild.last_sync)
+                                assert.propertyVal(result, 'fitbit_status', defaultChild.fitbit_status)
+                            })
+                    })
+            })
+
+        context('when the child is not found', () => {
+            it('should return undefined', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(undefined)
+
+                return childRepo.updateFitbitStatus(defaultChild.id!, FitbitStatus.VALID_TOKEN)
+                    .then((result: Child) => {
+                        assert.isUndefined(result)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                return childRepo.updateFitbitStatus(defaultChild.id!, FitbitStatus.VALID_TOKEN)
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('updateLastSync(childId: string, lastSync: Date)', () => {
+        context('when the child exists in the database', () => {
+            it('should return the updated child', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(defaultChild)
+
+                return childRepo.updateLastSync(defaultChild.id!, defaultChild.last_sync!)
+                    .then((result: Child) => {
+                        assert.propertyVal(result, 'id', defaultChild.id)
+                        assert.propertyVal(result, 'username', defaultChild.username)
+                        assert.propertyVal(result, 'password', defaultChild.password)
+                        assert.propertyVal(result, 'type', defaultChild.type)
+                        assert.propertyVal(result, 'scopes', defaultChild.scopes)
+                        assert.propertyVal(result, 'institution', defaultChild.institution)
+                        assert.propertyVal(result, 'gender', defaultChild.gender)
+                        assert.propertyVal(result, 'age', defaultChild.age)
+                        assert.propertyVal(result, 'last_login', defaultChild.last_login)
+                        assert.propertyVal(result, 'last_sync', defaultChild.last_sync)
+                        assert.propertyVal(result, 'fitbit_status', defaultChild.fitbit_status)
+                    })
+            })
+        })
+
+        context('when the child is not found', () => {
+            it('should return undefined', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(undefined)
+
+                return childRepo.updateLastSync(defaultChild.id!, new Date('2020-01-25T14:40:00Z'))
+                    .then((result: Child) => {
+                        assert.isUndefined(result)
+                    })
+            })
+        })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                return childRepo.updateLastSync(defaultChild.id!, new Date('2020-01-25T14:40:00Z'))
+                    .catch(err => {
+                        assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
+                        assert.propertyVal(err, 'description', 'Please try again later...')
+                    })
+            })
+        })
+    })
+
+    describe('findByLastSync(numberOfDays: number)', () => {
+        context('when there is at least one child in the database who synchronized their data up to 3 days ago',
+            () => {
+                it('should return how many children there are in the database with these characteristics',
+                    () => {
+                        sinon
+                            .mock(modelFake)
+                            .expects('find')
+                            .withArgs()
+                            .chain('exec')
+                            .resolves([new ChildMock()])
+
+                        return childRepo.findByLastSync(3)
+                            .then((result: Array<Child>) => {
+                                assert.equal(result.length, 1)
+                            })
+                    })
+            })
+
+        context('when a database error occurs', () => {
+            it('should throw a RepositoryException', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('find')
+                    .withArgs()
+                    .chain('exec')
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
+
+                return childRepo.findByLastSync(3)
+                    .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })

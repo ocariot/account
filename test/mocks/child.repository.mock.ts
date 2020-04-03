@@ -72,4 +72,8 @@ export class ChildRepositoryMock implements IChildRepository {
         child.fitbit_status = FitbitStatus.VALID_TOKEN
         return Promise.resolve(child)
     }
+
+    public findByLastSync(numberOfDays: number): Promise<Array<Child>> {
+        return Promise.resolve([new ChildMock()])
+    }
 }
