@@ -145,7 +145,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
 
         // Sets the query and search
         const query: IQuery = new Query()
-        query.filters = { 'last_sync': { $lt: searchDateStr } }
+        query.filters = { type: UserType.CHILD, last_sync: { $lt: searchDateStr } }
 
         return super.find(query)
     }

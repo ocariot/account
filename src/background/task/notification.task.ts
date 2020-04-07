@@ -11,14 +11,14 @@ import { Child } from '../../application/domain/model/child'
 @injectable()
 export class NotificationTask implements IBackgroundTask {
     private job: any
-    private numberOfDays: number = Number(process.env.NUMBER_OF_DAYS) || Default.NUMBER_OF_DAYS
+    private numberOfDays: number = Default.NUMBER_OF_DAYS
 
     constructor(
         @inject(Identifier.RABBITMQ_EVENT_BUS) private readonly _eventBus: IEventBus,
         @inject(Identifier.CHILD_REPOSITORY) private readonly _childRepository: IChildRepository,
         @inject(Identifier.LOGGER) private readonly _logger: ILogger
     ) {
-        this.job = new cron.CronJob(`${process.env.EXPRESSION_AUTO_NOTIFICATION || Default.EXPRESSION_AUTO_NOTIFICATION}`,
+        this.job = new cron.CronJob(`${Default.EXPRESSION_AUTO_NOTIFICATION}`,
             () => this.checkInactivity())
     }
 
@@ -33,13 +33,32 @@ export class NotificationTask implements IBackgroundTask {
     }
 
     private sendNotification(children: Array<Child>): void {
+        for (const child of children) {
+            this._eventBus.bus.pubSendNotification(this.buildNotification(child))
+                .then(() => {
+                    this._logger.info('\'monitoring:miss_child_data\' notification sent')
+                })
+                .catch(err => {
+                    this._logger.error(`An error occurred while trying to send a notification about the Child with ID: `
+                        .concat(`${child.id}. ${err.message}`))
+                })
+        }
+    }
+
+    private buildNotification(child: Child): any {
         try {
-            for (const child of children) {
-                this._logger.info(`OCARIoT has not received new data from ${child.username} in the last `
-                    .concat(`${this.numberOfDays} days!`))
+            const now = new Date()
+            const last_sync: Date = child.last_sync!
+            const diff = Math.abs(now.getTime() - last_sync.getTime())
+            const calc_days_since = Math.trunc(diff / (1000 * 60 * 60 * 24))
+
+            return {
+                notification_type: 'monitoring:miss_child_data',
+                id: child.id,
+                days_since: calc_days_since
             }
         } catch (err) {
-            this._logger.error(`An error occurred while trying to send a notification. ${err.message}`)
+            this._logger.error(`An error occurred while trying to build the notification. ${err.message}`)
         }
     }
 
