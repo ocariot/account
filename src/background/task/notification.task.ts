@@ -48,10 +48,13 @@ export class NotificationTask implements IBackgroundTask {
 
     private buildNotification(child: Child): any {
         try {
-            const now = new Date()
-            const last_sync: Date = child.last_sync!
-            const diff = Math.abs(now.getTime() - last_sync.getTime())
-            const calc_days_since = Math.trunc(diff / (1000 * 60 * 60 * 24))
+            let calc_days_since = this.numberOfDays
+            if (child.last_sync) {
+                const now = new Date()
+                const last_sync: Date = child.last_sync
+                const diff = Math.abs(now.getTime() - last_sync.getTime())
+                calc_days_since = Math.trunc(diff / (1000 * 60 * 60 * 24))
+            }
 
             return {
                 notification_type: 'monitoring:miss_child_data',

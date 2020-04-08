@@ -140,12 +140,12 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
         const searchDate: Date = new Date()
         searchDate.setDate(searchDate.getDate() - numberOfDays)
 
-        // Sets the date in string format
-        const searchDateStr: string = new Date(searchDate.getTime() - (searchDate.getTimezoneOffset() * 60000)).toISOString()
-
         // Sets the query and search
         const query: IQuery = new Query()
-        query.filters = { type: UserType.CHILD, last_sync: { $lt: searchDateStr } }
+        query.filters = {
+            type: UserType.CHILD,
+            $or: [ { last_sync: { $lt: searchDate.toISOString() } }, { last_sync: { $exists: false } } ]
+        }
 
         return super.find(query)
     }
