@@ -34,7 +34,8 @@ export class NotificationTask implements IBackgroundTask {
 
     private sendNotification(children: Array<Child>): void {
         for (const child of children) {
-            this._eventBus.bus.pubSendNotification(this.buildNotification(child))
+            this._eventBus.bus
+                .pubSendNotification(this.buildNotification(child))
                 .then(() => {
                     this._logger.info('\'monitoring:miss_child_data\' notification sent')
                 })
