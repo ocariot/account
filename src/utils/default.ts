@@ -58,7 +58,7 @@ export abstract class Default {
     public static readonly EXPRESSION_AUTO_NOTIFICATION: string = '0 0 9 * * *'
 
     // The number of days to be used as a parameter for checking the need to send one or more notifications.
-    public static readonly NUMBER_OF_DAYS: number = 9
+    public static readonly NUMBER_OF_DAYS: number = 7
 
     /**
      * User scopes

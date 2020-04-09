@@ -4,21 +4,21 @@ import { Identifier } from '../../di/identifiers'
 import { IEventBus } from '../../infrastructure/port/eventbus.interface'
 import { ILogger } from '../../utils/custom.logger'
 import cron from 'cron'
-import { Default } from '../../utils/default'
 import { IChildRepository } from '../../application/port/child.repository.interface'
 import { Child } from '../../application/domain/model/child'
 
 @injectable()
 export class NotificationTask implements IBackgroundTask {
     private job: any
-    private numberOfDays: number = Default.NUMBER_OF_DAYS
 
     constructor(
         @inject(Identifier.RABBITMQ_EVENT_BUS) private readonly _eventBus: IEventBus,
         @inject(Identifier.CHILD_REPOSITORY) private readonly _childRepository: IChildRepository,
-        @inject(Identifier.LOGGER) private readonly _logger: ILogger
+        @inject(Identifier.LOGGER) private readonly _logger: ILogger,
+        private readonly numberOfDays: number,
+        private readonly expression_auto_notification: string
     ) {
-        this.job = new cron.CronJob(`${Default.EXPRESSION_AUTO_NOTIFICATION}`,
+        this.job = new cron.CronJob(`${this.expression_auto_notification}`,
             () => this.checkInactivity())
     }
 

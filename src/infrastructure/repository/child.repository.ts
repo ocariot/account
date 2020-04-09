@@ -137,8 +137,7 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
      */
     public findByLastSync(numberOfDays: number): Promise<Array<Child>> {
         // Sets the date object to be used in the search
-        const searchDate: Date = new Date()
-        searchDate.setDate(searchDate.getDate() - numberOfDays)
+        const searchDate: Date = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * numberOfDays))
 
         // Sets the query and search
         const query: IQuery = new Query()
