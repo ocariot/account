@@ -16,11 +16,6 @@ const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
 const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
 const childRepository: IChildRepository = DIContainer.get(Identifier.CHILD_REPOSITORY)
 const logger: ILogger = DIContainer.get(Identifier.LOGGER)
-// The notification task will run the job to check the children's inactivity for 10 days or more,
-// in the 0 second of each minute.
-const notificationTask: IBackgroundTask = new NotificationTask(
-    rabbitmq, childRepository, logger, 10, '0 * * * * *'
-)
 
 describe('NOTIFICATION TASK', () => {
     // Timeout function for control of execution
@@ -48,8 +43,6 @@ describe('NOTIFICATION TASK', () => {
             await deleteAllUsers()
 
             await dbConnection.dispose()
-
-            await notificationTask.stop()
         } catch (err) {
             throw new Error('Failure on NotificationTask test: ' + err.message)
         }
@@ -60,6 +53,13 @@ describe('NOTIFICATION TASK', () => {
      */
     describe('SUBSCRIBE SendNotificationEvent', () => {
         context('when receiving multiple SendNotificationEvent successfully', () => {
+            // The notification task will run the job to check the environments inactivity for 10 days or more.
+            // Without using a cron expression to provide the necessary freedom for the test, since its functioning
+            // is not the object of the test.
+            const notificationTask: IBackgroundTask = new NotificationTask(
+                rabbitmq, childRepository, logger, 10
+            )
+
             before(async () => {
                 try {
                     await deleteAllUsers()
@@ -120,9 +120,8 @@ describe('NOTIFICATION TASK', () => {
 
                     notificationTask.run()
 
-                    // Wait at least 59 seconds to be able to execute the first test case because the notification will
-                    // always be executed only in the second 0 of every minute
-                    await timeout(59000)
+                    // Wait at least 2 seconds to be able to execute the first test case
+                    await timeout(2000)
                 } catch (err) {
                     throw new Error('Failure on Subscribe SendNotificationEvent test: ' + err.message)
                 }
@@ -151,6 +150,13 @@ describe('NOTIFICATION TASK', () => {
 
         context('when receiving multiple SendNotificationEvent successfully (without MongoDB connection, at first)',
             () => {
+                // The notification task will run the job to check the environments inactivity for 10 days or more.
+                // Without using a cron expression to provide the necessary freedom for the test, since its functioning
+                // is not the object of the test.
+                const notificationTask: IBackgroundTask = new NotificationTask(
+                    rabbitmq, childRepository, logger, 10
+                )
+
                 before(async () => {
                     try {
                         await deleteAllUsers()
@@ -215,9 +221,8 @@ describe('NOTIFICATION TASK', () => {
                         // Run the Notification task
                         notificationTask.run()
 
-                        // Wait at least 59 seconds to be able to connect MongoDB again and execute the first test
-                        // case because the notification will always be executed only in the second 0 of every minute
-                        await timeout(59000)
+                        // Wait at least 3 seconds to be able to execute the first test case
+                        await timeout(1000)
 
                         await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
