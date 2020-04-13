@@ -21,14 +21,16 @@ export class NotificationTask implements IBackgroundTask {
     }
 
     public run(): void {
-        if (this.expression_auto_notification) {
-            this.job = new cron.CronJob(`${this.expression_auto_notification}`, () => this.checkInactivity())
-            this.job.start()
+        try {
+            if (this.expression_auto_notification) {
+                this.job = new cron.CronJob(`${this.expression_auto_notification}`, () => this.checkInactivity())
+                this.job.start()
+            } else this.checkInactivity()
+
             this._logger.debug('Notification task started successfully!')
-            return
+        } catch (err) {
+            this._logger.error(`An error occurred initializing the Notification task. ${err.message}`)
         }
-        this.checkInactivity()
-        this._logger.debug('Notification task started successfully!')
     }
 
     public stop(): Promise<void> {

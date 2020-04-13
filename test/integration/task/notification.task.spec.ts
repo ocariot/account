@@ -54,8 +54,8 @@ describe('NOTIFICATION TASK', () => {
     describe('SUBSCRIBE SendNotificationEvent', () => {
         context('when receiving multiple SendNotificationEvent successfully', () => {
             // The notification task will run the job to check the environments inactivity for 10 days or more.
-            // Without using a cron expression to provide the necessary freedom for the test, since its functioning
-            // is not the object of the test.
+            // Without using a cron expression to provide the necessary freedom for the test, since the functioning
+            // of the cron lib is not the object of the test.
             const notificationTask: IBackgroundTask = new NotificationTask(
                 rabbitmq, childRepository, logger, 10
             )
@@ -118,7 +118,7 @@ describe('NOTIFICATION TASK', () => {
                     // Wait a while after registering children
                     await timeout(1000)
 
-                    notificationTask.run()
+                    await notificationTask.run()
 
                     // Wait at least 2 seconds to be able to execute the first test case
                     await timeout(2000)
@@ -139,7 +139,8 @@ describe('NOTIFICATION TASK', () => {
                 let count = 0
                 rabbitmq.bus
                     .subSendNotification(() => count++)
-                    .then(() => {
+                    .then(async () => {
+                        await timeout(3000)
                         expect(count).to.eql(4)
                         done()
                     })
@@ -154,7 +155,7 @@ describe('NOTIFICATION TASK', () => {
                 // Without using a cron expression to provide the necessary freedom for the test, since its functioning
                 // is not the object of the test.
                 const notificationTask: IBackgroundTask = new NotificationTask(
-                    rabbitmq, childRepository, logger, 10
+                    rabbitmq, childRepository, logger, 7
                 )
 
                 before(async () => {
@@ -175,7 +176,7 @@ describe('NOTIFICATION TASK', () => {
 
                         const child4: Child = new ChildMock()
                         child4.username = 'child_mock4'
-                        child4.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 7))
+                        child4.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 7) + (300000))
 
                         const child5: Child = new ChildMock()
                         child5.username = 'child_mock5'
@@ -195,7 +196,7 @@ describe('NOTIFICATION TASK', () => {
 
                         const child9: Child = new ChildMock()
                         child9.username = 'child_mock9'
-                        child9.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 10) + (300000))
+                        child9.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 10))
 
                         const child10: Child = new ChildMock()
                         child10.username = 'child_mock10'
@@ -204,12 +205,12 @@ describe('NOTIFICATION TASK', () => {
                         await childRepository.create(child1) // Does not generate notification
                         await childRepository.create(child2) // The same as above
                         await childRepository.create(child3)
-                        await childRepository.create(child4) // Does not generate notification
+                        await childRepository.create(child4) // Doesn't generate notification (last_sync at the limit)
                         await childRepository.create(child5)
                         await childRepository.create(child6)
-                        await childRepository.create(child7) // Does not generate notification
-                        await childRepository.create(child8) // The same as above (last_sync equal to current date)
-                        await childRepository.create(child9) // The same as above (last_sync at the limit to not notify)
+                        await childRepository.create(child7)
+                        await childRepository.create(child8) // Does not generate notification (last_sync equal to current date)
+                        await childRepository.create(child9)
                         await childRepository.create(child10)
 
                         // Wait a while after registering children
@@ -221,12 +222,10 @@ describe('NOTIFICATION TASK', () => {
                         // Run the Notification task
                         notificationTask.run()
 
-                        // Wait at least 3 seconds to be able to execute the first test case
-                        await timeout(1000)
-
                         await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
-                        await timeout(2000)
+                        // Wait at least 3 seconds to be able to execute the first test case
+                        await timeout(3000)
                     } catch (err) {
                         throw new Error('Failure on Subscribe SendNotificationEvent test: ' + err.message)
                     }
@@ -244,8 +243,9 @@ describe('NOTIFICATION TASK', () => {
                     let count = 0
                     rabbitmq.bus
                         .subSendNotification(() => count++)
-                        .then(() => {
-                            expect(count).to.eql(4)
+                        .then(async () => {
+                            await timeout(3000)
+                            expect(count).to.eql(6)
                             done()
                         })
                         .catch(done)
