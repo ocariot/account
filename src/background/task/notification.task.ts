@@ -73,7 +73,7 @@ export class NotificationTask implements IBackgroundTask {
     }
 
     private checkInactivity(): void {
-        this._childRepository.findByLastSync(this.numberOfDays)
+        this._childRepository.findInactiveChildren(this.numberOfDays)
             .then(result => {
                 if (result.length) this.sendNotification(result)
             })

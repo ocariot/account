@@ -55,12 +55,12 @@ export interface IChildRepository extends IRepository<Child> {
     updateLastSync(childId: string, lastSync: Date): Promise<Child>
 
     /**
-     * Returns the total number of children who had their data synchronized in a range of days (up to N days ago).
+     * Returns the children who had their data synchronized in a range of days (up to N days ago).
      *
      * @param numberOfDays Number of days used to search for children who had their data synchronized in a range of days
      *                     (up to {numberOfDays} ago).
      * @return {Promise<Array<Child>>}
      * @throws {RepositoryException}
      */
-    findByLastSync(numberOfDays: number): Promise<Array<Child>>
+    findInactiveChildren(numberOfDays: number): Promise<Array<Child>>
 }

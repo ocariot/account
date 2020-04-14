@@ -73,7 +73,7 @@ export class ChildRepositoryMock implements IChildRepository {
         return Promise.resolve(child)
     }
 
-    public findByLastSync(numberOfDays: number): Promise<Array<Child>> {
+    public findInactiveChildren(numberOfDays: number): Promise<Array<Child>> {
         return Promise.resolve([new ChildMock()])
     }
 }

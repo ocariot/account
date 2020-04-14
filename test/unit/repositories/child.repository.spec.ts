@@ -666,7 +666,7 @@ describe('Repositories: Child', () => {
                             .chain('exec')
                             .resolves([new ChildMock()])
 
-                        return childRepo.findByLastSync(3)
+                        return childRepo.findInactiveChildren(3)
                             .then((result: Array<Child>) => {
                                 assert.equal(result.length, 1)
                             })
@@ -685,7 +685,7 @@ describe('Repositories: Child', () => {
                         description: 'Please try again later...'
                     })
 
-                return childRepo.findByLastSync(3)
+                return childRepo.findInactiveChildren(3)
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
