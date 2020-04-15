@@ -98,25 +98,13 @@ describe('NOTIFICATION TASK', () => {
             })
 
             it('should receive seven SendNotificationEvent objects successfully when there are seven children ' +
-                'with outdated last_sync (without MongoDB connection, at first)', (done) => {
+                'with outdated last_sync', (done) => {
                 // This time it runs the task checking children's inactivity for 7 days or more.
                 const notificationTask: IBackgroundTask = new NotificationTask(
                     rabbitmq, childRepository, logger, 7
                 )
 
-                // Closing the MongoDB connection and starting the task
-                dbConnection.dispose()
-                    .then(() => {
-                        notificationTask.run()
-                    })
-                    .catch(done)
-
-                // Raising the MongoDB connection again and performing the test
-                setTimeout(() => {
-                    dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                        .then()
-                        .catch(done)
-                }, 1000)
+                notificationTask.run()
 
                 let count = 0
                 rabbitmq.bus
@@ -132,7 +120,7 @@ describe('NOTIFICATION TASK', () => {
                     } catch (err) {
                         done(err)
                     }
-                }, 5000)
+                }, 4000)
             })
         })
 
@@ -140,14 +128,13 @@ describe('NOTIFICATION TASK', () => {
             before(async () => {
                 try {
                     await deleteAllUsers()
-
                     await createChildrenToNotNotify()
                 } catch (err) {
                     throw new Error('Failure on Subscribe SendNotificationEvent test: ' + err.message)
                 }
             })
 
-            after(async () => {
+            afterEach(async () => {
                 try {
                     await deleteAllUsers()
                 } catch (err) {
@@ -157,30 +144,30 @@ describe('NOTIFICATION TASK', () => {
 
             it('should not receive any SendNotificationEvent object since all children have the last_sync updated',
                 (done) => {
-                const notificationTask: IBackgroundTask = new NotificationTask(
-                    rabbitmq, childRepository, logger, 10
-                )
+                    const notificationTask: IBackgroundTask = new NotificationTask(
+                        rabbitmq, childRepository, logger, 10
+                    )
 
-                notificationTask.run()
+                    notificationTask.run()
 
-                // Subscribing SendNotificationEvent events
-                let count = 0
-                rabbitmq.bus
-                    .subSendNotification(() => count++)
-                    .then()
-                    .catch(done)
+                    // Subscribing SendNotificationEvent events
+                    let count = 0
+                    rabbitmq.bus
+                        .subSendNotification(() => count++)
+                        .then()
+                        .catch(done)
 
-                // Performing the test
-                setTimeout(async () => {
-                    try {
-                        expect(count).to.eql(0)
-                        await notificationTask.stop()
-                        done()
-                    } catch (err) {
-                        done(err)
-                    }
-                }, 4000)
-            })
+                    // Performing the test
+                    setTimeout(async () => {
+                        try {
+                            expect(count).to.eql(0)
+                            await notificationTask.stop()
+                            done()
+                        } catch (err) {
+                            done(err)
+                        }
+                    }, 4000)
+                })
 
             it('should not receive any SendNotificationEvent object as there are no children in the repository',
                 (done) => {
@@ -188,24 +175,7 @@ describe('NOTIFICATION TASK', () => {
                         rabbitmq, childRepository, logger, 7
                     )
 
-                    // Removing all children created in the 'before' block
-                    deleteAllUsers()
-                        .then(() => {
-                            // Closing the MongoDB connection and starting the task
-                            dbConnection.dispose()
-                                .then(() => {
-                                    notificationTask.run()
-                                })
-                                .catch(done)
-                        })
-                        .catch(done)
-
-                    // Raising the MongoDB connection again and performing the test
-                    setTimeout(() => {
-                        dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
-                            .then()
-                            .catch(done)
-                    }, 1000)
+                    notificationTask.run()
 
                     let count = 0
                     rabbitmq.bus
@@ -221,7 +191,7 @@ describe('NOTIFICATION TASK', () => {
                         } catch (err) {
                             done(err)
                         }
-                    }, 5000)
+                    }, 4000)
                 })
         })
     })
