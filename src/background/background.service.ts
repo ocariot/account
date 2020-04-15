@@ -8,9 +8,15 @@ import fs from 'fs'
 import { IEventBus } from '../infrastructure/port/eventbus.interface'
 import { Default } from '../utils/default'
 import { ILogger } from '../utils/custom.logger'
+import { IChildRepository } from '../application/port/child.repository.interface'
+import { NotificationTask } from './task/notification.task'
 
 @injectable()
 export class BackgroundService {
+    private _notificationTask: IBackgroundTask = new NotificationTask(
+        this._eventBus, DIContainer.get<IChildRepository>(Identifier.CHILD_REPOSITORY), this._logger,
+        Default.NUMBER_OF_DAYS, Default.EXPRESSION_AUTO_NOTIFICATION
+    )
 
     constructor(
         @inject(Identifier.MONGODB_CONNECTION) private readonly _mongodb: IDatabase,
@@ -56,6 +62,9 @@ export class BackgroundService {
             // All resource provider
             this._providerTask.run()
 
+            // Notification task
+            this._notificationTask.run()
+
             /**
              * Create keys fot JWT
              */
@@ -68,7 +77,7 @@ export class BackgroundService {
     public async stopServices(): Promise<void> {
         try {
             await this._mongodb.dispose()
-            await this._subscribeTask.stop()
+            await this._notificationTask.stop()
         } catch (err) {
             return Promise.reject(new Error(`Error stopping MongoDB! ${err.message}`))
         }

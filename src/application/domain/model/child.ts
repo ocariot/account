@@ -16,7 +16,6 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     private _age_calc_date?: string // Date the age was registered.
     private _last_sync?: Date // Last synchronization time according to the UTC.
     private _fitbit_status?: string // Fitbit status value.
-    private _cve_status?: string // CVE status value.
 
     constructor() {
         super()
@@ -42,7 +41,6 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
             'notifications:create'
         ]
         this.fitbit_status = 'none'
-        this.cve_status = 'none'
     }
 
     get gender(): string | undefined {
@@ -85,14 +83,6 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         this._fitbit_status = value
     }
 
-    get cve_status(): string | undefined {
-        return this._cve_status
-    }
-
-    set cve_status(value: string | undefined) {
-        this._cve_status = value
-    }
-
     public convertDatetimeString(value: string): Date {
         DatetimeValidator.validate(value)
         return new Date(value)
@@ -125,8 +115,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
                 age: this.age,
                 age_calc_date: this.age_calc_date,
                 last_sync: this.last_sync,
-                fitbit_status: this.fitbit_status,
-                cve_status: this.cve_status
+                fitbit_status: this.fitbit_status
             }
         }
     }

@@ -6,5 +6,4 @@ export class ChildEntity extends UserEntity {
     public age_calc_date?: string  // Date the age was registered.
     public last_sync?: Date // Last synchronization time according to the UTC.
     public fitbit_status?: string // Fitbit status value.
-    public cve_status?: string // CVE status value.
 }
