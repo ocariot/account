@@ -7,7 +7,6 @@ import { Default } from '../../../src/utils/default'
 import { IDatabase } from '../../../src/infrastructure/port/database.interface'
 import { Query } from '../../../src/infrastructure/repository/query/query'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
-import { InstitutionRepoModel } from '../../../src/infrastructure/database/schema/institution.schema'
 import { IChildRepository } from '../../../src/application/port/child.repository.interface'
 import { IQuery } from '../../../src/application/port/query.interface'
 import { Child, FitbitStatus } from '../../../src/application/domain/model/child'
@@ -31,7 +30,6 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
         try {
             await dbConnection.connect(process.env.MONGODB_URI_TEST || Default.MONGODB_URI_TEST)
 
-            await deleteAllInstitutions()
             await deleteAllUsers()
 
             await rabbitmq.initialize(process.env.RABBITMQ_URI || Default.RABBITMQ_URI,
@@ -48,7 +46,6 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
     // Stop DB connection and SubscribeEventBusTask
     after(async () => {
         try {
-            await deleteAllInstitutions()
             await deleteAllUsers()
 
             await dbConnection.dispose()
@@ -65,7 +62,6 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
     describe('SUBSCRIBE FitbitLastSyncEvent', () => {
         before(async () => {
             try {
-                await deleteAllInstitutions()
                 await deleteAllUsers()
             } catch (err) {
                 throw new Error('Failure on Subscribe FitbitLastSyncEvent test: ' + err.message)
@@ -74,7 +70,6 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
         // Delete all activities from database after each test case
         afterEach(async () => {
             try {
-                await deleteAllInstitutions()
                 await deleteAllUsers()
             } catch (err) {
                 throw new Error('Failure on Subscribe FitbitLastSyncEvent test: ' + err.message)
@@ -166,7 +161,6 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
     describe('SUBSCRIBE FitbitAuthErrorEvent', () => {
         before(async () => {
             try {
-                await deleteAllInstitutions()
                 await deleteAllUsers()
             } catch (err) {
                 throw new Error('Failure on Subscribe FitbitAuthErrorEvent test: ' + err.message)
@@ -175,7 +169,6 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
         // Delete all activities from database after each test case
         afterEach(async () => {
             try {
-                await deleteAllInstitutions()
                 await deleteAllUsers()
             } catch (err) {
                 throw new Error('Failure on Subscribe FitbitAuthErrorEvent test: ' + err.message)
@@ -392,7 +385,6 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
     describe('SUBSCRIBE FitbitRevokeEvent', () => {
         before(async () => {
             try {
-                await deleteAllInstitutions()
                 await deleteAllUsers()
             } catch (err) {
                 throw new Error('Failure on Subscribe FitbitRevokeEvent test: ' + err.message)
@@ -401,7 +393,6 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
         // Delete all activities from database after each test case
         afterEach(async () => {
             try {
-                await deleteAllInstitutions()
                 await deleteAllUsers()
             } catch (err) {
                 throw new Error('Failure on Subscribe FitbitRevokeEvent test: ' + err.message)
@@ -477,8 +468,4 @@ describe('SUBSCRIBE EVENT BUS TASK', () => {
 
 async function deleteAllUsers() {
     return UserRepoModel.deleteMany({})
-}
-
-async function deleteAllInstitutions() {
-    return InstitutionRepoModel.deleteMany({})
 }

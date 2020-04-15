@@ -3,19 +3,6 @@ import { IOcariotRabbitMQClient } from '@ocariot/rabbitmq-client-node/lib'
 
 export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
     private eventBus: IOcariotRabbitMQClient = {
-        getFoods(childId: string, dateStart: string, dateEnd: string): Promise<any> {
-            return Promise.resolve({})
-        }, provideFoods(listener: (childId: string, dateStart: string, dateEnd: string) => any): Promise<void> {
-            return Promise.resolve()
-        }, pubSaveFood(food: any): Promise<void> {
-            return Promise.resolve()
-        }, pubUpdateFood(food: any): Promise<void> {
-            return Promise.resolve()
-        }, subSaveFood(callback: (message: any) => void): Promise<void> {
-            return Promise.resolve()
-        }, subUpdateFood(callback: (message: any) => void): Promise<void> {
-            return Promise.resolve()
-        },
         close(): Promise<void> {
             return Promise.resolve()
         },
@@ -68,6 +55,12 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
             return Promise.resolve({})
         },
         getWeights(query: string): Promise<any> {
+            return Promise.resolve({})
+        },
+        getFoods(childId: string, dateStart: string, dateEnd: string): Promise<any> {
+            return Promise.resolve({})
+        },
+        getProcessedDataChildren(childId?: string, callback?: (err: any, children: any) => void): any {
             return Promise.resolve({})
         },
         logger(level: string): void {
@@ -125,6 +118,12 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
             return Promise.resolve()
         },
         provideWeights(listener: (query: string) => any): Promise<void> {
+            return Promise.resolve()
+        },
+        provideFoods(listener: (childId: string, dateStart: string, dateEnd: string) => any): Promise<void> {
+            return Promise.resolve()
+        },
+        provideProcessedDataChildren(listener: (childId?: string) => any): Promise<void> {
             return Promise.resolve()
         },
         pub(routingKey: string, body: any): Promise<void> {
@@ -208,6 +207,15 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
         pubFitbitRevoke(fitbit: any): Promise<void> {
             return Promise.resolve()
         },
+        pubSaveFood(food: any): Promise<void> {
+            return Promise.resolve()
+        },
+        pubUpdateFood(food: any): Promise<void> {
+            return Promise.resolve()
+        },
+        pubSendNotification(notification: any): Promise<void> {
+            return Promise.resolve()
+        },
         sub(routingKey: string, callback: (message: any) => void): Promise<void> {
             return Promise.resolve()
         },
@@ -287,6 +295,15 @@ export class ConnectionFactoryRabbitMQMock implements IConnectionFactory {
             return Promise.resolve()
         },
         subFitbitRevoke(callback: (message: any) => void): Promise<void> {
+            return Promise.resolve()
+        },
+        subSaveFood(callback: (message: any) => void): Promise<void> {
+            return Promise.resolve()
+        },
+        subUpdateFood(callback: (message: any) => void): Promise<void> {
+            return Promise.resolve()
+        },
+        subSendNotification(callback: (message: any) => void): Promise<void> {
             return Promise.resolve()
         }
     }

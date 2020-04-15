@@ -85,7 +85,6 @@ export class ChildrenGroup extends Entity implements IJSONSerializable, IJSONDes
                 if (item.last_sync !== undefined) child.last_sync = item.last_sync
                 if (item.last_login !== undefined) child.last_login = item.last_login
                 child.fitbit_status = item.fitbit_status
-                child.cve_status = item.cve_status
                 return child
             })
             else this.children = json.children

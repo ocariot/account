@@ -126,4 +126,27 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
                 .catch(err => reject(this.mongoDBErrorListener(err)))
         })
     }
+
+    /**
+     * Returns the children who had their data synchronized in a range of days (up to N days ago).
+     *
+     * @param numberOfDays Number of days used to search for children who had their data synchronized in a range of days
+     *                     (up to {numberOfDays} ago).
+     * @return {Promise<Array<Child>>}
+     * @throws {RepositoryException}
+     */
+    public findInactiveChildren(numberOfDays: number): Promise<Array<Child>> {
+        // Sets the date object to be used in the search
+        const searchDate: Date = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * numberOfDays))
+
+        // Sets the query and search
+        const query: IQuery = new Query()
+        query.pagination.limit = Number.MAX_SAFE_INTEGER
+        query.filters = {
+            type: UserType.CHILD,
+            $or: [ { last_sync: { $lt: searchDate.toISOString() } }, { last_sync: { $exists: false } } ]
+        }
+
+        return super.find(query)
+    }
 }

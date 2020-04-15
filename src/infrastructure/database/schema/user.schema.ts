@@ -39,11 +39,6 @@ const userSchema = new Mongoose.Schema({
             readonly: true,
             default: 'none'
         },
-        cve_status: {
-            type: String,
-            readonly: true,
-            default: 'none'
-        },
         scopes: [{ type: String }] // Scope that signal the types of access the user has.
     },
     {
