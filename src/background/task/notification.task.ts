@@ -40,35 +40,42 @@ export class NotificationTask implements IBackgroundTask {
 
     private sendNotification(children: Array<Child>): void {
         for (const child of children) {
-            this._eventBus.bus
-                .pubSendNotification(this.buildNotification(child))
-                .then(() => {
-                    this._logger.info('\'monitoring:miss_child_data\' notification sent')
-                })
-                .catch(err => {
-                    this._logger.error(`An error occurred while trying to send a notification about the Child with ID: `
-                        .concat(`${child.id}. ${err.message}`))
-                })
+            let notification
+
+            try {
+                notification = this.buildNotification(child)
+            } catch (err) {
+                this._logger.error(`An error occurred while trying to build the notification. ${err.message}`)
+            }
+
+            if (notification) {
+                this._eventBus.bus
+                    .pubSendNotification(notification)
+                    .then(() => {
+                        this._logger.info('\'monitoring:miss_child_data\' notification sent')
+                    })
+                    .catch(err => {
+                        this._logger.error(`An error occurred while trying to send a notification about the Child with ID: `
+                            .concat(`${child.id}. ${err.message}`))
+                    })
+            }
         }
     }
 
     private buildNotification(child: Child): any {
-        try {
-            let calc_days_since = this.numberOfDays
-            if (child.last_sync) {
-                const now = new Date()
-                const last_sync: Date = child.last_sync
-                const diff = Math.abs(now.getTime() - last_sync.getTime())
-                calc_days_since = Math.trunc(diff / (1000 * 60 * 60 * 24))
-            }
+        let calc_days_since = this.numberOfDays
 
-            return {
-                notification_type: 'monitoring:miss_child_data',
-                id: child.id,
-                days_since: calc_days_since
-            }
-        } catch (err) {
-            this._logger.error(`An error occurred while trying to build the notification. ${err.message}`)
+        if (child.last_sync) {
+            const now = new Date()
+            const last_sync: Date = child.last_sync
+            const diff = Math.abs(now.getTime() - last_sync.getTime())
+            calc_days_since = Math.trunc(diff / (1000 * 60 * 60 * 24))
+        }
+
+        return {
+            notification_type: 'monitoring:miss_child_data',
+            id: child.id,
+            days_since: calc_days_since
         }
     }
 
