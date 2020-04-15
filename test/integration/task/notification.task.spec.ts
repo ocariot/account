@@ -94,7 +94,7 @@ describe('NOTIFICATION TASK', () => {
                     } catch (err) {
                         done(err)
                     }
-                }, 4000)
+                }, 5000)
             })
 
             it('should receive seven SendNotificationEvent objects successfully when there are seven children ' +
@@ -120,7 +120,7 @@ describe('NOTIFICATION TASK', () => {
                     } catch (err) {
                         done(err)
                     }
-                }, 4000)
+                }, 5000)
             })
         })
 
