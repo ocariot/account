@@ -66,7 +66,9 @@ describe('Mappers: EducatorEntity', () => {
                 'gamificationprofile:read',
                 'gamificationprofile:update',
                 'external:sync',
-                'notifications:create'
+                'notifications:create',
+                'notifications:read',
+                'notifications:delete'
             ],
         username: 'educator_mock',
         password: 'educator_password',

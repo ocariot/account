@@ -66,7 +66,9 @@ describe('Mappers: FamilyEntity', () => {
             'gamificationprofile:read',
             'gamificationprofile:update',
             'external:sync',
-            'notifications:create'
+            'notifications:create',
+            'notifications:read',
+            'notifications:delete'
         ],
         username: 'family_mock',
         password: 'family_password',

@@ -62,8 +62,10 @@ export class Educator extends User implements IJSONSerializable, IJSONDeserializ
             'gamificationprofile:read',
             'gamificationprofile:update',
             'external:sync',
-            'notifications:create'
-    ]
+            'notifications:create',
+            'notifications:read',
+            'notifications:delete'
+        ]
     }
 
     get children_groups(): Array<ChildrenGroup> | undefined {
