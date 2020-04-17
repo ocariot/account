@@ -63,7 +63,9 @@ export class Family extends User implements IJSONSerializable, IJSONDeserializab
             'gamificationprofile:read',
             'gamificationprofile:update',
             'external:sync',
-            'notifications:create'
+            'notifications:create',
+            'notifications:read',
+            'notifications:delete'
         ]
     }
 

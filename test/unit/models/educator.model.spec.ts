@@ -60,7 +60,9 @@ describe('Models: Educator', () => {
             'gamificationprofile:read',
             'gamificationprofile:update',
             'external:sync',
-            'notifications:create'
+            'notifications:create',
+            'notifications:read',
+            'notifications:delete'
         ]
     }
 

@@ -42,7 +42,9 @@ export class HealthProfessional extends Educator {
             'missions:read',
             'gamificationprofile:read',
             'external:sync',
-            'notifications:create'
+            'notifications:create',
+            'notifications:read',
+            'notifications:delete'
         ]
     }
 }
