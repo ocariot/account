@@ -114,7 +114,9 @@ export abstract class Default {
         'environment:read',
         'missions:read',
         'gamificationprofile:read',
-        'notifications:create'
+        'notifications:create',
+        'notifications:read',
+        'notifications:delete'
     ]
 
     // Application
@@ -180,7 +182,9 @@ export abstract class Default {
         'gamificationprofile:read',
         'gamificationprofile:update',
         'external:sync',
-        'notifications:create'
+        'notifications:create',
+        'notifications:read',
+        'notifications:delete'
     ]
 
     // Educator
@@ -230,7 +234,9 @@ export abstract class Default {
         'gamificationprofile:read',
         'gamificationprofile:update',
         'external:sync',
-        'notifications:create'
+        'notifications:create',
+        'notifications:read',
+        'notifications:delete'
     ]
 
     // Family
@@ -281,7 +287,9 @@ export abstract class Default {
         'gamificationprofile:read',
         'gamificationprofile:update',
         'external:sync',
-        'notifications:create'
+        'notifications:create',
+        'notifications:read',
+        'notifications:delete'
     ]
 
     // Health Professional
@@ -317,6 +325,8 @@ export abstract class Default {
         'missions:read',
         'gamificationprofile:read',
         'external:sync',
-        'notifications:create'
+        'notifications:create',
+        'notifications:read',
+        'notifications:delete'
     ]
 }
