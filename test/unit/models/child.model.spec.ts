@@ -11,28 +11,6 @@ describe('Models: Child', () => {
         gender: 'male',
         age: 10,
         institution: new ObjectID(),
-        scopes: [
-            'children:read',
-            'institutions:read',
-            'physicalactivities:create',
-            'physicalactivities:read',
-            'sleep:create',
-            'sleep:read',
-            'measurements:create',
-            'measurements:read',
-            'environment:read',
-            'foodtracking:create',
-            'foodtracking:read',
-            'foodtracking:update',
-            'foodtracking:delete',
-            'missions:read',
-            'gamificationprofile:read',
-            'gamificationprofile:update',
-            'external:sync',
-            'notifications:create',
-            'notifications:read',
-            'notifications:delete'
-        ]
     }
 
     describe('fromJSON()', () => {
@@ -46,13 +24,12 @@ describe('Models: Child', () => {
                 assert.propertyVal(result, 'type', childJSON.type)
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
-                assert.deepPropertyVal(result, 'scopes', childJSON.scopes)
                 assert.deepEqual(new ObjectID(result.institution!.id), childJSON.institution)
             })
         })
 
         context('when the json is undefined', () => {
-            it('should return a child model only with type and scope', () => {
+            it('should return a child model only with type', () => {
                 const result = new Child().fromJSON(undefined)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
@@ -60,7 +37,6 @@ describe('Models: Child', () => {
                 assert.propertyVal(result, 'type', UserType.CHILD)
                 assert.propertyVal(result, 'gender', undefined)
                 assert.propertyVal(result, 'age', undefined)
-                assert.deepPropertyVal(result, 'scopes', childJSON.scopes)
                 assert.propertyVal(result, 'institution', undefined)
             })
         })
@@ -75,7 +51,6 @@ describe('Models: Child', () => {
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
                 assert.deepEqual(new ObjectID(result.institution!.id), childJSON.institution)
-                assert.deepPropertyVal(result, 'scopes', childJSON.scopes)
             })
         })
     })

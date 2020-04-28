@@ -20,28 +20,6 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     constructor() {
         super()
         super.type = UserType.CHILD
-        super.scopes = [
-            'children:read',
-            'institutions:read',
-            'physicalactivities:create',
-            'physicalactivities:read',
-            'sleep:create',
-            'sleep:read',
-            'measurements:create',
-            'measurements:read',
-            'environment:read',
-            'foodtracking:create',
-            'foodtracking:read',
-            'foodtracking:update',
-            'foodtracking:delete',
-            'missions:read',
-            'gamificationprofile:read',
-            'gamificationprofile:update',
-            'external:sync',
-            'notifications:create',
-            'notifications:read',
-            'notifications:delete'
-        ]
         this.fitbit_status = 'none'
     }
 

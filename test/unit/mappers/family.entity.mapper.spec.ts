@@ -13,63 +13,11 @@ describe('Mappers: FamilyEntity', () => {
     // To test how mapper works with an object without any attributes
     const emptyFamily: Family = new Family()
     emptyFamily.type = undefined
-    emptyFamily.scopes = undefined!
 
     // Create family JSON
     const familyJSON: any = {
         id: '7cf999f68228fb5e49f1d198',
         type: 'family',
-        scopes: [
-            'children:read',
-            'families:read',
-            'families:update',
-            'institutions:read',
-            'physicalactivities:create',
-            'physicalactivities:read',
-            'physicalactivities:update',
-            'physicalactivities:delete',
-            'sleep:create',
-            'sleep:read',
-            'sleep:update',
-            'sleep:delete',
-            'measurements:create',
-            'measurements:read',
-            'measurements:delete',
-            'environment:read',
-            'socioquest:create',
-            'socioquest:read',
-            'socioquest:update',
-            'healthquest:create',
-            'healthquest:read',
-            'healthquest:update',
-            'parentphyquest:create',
-            'parentphyquest:read',
-            'parentphyquest:update',
-            'childrenphyquest:read',
-            'habitsquest:create',
-            'habitsquest:read',
-            'habitsquest:update',
-            'foodhabitsquest:create',
-            'foodhabitsquest:read',
-            'foodhabitsquest:update',
-            'perceptionquest:create',
-            'perceptionquest:read',
-            'perceptionquest:update',
-            'foodtracking:create',
-            'foodtracking:read',
-            'foodtracking:update',
-            'foodtracking:delete',
-            'missions:create',
-            'missions:read',
-            'missions:update',
-            'gamificationprofile:create',
-            'gamificationprofile:read',
-            'gamificationprofile:update',
-            'external:sync',
-            'notifications:create',
-            'notifications:read',
-            'notifications:delete'
-        ],
         username: 'family_mock',
         password: 'family_password',
         institution: '08acd7b4216880c5c576e805',
@@ -77,25 +25,6 @@ describe('Mappers: FamilyEntity', () => {
             {
                 id: '719a847e5582d1ad44d8e804',
                 type: 'child',
-                scopes: [
-                    'children:read',
-                    'institutions:read',
-                    'physicalactivities:create',
-                    'physicalactivities:read',
-                    'sleep:create',
-                    'sleep:read',
-                    'measurements:create',
-                    'measurements:read',
-                    'environment:read',
-                    'foodtracking:create',
-                    'foodtracking:read',
-                    'foodtracking:update',
-                    'foodtracking:delete',
-                    'missions:read',
-                    'gamificationprofile:read',
-                    'gamificationprofile:update',
-                    'external:sync'
-                ],
                 username: 'child_mock',
                 institution: '08acd7b4216880c5c576e805',
                 gender: 'male',
@@ -104,25 +33,6 @@ describe('Mappers: FamilyEntity', () => {
             {
                 id: '8e7d3ff55107e8dc5f078dcb',
                 type: 'child',
-                scopes: [
-                    'children:read',
-                    'institutions:read',
-                    'physicalactivities:create',
-                    'physicalactivities:read',
-                    'sleep:create',
-                    'sleep:read',
-                    'measurements:create',
-                    'measurements:read',
-                    'environment:read',
-                    'foodtracking:create',
-                    'foodtracking:read',
-                    'foodtracking:update',
-                    'foodtracking:delete',
-                    'missions:read',
-                    'gamificationprofile:read',
-                    'gamificationprofile:update',
-                    'external:sync'
-                ],
                 username: 'child_mock',
                 institution: '08acd7b4216880c5c576e805',
                 gender: 'female',
@@ -131,25 +41,6 @@ describe('Mappers: FamilyEntity', () => {
              {
                 id: '652c42d320e4a62cb9bdce50',
                 type: 'child',
-                scopes: [
-                    'children:read',
-                    'institutions:read',
-                    'physicalactivities:create',
-                    'physicalactivities:read',
-                    'sleep:create',
-                    'sleep:read',
-                    'measurements:create',
-                    'measurements:read',
-                    'environment:read',
-                    'foodtracking:create',
-                    'foodtracking:read',
-                    'foodtracking:update',
-                    'foodtracking:delete',
-                    'missions:read',
-                    'gamificationprofile:read',
-                    'gamificationprofile:update',
-                    'external:sync'
-                 ],
                 username: 'child_mock',
                 institution: '08acd7b4216880c5c576e805',
                 gender: 'female',
@@ -169,7 +60,6 @@ describe('Mappers: FamilyEntity', () => {
                 assert.propertyVal(result, 'username', family.username)
                 assert.propertyVal(result, 'password', family.password)
                 assert.propertyVal(result, 'type', family.type)
-                assert.propertyVal(result, 'scopes', family.scopes)
                 assert.propertyVal(result, 'institution', family.institution!.id)
                 assert.equal(result.children![0], family.children![0].id)
                 assert.equal(result.children![1], family.children![1].id)
@@ -190,7 +80,6 @@ describe('Mappers: FamilyEntity', () => {
                 assert.propertyVal(result, 'username', familyJSON.username)
                 assert.propertyVal(result, 'password', familyJSON.password)
                 assert.propertyVal(result, 'type', familyJSON.type)
-                assert.propertyVal(result, 'scopes', familyJSON.scopes)
                 assert.equal(result.institution!.id, familyJSON.institution)
                 assert.property(result, 'children')
             })
@@ -204,7 +93,6 @@ describe('Mappers: FamilyEntity', () => {
                 assert.propertyVal(result, 'username', familyJSON.username)
                 assert.propertyVal(result, 'password', familyJSON.password)
                 assert.propertyVal(result, 'type', familyJSON.type)
-                assert.propertyVal(result, 'scopes', familyJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.property(result, 'children')
             })
@@ -218,7 +106,6 @@ describe('Mappers: FamilyEntity', () => {
                 assert.propertyVal(result, 'username', emptyFamilyJSON.username)
                 assert.propertyVal(result, 'password', emptyFamilyJSON.password)
                 assert.propertyVal(result, 'type', UserType.FAMILY)
-                assert.deepPropertyVal(result, 'scopes', familyJSON.scopes)
                 assert.propertyVal(result, 'institution', emptyFamilyJSON.institution)
                 assert.propertyVal(result, 'children', emptyFamilyJSON.children)
             })

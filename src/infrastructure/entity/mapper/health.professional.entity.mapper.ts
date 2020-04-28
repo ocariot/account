@@ -35,7 +35,6 @@ export class HealthProfessionalEntityMapper implements IEntityMapper<HealthProfe
             result.children_groups = childrenGroupsTemp
         }
         if (item.last_login) result.last_login = item.last_login
-        if (item.scopes) result.scopes = item.scopes
 
         return result
     }
@@ -66,7 +65,6 @@ export class HealthProfessionalEntityMapper implements IEntityMapper<HealthProfe
             result.children_groups = json.children_groups.map(item => new ChildrenGroup().fromJSON(item))
         }
         if (json.last_login !== undefined) result.last_login = json.last_login
-        if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result
     }

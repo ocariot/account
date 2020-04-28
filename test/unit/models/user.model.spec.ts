@@ -18,7 +18,6 @@ describe('Models: User', () => {
                 assert.propertyVal(result, 'username', userJSON.username)
                 assert.propertyVal(result, 'password', userJSON.password)
                 assert.deepEqual(new ObjectID(result.institution!.id), userJSON.institution)
-                assert.deepPropertyVal(result, 'scopes', userJSON.scope)
             })
         })
 
@@ -40,7 +39,6 @@ describe('Models: User', () => {
                 assert.propertyVal(result, 'username', userJSON.username)
                 assert.propertyVal(result, 'password', userJSON.password)
                 assert.deepEqual(new ObjectID(result.institution!.id), userJSON.institution)
-                assert.deepPropertyVal(result, 'scopes', userJSON.scope)
             })
         })
     })

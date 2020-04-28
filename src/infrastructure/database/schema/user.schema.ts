@@ -38,8 +38,7 @@ const userSchema = new Mongoose.Schema({
             type: String,
             readonly: true,
             default: 'none'
-        },
-        scopes: [{ type: String }] // Scope that signal the types of access the user has.
+        }
     },
     {
         timestamps: { createdAt: 'created_at', updatedAt: false },

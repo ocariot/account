@@ -13,57 +13,6 @@ describe('Models: Family', () => {
         type: UserType.FAMILY,
         institution: new ObjectID(),
         children: new Array<Child>(),
-        scopes: [
-            'children:read',
-            'families:read',
-            'families:update',
-            'institutions:read',
-            'physicalactivities:create',
-            'physicalactivities:read',
-            'physicalactivities:update',
-            'physicalactivities:delete',
-            'sleep:create',
-            'sleep:read',
-            'sleep:update',
-            'sleep:delete',
-            'measurements:create',
-            'measurements:read',
-            'measurements:delete',
-            'environment:read',
-            'socioquest:create',
-            'socioquest:read',
-            'socioquest:update',
-            'healthquest:create',
-            'healthquest:read',
-            'healthquest:update',
-            'parentphyquest:create',
-            'parentphyquest:read',
-            'parentphyquest:update',
-            'childrenphyquest:read',
-            'habitsquest:create',
-            'habitsquest:read',
-            'habitsquest:update',
-            'foodhabitsquest:create',
-            'foodhabitsquest:read',
-            'foodhabitsquest:update',
-            'perceptionquest:create',
-            'perceptionquest:read',
-            'perceptionquest:update',
-            'foodtracking:create',
-            'foodtracking:read',
-            'foodtracking:update',
-            'foodtracking:delete',
-            'missions:create',
-            'missions:read',
-            'missions:update',
-            'gamificationprofile:create',
-            'gamificationprofile:read',
-            'gamificationprofile:update',
-            'external:sync',
-            'notifications:create',
-            'notifications:read',
-            'notifications:delete'
-        ]
     }
 
     describe('fromJSON()', () => {
@@ -74,7 +23,6 @@ describe('Models: Family', () => {
                 assert.propertyVal(result, 'username', familyJSON.username)
                 assert.propertyVal(result, 'password', familyJSON.password)
                 assert.propertyVal(result, 'type', familyJSON.type)
-                assert.deepPropertyVal(result, 'scopes', familyJSON.scopes)
                 assert.deepPropertyVal(result, 'children', familyJSON.children)
                 assert.deepEqual(new ObjectID(result.institution!.id), familyJSON.institution)
             })
@@ -88,7 +36,6 @@ describe('Models: Family', () => {
                 assert.propertyVal(result, 'username', undefined)
                 assert.propertyVal(result, 'password', undefined)
                 assert.property(result, 'type')
-                assert.property(result, 'scopes')
                 assert.propertyVal(result, 'children', undefined)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'last_login', undefined)
@@ -102,7 +49,6 @@ describe('Models: Family', () => {
                 assert.propertyVal(result, 'username', familyJSON.username)
                 assert.propertyVal(result, 'password', familyJSON.password)
                 assert.propertyVal(result, 'type', familyJSON.type)
-                assert.deepPropertyVal(result, 'scopes', familyJSON.scopes)
                 assert.deepPropertyVal(result, 'children', familyJSON.children)
                 assert.deepEqual(new ObjectID(result.institution!.id), familyJSON.institution)
             })

@@ -12,54 +12,11 @@ describe('Mappers: ApplicationEntity', () => {
     // To test how mapper works with an object without any attributes
     const emptyApplication: Application = new Application()
     emptyApplication.type = undefined
-    emptyApplication.scopes = undefined!
 
     // Create application JSON
     const applicationJSON: any = {
         id: '7af80099213acac44369d8a5',
         type: 'application',
-        scopes: [
-            'applications:read',
-            'children:readAll',
-            'institutions:read',
-            'institutions:readAll',
-            'physicalactivities:create',
-            'physicalactivities:read',
-            'physicalactivities:update',
-            'physicalactivities:delete',
-            'sleep:create',
-            'sleep:read',
-            'sleep:update',
-            'sleep:delete',
-            'measurements:create',
-            'measurements:read',
-            'measurements:delete',
-            'environment:create',
-            'environment:read',
-            'environment:update',
-            'environment:delete',
-            'socioquest:read',
-            'healthquest:read',
-            'parentphyquest:read',
-            'childrenphyquest:read',
-            'habitsquest:read',
-            'foodhabitsquest:create',
-            'foodhabitsquest:read',
-            'perceptionquest:read',
-            'foodtracking:create',
-            'foodtracking:read',
-            'foodtracking:update',
-            'foodtracking:delete',
-            'missions:create',
-            'missions:read',
-            'missions:update',
-            'missions:delete',
-            'gamificationprofile:create',
-            'gamificationprofile:read',
-            'gamificationprofile:update',
-            'gamificationprofile:delete',
-            'external:sync'
-        ],
         username: 'application_mock',
         password: 'application_password',
         institution: '603c062fda850512e4387e46',
@@ -77,7 +34,6 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.propertyVal(result, 'username', application.username)
                 assert.propertyVal(result, 'password', application.password)
                 assert.propertyVal(result, 'type', application.type)
-                assert.propertyVal(result, 'scopes', application.scopes)
                 assert.propertyVal(result, 'institution', application.institution!.id)
                 assert.propertyVal(result, 'application_name', application.application_name)
             })
@@ -97,7 +53,6 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.propertyVal(result, 'username', applicationJSON.username)
                 assert.propertyVal(result, 'password', applicationJSON.password)
                 assert.propertyVal(result, 'type', applicationJSON.type)
-                assert.deepPropertyVal(result, 'scopes', applicationJSON.scopes)
                 assert.equal(result.institution!.id, applicationJSON.institution)
                 assert.propertyVal(result, 'application_name', applicationJSON.application_name)
             })
@@ -111,7 +66,6 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.propertyVal(result, 'username', applicationJSON.username)
                 assert.propertyVal(result, 'password', applicationJSON.password)
                 assert.propertyVal(result, 'type', applicationJSON.type)
-                assert.deepPropertyVal(result, 'scopes', applicationJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.propertyVal(result, 'application_name', applicationJSON.application_name)
             })
@@ -124,7 +78,6 @@ describe('Mappers: ApplicationEntity', () => {
                 assert.propertyVal(result, 'username', emptyApplicationJSON.username)
                 assert.propertyVal(result, 'password', emptyApplicationJSON.password)
                 assert.propertyVal(result, 'type', UserType.APPLICATION)
-                assert.deepPropertyVal(result, 'scopes', applicationJSON.scopes)
                 assert.propertyVal(result, 'institution', emptyApplicationJSON.institution)
                 assert.propertyVal(result, 'application_name', emptyApplicationJSON.application_name)
             })

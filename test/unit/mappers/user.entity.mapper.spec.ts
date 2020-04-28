@@ -7,7 +7,6 @@ import { UserEntity } from '../../../src/infrastructure/entity/user.entity'
 describe('Mappers: UserEntity', () => {
     const user: User = new UserMock()
     user.type = UserTypeMock.CHILD
-    user.scopes = new Array<string>('readonly')
     user.password = 'user_password'
 
     // To test how mapper works with an object without any attributes
@@ -39,7 +38,6 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'username', user.username)
                 assert.propertyVal(result, 'password', user.password)
                 assert.propertyVal(result, 'type', user.type)
-                assert.propertyVal(result, 'scopes', user.scopes)
                 assert.propertyVal(result, 'institution', user.institution!.id)
             })
         })
@@ -58,7 +56,6 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'username', userJSON.username)
                 assert.propertyVal(result, 'password', userJSON.password)
                 assert.propertyVal(result, 'type', userJSON.type)
-                assert.propertyVal(result, 'scopes', userJSON.scopes)
                 assert.deepEqual(result.institution!.id, userJSON.institution)
             })
         })
@@ -71,7 +68,6 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'username', userJSON.username)
                 assert.propertyVal(result, 'password', userJSON.password)
                 assert.propertyVal(result, 'type', userJSON.type)
-                assert.propertyVal(result, 'scopes', userJSON.scopes)
                 assert.isUndefined(result.institution)
             })
         })
@@ -83,7 +79,6 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'username', emptyUserJSON.username)
                 assert.propertyVal(result, 'password', emptyUserJSON.password)
                 assert.propertyVal(result, 'type', emptyUserJSON.type)
-                assert.propertyVal(result, 'scopes', emptyUserJSON.scopes)
                 assert.propertyVal(result, 'institution', emptyUserJSON.institution)
             })
         })
@@ -96,7 +91,6 @@ describe('Mappers: UserEntity', () => {
                 assert.propertyVal(result, 'username', undefined)
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'type', undefined)
-                assert.propertyVal(result, 'scopes', undefined)
                 assert.propertyVal(result, 'institution', undefined)
             })
         })

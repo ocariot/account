@@ -28,7 +28,6 @@ export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
         if (item.type) result.type = item.type
         if (item.institution !== undefined) result.institution = item.institution.id
         if (item.last_login) result.last_login = item.last_login
-        if (item.scopes) result.scopes = item.scopes
 
         return result
     }
@@ -56,7 +55,6 @@ export class UserEntityMapper implements IEntityMapper<User, UserEntity> {
             }
         }
         if (json.last_login !== undefined) result.last_login = json.last_login
-        if (json.scopes !== undefined) result.scopes = json.scopes
 
         return result
     }
