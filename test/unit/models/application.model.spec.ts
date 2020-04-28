@@ -11,48 +11,6 @@ describe('Models: Application', () => {
         application_name: 'any name',
         institution: new ObjectID(),
         type: UserType.APPLICATION,
-        scopes: [
-            'applications:read',
-            'children:readAll',
-            'institutions:read',
-            'institutions:readAll',
-            'physicalactivities:create',
-            'physicalactivities:read',
-            'physicalactivities:update',
-            'physicalactivities:delete',
-            'sleep:create',
-            'sleep:read',
-            'sleep:update',
-            'sleep:delete',
-            'measurements:create',
-            'measurements:read',
-            'measurements:delete',
-            'environment:create',
-            'environment:read',
-            'environment:update',
-            'environment:delete',
-            'socioquest:read',
-            'healthquest:read',
-            'parentphyquest:read',
-            'childrenphyquest:read',
-            'habitsquest:read',
-            'foodhabitsquest:create',
-            'foodhabitsquest:read',
-            'perceptionquest:read',
-            'foodtracking:create',
-            'foodtracking:read',
-            'foodtracking:update',
-            'foodtracking:delete',
-            'missions:create',
-            'missions:read',
-            'missions:update',
-            'missions:delete',
-            'gamificationprofile:create',
-            'gamificationprofile:read',
-            'gamificationprofile:update',
-            'gamificationprofile:delete',
-            'external:sync'
-        ]
     }
 
     describe('fromJSON()', () => {
@@ -63,20 +21,18 @@ describe('Models: Application', () => {
                 assert.propertyVal(result, 'username', appJSON.username)
                 assert.propertyVal(result, 'password', appJSON.password)
                 assert.propertyVal(result, 'type', appJSON.type)
-                assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
                 assert.deepEqual(new ObjectID(result.institution!.id), appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
             })
         })
 
         context('when the json is undefined', () => {
-            it('should return an application model only with type and scope', () => {
+            it('should return an application model only with type', () => {
                 const result = new Application().fromJSON(undefined)
                 assert.propertyVal(result, 'id', undefined)
                 assert.propertyVal(result, 'username', undefined)
                 assert.propertyVal(result, 'password', undefined)
                 assert.propertyVal(result, 'type', UserType.APPLICATION)
-                assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'application_name', undefined)
                 assert.propertyVal(result, 'last_login', undefined)
@@ -90,7 +46,6 @@ describe('Models: Application', () => {
                 assert.propertyVal(result, 'username', appJSON.username)
                 assert.propertyVal(result, 'password', appJSON.password)
                 assert.propertyVal(result, 'type', appJSON.type)
-                assert.deepPropertyVal(result, 'scopes', appJSON.scopes)
                 assert.deepEqual(new ObjectID(result.institution!.id), appJSON.institution)
                 assert.propertyVal(result, 'application_name', appJSON.application_name)
             })

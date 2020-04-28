@@ -27,7 +27,6 @@ describe('Repositories: AuthRepository', () => {
     user.password = 'userpass'
     user.type = UserType.ADMIN
     user.institution = institution
-    user.scopes = new Array<string>('i-can-everything')
 
     const userWithoutPass = new UserMock()
     userWithoutPass.password = undefined

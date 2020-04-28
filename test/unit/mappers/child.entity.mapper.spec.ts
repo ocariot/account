@@ -12,35 +12,12 @@ describe('Mappers: ChildEntity', () => {
     // To test how mapper works with an object without any attributes
     const emptyChild: Child = new Child()
     emptyChild.type = undefined
-    emptyChild.scopes = undefined!
     emptyChild.fitbit_status = undefined
 
     // Create child JSON
     const childJSON: any = {
         id: '77388a5c901305e367c5e660',
         type: 'child',
-        scopes: [
-            'children:read',
-            'institutions:read',
-            'physicalactivities:create',
-            'physicalactivities:read',
-            'sleep:create',
-            'sleep:read',
-            'measurements:create',
-            'measurements:read',
-            'environment:read',
-            'foodtracking:create',
-            'foodtracking:read',
-            'foodtracking:update',
-            'foodtracking:delete',
-            'missions:read',
-            'gamificationprofile:read',
-            'gamificationprofile:update',
-            'external:sync',
-            'notifications:create',
-            'notifications:read',
-            'notifications:delete'
-        ],
         username: 'child_mock',
         password: 'child_password',
         institution: '273ab3632f16bbd9044753cb',
@@ -59,7 +36,6 @@ describe('Mappers: ChildEntity', () => {
                 assert.propertyVal(result, 'username', child.username)
                 assert.propertyVal(result, 'password', child.password)
                 assert.propertyVal(result, 'type', child.type)
-                assert.propertyVal(result, 'scopes', child.scopes)
                 assert.propertyVal(result, 'institution', child.institution!.id)
                 assert.propertyVal(result, 'gender', child.gender)
                 assert.propertyVal(result, 'age', child.age)
@@ -80,7 +56,6 @@ describe('Mappers: ChildEntity', () => {
                 assert.propertyVal(result, 'username', childJSON.username)
                 assert.propertyVal(result, 'password', childJSON.password)
                 assert.propertyVal(result, 'type', childJSON.type)
-                assert.propertyVal(result, 'scopes', childJSON.scopes)
                 assert.equal(result.institution!.id, childJSON.institution)
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
@@ -95,7 +70,6 @@ describe('Mappers: ChildEntity', () => {
                 assert.propertyVal(result, 'username', childJSON.username)
                 assert.propertyVal(result, 'password', childJSON.password)
                 assert.propertyVal(result, 'type', childJSON.type)
-                assert.propertyVal(result, 'scopes', childJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
@@ -109,7 +83,6 @@ describe('Mappers: ChildEntity', () => {
                 assert.propertyVal(result, 'username', emptyChildJSON.username)
                 assert.propertyVal(result, 'password', emptyChildJSON.password)
                 assert.propertyVal(result, 'type', UserType.CHILD)
-                assert.deepPropertyVal(result, 'scopes', childJSON.scopes)
                 assert.propertyVal(result, 'institution', emptyChildJSON.institution)
             })
         })
