@@ -13,48 +13,11 @@ describe('Mappers: HealthProfessionalEntity', () => {
     // To test how mapper works with an object without any attributes
     const emptyHealthProfessional: HealthProfessional = new HealthProfessional()
     emptyHealthProfessional.type = undefined
-    emptyHealthProfessional.scopes = undefined!
 
     // Create healthProfessional JSON
     const healthProfessionalJSON: any = {
         id: '1f10db551af31e3a913ebb22',
         type: 'healthprofessional',
-        scopes: [
-            'children:read',
-            'children:readAll',
-            'healthprofessionals:read',
-            'healthprofessionals:update',
-            'childrengroups:create',
-            'childrengroups:read',
-            'childrengroups:update',
-            'childrengroups:delete',
-            'institutions:read',
-            'institutions:readAll',
-            'institutions:update',
-            'physicalactivities:read',
-            'sleep:read',
-            'measurements:read',
-            'environment:read',
-            'socioquest:read',
-            'healthquest:read',
-            'parentphyquest:read',
-            'childrenphyquest:create',
-            'childrenphyquest:read',
-            'childrenphyquest:update',
-            'habitsquest:read',
-            'foodhabitsquest:read',
-            'perceptionquest:read',
-            'foodtracking:create',
-            'foodtracking:read',
-            'foodtracking:update',
-            'foodtracking:delete',
-            'missions:read',
-            'gamificationprofile:read',
-            'external:sync',
-            'notifications:create',
-            'notifications:read',
-            'notifications:delete'
-        ],
         username: 'health_professional_mock',
         password: 'health_professional_password',
         institution: '9e97b425c3e7db930e9dd04c',
@@ -69,25 +32,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                             {
                                 id: 'b3e2b04fbd9fa0a8023fb823',
                                 type: 'child',
-                                scopes: [
-                                    'children:read',
-                                    'institutions:read',
-                                    'physicalactivities:create',
-                                    'physicalactivities:read',
-                                    'sleep:create',
-                                    'sleep:read',
-                                    'measurements:create',
-                                    'measurements:read',
-                                    'environment:read',
-                                    'foodtracking:create',
-                                    'foodtracking:read',
-                                    'foodtracking:update',
-                                    'foodtracking:delete',
-                                    'missions:read',
-                                    'gamificationprofile:read',
-                                    'gamificationprofile:update',
-                                    'external:sync'
-                                ],
                                 username: 'child_mock',
                                 institution: '273ab3632f16bbd9044753cb',
                                 gender: 'female',
@@ -96,25 +40,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                             {
                                 id: '6d9ce5e4206763d2e221e5c7',
                                 type: 'child',
-                                scopes: [
-                                    'children:read',
-                                    'institutions:read',
-                                    'physicalactivities:create',
-                                    'physicalactivities:read',
-                                    'sleep:create',
-                                    'sleep:read',
-                                    'measurements:create',
-                                    'measurements:read',
-                                    'environment:read',
-                                    'foodtracking:create',
-                                    'foodtracking:read',
-                                    'foodtracking:update',
-                                    'foodtracking:delete',
-                                    'missions:read',
-                                    'gamificationprofile:read',
-                                    'gamificationprofile:update',
-                                    'external:sync'
-                                ],
                                 username: 'child_mock',
                                 institution: '273ab3632f16bbd9044753cb',
                                 gender: 'male',
@@ -137,7 +62,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'username', healthProfessional.username)
                 assert.propertyVal(result, 'password', healthProfessional.password)
                 assert.propertyVal(result, 'type', healthProfessional.type)
-                assert.propertyVal(result, 'scopes', healthProfessional.scopes)
                 assert.propertyVal(result, 'institution', healthProfessional.institution!.id)
                 assert.property(result, 'children_groups')
             })
@@ -158,7 +82,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'username', healthProfessionalJSON.username)
                 assert.propertyVal(result, 'password', healthProfessionalJSON.password)
                 assert.propertyVal(result, 'type', healthProfessionalJSON.type)
-                assert.propertyVal(result, 'scopes', healthProfessionalJSON.scopes)
                 assert.property(result, 'institution')
                 assert.property(result, 'children_groups')
             })
@@ -173,7 +96,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'username', healthProfessionalJSON.username)
                 assert.propertyVal(result, 'password', healthProfessionalJSON.password)
                 assert.propertyVal(result, 'type', healthProfessionalJSON.type)
-                assert.propertyVal(result, 'scopes', healthProfessionalJSON.scopes)
                 assert.isUndefined(result.institution)
                 assert.property(result, 'children_groups')
             })
@@ -187,7 +109,6 @@ describe('Mappers: HealthProfessionalEntity', () => {
                 assert.propertyVal(result, 'username', emptyHealthProfessionalJSON.username)
                 assert.propertyVal(result, 'password', emptyHealthProfessionalJSON.password)
                 assert.propertyVal(result, 'type', UserType.HEALTH_PROFESSIONAL)
-                assert.deepPropertyVal(result, 'scopes', healthProfessionalJSON.scopes)
                 assert.propertyVal(result, 'institution', emptyHealthProfessionalJSON.institution)
                 assert.propertyVal(result, 'children_groups', emptyHealthProfessionalJSON.children_groups)
             })

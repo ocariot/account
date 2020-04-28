@@ -16,7 +16,6 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
     private _type?: string // Type of user. Can be Child, Educator, Health Professional or Family.
     private _institution?: Institution // Institution to which the user belongs.
     private _last_login?: Date // Last login time according to the UTC.
-    private _scopes!: Array<string> // Scope that signal the types of access the user has.
 
     constructor() {
         super()
@@ -60,14 +59,6 @@ export class User extends Entity implements IJSONSerializable, IJSONDeserializab
 
     set last_login(value: Date | undefined) {
         this._last_login = value
-    }
-
-    get scopes(): Array<string> {
-        return this._scopes
-    }
-
-    set scopes(value: Array<string>) {
-        this._scopes = value
     }
 
     public fromJSON(json: any): User {

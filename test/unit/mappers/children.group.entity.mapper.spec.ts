@@ -25,25 +25,6 @@ describe('Mappers: ChildrenGroupEntity', () => {
                 {
                     id: 'b3e2b04fbd9fa0a8023fb823',
                     type: 'child',
-                    scopes: [
-                        'children:read',
-                        'institutions:read',
-                        'physicalactivities:create',
-                        'physicalactivities:read',
-                        'sleep:create',
-                        'sleep:read',
-                        'measurements:create',
-                        'measurements:read',
-                        'environment:read',
-                        'foodtracking:create',
-                        'foodtracking:read',
-                        'foodtracking:update',
-                        'foodtracking:delete',
-                        'missions:read',
-                        'gamificationprofile:read',
-                        'gamificationprofile:update',
-                        'external:sync'
-                    ],
                     username: 'child_mock',
                     institution: {
                         id: '273ab3632f16bbd9044753cb',
@@ -59,25 +40,6 @@ describe('Mappers: ChildrenGroupEntity', () => {
                 {
                     id: '6d9ce5e4206763d2e221e5c7',
                     type: 'child',
-                    scopes: [
-                        'children:read',
-                        'institutions:read',
-                        'physicalactivities:create',
-                        'physicalactivities:read',
-                        'sleep:create',
-                        'sleep:read',
-                        'measurements:create',
-                        'measurements:read',
-                        'environment:read',
-                        'foodtracking:create',
-                        'foodtracking:read',
-                        'foodtracking:update',
-                        'foodtracking:delete',
-                        'missions:read',
-                        'gamificationprofile:read',
-                        'gamificationprofile:update',
-                        'external:sync'
-                    ],
                     username: 'child_mock',
                     institution: {
                         id: '273ab3632f16bbd9044753cb',

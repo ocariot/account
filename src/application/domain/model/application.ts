@@ -15,48 +15,6 @@ export class Application extends User implements IJSONSerializable, IJSONDeseria
     constructor() {
         super()
         super.type = UserType.APPLICATION
-        super.scopes = [
-            'applications:read',
-            'children:readAll',
-            'institutions:read',
-            'institutions:readAll',
-            'physicalactivities:create',
-            'physicalactivities:read',
-            'physicalactivities:update',
-            'physicalactivities:delete',
-            'sleep:create',
-            'sleep:read',
-            'sleep:update',
-            'sleep:delete',
-            'measurements:create',
-            'measurements:read',
-            'measurements:delete',
-            'environment:create',
-            'environment:read',
-            'environment:update',
-            'environment:delete',
-            'socioquest:read',
-            'healthquest:read',
-            'parentphyquest:read',
-            'childrenphyquest:read',
-            'habitsquest:read',
-            'foodhabitsquest:create',
-            'foodhabitsquest:read',
-            'perceptionquest:read',
-            'foodtracking:create',
-            'foodtracking:read',
-            'foodtracking:update',
-            'foodtracking:delete',
-            'missions:create',
-            'missions:read',
-            'missions:update',
-            'missions:delete',
-            'gamificationprofile:create',
-            'gamificationprofile:read',
-            'gamificationprofile:update',
-            'gamificationprofile:delete',
-            'external:sync'
-        ]
     }
 
     get application_name(): string | undefined {

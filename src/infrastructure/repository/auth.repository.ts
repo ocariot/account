@@ -55,12 +55,22 @@ export class AuthRepository implements IAuthRepository {
 
     public generateAccessToken(user: User): string {
         const private_key = readFileSync(process.env.JWT_PRIVATE_KEY_PATH || Default.JWT_PRIVATE_KEY_PATH)
+
+        const scopes = {
+            'admin': Default.ADMIN_SCOPES,
+            'application': Default.APPLICATION_SCOPES,
+            'child': Default.CHILD_SCOPES,
+            'educator': Default.EDUCATOR_SCOPES,
+            'family': Default.FAMILY_SCOPES,
+            'healthprofessional': Default.HEALTH_PROF_SCOPES
+        }
+
         const payload: object = {
             sub: user.id,
             sub_type: user.type,
             iss: process.env.ISSUER || Default.JWT_ISSUER,
             iat: Math.floor(Date.now() / 1000),
-            scope: user.scopes.join(' ')
+            scope: scopes[user.type!].join(' ')
         }
         return jwt.sign(payload, private_key, { expiresIn: '1d', algorithm: 'RS256' })
     }

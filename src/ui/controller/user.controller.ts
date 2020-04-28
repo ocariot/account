@@ -71,24 +71,6 @@ export class UserController {
     }
 
     /**
-     * Replaces the scopes of all users according to the type.
-     *
-     * @param req
-     * @param res
-     */
-    @httpPost('/types/:user_type/scopes')
-    public async replaceUsersScopesFromType(@request() req: Request, @response() res: Response): Promise<Response> {
-        try {
-            await this._userService.replaceScopes(req.params.user_type, req.body.scopes)
-            return res.status(HttpStatus.NO_CONTENT).send()
-        } catch (err) {
-            const handlerError = ApiExceptionManager.build(err)
-            return res.status(handlerError.code)
-                .send(handlerError.toJson())
-        }
-    }
-
-    /**
      * Remove user by id.
      *
      * @param {Request} req

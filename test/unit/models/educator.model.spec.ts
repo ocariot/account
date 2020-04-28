@@ -14,56 +14,6 @@ describe('Models: Educator', () => {
         type: UserType.EDUCATOR,
         institution: new ObjectID(),
         children_groups: new Array<Child>(),
-        scopes: [
-            'children:read',
-            'children:readAll',
-            'educators:read',
-            'educators:update',
-            'childrengroups:create',
-            'childrengroups:read',
-            'childrengroups:update',
-            'childrengroups:delete',
-            'institutions:read',
-            'institutions:readAll',
-            'institutions:update',
-            'physicalactivities:create',
-            'physicalactivities:read',
-            'physicalactivities:update',
-            'physicalactivities:delete',
-            'sleep:create',
-            'sleep:read',
-            'sleep:update',
-            'sleep:delete',
-            'measurements:create',
-            'measurements:read',
-            'measurements:delete',
-            'environment:read',
-            'childrenphyquest:read',
-            'habitsquest:create',
-            'habitsquest:read',
-            'habitsquest:update',
-            'foodhabitsquest:create',
-            'foodhabitsquest:read',
-            'foodhabitsquest:update',
-            'perceptionquest:create',
-            'perceptionquest:read',
-            'perceptionquest:update',
-            'foodtracking:create',
-            'foodtracking:read',
-            'foodtracking:update',
-            'foodtracking:delete',
-            'missions:create',
-            'missions:read',
-            'missions:update',
-            'missions:delete',
-            'gamificationprofile:create',
-            'gamificationprofile:read',
-            'gamificationprofile:update',
-            'external:sync',
-            'notifications:create',
-            'notifications:read',
-            'notifications:delete'
-        ]
     }
 
     describe('fromJSON()', () => {
@@ -74,7 +24,6 @@ describe('Models: Educator', () => {
                 assert.propertyVal(result, 'username', educatorJSON.username)
                 assert.propertyVal(result, 'password', educatorJSON.password)
                 assert.propertyVal(result, 'type', educatorJSON.type)
-                assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
                 assert.deepEqual(new ObjectID(result.institution!.id), educatorJSON.institution)
             })
@@ -88,7 +37,6 @@ describe('Models: Educator', () => {
                 assert.propertyVal(result, 'username', undefined)
                 assert.propertyVal(result, 'password', undefined)
                 assert.property(result, 'type')
-                assert.property(result, 'scopes')
                 assert.propertyVal(result, 'children_groups', undefined)
                 assert.propertyVal(result, 'institution', undefined)
             })
@@ -101,7 +49,6 @@ describe('Models: Educator', () => {
                 assert.propertyVal(result, 'username', educatorJSON.username)
                 assert.propertyVal(result, 'password', educatorJSON.password)
                 assert.propertyVal(result, 'type', educatorJSON.type)
-                assert.deepPropertyVal(result, 'scopes', educatorJSON.scopes)
                 assert.deepPropertyVal(result, 'children_groups', educatorJSON.children_groups)
                 assert.deepEqual(new ObjectID(result.institution!.id), educatorJSON.institution)
             })

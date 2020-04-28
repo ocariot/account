@@ -64,29 +64,6 @@ export class UserRepository extends BaseRepository<User, UserEntity> implements 
         })
     }
 
-    public replaceScopes(userType: string, newScopes: Array<string>): Promise<boolean> {
-        const query: IQuery = new Query()
-        query.addFilter({ type: userType })
-        return new Promise<boolean>((resolve, reject) => {
-            super.find(query)
-                .then(users => {
-                    if (!users.length) return resolve(false)
-
-                    for (const user of users) {
-                        this.userModel.findOneAndUpdate({ _id: user.id }, { scopes: newScopes },
-                            { new: true })
-                            .exec()
-                            .then(result => {
-                                if (!result) return resolve(false)
-                                return resolve(true)
-                            })
-                            .catch(err => reject(super.mongoDBErrorListener(err)))
-                    }
-                })
-                .catch(err => reject(super.mongoDBErrorListener(err)))
-        })
-    }
-
     public encryptPassword(password: string): string {
         return bcrypt.hashSync(password, bcrypt.genSaltSync(10))
     }
