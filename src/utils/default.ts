@@ -63,7 +63,7 @@ export abstract class Default {
     /**
      * User scopes
      */
-    // Admin
+        // Admin
     public static readonly ADMIN_SCOPES = [
         'users:delete',
         'users:resetPassword',
@@ -116,7 +116,10 @@ export abstract class Default {
         'gamificationprofile:read',
         'notifications:create',
         'notifications:read',
-        'notifications:delete'
+        'notifications:delete',
+        'devices:create',
+        'devices:read',
+        'devices:delete'
     ]
 
     // Application
