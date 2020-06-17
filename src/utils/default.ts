@@ -8,7 +8,7 @@
  * @abstract
  */
 export abstract class Default {
-    public static readonly APP_ID: string = 'account_service'
+    public static readonly APP_ID: string = 'account.app'
     public static readonly NODE_ENV: string = 'development' // development, test, production
     public static readonly PORT_HTTP: number = 3000
     public static readonly PORT_HTTPS: number = 3001
