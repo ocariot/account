@@ -85,8 +85,7 @@ export class App {
             app.use(qs({
                 use_page: true,
                 default: {
-                    pagination: { limit: 100 },
-                    sort: { created_at: 'desc' }
+                    pagination: { page: 1, limit: 100 }
                 }
             }))
 

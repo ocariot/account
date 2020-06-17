@@ -166,7 +166,7 @@ describe('NOTIFICATION TASK', () => {
                         } catch (err) {
                             done(err)
                         }
-                    }, 4000)
+                    }, 5000)
                 })
 
             it('should not receive any SendNotificationEvent object as there are no children in the repository',
@@ -191,7 +191,7 @@ describe('NOTIFICATION TASK', () => {
                         } catch (err) {
                             done(err)
                         }
-                    }, 4000)
+                    }, 5000)
                 })
         })
     })
