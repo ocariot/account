@@ -49,7 +49,7 @@ export class InstitutionController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -72,7 +72,7 @@ export class InstitutionController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -96,7 +96,7 @@ export class InstitutionController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -111,13 +111,13 @@ export class InstitutionController {
         try {
             const institution: Institution = new Institution().fromJSON(req.body)
             institution.id = req.params.institution_id
-            const result: Institution = await this._institutionService.update(institution)
+            const result: Institution | undefined = await this._institutionService.update(institution)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageInstitutionNotFound())
             return res.status(HttpStatus.OK).send(result.toJSON())
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -135,7 +135,7 @@ export class InstitutionController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -147,6 +147,6 @@ export class InstitutionController {
             HttpStatus.NOT_FOUND,
             Strings.INSTITUTION.NOT_FOUND,
             Strings.INSTITUTION.NOT_FOUND_DESCRIPTION
-        ).toJson()
+        ).toJSON()
     }
 }

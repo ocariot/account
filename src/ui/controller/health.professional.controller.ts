@@ -51,7 +51,7 @@ export class HealthProfessionalController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -74,7 +74,7 @@ export class HealthProfessionalController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -98,7 +98,7 @@ export class HealthProfessionalController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -113,13 +113,15 @@ export class HealthProfessionalController {
         try {
             const healthProfessional: HealthProfessional = new HealthProfessional().fromJSON(req.body)
             healthProfessional.id = req.params.healthprofessional_id
-            const result: HealthProfessional = await this._healthProfessionalService.update(healthProfessional)
+            // Ignore last_login attributes if exists.
+            healthProfessional.last_login = undefined
+            const result: HealthProfessional | undefined = await this._healthProfessionalService.update(healthProfessional)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageHealthProfessionalNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -145,7 +147,7 @@ export class HealthProfessionalController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -172,7 +174,7 @@ export class HealthProfessionalController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -196,7 +198,7 @@ export class HealthProfessionalController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -217,14 +219,14 @@ export class HealthProfessionalController {
             healthProfessional.id = req.params.healthprofessional_id
             childrenGroup.user = healthProfessional
 
-            const result: ChildrenGroup = await this._healthProfessionalService
+            const result: ChildrenGroup | undefined = await this._healthProfessionalService
                 .updateChildrenGroup(req.params.healthprofessional_id, childrenGroup)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONChildrenGroupView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -243,7 +245,7 @@ export class HealthProfessionalController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -283,7 +285,7 @@ export class HealthProfessionalController {
             HttpStatus.NOT_FOUND,
             Strings.HEALTH_PROFESSIONAL.NOT_FOUND,
             Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION
-        ).toJson()
+        ).toJSON()
     }
 
     /**
@@ -294,6 +296,6 @@ export class HealthProfessionalController {
             HttpStatus.NOT_FOUND,
             Strings.CHILDREN_GROUP.NOT_FOUND,
             Strings.CHILDREN_GROUP.NOT_FOUND_DESCRIPTION
-        ).toJson()
+        ).toJSON()
     }
 }

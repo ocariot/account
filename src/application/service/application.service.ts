@@ -73,24 +73,27 @@ export class ApplicationService implements IApplicationService {
         return this._applicationRepository.findOne(query)
     }
 
-    public async update(application: Application): Promise<Application> {
+    public async update(application: Application): Promise<Application | undefined> {
         try {
             // 1. Validate Application parameters.
             UpdateApplicationValidator.validate(application)
 
-            // 1.5 Ignore last_login attributes if exists.
-            if (application.last_login) application.last_login = undefined
+            // 2. checks if the application exists by id
+            if (!(await this._applicationRepository.checkExist(application))) {
+                return Promise.resolve(undefined)
+            }
 
-            // 2. Checks if Application already exists.
-            const id: string = application.id!
-            application.id = undefined
+            // 3. Check if there is already an application with the same username to be updated.
+            if (application.username) {
+                const id: string = application.id!
+                application.id = undefined
+                if (await this._applicationRepository.checkExist(application)) {
+                    throw new ConflictException(Strings.APPLICATION.ALREADY_REGISTERED)
+                }
+                application.id = id
+            }
 
-            const applicationExist = await this._applicationRepository.checkExist(application)
-            if (applicationExist) throw new ConflictException(Strings.APPLICATION.ALREADY_REGISTERED)
-
-            application.id = id
-
-            // 3. Checks if the institution exists.
+            // 4. Checks if the institution exists.
             if (application.institution && application.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(application.institution)
                 if (!institutionExist) {
@@ -100,27 +103,27 @@ export class ApplicationService implements IApplicationService {
                     )
                 }
             }
+
+            // 5. Update Application data.
+            const applicationUp = await this._applicationRepository.update(application)
+
+            // 6. If updated successfully, the object is published on the message bus.
+            if (applicationUp) {
+                this._eventBus.bus
+                    .pubUpdateApplication(applicationUp)
+                    .then(() => {
+                        this._logger.info(`User of type Application with ID: ${applicationUp.id} has been updated`
+                            .concat(' and published on event bus...'))
+                    })
+                    .catch((err) => {
+                        this._logger.error(`Error trying to publish event UpdateApplication. ${err.message}`)
+                    })
+            }
+            // 7. Returns the created object.
+            return Promise.resolve(applicationUp)
         } catch (err) {
             return Promise.reject(err)
         }
-
-        // 4. Update Application data.
-        const applicationUp = await this._applicationRepository.update(application)
-
-        // 5. If updated successfully, the object is published on the message bus.
-        if (applicationUp) {
-            this._eventBus.bus
-                .pubUpdateApplication(applicationUp)
-                .then(() => {
-                    this._logger.info(`User of type Application with ID: ${applicationUp.id} has been updated`
-                        .concat(' and published on event bus...'))
-                })
-                .catch((err) => {
-                    this._logger.error(`Error trying to publish event UpdateApplication. ${err.message}`)
-                })
-        }
-        // 6. Returns the created object.
-        return Promise.resolve(applicationUp)
     }
 
     public async remove(id: string): Promise<boolean> {

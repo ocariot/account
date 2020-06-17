@@ -77,24 +77,27 @@ export class EducatorService implements IEducatorService {
         return this._educatorRepository.findOne(query)
     }
 
-    public async update(educator: Educator): Promise<Educator> {
+    public async update(educator: Educator): Promise<Educator | undefined> {
         try {
             // 1. Validate Educator parameters.
             UpdateEducatorValidator.validate(educator)
 
-            // 1.5 Ignore last_login attributes if exists.
-            if (educator.last_login) educator.last_login = undefined
+            // 2. checks if the educator exists by id
+            if (!(await this._educatorRepository.checkExist(educator))) {
+                return Promise.resolve(undefined)
+            }
 
-            // 2. Checks if Educator already exists.
-            const id: string = educator.id!
-            educator.id = undefined
+            // 3. Check if there is already an educator with the same username to be updated.
+            if (educator.username) {
+                const id: string = educator.id!
+                educator.id = undefined
+                if (await this._educatorRepository.checkExist(educator)) {
+                    throw new ConflictException(Strings.EDUCATOR.ALREADY_REGISTERED)
+                }
+                educator.id = id
+            }
 
-            const educatorExist = await this._educatorRepository.checkExist(educator)
-            if (educatorExist) throw new ConflictException(Strings.EDUCATOR.ALREADY_REGISTERED)
-
-            educator.id = id
-
-            // 3. Checks if the institution exists.
+            // 4. Checks if the institution exists.
             if (educator.institution && educator.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(educator.institution)
                 if (!institutionExist) {
@@ -104,27 +107,27 @@ export class EducatorService implements IEducatorService {
                     )
                 }
             }
+
+            // 5. Update Educator data.
+            const educatorUp = await this._educatorRepository.update(educator)
+
+            // 6. If updated successfully, the object is published on the message bus.
+            if (educatorUp) {
+                this._eventBus.bus
+                    .pubUpdateEducator(educatorUp)
+                    .then(() => {
+                        this._logger.info(`User of type Educator with ID: ${educatorUp.id} has been updated`
+                            .concat(' and published on event bus...'))
+                    })
+                    .catch((err) => {
+                        this._logger.error(`Error trying to publish event UpdateEducator. ${err.message}`)
+                    })
+            }
+            // 7. Returns the created object.
+            return Promise.resolve(educatorUp)
         } catch (err) {
             return Promise.reject(err)
         }
-
-        // 4. Update Educator data.
-        const educatorUp = await this._educatorRepository.update(educator)
-
-        // 5. If updated successfully, the object is published on the message bus.
-        if (educatorUp) {
-            this._eventBus.bus
-                .pubUpdateEducator(educatorUp)
-                .then(() => {
-                    this._logger.info(`User of type Educator with ID: ${educatorUp.id} has been updated`
-                        .concat(' and published on event bus...'))
-                })
-                .catch((err) => {
-                    this._logger.error(`Error trying to publish event UpdateEducator. ${err.message}`)
-                })
-        }
-        // 6. Returns the created object.
-        return Promise.resolve(educatorUp)
     }
 
     public async remove(id: string): Promise<boolean> {
@@ -228,7 +231,7 @@ export class EducatorService implements IEducatorService {
         return this._childrenGroupService.getById(childrenGroupId, query)
     }
 
-    public async updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
+    public async updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup | undefined> {
         try {
             // 1. Validate if educator id or children group id is valid
             ObjectIdValidator.validate(educatorId, Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
@@ -244,7 +247,7 @@ export class EducatorService implements IEducatorService {
             }
 
             // 3. Update children group.
-            const childrenGroupResult: ChildrenGroup = await this._childrenGroupService.update(childrenGroup)
+            const childrenGroupResult = await this._childrenGroupService.update(childrenGroup)
 
             // 4. If everything succeeds, it returns the data of the created group.
             return Promise.resolve(childrenGroupResult)

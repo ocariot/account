@@ -50,7 +50,7 @@ export class ApplicationController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -73,7 +73,7 @@ export class ApplicationController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -97,7 +97,7 @@ export class ApplicationController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -112,13 +112,15 @@ export class ApplicationController {
         try {
             const application: Application = new Application().fromJSON(req.body)
             application.id = req.params.application_id
-            const result: Application = await this._applicationService.update(application)
+            // Ignore last_login attributes if exists.
+            application.last_login = undefined
+            const result: Application | undefined = await this._applicationService.update(application)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageNotFoundApplication())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -146,6 +148,6 @@ export class ApplicationController {
             HttpStatus.NOT_FOUND,
             Strings.APPLICATION.NOT_FOUND,
             Strings.APPLICATION.NOT_FOUND_DESCRIPTION
-        ).toJson()
+        ).toJSON()
     }
 }

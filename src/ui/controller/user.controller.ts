@@ -45,7 +45,7 @@ export class UserController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -66,7 +66,7 @@ export class UserController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -84,7 +84,7 @@ export class UserController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -96,6 +96,6 @@ export class UserController {
             HttpStatus.NOT_FOUND,
             Strings.USER.NOT_FOUND,
             Strings.USER.NOT_FOUND_DESCRIPTION
-        ).toJson()
+        ).toJSON()
     }
 }

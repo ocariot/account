@@ -515,25 +515,25 @@ describe('Routes: Family', () => {
             })
             it('should return status code 200 and updated family (and show an error log about unable to send ' +
                 'UpdateFamily event)', () => {
-                    return request
-                        .patch(`/v1/families/${resultFamily.id}`)
-                        .send({ username: 'new_username', last_login: defaultFamily.last_login })
-                        .set('Content-Type', 'application/json')
-                        .expect(200)
-                        .then(res => {
-                            expect(res.body).to.have.property('id')
-                            expect(res.body.username).to.eql('new_username')
-                            expect(res.body.institution_id).to.eql(institution.id)
-                            expect(res.body.children.length).is.eql(1)
-                            for (const child of res.body.children) {
-                                expect(child).to.have.property('id')
-                                expect(child.username).to.eql(defaultChild.username)
-                                expect(child.institution_id).to.eql(institution.id)
-                                expect(child.gender).to.eql(defaultChild.gender)
-                                expect(child.age).to.eql(defaultChild.age)
-                            }
-                        })
-                })
+                return request
+                    .patch(`/v1/families/${resultFamily.id}`)
+                    .send({ username: 'new_username', last_login: defaultFamily.last_login })
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql('new_username')
+                        expect(res.body.institution_id).to.eql(institution.id)
+                        expect(res.body.children.length).is.eql(1)
+                        for (const child of res.body.children) {
+                            expect(child).to.have.property('id')
+                            expect(child.username).to.eql(defaultChild.username)
+                            expect(child.institution_id).to.eql(institution.id)
+                            expect(child.gender).to.eql(defaultChild.gender)
+                            expect(child.age).to.eql(defaultChild.age)
+                        }
+                    })
+            })
         })
 
         context('when a duplication error occurs', () => {
@@ -604,9 +604,36 @@ describe('Routes: Family', () => {
         })
 
         context('when the institution provided does not exists', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    const resultChild = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id)
+                    })
+
+                    result = await createUser({
+                        username: defaultFamily.username,
+                        password: defaultFamily.password,
+                        type: UserType.FAMILY,
+                        institution: new ObjectID(institution.id),
+                        children: new Array<string | undefined>(resultChild.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
+
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/v1/families/${defaultFamily.id}`)
+                    .patch(`/v1/families/${result.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -822,6 +849,39 @@ describe('Routes: Family', () => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.INVALID_FIELDS)
                         expect(err.body.description).to.eql('The following IDs from children attribute are not ' +
                             'in valid format: 123, 123a')
+                    })
+            })
+        })
+
+        context('when family_id is the ID of another user type', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Family test: ' + err.message)
+                }
+            })
+
+            it('should return status code 404, with family message does not exist', async () => {
+                return request
+                    .patch(`/v1/families/${result.id}`)
+                    .send({ username: 'FM0001TEST' })
+                    .set('Content-Type', 'application/json')
+                    .expect(404)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.FAMILY.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.FAMILY.NOT_FOUND_DESCRIPTION)
                     })
             })
         })

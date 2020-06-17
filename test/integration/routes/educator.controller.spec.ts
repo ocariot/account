@@ -446,9 +446,25 @@ describe('Routes: Educator', () => {
         })
 
         context('when the institution provided does not exists', () => {
-            it('should return status code 400 and message for institution not found', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultEducator.username,
+                        password: defaultEducator.password,
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Educator test: ' + err.message)
+                }
+            })
+            it('should return status code 400 and message for institution not found', async () => {
                 return request
-                    .patch(`/v1/educators/${defaultEducator.id}`)
+                    .patch(`/v1/educators/${result.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -497,6 +513,37 @@ describe('Routes: Educator', () => {
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.EDUCATOR.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+
+        context('when educator_id is the ID of another user type', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        institution: new ObjectID(institution.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Educator test: ' + err.message)
+                }
+            })
+
+            it('should return status code 404, with educator message does not exist', async () => {
+                return request
+                    .patch(`/v1/educators/${result.id}`)
+                    .send({ username: 'ED0001TEST' })
+                    .set('Content-Type', 'application/json')
+                    .expect(404)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.EDUCATOR.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.EDUCATOR.NOT_FOUND_DESCRIPTION)
                     })
             })
         })

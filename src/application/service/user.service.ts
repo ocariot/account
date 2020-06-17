@@ -106,7 +106,7 @@ export class UserService implements IUserService {
         return Promise.resolve(userDel)
     }
 
-    public async update(item: User): Promise<User> {
+    public async update(item: User): Promise<User | undefined> {
         throw Error('Not implemented!')
     }
 

@@ -51,7 +51,7 @@ export class FamilyController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -74,7 +74,7 @@ export class FamilyController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -98,7 +98,7 @@ export class FamilyController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -113,13 +113,15 @@ export class FamilyController {
         try {
             const family: Family = new Family().fromJSON(req.body)
             family.id = req.params.family_id
-            const result: Family = await this._familyService.update(family)
+            // Ignore last_login attributes if exists.
+            family.last_login = undefined
+            const result: Family | undefined = await this._familyService.update(family)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageFamilyNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -145,7 +147,7 @@ export class FamilyController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -166,7 +168,7 @@ export class FamilyController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -187,7 +189,7 @@ export class FamilyController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -215,6 +217,6 @@ export class FamilyController {
             HttpStatus.NOT_FOUND,
             Strings.FAMILY.NOT_FOUND,
             Strings.FAMILY.NOT_FOUND_DESCRIPTION
-        ).toJson()
+        ).toJSON()
     }
 }

@@ -882,9 +882,27 @@ describe('Routes: Child', () => {
         })
 
         context('when the institution provided does not exists', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/v1/children/${defaultChild.id}`)
+                    .patch(`/v1/children/${result.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -1027,6 +1045,37 @@ describe('Routes: Child', () => {
                         expect(err.body.message).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.REQUIRED_FIELDS_DESC
                             .replace('{0}', 'age'))
+                    })
+            })
+        })
+
+        context('when child_id is the ID of another user type', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: 'ED100TEST',
+                        password: '123',
+                        type: UserType.EDUCATOR,
+                        institution: new ObjectID(institution.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            it('should return status code 404, with child message does not exist', async () => {
+                return request
+                    .patch(`/v1/children/${result.id}`)
+                    .send({ username: '0001TEST' })
+                    .set('Content-Type', 'application/json')
+                    .expect(404)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.CHILD.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.CHILD.NOT_FOUND_DESCRIPTION)
                     })
             })
         })
