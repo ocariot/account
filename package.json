@@ -1,6 +1,6 @@
 {
   "name": "account",
-  "version": "2.6.2",
+  "version": "2.6.3",
   "description": "Microservice responsible for user management and authentication on the OCARIoT platform.",
   "main": "dist/server.js",
   "scripts": {
@@ -50,7 +50,7 @@
     "all": true
   },
   "dependencies": {
-    "@ocariot/rabbitmq-client-node": "1.6.1",
+    "@ocariot/rabbitmq-client-node": "^1.6.2",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.19.0",
     "cron": "1.8.2",
