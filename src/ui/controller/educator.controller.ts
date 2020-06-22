@@ -51,7 +51,7 @@ export class EducatorController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -74,7 +74,7 @@ export class EducatorController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -98,7 +98,7 @@ export class EducatorController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -113,13 +113,16 @@ export class EducatorController {
         try {
             const educator: Educator = new Educator().fromJSON(req.body)
             educator.id = req.params.educator_id
-            const result: Educator = await this._educatorService.update(educator)
+            // Ignore last_login attributes if exists.
+            educator.last_login = undefined
+            const result: Educator | undefined = await this._educatorService.update(educator)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageEducatorNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
+
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -144,7 +147,7 @@ export class EducatorController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -169,7 +172,7 @@ export class EducatorController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -191,7 +194,7 @@ export class EducatorController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -211,13 +214,14 @@ export class EducatorController {
             educator.id = req.params.educator_id
             childrenGroup.user = educator
 
-            const result: ChildrenGroup = await this._educatorService.updateChildrenGroup(req.params.educator_id, childrenGroup)
+            const result: ChildrenGroup | undefined = await this._educatorService
+                .updateChildrenGroup(req.params.educator_id, childrenGroup)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildrenGroupNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONChildrenGroupView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -235,7 +239,7 @@ export class EducatorController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -275,7 +279,7 @@ export class EducatorController {
             HttpStatus.NOT_FOUND,
             Strings.EDUCATOR.NOT_FOUND,
             Strings.EDUCATOR.NOT_FOUND_DESCRIPTION
-        ).toJson()
+        ).toJSON()
     }
 
     /**
@@ -286,6 +290,6 @@ export class EducatorController {
             HttpStatus.NOT_FOUND,
             Strings.CHILDREN_GROUP.NOT_FOUND,
             Strings.CHILDREN_GROUP.NOT_FOUND_DESCRIPTION
-        ).toJson()
+        ).toJSON()
     }
 }

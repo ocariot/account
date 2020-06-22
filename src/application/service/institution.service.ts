@@ -57,7 +57,7 @@ export class InstitutionService implements IInstitutionService {
         return this._institutionRepository.findOne(query)
     }
 
-    public async update(institution: Institution): Promise<Institution> {
+    public async update(institution: Institution): Promise<Institution | undefined> {
         // 1. Validate id.
         UpdateInstitutionValidator.validate(institution)
 

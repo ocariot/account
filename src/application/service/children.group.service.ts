@@ -62,7 +62,7 @@ export class ChildrenGroupService implements IChildrenGroupService {
         return this._childrenGroupRepository.findOne(query)
     }
 
-    public async update(childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
+    public async update(childrenGroup: ChildrenGroup): Promise<ChildrenGroup | undefined> {
         try {
             // 1. Validate Children Group parameters
             UpdateChildrenGroupValidator.validate(childrenGroup)

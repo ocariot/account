@@ -868,12 +868,13 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .then(result => {
                         expect(result.length).to.eql(3)
                         // Comparing the resources
-                        expect(result[0].id).to.eql(educator.id)
-                        expect(result[0].username).to.eql(educator.username)
-                        expect(result[0].type).to.eql(educator.type)
-                        expect(result[0].institution_id).to.eql(educator.institution!.id)
+                        const item = result[result.length -1]
+                        expect(item.id).to.eql(educator.id)
+                        expect(item.username).to.eql(educator.username)
+                        expect(item.type).to.eql(educator.type)
+                        expect(item.institution_id).to.eql(educator.institution!.id)
                         let index = 0
-                        for (const elem of result[0].children_groups) {
+                        for (const elem of item.children_groups) {
                             expect(elem.id).to.eql(educator.children_groups![index].id)
                             expect(elem.name).to.eql(educator.children_groups![index].name)
                             let indexChildren = 0
@@ -1270,12 +1271,13 @@ describe('PROVIDER EVENT BUS TASK', () => {
                     .then(result => {
                         expect(result.length).to.eql(3)
                         // Comparing the resources
-                        expect(result[0].id).to.eql(healthProfessional.id)
-                        expect(result[0].username).to.eql(healthProfessional.username)
-                        expect(result[0].type).to.eql(healthProfessional.type)
-                        expect(result[0].institution_id).to.eql(healthProfessional.institution!.id)
+                        const item = result[result.length -1]
+                        expect(item.id).to.eql(healthProfessional.id)
+                        expect(item.username).to.eql(healthProfessional.username)
+                        expect(item.type).to.eql(healthProfessional.type)
+                        expect(item.institution_id).to.eql(healthProfessional.institution!.id)
                         let index = 0
-                        for (const elem of result[0].children_groups) {
+                        for (const elem of item.children_groups) {
                             expect(elem.id).to.eql(healthProfessional.children_groups![index].id)
                             expect(elem.name).to.eql(healthProfessional.children_groups![index].name)
                             let indexChildren = 0

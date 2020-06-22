@@ -87,24 +87,27 @@ export class FamilyService implements IFamilyService {
         return this._familyRepository.findOne(query)
     }
 
-    public async update(family: Family): Promise<Family> {
+    public async update(family: Family): Promise<Family | undefined> {
         try {
             // 1. Validate Family parameters.
             UpdateFamilyValidator.validate(family)
 
-            // 1.5 Ignore last_login attributes if exists.
-            if (family.last_login) family.last_login = undefined
+            // 2. checks if the family exists by id
+            if (!(await this._familyRepository.checkExist(family))) {
+                return Promise.resolve(undefined)
+            }
 
-            // 2. Checks if family already exists.
-            const id: string = family.id!
-            family.id = undefined
+            // 3. Check if there is already an family with the same username to be updated.
+            if (family.username) {
+                const id: string = family.id!
+                family.id = undefined
+                if (await this._familyRepository.checkExist(family)) {
+                    throw new ConflictException(Strings.FAMILY.ALREADY_REGISTERED)
+                }
+                family.id = id
+            }
 
-            const familyExist = await this._familyRepository.checkExist(family)
-            if (familyExist) throw new ConflictException(Strings.FAMILY.ALREADY_REGISTERED)
-
-            family.id = id
-
-            // 3. Checks if the children to be associated have a record. Your registration is required.
+            // 4. Checks if the children to be associated have a record. Your registration is required.
             if (family.children) {
                 const checkChildrenExist: boolean | ValidationException = await this._childRepository.checkExist(family.children)
                 if (checkChildrenExist instanceof ValidationException) {
@@ -115,7 +118,7 @@ export class FamilyService implements IFamilyService {
                 }
             }
 
-            // 4. Checks if the institution exists.
+            // 5. Checks if the institution exists.
             if (family.institution && family.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(family.institution)
                 if (!institutionExist) {
@@ -125,27 +128,27 @@ export class FamilyService implements IFamilyService {
                     )
                 }
             }
+
+            // 6. Update family data
+            const familyUp = await this._familyRepository.update(family)
+
+            // 7. If updated successfully, the object is published on the message bus.
+            if (familyUp) {
+                this._eventBus.bus
+                    .pubUpdateFamily(familyUp)
+                    .then(() => {
+                        this._logger.info(`User of type Family with ID: ${familyUp.id} has been updated`
+                            .concat(' and published on event bus...'))
+                    })
+                    .catch((err) => {
+                        this._logger.error(`Error trying to publish event UpdateFamily. ${err.message}`)
+                    })
+            }
+            // 8. Returns the created object.
+            return Promise.resolve(familyUp)
         } catch (err) {
             return Promise.reject(err)
         }
-
-        // 5. Update family data
-        const familyUp = await this._familyRepository.update(family)
-
-        // 6. If updated successfully, the object is published on the message bus.
-        if (familyUp) {
-            this._eventBus.bus
-                .pubUpdateFamily(familyUp)
-                .then(() => {
-                    this._logger.info(`User of type Family with ID: ${familyUp.id} has been updated`
-                        .concat(' and published on event bus...'))
-                })
-                .catch((err) => {
-                    this._logger.error(`Error trying to publish event UpdateFamily. ${err.message}`)
-                })
-        }
-        // 7. Returns the created object.
-        return Promise.resolve(familyUp)
     }
 
     public async remove(id: string): Promise<boolean> {

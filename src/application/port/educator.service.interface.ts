@@ -49,7 +49,7 @@ export interface IEducatorService extends IService<Educator> {
      * @return {Promise<ChildrenGroup>}
      * @throws {ValidationException | RepositoryException}
      */
-    updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup>
+    updateChildrenGroup(educatorId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup | undefined>
 
     /**
      * Removes the group of children associated with the educator.

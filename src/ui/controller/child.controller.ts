@@ -50,7 +50,7 @@ export class ChildController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -73,7 +73,7 @@ export class ChildController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         } finally {
             req.query = {}
         }
@@ -99,7 +99,7 @@ export class ChildController {
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -114,13 +114,16 @@ export class ChildController {
         try {
             const child: Child = new Child().fromJSON(req.body)
             child.id = req.params.child_id
-            const result: Child = await this._childService.update(child)
+            // Ignore last_login and last_sync.
+            child.last_login = undefined
+            child.last_sync = undefined
+            const result: Child | undefined = await this._childService.update(child)
             if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildNotFound())
             return res.status(HttpStatus.OK).send(this.toJSONView(result))
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
-                .send(handlerError.toJson())
+                .send(handlerError.toJSON())
         }
     }
 
@@ -148,6 +151,6 @@ export class ChildController {
             HttpStatus.NOT_FOUND,
             Strings.CHILD.NOT_FOUND,
             Strings.CHILD.NOT_FOUND_DESCRIPTION
-        ).toJson()
+        ).toJSON()
     }
 }

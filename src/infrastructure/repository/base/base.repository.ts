@@ -74,7 +74,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
         }
 
         // Checks if you have username in ordination/sort
-        let usernameOrder: string
+        let usernameOrder: string | number
         if (q.ordination.username) {
             usernameOrder = q.ordination.username
             q.ordination = {}
@@ -92,7 +92,7 @@ export abstract class BaseRepository<T extends Entity, TModel> implements IRepos
                 if (usernameFilter) users = this.applyFilterByUsername(usernameFilter, users)
 
                 if (usernameOrder) {
-                    if (usernameOrder === 'asc') users.sort(this.compareAsc)
+                    if (usernameOrder === 'asc' || usernameOrder === 1) users.sort(this.compareAsc)
                     else users.sort(this.compareDesc)
                 }
 

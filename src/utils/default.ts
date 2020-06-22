@@ -8,7 +8,7 @@
  * @abstract
  */
 export abstract class Default {
-    public static readonly APP_ID: string = 'account_service'
+    public static readonly APP_ID: string = 'account.app'
     public static readonly NODE_ENV: string = 'development' // development, test, production
     public static readonly PORT_HTTP: number = 3000
     public static readonly PORT_HTTPS: number = 3001
@@ -63,7 +63,7 @@ export abstract class Default {
     /**
      * User scopes
      */
-    // Admin
+        // Admin
     public static readonly ADMIN_SCOPES = [
         'users:delete',
         'users:resetPassword',
@@ -116,7 +116,10 @@ export abstract class Default {
         'gamificationprofile:read',
         'notifications:create',
         'notifications:read',
-        'notifications:delete'
+        'notifications:delete',
+        'devices:create',
+        'devices:read',
+        'devices:delete'
     ]
 
     // Application

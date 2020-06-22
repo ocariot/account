@@ -460,9 +460,26 @@ describe('Routes: Application', () => {
         })
 
         context('when the institution provided does not exists', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultApplication.username,
+                        password: defaultApplication.password,
+                        application_name: defaultApplication.application_name,
+                        institution: new ObjectID(institution.id),
+                        type: UserType.APPLICATION
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Application test: ' + err.message)
+                }
+            })
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/v1/applications/${defaultApplication.id}`)
+                    .patch(`/v1/applications/${result.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -512,7 +529,7 @@ describe('Routes: Application', () => {
             it('should return status code 400 and info message from invalid application_name', () => {
                 return request
                     .patch(`/v1/applications/${defaultApplication.id}`)
-                    .send({ application_name: ''})
+                    .send({ application_name: '' })
                     .set('Content-Type', 'application/json')
                     .expect(400)
                     .then(err => {
@@ -532,6 +549,37 @@ describe('Routes: Application', () => {
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.APPLICATION.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+
+        context('when application_id is the ID of another user type', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: 'US001TEST',
+                        password: '123',
+                        type: UserType.ADMIN,
+                        institution: new ObjectID(institution.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Application test: ' + err.message)
+                }
+            })
+
+            it('should return status code 404, with application message does not exist', async () => {
+                return request
+                    .patch(`/v1/applications/${result.id}`)
+                    .send({ username: 'APP0001TEST' })
+                    .set('Content-Type', 'application/json')
+                    .expect(404)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.APPLICATION.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.APPLICATION.NOT_FOUND_DESCRIPTION)
                     })
             })
         })

@@ -49,7 +49,7 @@ export interface IHealthProfessionalService extends IService<HealthProfessional>
      * @return {Promise<ChildrenGroup>}
      * @throws {ValidationException | RepositoryException}
      */
-    updateChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup>
+    updateChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup | undefined>
 
     /**
      * Removes the group of children associated with the health professional.

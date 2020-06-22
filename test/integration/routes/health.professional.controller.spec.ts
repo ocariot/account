@@ -135,8 +135,7 @@ describe('Routes: HealthProfessional', () => {
 
         context('when a validation error occurs', () => {
             it('should return status code 400 and message info about missing or invalid parameters', () => {
-                const body = {
-                }
+                const body = {}
 
                 return request
                     .post('/v1/healthprofessionals')
@@ -447,9 +446,25 @@ describe('Routes: HealthProfessional', () => {
         })
 
         context('when the institution provided does not exists', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultHealthProfessional.username,
+                        password: defaultHealthProfessional.password,
+                        type: UserType.HEALTH_PROFESSIONAL,
+                        institution: new ObjectID(institution.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
             it('should return status code 400 and message for institution not found', () => {
                 return request
-                    .patch(`/v1/healthprofessionals/${defaultHealthProfessional.id}`)
+                    .patch(`/v1/healthprofessionals/${result.id}`)
                     .send({ institution_id: new ObjectID() })
                     .set('Content-Type', 'application/json')
                     .expect(400)
@@ -498,6 +513,37 @@ describe('Routes: HealthProfessional', () => {
                     .then(err => {
                         expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
                         expect(err.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+        })
+
+        context('when healthprofessional_id is the ID of another user type', () => {
+            let result
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    result = await createUser({
+                        username: defaultChild.username,
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        institution: new ObjectID(institution.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on HealthProfessional test: ' + err.message)
+                }
+            })
+
+            it('should return status code 404, with health professional message does not exist', async () => {
+                return request
+                    .patch(`/v1/healthprofessionals/${result.id}`)
+                    .send({ username: 'HP0001TEST' })
+                    .set('Content-Type', 'application/json')
+                    .expect(404)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.HEALTH_PROFESSIONAL.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.HEALTH_PROFESSIONAL.NOT_FOUND_DESCRIPTION)
                     })
             })
         })

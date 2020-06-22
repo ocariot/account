@@ -80,24 +80,27 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         return this._healthProfessionalRepository.findOne(query)
     }
 
-    public async update(healthProfessional: HealthProfessional): Promise<HealthProfessional> {
+    public async update(healthProfessional: HealthProfessional): Promise<HealthProfessional | undefined> {
         try {
             // 1. Validate Health Professional parameters.
             UpdateHealthProfessionalValidator.validate(healthProfessional)
 
-            // 1.5 Ignore last_login attributes if exists.
-            if (healthProfessional.last_login) healthProfessional.last_login = undefined
+            // 2. checks if the Health Professional exists by id
+            if (!(await this._healthProfessionalRepository.checkExist(healthProfessional))) {
+                return Promise.resolve(undefined)
+            }
 
-            // 2. Checks if Health Professional already exists.
-            const id: string = healthProfessional.id!
-            healthProfessional.id = undefined
+            // 3. Check if there is already an Health Professional with the same username to be updated.
+            if (healthProfessional.username) {
+                const id: string = healthProfessional.id!
+                healthProfessional.id = undefined
+                if (await this._healthProfessionalRepository.checkExist(healthProfessional)) {
+                    throw new ConflictException(Strings.HEALTH_PROFESSIONAL.ALREADY_REGISTERED)
+                }
+                healthProfessional.id = id
+            }
 
-            const healthProfessionalExist = await this._healthProfessionalRepository.checkExist(healthProfessional)
-            if (healthProfessionalExist) throw new ConflictException(Strings.HEALTH_PROFESSIONAL.ALREADY_REGISTERED)
-
-            healthProfessional.id = id
-
-            // 3. Checks if the institution exists.
+            // 4. Checks if the institution exists.
             if (healthProfessional.institution && healthProfessional.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(healthProfessional.institution)
                 if (!institutionExist) {
@@ -107,27 +110,27 @@ export class HealthProfessionalService implements IHealthProfessionalService {
                     )
                 }
             }
+
+            // 5. Update Health Professional data.
+            const healthProfessionalUp = await this._healthProfessionalRepository.update(healthProfessional)
+
+            // 6. If updated successfully, the object is published on the message bus.
+            if (healthProfessionalUp) {
+                this._eventBus.bus
+                    .pubUpdateHealthProfessional(healthProfessionalUp)
+                    .then(() => {
+                        this._logger.info(`User of type Health Professional with ID: ${healthProfessionalUp.id} has been updated`
+                            .concat(' and published on event bus...'))
+                    })
+                    .catch((err) => {
+                        this._logger.error(`Error trying to publish event UpdateHealthProfessional. ${err.message}`)
+                    })
+            }
+            // 7. Returns the created object.
+            return Promise.resolve(healthProfessionalUp)
         } catch (err) {
             return Promise.reject(err)
         }
-
-        // 4. Update Health Professional data.
-        const healthProfessionalUp = await this._healthProfessionalRepository.update(healthProfessional)
-
-        // 5. If updated successfully, the object is published on the message bus.
-        if (healthProfessionalUp) {
-            this._eventBus.bus
-                .pubUpdateHealthProfessional(healthProfessionalUp)
-                .then(() => {
-                    this._logger.info(`User of type Health Professional with ID: ${healthProfessionalUp.id} has been updated`
-                        .concat(' and published on event bus...'))
-                })
-                .catch((err) => {
-                    this._logger.error(`Error trying to publish event UpdateHealthProfessional. ${err.message}`)
-                })
-        }
-        // 6. Returns the created object.
-        return Promise.resolve(healthProfessionalUp)
     }
 
     public async remove(id: string): Promise<boolean> {
@@ -234,7 +237,8 @@ export class HealthProfessionalService implements IHealthProfessionalService {
         return this._childrenGroupService.getById(childrenGroupId, query)
     }
 
-    public async updateChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup): Promise<ChildrenGroup> {
+    public async updateChildrenGroup(healthProfessionalId: string, childrenGroup: ChildrenGroup):
+        Promise<ChildrenGroup | undefined> {
         try {
             // 1. Validate if health professional id or children group id is valid
             ObjectIdValidator.validate(healthProfessionalId, Strings.HEALTH_PROFESSIONAL.PARAM_ID_NOT_VALID_FORMAT)
@@ -250,7 +254,7 @@ export class HealthProfessionalService implements IHealthProfessionalService {
             }
 
             // 2. Update children group.
-            const childrenGroupResult: ChildrenGroup = await this._childrenGroupService.update(childrenGroup)
+            const childrenGroupResult = await this._childrenGroupService.update(childrenGroup)
 
             // 3. If everything succeeds, it returns the data of the created group.
             return Promise.resolve(childrenGroupResult)

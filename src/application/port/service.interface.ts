@@ -42,7 +42,7 @@ export interface IService<T> {
      * @return {Promise<T>}
      * @throws {ValidationException | ConflictException | RepositoryException}
      */
-    update(item: T): Promise<T>
+    update(item: T): Promise<T | undefined>
 
     /**
      * Removes the item according to their unique identifier.

@@ -92,25 +92,27 @@ export class ChildService implements IChildService {
         return this._childRepository.findOne(query)
     }
 
-    public async update(child: Child): Promise<Child> {
+    public async update(child: Child): Promise<Child | undefined> {
         try {
             // 1. Validate Child parameters.
             UpdateChildValidator.validate(child)
 
-            // 1.5 Ignore last_login and last_sync attributes if exists.
-            if (child.last_login) child.last_login = undefined
-            if (child.last_sync) child.last_sync = undefined
+            // 2. checks if the child exists by id
+            if (!(await this._childRepository.checkExist(child))) {
+                return Promise.resolve(undefined)
+            }
 
-            // 2. Checks if child already exists.
-            const id: string = child.id!
-            child.id = undefined
+            // 3. Check if there is already an child with the same username to be updated.
+            if (child.username) {
+                const id: string = child.id!
+                child.id = undefined
+                if (await this._childRepository.checkExist(child)) {
+                    throw new ConflictException(Strings.CHILD.ALREADY_REGISTERED)
+                }
+                child.id = id
+            }
 
-            const childExist = await this._childRepository.checkExist(child)
-            if (childExist) throw new ConflictException(Strings.CHILD.ALREADY_REGISTERED)
-
-            child.id = id
-
-            // 3. Checks if the institution exists.
+            // 4. Checks if the institution exists.
             if (child.institution && child.institution.id !== undefined) {
                 const institutionExist = await this._institutionRepository.checkExist(child.institution)
                 if (!institutionExist) {
@@ -120,27 +122,27 @@ export class ChildService implements IChildService {
                     )
                 }
             }
+
+            // 5. Update child data.
+            const childUp = await this._childRepository.update(child)
+
+            // 6. If updated successfully, the object is published on the message bus.
+            if (childUp) {
+                this._eventBus.bus
+                    .pubUpdateChild(childUp)
+                    .then(() => {
+                        this._logger.info(`User of type Child with ID: ${childUp.id} has been updated`
+                            .concat(' and published on event bus...'))
+                    })
+                    .catch((err) => {
+                        this._logger.error(`Error trying to publish event UpdateChild. ${err.message}`)
+                    })
+            }
+            // 7. Returns the created object.
+            return Promise.resolve(childUp)
         } catch (err) {
             return Promise.reject(err)
         }
-
-        // 4. Update child data.
-        const childUp = await this._childRepository.update(child)
-
-        // 5. If updated successfully, the object is published on the message bus.
-        if (childUp) {
-            this._eventBus.bus
-                .pubUpdateChild(childUp)
-                .then(() => {
-                    this._logger.info(`User of type Child with ID: ${childUp.id} has been updated`
-                        .concat(' and published on event bus...'))
-                })
-                .catch((err) => {
-                    this._logger.error(`Error trying to publish event UpdateChild. ${err.message}`)
-                })
-        }
-        // 6. Returns the created object.
-        return Promise.resolve(childUp)
     }
 
     public async remove(id: string): Promise<boolean> {

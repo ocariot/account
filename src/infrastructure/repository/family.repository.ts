@@ -63,7 +63,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
         }
 
         // Checks if you have username in ordination/sort
-        let usernameOrder: string
+        let usernameOrder: string | number
         if (q.ordination.username) {
             usernameOrder = q.ordination.username
             delete q.ordination.username
@@ -83,7 +83,7 @@ export class FamilyRepository extends BaseRepository<Family, FamilyEntity> imple
                         }
 
                         if (usernameOrder) {
-                            if (usernameOrder === 'asc') children.sort(this.compareAsc)
+                            if (usernameOrder === 'asc' || usernameOrder === 1) children.sort(this.compareAsc)
                             else children.sort(this.compareDesc)
                         }
 
