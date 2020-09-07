@@ -146,8 +146,8 @@ docker build -t image_name:tag .
 [license-url]: https://github.com/ocariot/account/blob/master/LICENSE
 [node-image]: https://img.shields.io/badge/node-%3E%3D%208.0.0-brightgreen.svg
 [node-url]: https://nodejs.org
-[travis-image]: https://travis-ci.org/ocariot/account.svg?branch=master
-[travis-url]: https://travis-ci.org/ocariot/account
+[travis-image]: https://travis-ci.com/ocariot/account.svg?branch=master
+[travis-url]: https://travis-ci.com/ocariot/account
 [coverage-image]: https://coveralls.io/repos/github/ocariot/account/badge.svg
 [coverage-url]: https://coveralls.io/github/ocariot/account?branch=master
 [known-vulnerabilities-image]: https://snyk.io/test/github/ocariot/account/badge.svg
