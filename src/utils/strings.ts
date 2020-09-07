@@ -28,7 +28,10 @@ export abstract class Strings {
         NOT_FOUND: 'Child not found!',
         NOT_FOUND_DESCRIPTION: 'Child not found or already removed. A new operation for the same resource is not required.',
         ASSOCIATION_FAILURE: 'The association could not be performed because the child does not have a record.',
-        PARAM_ID_NOT_VALID_FORMAT: 'Parameter {child_id} is not in valid format!'
+        PARAM_ID_NOT_VALID_FORMAT: 'Parameter {child_id} is not in valid format!',
+        NFC_TAG_NOT_VALID_FORMAT: 'NFC Tag must have a valid value. For example: "04a22422dd6480"',
+        NFC_TAG_ALREADY_REGISTERED: 'The NFC tag is already associated with another child.',
+        NFC_TAG_ALREADY_REGISTERED_DESC: 'The same NFC tag cannot be used on more than one child. Please correct and try again.'
     }
 
     public static readonly INSTITUTION: any = {

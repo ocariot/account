@@ -83,8 +83,10 @@ describe('Repositories: Child', () => {
                     .expects('create')
                     .withArgs(defaultChild)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return childRepo.create(defaultChild)
                     .catch(err => {
@@ -104,7 +106,7 @@ describe('Repositories: Child', () => {
                     .mock(modelFake)
                     .expects('find')
                     .chain('sort')
-                    .withArgs({created_at: -1})
+                    .withArgs({ created_at: -1 })
                     .chain('skip')
                     .withArgs(0)
                     .chain('limit')
@@ -128,7 +130,7 @@ describe('Repositories: Child', () => {
                     .mock(modelFake)
                     .expects('find')
                     .chain('sort')
-                    .withArgs({created_at: -1})
+                    .withArgs({ created_at: -1 })
                     .chain('skip')
                     .withArgs(0)
                     .chain('limit')
@@ -152,14 +154,16 @@ describe('Repositories: Child', () => {
                     .mock(modelFake)
                     .expects('find')
                     .chain('sort')
-                    .withArgs({created_at: -1})
+                    .withArgs({ created_at: -1 })
                     .chain('skip')
                     .withArgs(0)
                     .chain('limit')
                     .withArgs(query.pagination.limit)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return childRepo.findAll(query)
                     .catch(err => {
@@ -200,8 +204,10 @@ describe('Repositories: Child', () => {
         context('when there is a child that corresponds to the received parameters (with a parameter to the ' +
             'populate (filters))', () => {
             it('should return the Child that was found', () => {
-                queryMock.filters = { '_id': defaultChild.id, 'type': UserType.CHILD,
-                                'institution.id': defaultChild.institution!.id }
+                queryMock.filters = {
+                    '_id': defaultChild.id, 'type': UserType.CHILD,
+                    'institution.id': defaultChild.institution!.id
+                }
 
                 sinon
                     .mock(modelFake)
@@ -252,8 +258,10 @@ describe('Repositories: Child', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return childRepo.findOne(queryMock)
                     .catch(err => {
@@ -316,8 +324,10 @@ describe('Repositories: Child', () => {
                     .expects('findOneAndUpdate')
                     .withArgs({ _id: defaultChild.id }, defaultChild, { new: true })
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return childRepo.update(defaultChild)
                     .catch((err) => {
@@ -343,7 +353,7 @@ describe('Repositories: Child', () => {
                     .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves([ defaultChild ])
+                    .resolves([defaultChild])
 
                 return childRepo.checkExist(defaultChild)
                     .then(result => {
@@ -370,7 +380,7 @@ describe('Repositories: Child', () => {
                     .expects('find')
                     .withArgs(customQueryMock.toJSON().filters)
                     .chain('exec')
-                    .resolves([ childWithoutId ])
+                    .resolves([childWithoutId])
 
                 return childRepo.checkExist(childWithoutId)
                     .then(result => {
@@ -438,10 +448,12 @@ describe('Repositories: Child', () => {
                     .expects('findOne')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
-                return childRepo.checkExist([ defaultChild ])
+                return childRepo.checkExist([defaultChild])
                     .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
@@ -458,8 +470,10 @@ describe('Repositories: Child', () => {
                     .expects('find')
                     .withArgs(queryMock.toJSON().filters)
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return childRepo.checkExist(defaultChild)
                     .catch(err => {
@@ -510,11 +524,13 @@ describe('Repositories: Child', () => {
                     .expects('countDocuments')
                     .withArgs()
                     .chain('exec')
-                    .rejects({ message: 'An internal error has occurred in the database!',
-                               description: 'Please try again later...' })
+                    .rejects({
+                        message: 'An internal error has occurred in the database!',
+                        description: 'Please try again later...'
+                    })
 
                 return childRepo.count()
-                    .catch (err => {
+                    .catch(err => {
                         assert.propertyVal(err, 'message', 'An internal error has occurred in the database!')
                         assert.propertyVal(err, 'description', 'Please try again later...')
                     })
@@ -524,29 +540,29 @@ describe('Repositories: Child', () => {
 
     describe('updateFitbitStatus(childId: string, fitbitStatus: string)', () => {
         context('when the child exists in the database', () => {
-                it('should return the updated child', () => {
-                        sinon
-                            .mock(modelFake)
-                            .expects('findOneAndUpdate')
-                            .withArgs()
-                            .chain('exec')
-                            .resolves(defaultChild)
+            it('should return the updated child', () => {
+                sinon
+                    .mock(modelFake)
+                    .expects('findOneAndUpdate')
+                    .withArgs()
+                    .chain('exec')
+                    .resolves(defaultChild)
 
-                        return childRepo.updateFitbitStatus(defaultChild.id!, FitbitStatus.INVALID_TOKEN)
-                            .then((result: Child) => {
-                                assert.propertyVal(result, 'id', defaultChild.id)
-                                assert.propertyVal(result, 'username', defaultChild.username)
-                                assert.propertyVal(result, 'password', defaultChild.password)
-                                assert.propertyVal(result, 'type', defaultChild.type)
-                                assert.propertyVal(result, 'institution', defaultChild.institution)
-                                assert.propertyVal(result, 'gender', defaultChild.gender)
-                                assert.propertyVal(result, 'age', defaultChild.age)
-                                assert.propertyVal(result, 'last_login', defaultChild.last_login)
-                                assert.propertyVal(result, 'last_sync', defaultChild.last_sync)
-                                assert.propertyVal(result, 'fitbit_status', defaultChild.fitbit_status)
-                            })
+                return childRepo.updateFitbitStatus(defaultChild.id!, FitbitStatus.INVALID_TOKEN)
+                    .then((result: Child) => {
+                        assert.propertyVal(result, 'id', defaultChild.id)
+                        assert.propertyVal(result, 'username', defaultChild.username)
+                        assert.propertyVal(result, 'password', defaultChild.password)
+                        assert.propertyVal(result, 'type', defaultChild.type)
+                        assert.propertyVal(result, 'institution', defaultChild.institution)
+                        assert.propertyVal(result, 'gender', defaultChild.gender)
+                        assert.propertyVal(result, 'age', defaultChild.age)
+                        assert.propertyVal(result, 'last_login', defaultChild.last_login)
+                        assert.propertyVal(result, 'last_sync', defaultChild.last_sync)
+                        assert.propertyVal(result, 'fitbit_status', defaultChild.fitbit_status)
                     })
             })
+        })
 
         context('when the child is not found', () => {
             it('should return undefined', () => {

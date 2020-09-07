@@ -15,6 +15,8 @@ import { IChildrenGroupRepository } from '../port/children.group.repository.inte
 import { IFamilyRepository } from '../port/family.repository.interface'
 import { ObjectIdValidator } from '../domain/validator/object.id.validator'
 import { UpdateChildValidator } from '../domain/validator/update.child.validator'
+import { NfcTagValidator } from '../domain/validator/nfc.tag.validator'
+import { NotFoundException } from '../domain/exception/not.found.exception'
 
 /**
  * Implementing child Service.
@@ -166,5 +168,43 @@ export class ChildService implements IChildService {
 
     public count(): Promise<number> {
         return this._childRepository.count()
+    }
+
+    public getByNfcTag(tag: string): Promise<Child | undefined> {
+        try {
+            NfcTagValidator.validate(tag)
+            return this._childRepository.getByNfcTag(tag)
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
+
+    public async saveNfcTag(childId: string, tag: string): Promise<Child> {
+        try {
+            const child = new Child().fromJSON({ id: childId })
+            child.nfcTag = tag
+
+            // 1. Validate Child parameters.
+            ObjectIdValidator.validate(childId)
+            NfcTagValidator.validate(tag)
+
+            // 2. checks if the child exists by id
+            if (!(await this._childRepository.checkExist(child))) {
+                throw new NotFoundException(Strings.CHILD.NOT_FOUND, Strings.CHILD.NOT_FOUND_DESCRIPTION)
+            }
+
+            // 3. checks if the same NFC tag is already in use.
+            const childTag = await this._childRepository.getByNfcTag(tag)
+            if (childTag) {
+                if (childTag.id !== childId) throw new ConflictException(
+                    Strings.CHILD.NFC_TAG_ALREADY_REGISTERED, Strings.CHILD.NFC_TAG_ALREADY_REGISTERED_DESC
+                )
+                // Child already has the tag, no need to save!!!
+                return Promise.resolve(childTag)
+            }
+            return this._childRepository.update(child)
+        } catch (err) {
+            return Promise.reject(err)
+        }
     }
 }

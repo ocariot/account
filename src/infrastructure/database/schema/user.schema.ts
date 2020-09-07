@@ -1,6 +1,7 @@
 import Mongoose, { Schema } from 'mongoose'
 import { Default } from '../../../utils/default'
 import MongooseFieldEncryption from 'mongoose-field-encryption'
+
 require('dotenv').config()
 
 interface IUserModel extends Mongoose.Document {
@@ -38,7 +39,8 @@ const userSchema = new Mongoose.Schema({
             type: String,
             readonly: true,
             default: 'none'
-        }
+        },
+        nfc_tag: { type: String }
     },
     {
         timestamps: { createdAt: 'created_at', updatedAt: false },

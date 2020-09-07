@@ -22,4 +22,13 @@ describe('Utils: JsonUtils', () => {
             })
         })
     })
+    describe('cleanObject()', () => {
+        context('when clean json with undefined/null parameters', () => {
+            const res: any = JsonUtils.cleanObject({ a: 1, b: undefined, c: null, d: [{ a: 1, b: undefined }] })
+            assert.notProperty(res, 'b')
+            assert.notProperty(res, 'c')
+            assert.propertyVal(res, 'a', 1)
+            assert.deepPropertyVal(res, 'd', [{ a: 1 }])
+        })
+    })
 })

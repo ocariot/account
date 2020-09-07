@@ -151,6 +151,7 @@ describe('Routes: Child', () => {
                         expect(res.body.gender).to.eql(defaultChild.gender)
                         expect(res.body.age).to.eql(defaultChild.age)
                         expect(res.body.institution_id).to.eql(institution.id)
+                        expect(res.body.nfc_tag).to.be.undefined
                     })
             })
         })
@@ -1424,6 +1425,179 @@ describe('Routes: Child', () => {
                     .expect(200)
                     .then(res => {
                         expect(res.body.length).to.eql(0)
+                    })
+            })
+        })
+    })
+
+    describe('POST /v1/children/nfc', () => {
+        context('when the successful', () => {
+            let resultExpected: any
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    resultExpected = await createUser({
+                        username: 'BR001',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id)
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            it('should return the child when associating NFC Tag successfully', () => {
+                const req = () => {
+                    request
+                        .post(`/v1/children/${resultExpected._id}/nfc`)
+                        .send({ nfc_tag: 'a4a22422dd6482' })
+                        .set('Content-Type', 'application/json')
+                        .expect(201)
+                        .then(res => {
+                            expect(res.body).to.have.property('id')
+                            expect(res.body.username).to.eql('BR001')
+                            expect(res.body.gender).to.eql(resultExpected.gender)
+                            expect(res.body.age).to.eql(resultExpected.age)
+                            expect(res.body.nfc_tag).to.eql('a4a22422dd6482')
+                        })
+                }
+                req() // save
+                req() // just returns because it has already been saved
+            })
+
+
+            it('should return the child with the updated NFC tag', () => {
+                return request
+                    .post(`/v1/children/${resultExpected._id}/nfc`)
+                    .send({ nfc_tag: 'f719c76b' })
+                    .set('Content-Type', 'application/json')
+                    .expect(201)
+                    .then(res => {
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql('BR001')
+                        expect(res.body.gender).to.eql(resultExpected.gender)
+                        expect(res.body.age).to.eql(resultExpected.age)
+                        expect(res.body.nfc_tag).to.eql('f719c76b')
+                    })
+            })
+        })
+
+        context('when the unsuccessful', () => {
+            let resultExpected: any
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+
+                    await createUser({
+                        ...new ChildMock().toJSON(),
+                        ...{ password: '123', nfc_tag: '1fa90487dd634h' }
+                    })
+                    resultExpected = await createUser({
+                        ...new ChildMock().toJSON(),
+                        ...{ password: '123', nfc_tag: '1fa90487dd634h' }
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            it('should return ValidationException for invalid child_id', () => {
+                return request
+                    .post(`/v1/children/04a22422dd6480/nfc`)
+                    .send({ nfc_tag: 'f719c76b' })
+                    .set('Content-Type', 'application/json')
+                    .expect(400)
+                    .then(res => {
+                        expect(res.body.message).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        expect(res.body.description).to.eql(Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+
+            it('should return NotFoundException for child not exist', () => {
+                return request
+                    .post(`/v1/children/5f5654f2ac46451f078f65f0/nfc`)
+                    .send({ nfc_tag: '04a22422dd6480' })
+                    .set('Content-Type', 'application/json')
+                    .expect(404)
+                    .then(res => {
+                        expect(res.body.message).to.eql(Strings.CHILD.NOT_FOUND)
+                        expect(res.body.description).to.eql(Strings.CHILD.NOT_FOUND_DESCRIPTION)
+                    })
+            })
+
+            it('should return ConflictException for NFC Tag is exist', async () => {
+                await request
+                    .post(`/v1/children/${resultExpected._id}/nfc`)
+                    .send({ nfc_tag: '1fa90487dd634h' })
+                    .set('Content-Type', 'application/json')
+                    .expect(409)
+                    .then(res => {
+                        expect(res.body.message).to.eql(Strings.CHILD.NFC_TAG_ALREADY_REGISTERED)
+                        expect(res.body.description).to.eql(Strings.CHILD.NFC_TAG_ALREADY_REGISTERED_DESC)
+                    })
+            })
+        })
+    })
+
+    describe('GET /v1/children/nfc/{nfc_tag}', () => {
+        context('when the request is successful', () => {
+            let resultExpected: any
+
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                    resultExpected = await createUser({
+                        username: 'BR001',
+                        password: defaultChild.password,
+                        type: UserType.CHILD,
+                        gender: defaultChild.gender,
+                        age: defaultChild.age,
+                        institution: new ObjectID(institution.id),
+                        nfc_tag: '04a22422dd6480'
+                    })
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            it('should return status code 200 and a child', () => {
+                return request
+                    .get(`/v1/children/nfc/04a22422dd6480`)
+                    .set('Content-Type', 'application/json')
+                    .expect(200)
+                    .then(res => {
+                        expect(res.body).to.have.property('id')
+                        expect(res.body.username).to.eql('BR001')
+                        expect(res.body.gender).to.eql(resultExpected.gender)
+                        expect(res.body.age).to.eql(resultExpected.age)
+                        expect(res.body.nfc_tag).to.eql(resultExpected.nfc_tag)
+                    })
+            })
+        })
+
+        context('when the request is an error', () => {
+            before(async () => {
+                try {
+                    await deleteAllUsers()
+                } catch (err) {
+                    throw new Error('Failure on Child test: ' + err.message)
+                }
+            })
+
+            it('should return status code 404 and info message from child not found', () => {
+                return request
+                    .get(`/v1/children/nfc/${new ObjectID()}`)
+                    .set('Content-Type', 'application/json')
+                    .expect(404)
+                    .then(err => {
+                        expect(err.body.message).to.eql(Strings.CHILD.NOT_FOUND)
+                        expect(err.body.description).to.eql(Strings.CHILD.NOT_FOUND_DESCRIPTION)
                     })
             })
         })

@@ -144,9 +144,15 @@ export class ChildRepository extends BaseRepository<Child, ChildEntity> implemen
         query.pagination.limit = Number.MAX_SAFE_INTEGER
         query.filters = {
             type: UserType.CHILD,
-            $or: [ { last_sync: { $lt: searchDate.toISOString() } }, { last_sync: { $exists: false } } ]
+            $or: [{ last_sync: { $lt: searchDate.toISOString() } }, { last_sync: { $exists: false } }]
         }
 
         return super.find(query)
+    }
+
+    public getByNfcTag(tag: string): Promise<Child | undefined> {
+        const q = new Query()
+        q.filters = { type: UserType.CHILD, nfc_tag: tag }
+        return super.findOne(q)
     }
 }

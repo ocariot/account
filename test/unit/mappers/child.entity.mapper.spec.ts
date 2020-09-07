@@ -22,7 +22,8 @@ describe('Mappers: ChildEntity', () => {
         password: 'child_password',
         institution: '273ab3632f16bbd9044753cb',
         gender: 'male',
-        age: 6
+        age: 6,
+        nfc_tag: '04a22422dd6480'
     }
 
     // To test how mapper works with an object without any attributes (JSON)
@@ -39,6 +40,7 @@ describe('Mappers: ChildEntity', () => {
                 assert.propertyVal(result, 'institution', child.institution!.id)
                 assert.propertyVal(result, 'gender', child.gender)
                 assert.propertyVal(result, 'age', child.age)
+                assert.propertyVal(result, 'nfc_tag', child.nfcTag)
             })
         })
 
@@ -59,6 +61,7 @@ describe('Mappers: ChildEntity', () => {
                 assert.equal(result.institution!.id, childJSON.institution)
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
+                assert.propertyVal(result, 'nfcTag', childJSON.nfc_tag)
             })
         })
 
@@ -73,6 +76,7 @@ describe('Mappers: ChildEntity', () => {
                 assert.isUndefined(result.institution)
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
+                assert.propertyVal(result, 'nfcTag', childJSON.nfc_tag)
             })
         })
 
@@ -97,6 +101,7 @@ describe('Mappers: ChildEntity', () => {
                 assert.propertyVal(result, 'institution', undefined)
                 assert.propertyVal(result, 'gender', undefined)
                 assert.propertyVal(result, 'age', undefined)
+                assert.propertyVal(result, 'nfcTag', undefined)
             })
         })
     })

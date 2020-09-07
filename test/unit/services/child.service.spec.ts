@@ -23,6 +23,9 @@ import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 import { UserType } from '../../../src/application/domain/model/user'
 import { InstitutionMock } from '../../mocks/institution.mock'
 import { Default } from '../../../src/utils/default'
+import { ValidationException } from '../../../src/application/domain/exception/validation.exception'
+import { NotFoundException } from '../../../src/application/domain/exception/not.found.exception'
+import { ConflictException } from '../../../src/application/domain/exception/conflict.exception'
 
 describe('Services: Child', () => {
     const child: Child = new ChildMock()
@@ -377,4 +380,80 @@ describe('Services: Child', () => {
             })
         })
     })
+
+    describe('getByNfcTag(tag: string)', () => {
+        it('should return the child when it finds the associated NFC tag', () => {
+            return childService.getByNfcTag('04a22422dd6480')
+                .then(res => {
+                    assert.instanceOf(res, Child)
+                })
+        })
+
+        it('should return undefined when it does not find the associated NFC tag', () => {
+            return childService.getByNfcTag('123')
+                .then(res => {
+                    assert.isUndefined(res)
+                })
+        })
+    })
+
+    describe('saveNfcTag(childId: string, tag: string)', () => {
+        context('when the successful', () => {
+            it('should return the child when associating NFC Tag successfully', () => {
+                return childService.saveNfcTag('507f1f77bcf86cd799439011', 'a4a22422dd6481')
+                    .then(res => {
+                        assert.instanceOf(res, Child)
+                    })
+            })
+
+            it('should return the child with the updated NFC tag', () => {
+                return childService.saveNfcTag('507f1f77bcf86cd799439011', 'a4a22422dd64bb')
+                    .then(res => {
+                        assert.instanceOf(res, Child)
+                    }) && childService.saveNfcTag('507f1f77bcf86cd799439011', 'a4a22422dd64bc')
+                    .then(res => {
+                        assert.equal(res.nfcTag, 'a4a22422dd64bc')
+                    })
+            })
+        })
+
+        context('when the unsuccessful', () => {
+            it('should return ValidationException for invalid child_id', () => {
+                return childService.saveNfcTag('507f1f77bcf86cd7994390', 'a4a22422dd6481')
+                    .catch(err => {
+                        assert.instanceOf(err, ValidationException)
+                        assert.equal(err.message, Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT)
+                        assert.equal(err.description, Strings.ERROR_MESSAGE.UUID_NOT_VALID_FORMAT_DESC)
+                    })
+            })
+
+            it('should return ValidationException for invalid nfc_tag', () => {
+                // @ts-ignore
+                return childService.saveNfcTag('507f1f77bcf86cd799439011', undefined)
+                    .catch(err => {
+                        assert.instanceOf(err, ValidationException)
+                        assert.equal(err.message, Strings.CHILD.NFC_TAG_NOT_VALID_FORMAT)
+                    })
+            })
+
+            it('should return NotFoundException for child not exist', () => {
+                return childService.saveNfcTag('507f1f77bcf86cd799439010', 'a4a22422dd6481')
+                    .catch(err => {
+                        assert.instanceOf(err, NotFoundException)
+                        assert.equal(err.message, Strings.CHILD.NOT_FOUND)
+                        assert.equal(err.description, Strings.CHILD.NOT_FOUND_DESCRIPTION)
+                    })
+            })
+
+            it('should return ConflictException for NFC Tag is exist', () => {
+                return childService.saveNfcTag('507f1f77bcf86cd799439011', '04a22422dd6480')
+                    .catch(err => {
+                        assert.instanceOf(err, ConflictException)
+                        assert.equal(err.message, Strings.CHILD.NFC_TAG_ALREADY_REGISTERED)
+                        assert.equal(err.description, Strings.CHILD.NFC_TAG_ALREADY_REGISTERED_DESC)
+                    })
+            })
+        })
+    })
 })
+
