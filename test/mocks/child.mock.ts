@@ -16,8 +16,10 @@ export class ChildMock extends Child {
         super.age = `${Math.floor(Math.random() * 5) + 5}`
         super.gender = this.generateGender()
         super.age_calc_date = '2019-12-01'
+        super.last_login = new Date()
         super.last_sync = new Date('2020-01-25T14:40:00Z')
         super.fitbit_status = this.generateFitbitStatus()
+        super.nfcTag = '04a22422dd6480'
     }
 
     private generateObjectId(): string {

@@ -5,12 +5,11 @@ import { IBackgroundTask } from '../../../src/application/port/background.task.i
 import { IEventBus } from '../../../src/infrastructure/port/eventbus.interface'
 import { Default } from '../../../src/utils/default'
 import { IDatabase } from '../../../src/infrastructure/port/database.interface'
-import { IChildRepository } from '../../../src/application/port/child.repository.interface'
 import { UserRepoModel } from '../../../src/infrastructure/database/schema/user.schema'
-import { Child } from '../../../src/application/domain/model/child'
 import { ChildMock } from '../../mocks/child.mock'
 import { NotificationTask } from '../../../src/background/task/notification.task'
 import { ILogger } from '../../../src/utils/custom.logger'
+import { IChildRepository } from '../../../src/application/port/child.repository.interface'
 
 const dbConnection: IDatabase = DIContainer.get(Identifier.MONGODB_CONNECTION)
 const rabbitmq: IEventBus = DIContainer.get(Identifier.RABBITMQ_EVENT_BUS)
@@ -197,97 +196,61 @@ describe('NOTIFICATION TASK', () => {
     })
 })
 
+
+async function createUser(item) {
+    return UserRepoModel.create(item)
+}
+
 async function deleteAllUsers() {
     return UserRepoModel.deleteMany({})
 }
 
+function generateChild(username, lastSync) {
+    const result = new ChildMock().toJSON()
+    result.username = username
+    result.password = '123'
+    result.last_sync = lastSync
+    return result
+}
+
 async function createChildrenToNotify() {
-    const child1: Child = new ChildMock()
-    child1.username = 'child_mock1'
-    child1.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 3))
+    const child1 = generateChild('child_mock1', new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 3)))
+    const child2 = generateChild('child_mock2', new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 5)))
+    const child3 = generateChild('child_mock3', new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 17)))
+    const child4 = generateChild('child_mock4', new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 9)))
+    const child5 = generateChild('child_mock5', new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 11)))
+    const child6 = generateChild('child_mock6', new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 14)))
+    const child7 = generateChild('child_mock7', new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 8)))
+    const child8 = generateChild('child_mock8', new Date())
+    const child9 = generateChild('child_mock9', new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 10) + (300000)))
+    const child10 = generateChild('child_mock10', new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 15)))
 
-    const child2: Child = new ChildMock()
-    child2.username = 'child_mock2'
-    child2.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 5))
-
-    const child3: Child = new ChildMock()
-    child3.username = 'child_mock3'
-    child3.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 17))
-
-    const child4: Child = new ChildMock()
-    child4.username = 'child_mock4'
-    child4.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 9))
-
-    const child5: Child = new ChildMock()
-    child5.username = 'child_mock5'
-    child5.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 11))
-
-    const child6: Child = new ChildMock()
-    child6.username = 'child_mock6'
-    child6.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 14))
-
-    const child7: Child = new ChildMock()
-    child7.username = 'child_mock7'
-    child7.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 8))
-
-    const child8: Child = new ChildMock()
-    child8.username = 'child_mock8'
-    child8.last_sync = new Date()
-
-    const child9: Child = new ChildMock()
-    child9.username = 'child_mock9'
-    child9.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 10) + (300000))
-
-    const child10: Child = new ChildMock()
-    child10.username = 'child_mock10'
-    child10.last_sync = new Date(new Date().getTime() - ((1000 * 60 * 60 * 24) * 15))
-
-    await childRepository.create(child1)
-    await childRepository.create(child2)
-    await childRepository.create(child3)
-    await childRepository.create(child4)
-    await childRepository.create(child5)
-    await childRepository.create(child6)
-    await childRepository.create(child7)
-    await childRepository.create(child8)
-    await childRepository.create(child9)
-    await childRepository.create(child10)
+    await createUser(child1)
+    await createUser(child2)
+    await createUser(child3)
+    await createUser(child4)
+    await createUser(child5)
+    await createUser(child6)
+    await createUser(child7)
+    await createUser(child8)
+    await createUser(child9)
+    await createUser(child10)
 }
 
 async function createChildrenToNotNotify() {
-    const child1: Child = new ChildMock()
-    child1.username = 'child_mock1'
-    child1.last_sync = new Date()
+    const child1 = generateChild('child_mock1', new Date())
+    const child2 = generateChild('child_mock2', new Date())
+    const child3 = generateChild('child_mock3', new Date())
+    const child4 = generateChild('child_mock4', new Date())
+    const child5 = generateChild('child_mock5', new Date())
+    const child6 = generateChild('child_mock6', new Date())
+    const child7 = generateChild('child_mock7', new Date())
 
-    const child2: Child = new ChildMock()
-    child2.username = 'child_mock2'
-    child2.last_sync = new Date()
-
-    const child3: Child = new ChildMock()
-    child3.username = 'child_mock3'
-    child3.last_sync = new Date()
-
-    const child4: Child = new ChildMock()
-    child4.username = 'child_mock4'
-    child4.last_sync = new Date()
-
-    const child5: Child = new ChildMock()
-    child5.username = 'child_mock5'
-    child5.last_sync = new Date()
-
-    const child6: Child = new ChildMock()
-    child6.username = 'child_mock6'
-    child6.last_sync = new Date()
-
-    const child7: Child = new ChildMock()
-    child7.username = 'child_mock7'
-    child7.last_sync = new Date()
-
-    await childRepository.create(child1)
-    await childRepository.create(child2)
-    await childRepository.create(child3)
-    await childRepository.create(child4)
-    await childRepository.create(child5)
-    await childRepository.create(child6)
-    await childRepository.create(child7)
+    await createUser(child1)
+    await createUser(child2)
+    await createUser(child3)
+    await createUser(child4)
+    await createUser(child5)
+    await createUser(child6)
+    await createUser(child7)
 }

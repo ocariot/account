@@ -63,4 +63,12 @@ export interface IChildRepository extends IRepository<Child> {
      * @throws {RepositoryException}
      */
     findInactiveChildren(numberOfDays: number): Promise<Array<Child>>
+
+    /**
+     * Recovers child data according to the NFC Tag
+     *
+     * @param tag
+     * @return {Promise<Child | undefined>}
+     */
+    getByNfcTag(tag: string): Promise<Child | undefined>
 }

@@ -128,6 +128,45 @@ export class ChildController {
     }
 
     /**
+     * Get child by id.
+     * For the query strings, the query-strings-parser middleware was used.
+     * @see {@link https://www.npmjs.com/package/query-strings-parser} for further information.
+     *
+     * @param {Request} req
+     * @param {Response} res
+     */
+    @httpPost('/:child_id/nfc')
+    public async saveNfcChild(@request() req: Request, @response() res: Response): Promise<Response> {
+        try {
+            const result: Child = await this._childService.saveNfcTag(req.params.child_id, req.body?.nfc_tag)
+            return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
+        } catch (err) {
+            const handlerError = ApiExceptionManager.build(err)
+            return res.status(handlerError.code)
+                .send(handlerError.toJSON())
+        }
+    }
+
+
+    /**
+     * Get child by NFC Tag.
+     *
+     * @param {Request} req
+     * @param {Response} res
+     */
+    @httpGet('/nfc/:nfc_tag')
+    public async getChildByNfcTag(@request() req: Request, @response() res: Response): Promise<Response> {
+        try {
+            const result: Child | undefined = await this._childService.getByNfcTag(req.params.nfc_tag)
+            if (!result) return res.status(HttpStatus.NOT_FOUND).send(this.getMessageChildNotFound())
+            return res.status(HttpStatus.OK).send(this.toJSONView(result))
+        } catch (err) {
+            const handlerError = ApiExceptionManager.build(err)
+            return res.status(handlerError.code).send(handlerError.toJSON())
+        }
+    }
+
+    /**
      * Convert object to json format expected by view.
      *
      * @param child

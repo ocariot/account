@@ -10,7 +10,7 @@ describe('Models: Child', () => {
         type: UserType.CHILD,
         gender: 'male',
         age: 10,
-        institution: new ObjectID(),
+        institution: new ObjectID()
     }
 
     describe('fromJSON()', () => {
@@ -59,6 +59,8 @@ describe('Models: Child', () => {
         context('when the Child model is correct', () => {
             it('should return a JSON from Child model', () => {
                 let result = new Child().fromJSON(childJSON)
+                result.nfcTag = '04a22422dd6480'
+                console.log(result)
                 result = result.toJSON()
                 assert.propertyVal(result, 'id', childJSON.id)
                 assert.propertyVal(result, 'username', childJSON.username)
@@ -66,6 +68,7 @@ describe('Models: Child', () => {
                 assert.propertyVal(result, 'gender', childJSON.gender)
                 assert.propertyVal(result, 'age', childJSON.age)
                 assert.propertyVal(result, 'institution_id', childJSON.institution)
+                assert.propertyVal(result, 'nfc_tag', '04a22422dd6480')
             })
         })
     })
