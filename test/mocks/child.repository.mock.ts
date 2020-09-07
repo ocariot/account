@@ -76,4 +76,12 @@ export class ChildRepositoryMock implements IChildRepository {
     public findInactiveChildren(numberOfDays: number): Promise<Array<Child>> {
         return Promise.resolve([new ChildMock()])
     }
+
+    public getByNfcTag(tag: string): Promise<Child | undefined> {
+        const child = new ChildMock()
+        if (child.nfcTag === tag) {
+            return Promise.resolve(child)
+        }
+        return Promise.resolve(undefined)
+    }
 }

@@ -4,6 +4,7 @@ import { ValidationException } from '../../application/domain/exception/validati
 import { ApiException } from './api.exception'
 import { ConflictException } from '../../application/domain/exception/conflict.exception'
 import { Strings } from '../../utils/strings'
+import { NotFoundException } from '../../application/domain/exception/not.found.exception'
 
 /**
  * Treats the exception types of the application and converts
@@ -23,6 +24,8 @@ export abstract class ApiExceptionManager {
             return new ApiException(HttpStatus.BAD_REQUEST, err.message, err.description)
         } else if (err instanceof ConflictException) {
             return new ApiException(HttpStatus.CONFLICT, err.message, err.description)
+        } else if (err instanceof NotFoundException) {
+            return new ApiException(HttpStatus.NOT_FOUND, err.message, err.description)
         }
 
         return new ApiException(HttpStatus.INTERNAL_SERVER_ERROR, Strings.ERROR_MESSAGE.INTERNAL_SERVER_ERROR, err.message)

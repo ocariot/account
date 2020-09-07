@@ -8,6 +8,24 @@ import { Child } from '../domain/model/child'
  */
 export interface IChildService extends IService<Child> {
     /**
+     * Saves the child's NFC tag.
+     * The tag must be unique for each user.
+     *
+     * @param childId
+     * @param tag
+     * return {Promise<Child>}
+     */
+    saveNfcTag(childId: string, tag: string): Promise<Child>
+
+    /**
+     * Recovers child data according to the NFC Tag
+     *
+     * @param tag
+     * @return {Promise<Child | undefined>}
+     */
+    getByNfcTag(tag: string): Promise<Child | undefined>
+
+    /**
      * Returns the total of children.
      *
      * @return {Promise<number>}
