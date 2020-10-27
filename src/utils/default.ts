@@ -119,7 +119,14 @@ export abstract class Default {
         'notifications:delete',
         'devices:create',
         'devices:read',
-        'devices:delete'
+        'devices:delete',
+        'socioquest:delete',
+        'healthquest:delete',
+        'parentphyquest:delete',
+        'childrenphyquest:delete',
+        'habitsquest:delete',
+        'foodhabitsquest:delete',
+        'perceptionquest:delete'
     ]
 
     // Application
@@ -292,7 +299,14 @@ export abstract class Default {
         'external:sync',
         'notifications:create',
         'notifications:read',
-        'notifications:delete'
+        'notifications:delete',
+        'socioquest:delete',
+        'healthquest:delete',
+        'parentphyquest:delete',
+        'childrenphyquest:delete',
+        'habitsquest:delete',
+        'foodhabitsquest:delete',
+        'perceptionquest:delete'
     ]
 
     // Health Professional
