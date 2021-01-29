@@ -207,4 +207,26 @@ export class ChildService implements IChildService {
             return Promise.reject(err)
         }
     }
+
+    public async removeNfcTag(childId: string): Promise<boolean> {
+        try {
+            const child = new Child().fromJSON({ id: childId })
+            child.nfcTag = 'none'
+            // 1. Validate Child parameters.
+            ObjectIdValidator.validate(childId)
+
+            // 2. checks if the child exists by id
+            if (!(await this._childRepository.checkExist(child))) {
+                throw new NotFoundException(Strings.CHILD.NOT_FOUND, Strings.CHILD.NOT_FOUND_DESCRIPTION)
+            }
+
+            // 4. Remove tag association
+            await this._childRepository.update(child)
+
+            // a. Returns true
+            return Promise.resolve(true)
+        } catch (err) {
+            return Promise.reject(err)
+        }
+    }
 }

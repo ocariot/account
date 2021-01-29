@@ -1,6 +1,6 @@
 import HttpStatus from 'http-status-codes'
 import { inject } from 'inversify'
-import { controller, httpGet, httpPatch, httpPost, request, response } from 'inversify-express-utils'
+import { controller, httpDelete, httpGet, httpPatch, httpPost, request, response } from 'inversify-express-utils'
 import { Request, Response } from 'express'
 import { Identifier } from '../../di/identifiers'
 import { ApiExceptionManager } from '../exception/api.exception.manager'
@@ -140,6 +140,26 @@ export class ChildController {
         try {
             const result: Child = await this._childService.saveNfcTag(req.params.child_id, req.body?.nfc_tag)
             return res.status(HttpStatus.CREATED).send(this.toJSONView(result))
+        } catch (err) {
+            const handlerError = ApiExceptionManager.build(err)
+            return res.status(handlerError.code)
+                .send(handlerError.toJSON())
+        }
+    }
+
+    /**
+     * Delete nfc_tag child by id.
+     * For the query strings, the query-strings-parser middleware was used.
+     * @see {@link https://www.npmjs.com/package/query-strings-parser} for further information.
+     *
+     * @param {Request} req
+     * @param {Response} res
+     */
+    @httpDelete('/:child_id/nfc')
+    public async removeNfcChild(@request() req: Request, @response() res: Response): Promise<Response> {
+        try {
+            await this._childService.removeNfcTag(req.params.child_id)
+            return res.status(HttpStatus.NO_CONTENT).send()
         } catch (err) {
             const handlerError = ApiExceptionManager.build(err)
             return res.status(handlerError.code)
