@@ -40,7 +40,10 @@ const userSchema = new Mongoose.Schema({
             readonly: true,
             default: 'none'
         },
-        nfc_tag: { type: String }
+        nfc_tag: { type: String },
+        tag_ass_time : {
+            type: Date,
+        }
     },
     {
         timestamps: { createdAt: 'created_at', updatedAt: false },

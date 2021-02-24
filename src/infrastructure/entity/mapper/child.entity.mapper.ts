@@ -31,6 +31,7 @@ export class ChildEntityMapper implements IEntityMapper<Child, ChildEntity> {
         if (item.age_calc_date) result.age_calc_date = item.age_calc_date
         if (item.fitbit_status) result.fitbit_status = item.fitbit_status
         if (item.nfcTag) result.nfc_tag = item.nfcTag
+        if (item.tag_ass_time) result.tag_ass_time = item.tag_ass_time
 
         return result
     }
@@ -64,6 +65,7 @@ export class ChildEntityMapper implements IEntityMapper<Child, ChildEntity> {
         if (json.last_sync !== undefined) result.last_sync = json.last_sync
         if (json.fitbit_status !== undefined) result.fitbit_status = json.fitbit_status
         if (json.nfc_tag !== undefined) result.nfcTag = json.nfc_tag
+        if (json.tag_ass_time !== undefined) result.tag_ass_time = json.tag_ass_time
 
         return result
     }

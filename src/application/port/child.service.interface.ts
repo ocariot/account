@@ -18,6 +18,14 @@ export interface IChildService extends IService<Child> {
     saveNfcTag(childId: string, tag: string): Promise<Child>
 
     /**
+     * Removes the child's NFC tag.
+     *
+     * @param childId
+     * return {Promise<Child>}
+     */
+    removeNfcTag(childId: string): Promise<boolean>
+
+    /**
      * Recovers child data according to the NFC Tag
      *
      * @param tag
