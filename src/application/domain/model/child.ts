@@ -17,6 +17,7 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
     private _last_sync?: Date // Last synchronization time according to the UTC.
     private _fitbit_status?: string // Fitbit status value.
     private _nfcTag?: string // NFC tag value
+    private _tag_ass_time?: Date // NFC tag association time according to the UTC.
 
     constructor() {
         super()
@@ -72,6 +73,14 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
         this._nfcTag = value
     }
 
+    get tag_ass_time(): Date | undefined {
+        return this._tag_ass_time
+    }
+
+    set tag_ass_time(value: Date | undefined) {
+        this._tag_ass_time = value
+    }
+
     public convertDatetimeString(value: string): Date {
         DatetimeValidator.validate(value)
         return new Date(value)
@@ -105,7 +114,8 @@ export class Child extends User implements IJSONSerializable, IJSONDeserializabl
                 age_calc_date: this.age_calc_date,
                 last_sync: this.last_sync,
                 fitbit_status: this.fitbit_status,
-                nfc_tag: this.nfcTag
+                nfc_tag: this.nfcTag,
+                tag_ass_time: this.tag_ass_time
             }
         }
     }

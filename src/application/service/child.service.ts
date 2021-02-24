@@ -183,6 +183,7 @@ export class ChildService implements IChildService {
         try {
             const child = new Child().fromJSON({ id: childId })
             child.nfcTag = tag
+            child.tag_ass_time = new Date()
 
             // 1. Validate Child parameters.
             ObjectIdValidator.validate(childId)
@@ -199,8 +200,9 @@ export class ChildService implements IChildService {
                 if (childTag.id !== childId) throw new ConflictException(
                     Strings.CHILD.NFC_TAG_ALREADY_REGISTERED, Strings.CHILD.NFC_TAG_ALREADY_REGISTERED_DESC
                 )
+
                 // Child already has the tag, no need to save!!!
-                return Promise.resolve(childTag)
+                if (childTag.tag_ass_time) return Promise.resolve(childTag)
             }
             return this._childRepository.update(child)
         } catch (err) {
@@ -212,6 +214,7 @@ export class ChildService implements IChildService {
         try {
             const child = new Child().fromJSON({ id: childId })
             child.nfcTag = 'none'
+            child.tag_ass_time = new Date(0)
             // 1. Validate Child parameters.
             ObjectIdValidator.validate(childId)
 

@@ -7,4 +7,5 @@ export class ChildEntity extends UserEntity {
     public last_sync?: Date // Last synchronization time according to the UTC.
     public fitbit_status?: string // Fitbit status value.
     public nfc_tag?: string // NFC tag value.
+    public tag_ass_time?: Date // NFC tag association time.
 }

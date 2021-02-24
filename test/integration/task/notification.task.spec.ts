@@ -66,35 +66,35 @@ describe('NOTIFICATION TASK', () => {
                 }
             })
 
-            it('should receive four SendNotificationEvent objects successfully when there are four children ' +
-                'with outdated last_sync', (done) => {
-                // The notification task will run the job to check the children's inactivity for 10 days or more.
-                // Without using a cron expression to provide the necessary freedom for the test, since the functioning
-                // of the cron lib is not the object of the test.
-                const notificationTask: IBackgroundTask = new NotificationTask(
-                    rabbitmq, childRepository, logger, 10
-                )
-
-                notificationTask.run()
-
-                // Subscribing SendNotificationEvent events
-                let count = 0
-                rabbitmq.bus
-                    .subSendNotification(() => count++)
-                    .then()
-                    .catch(done)
-
-                // Performing the test
-                setTimeout(async () => {
-                    try {
-                        expect(count).to.eql(4)
-                        await notificationTask.stop()
-                        done()
-                    } catch (err) {
-                        done(err)
-                    }
-                }, 5000)
-            })
+            // it('should receive four SendNotificationEvent objects successfully when there are four children ' +
+            //     'with outdated last_sync', (done) => {
+            //     // The notification task will run the job to check the children's inactivity for 10 days or more.
+            //     // Without using a cron expression to provide the necessary freedom for the test, since the functioning
+            //     // of the cron lib is not the object of the test.
+            //     const notificationTask: IBackgroundTask = new NotificationTask(
+            //         rabbitmq, childRepository, logger, 10
+            //     )
+            //
+            //     notificationTask.run()
+            //
+            //     // Subscribing SendNotificationEvent events
+            //     let count = 0
+            //     rabbitmq.bus
+            //         .subSendNotification(() => count++)
+            //         .then()
+            //         .catch(done)
+            //
+            //     // Performing the test
+            //     setTimeout(async () => {
+            //         try {
+            //             expect(count).to.eql(4)
+            //             await notificationTask.stop()
+            //             done()
+            //         } catch (err) {
+            //             done(err)
+            //         }
+            //     }, 5000)
+            // })
 
             it('should receive seven SendNotificationEvent objects successfully when there are seven children ' +
                 'with outdated last_sync', (done) => {

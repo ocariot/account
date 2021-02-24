@@ -6,7 +6,7 @@ RUN mkdir -p /usr/src/ac
 WORKDIR /usr/src/ac
 
 # Install app dependencies
-COPY package.json /usr/src/ac/
+COPY package-lock.json package.json /usr/src/ac/
 RUN npm install
 
 # Copy app source
